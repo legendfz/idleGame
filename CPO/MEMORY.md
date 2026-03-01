@@ -6,9 +6,12 @@
 - 工作区：/Users/zengfu/workspace/openclaw/idleGame
 
 ## 重要决策
-
+- 2026-03-01: 产品方向确定 — 西游记 Idle Game，纯文字竖屏
+- 2026-03-01: PRD v1.0 完成，含核心玩法/成长/离线/章节/队友/装备6大系统
 
 ## 待办事项
+- 等待 CEO 审阅 PRD v1.0
+- PRD 通过后拆解 Manager 级任务
 
 
 ## 经验教训
