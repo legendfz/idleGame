@@ -223,17 +223,27 @@ export const useGameStore = create<GameStore>((set, get) => ({
     let dmg = Math.max(1, effectiveStats.attack - enemy.defense);
     if (isCrit) dmg = Math.floor(dmg * effectiveStats.critDmg);
 
+    // v1.2: Weapon +15 hidden passive — 鸿蒙一击 (5% chance 3x damage)
+    const weaponHidden = equippedWeapon ? hasHiddenPassive(equippedWeapon) : null;
+    let isHongmengStrike = false;
+    if (weaponHidden?.procChance && Math.random() * 100 < weaponHidden.procChance) {
+      dmg = Math.floor(dmg * (weaponHidden.multiplier ?? 3));
+      isHongmengStrike = true;
+    }
+
     enemy.hp -= dmg;
 
-    // Floating text (P0-3)
+    // Floating text
     newFloats.push({
       id: floatIdCounter++,
-      text: isCrit ? `💥 ${dmg}` : `-${dmg}`,
-      type: isCrit ? 'crit' : 'normal',
+      text: isHongmengStrike ? `🔥 ${dmg}` : isCrit ? `💥 ${dmg}` : `-${dmg}`,
+      type: isCrit || isHongmengStrike ? 'crit' : 'normal',
       timestamp: Date.now(),
     });
 
-    if (isCrit) {
+    if (isHongmengStrike) {
+      log = addLog(log, `🐒 悟空 →→→ ${enemy.emoji} ${enemy.name}  -${dmg} 🔥鸿蒙一击！`, 'crit');
+    } else if (isCrit) {
       log = addLog(log, `🐒 悟空 →→ ${enemy.emoji} ${enemy.name}  -${dmg} 💥暴击！`, 'crit');
     } else {
       log = addLog(log, `🐒 悟空 → ${enemy.emoji} ${enemy.name}  -${dmg}`, 'attack');
