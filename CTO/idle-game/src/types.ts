@@ -84,6 +84,62 @@ export interface Realm {
   bonus: string;
 }
 
+// === Equipment Types ===
+
+export type EquipSlot = 'weapon' | 'armor' | 'treasure';
+export type Quality = 'common' | 'spirit' | 'immortal' | 'divine' | 'chaos';
+
+export interface EquipmentTemplate {
+  id: string;
+  name: string;
+  emoji: string;
+  slot: EquipSlot;
+  quality: Quality;
+  baseStat: number;       // attack for weapon, hp for armor, special for treasure
+  /** Special passive effect */
+  passive?: EquipPassive;
+  /** Set id (for set bonuses) */
+  setId?: string;
+  /** Minimum stage to drop */
+  dropFromStage: number;
+  /** Drop weight (higher = more likely within pool) */
+  dropWeight: number;
+}
+
+export interface EquipPassive {
+  type: 'critRate' | 'critDmg' | 'speed' | 'clickPower' | 'lingshiBonus' | 'expBonus' | 'offlineEfficiency';
+  value: number;
+  description: string;
+}
+
+export interface EquipmentItem {
+  uid: string;            // unique instance id
+  templateId: string;
+  name: string;
+  emoji: string;
+  slot: EquipSlot;
+  quality: Quality;
+  baseStat: number;
+  level: number;          // enhance level 0-10
+  passive?: EquipPassive;
+  setId?: string;
+}
+
+export interface EquipSet {
+  id: string;
+  name: string;
+  pieces: string[];       // template ids
+  bonuses: { count: number; description: string; effect: Partial<Stats> }[];
+}
+
+export const QUALITY_INFO: Record<Quality, { label: string; multiplier: number; color: string }> = {
+  common:   { label: '⬜凡品', multiplier: 1,  color: '#aaa' },
+  spirit:   { label: '🟢灵品', multiplier: 2,  color: '#4caf50' },
+  immortal: { label: '🔵仙品', multiplier: 5,  color: '#64b5f6' },
+  divine:   { label: '🟣神品', multiplier: 12, color: '#ce93d8' },
+  chaos:    { label: '🟡混沌', multiplier: 30, color: '#f0c040' },
+};
+
 export type TabId = 'battle' | 'team' | 'journey' | 'bag' | 'settings';
 
 export interface GameSave {
@@ -98,4 +154,10 @@ export interface GameSave {
   highestStage: number;
   lastSaveTimestamp: number;
   totalPlayTime: number;
+  equipment: {
+    weapon: EquipmentItem | null;
+    armor: EquipmentItem | null;
+    treasure: EquipmentItem | null;
+  };
+  inventory: EquipmentItem[];
 }
