@@ -231,6 +231,59 @@ body {
 }
 
 /* Equipment slots */
+.equip-slot-row {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+  padding: var(--space-xs) 0;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+}
+.equip-slot-row:last-child { border-bottom: none; }
+
+/* Bag view */
+.bag-filters {
+  display: flex;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-sm);
+}
+.bag-filters button {
+  flex: 1;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: var(--space-xs) 0;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+}
+.bag-filters button.active {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.bag-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-xs);
+}
+.bag-item {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: var(--space-xs);
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.bag-item:active { transform: scale(0.95); }
+
+/* Equipment detail modal */
+.equip-detail {
+  text-align: center;
+}
+
+/* Equipment slots */
 .equip-slot {
   background: var(--panel);
   border-radius: 8px;
