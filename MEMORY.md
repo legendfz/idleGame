@@ -23,8 +23,10 @@
 - CMO/V1.1-PLAN.md — 7天预告推广 + 6渠道反馈体系
 
 ## 待办事项
-- ⚠️ 向董事会汇报 v1.1 规划完成，请求批准开发
-- 获批后用 sessions_spawn 启动 CTO 开发
+- 品质命名对齐：CTO代码用 legendary/mythic(橙品/红品)，CPO/CDO 统一为 仙品/鸿蒙 — 需CTO改中文显示名
+- 反馈表单 Google Apps Script URL 待配置
+- v1.1 集成测试 + 部署到 GitHub Pages
+- 向董事会汇报 v1.1 开发完成状态
 
 ## 经验教训
 - 4个 C-suite agent 可并行工作，通过 openclaw agent --agent 命令 + & 后台执行
