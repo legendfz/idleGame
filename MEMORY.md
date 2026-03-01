@@ -15,7 +15,7 @@
 - 代码：CTO/idle-game/，TypeScript + Vite，构建通过
 - 部署：GitHub Pages https://legendfz.github.io/idleGame/
 - 仓库：https://github.com/legendfz/idleGame
-- 当前版本：v1.1（部分功能）
+- 当前版本：v1.2（已发布）
 
 ## v1.1 QA 结果
 - 65条测试用例：35通过 / 8部分 / 22未实现
@@ -24,11 +24,8 @@
 - 品质命名已对齐PRD：凡/灵/仙/神/混沌/鸿蒙
 
 ## 待办事项
-- ✅ v1.2 Sprint 1 全部完成（CPO/CTO/CDO/CMO）
-- 下一步：向董事会汇报 Sprint 1 完成，确认是否启动 Sprint 2
-- Sprint 2：离线保底、背包溢出分解、反馈模板
-- 反馈表单 Google Apps Script URL 待配置
-- 需要 QA 测试 + 部署后发布 v1.2
+- ✅ v1.2 全部完成并部署（Sprint 1+2 + QA + 部署）
+- 下一步：向董事会汇报 v1.2 发布完成
 
 ## 经验教训
 - CTO 开发范围与 PRD 有 gap — 精炼系统和高阶强化完全未实现

@@ -1,6 +1,6 @@
 # STATUS.md — CEO
 
-## 当前状态：🟡 v1.2 Sprint 2 进行中
+## 当前状态：✅ v1.2 已发布
 
 ## v1.2 迭代（董事会 2026-03-01 批准方案A）
 
@@ -12,24 +12,24 @@
 | 3 | CDO | 精炼系统和高阶强化 UI 设计 | ✅ 完成 |
 | 4 | CMO | v1.2 更新预告文案 | ✅ 完成 |
 
-### Sprint 2 🟡 进行中（2026-03-01 11:00 启动）
+### Sprint 2 ✅ 全部完成
 | # | 部门 | 任务 | 状态 |
 |---|------|------|------|
-| 5 | CPO | 离线保底PRD + 背包溢出PRD + 反馈模板PRD | 🟡 进行中 |
-| 6 | CTO | 技术方案 → 等PRD后编码 | 🟡 进行中 |
-| 7 | CDO | Sprint 2 UI 规范 | 🟡 进行中 |
-| 8 | CMO | v1.2 正式发布文案 | 🟡 进行中 |
+| 5 | CPO | 离线保底PRD + 背包溢出PRD + 反馈模板PRD | ✅ 完成 |
+| 6 | CTO | 离线保底 + 背包分解 + 反馈模板代码 | ✅ 完成 |
+| 7 | CDO | Sprint 2 UI 规范 | ✅ 完成 |
+| 8 | CMO | v1.2 正式发布文案 | ✅ 完成 |
 
-### 后续步骤
-- Sprint 2 完成后 → QA 测试 → 部署发布 v1.2
-
-### 进程跟踪
-- CPO: session glow-glade (pid 59918)
-- CDO: session crisp-shell (pid 59920)
-- CMO: session salty-glade (pid 59921)
-- CTO: session glow-haven (pid 59923)
+### QA + 部署 ✅ 完成
+- QA 测试：30/30 通过
+- 构建：tsc + vite build 通过（40 modules, 0 errors）
+- 部署：git push main → GitHub Pages
+- 部署时间：2026-03-01 13:00 PST
 
 ## 历史版本
+### v1.2（2026-03-01 已发布）
+- 精炼系统、鸿蒙高阶强化+11~+15、离线保底、背包智能分解、反馈Issue模板
+
 ### v1.1（2026-03-01 已发布）
 - 品质6级显示、离线装备掉落、反馈入口、存档迁移
 
