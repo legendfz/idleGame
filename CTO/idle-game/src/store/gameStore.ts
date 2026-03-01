@@ -1,16 +1,26 @@
 import { create } from 'zustand';
-import { PlayerState, BattleState, BattleLogEntry, Enemy, TabId, GameSave } from '../types';
+import { PlayerState, BattleState, BattleLogEntry, Enemy, TabId, GameSave, EquipmentItem, EquipSlot, QUALITY_INFO } from '../types';
 import { REALMS } from '../data/realms';
 import { CHAPTERS, createEnemy } from '../data/chapters';
 import { expForLevel } from '../utils/format';
+import { rollEquipDrop, createEquipFromTemplate, getEquipEffectiveStat, getActiveSetBonuses, getEnhanceCost, MAX_ENHANCE_LEVEL } from '../data/equipment';
 
 let logIdCounter = 0;
+
+interface EquipState {
+  weapon: EquipmentItem | null;
+  armor: EquipmentItem | null;
+  treasure: EquipmentItem | null;
+}
 
 interface GameStore {
   // Player
   player: PlayerState;
   // Battle
   battle: BattleState;
+  // Equipment
+  equipment: EquipState;
+  inventory: EquipmentItem[];
   // Progress
   highestChapter: number;
   highestStage: number;
@@ -22,13 +32,22 @@ interface GameStore {
 
   // Actions
   setTab: (tab: TabId) => void;
-  tick: () => void;               // main game loop (1s)
+  tick: () => void;
   clickAttack: () => void;
   attemptBreakthrough: () => void;
   dismissOfflineReport: () => void;
   save: () => void;
   load: () => void;
   reset: () => void;
+
+  // Equipment actions
+  equipItem: (uid: string) => void;
+  unequipItem: (slot: EquipSlot) => void;
+  enhanceItem: (uid: string) => void;
+  sellItem: (uid: string) => void;
+
+  // Computed
+  getEffectiveStats: () => { attack: number; maxHp: number; critRate: number; critDmg: number; speed: number; clickPower: number };
 }
 
 function makeInitialPlayer(): PlayerState {
@@ -61,12 +80,24 @@ function makeInitialBattle(): BattleState {
 function addLog(log: BattleLogEntry[], text: string, type: BattleLogEntry['type']): BattleLogEntry[] {
   const entry = { id: logIdCounter++, text, type, timestamp: Date.now() };
   const newLog = [entry, ...log];
-  return newLog.slice(0, 30); // keep last 30
+  return newLog.slice(0, 30);
+}
+
+/** Compute total global stage index for drop calculations */
+function getGlobalStage(chapterId: number, stageNum: number): number {
+  let total = 0;
+  for (const ch of CHAPTERS) {
+    if (ch.id < chapterId) total += ch.stages;
+    else { total += stageNum; break; }
+  }
+  return total;
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
   player: makeInitialPlayer(),
   battle: makeInitialBattle(),
+  equipment: { weapon: null, armor: null, treasure: null },
+  inventory: [],
   highestChapter: 1,
   highestStage: 1,
   activeTab: 'battle',
@@ -75,22 +106,61 @@ export const useGameStore = create<GameStore>((set, get) => ({
   offlineReport: null,
 
   setTab: (tab) => set({ activeTab: tab }),
-
   dismissOfflineReport: () => set({ offlineReport: null }),
 
+  getEffectiveStats: () => {
+    const { player, equipment } = get();
+    const base = { ...player.stats };
+    let clickPower = player.clickPower;
+
+    // Add equipment stats
+    const { weapon, armor, treasure } = equipment;
+    if (weapon) base.attack += getEquipEffectiveStat(weapon);
+    if (armor) base.maxHp += getEquipEffectiveStat(armor);
+
+    // Add passives
+    const allEquipped = [weapon, armor, treasure].filter(Boolean) as EquipmentItem[];
+    for (const item of allEquipped) {
+      if (item.passive) {
+        switch (item.passive.type) {
+          case 'critRate': base.critRate += item.passive.value; break;
+          case 'critDmg': base.critDmg += item.passive.value; break;
+          case 'speed': base.speed += item.passive.value; break;
+          case 'clickPower': clickPower += item.passive.value; break;
+        }
+      }
+    }
+
+    // Set bonuses
+    const setBonuses = getActiveSetBonuses(weapon, armor, treasure);
+    for (const sb of setBonuses) {
+      for (const bonus of sb.bonuses) {
+        if (bonus.effect.attack) base.attack = Math.floor(base.attack * (1 + bonus.effect.attack));
+        if (bonus.effect.maxHp) base.maxHp = Math.floor(base.maxHp * (1 + bonus.effect.maxHp));
+        if (bonus.effect.critRate) base.critRate += bonus.effect.critRate;
+        if (bonus.effect.critDmg) base.critDmg += bonus.effect.critDmg;
+      }
+    }
+
+    return { attack: base.attack, maxHp: base.maxHp, critRate: base.critRate, critDmg: base.critDmg, speed: base.speed, clickPower };
+  },
+
   tick: () => {
-    const { player, battle } = get();
+    const state = get();
+    const { player, battle } = state;
     if (!battle.currentEnemy) return;
 
+    const effectiveStats = state.getEffectiveStats();
     const enemy = { ...battle.currentEnemy };
     let log = [...battle.log];
     let updatedPlayer = { ...player, stats: { ...player.stats } };
     let updatedBattle = { ...battle };
+    let newInventory = [...state.inventory];
 
     // Auto attack
-    const isCrit = Math.random() * 100 < player.stats.critRate;
-    let dmg = Math.max(1, player.stats.attack - enemy.defense);
-    if (isCrit) dmg = Math.floor(dmg * player.stats.critDmg);
+    const isCrit = Math.random() * 100 < effectiveStats.critRate;
+    let dmg = Math.max(1, effectiveStats.attack - enemy.defense);
+    if (isCrit) dmg = Math.floor(dmg * effectiveStats.critDmg);
 
     enemy.hp -= dmg;
 
@@ -101,7 +171,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
 
     if (enemy.hp <= 0) {
-      // Enemy killed
       log = addLog(log, `${enemy.emoji} ${enemy.name} 💀 击败！`, 'kill');
 
       // Drops
@@ -112,6 +181,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
       if (enemy.pantaoDrop > 0 && Math.random() < enemy.pantaoDrop) {
         updatedPlayer.pantao += 1;
         log = addLog(log, `  → 🍑 蟠桃 +1！`, 'drop');
+      }
+
+      // Equipment drop
+      const globalStage = getGlobalStage(updatedBattle.chapterId, updatedBattle.stageNum);
+      const dropTemplate = rollEquipDrop(globalStage, enemy.isBoss);
+      if (dropTemplate) {
+        const newItem = createEquipFromTemplate(dropTemplate);
+        newInventory = [...newInventory, newItem];
+        const qualityLabel = QUALITY_INFO[newItem.quality].label;
+        log = addLog(log, `  → 📦 获得 ${qualityLabel} ${newItem.emoji} ${newItem.name}！`, 'drop');
       }
 
       // Check level up
@@ -127,22 +206,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
       // Next wave or next stage
       if (updatedBattle.isBossWave) {
-        // Stage cleared — advance
         const nextStage = updatedBattle.stageNum + 1;
         const chapter = CHAPTERS.find(c => c.id === updatedBattle.chapterId);
-
         let newChapterId = updatedBattle.chapterId;
         let newStageNum = nextStage;
 
         if (chapter && nextStage > chapter.stages) {
-          // Chapter cleared
           const nextChapter = CHAPTERS.find(c => c.id === updatedBattle.chapterId + 1);
           if (nextChapter) {
             newChapterId = nextChapter.id;
             newStageNum = 1;
             log = addLog(log, `🏆 第${chapter.id}章「${chapter.name}」通关！`, 'info');
           } else {
-            // No more chapters — stay at last stage
             newStageNum = chapter.stages;
             log = addLog(log, `🎉 所有章节通关！继续刷最后一关`, 'info');
           }
@@ -160,35 +235,19 @@ export const useGameStore = create<GameStore>((set, get) => ({
         };
         log = addLog(log, `⚔️ ${newEnemy.emoji} ${newEnemy.name} 出现了！`, 'info');
 
-        // Update highest
-        const highest = get();
-        const hc = newChapterId > highest.highestChapter ? newChapterId : highest.highestChapter;
-        const hs = newChapterId > highest.highestChapter ? newStageNum :
-          (newChapterId === highest.highestChapter && newStageNum > highest.highestStage ? newStageNum : highest.highestStage);
-
+        const hc = newChapterId > state.highestChapter ? newChapterId : state.highestChapter;
+        const hs = newChapterId > state.highestChapter ? newStageNum :
+          (newChapterId === state.highestChapter && newStageNum > state.highestStage ? newStageNum : state.highestStage);
         set({ highestChapter: hc, highestStage: hs });
       } else {
         const nextWave = updatedBattle.wave + 1;
         if (nextWave > updatedBattle.maxWaves) {
-          // Boss wave
           const boss = createEnemy(updatedBattle.chapterId, updatedBattle.stageNum, true)!;
           log = addLog(log, `═══ 🐉 BOSS: ${boss.name} ═══`, 'boss');
-          updatedBattle = {
-            ...updatedBattle,
-            wave: nextWave,
-            isBossWave: true,
-            currentEnemy: boss,
-            log,
-          };
+          updatedBattle = { ...updatedBattle, wave: nextWave, isBossWave: true, currentEnemy: boss, log };
         } else {
           const newEnemy = createEnemy(updatedBattle.chapterId, updatedBattle.stageNum, false)!;
-          updatedBattle = {
-            ...updatedBattle,
-            wave: nextWave,
-            isBossWave: false,
-            currentEnemy: newEnemy,
-            log,
-          };
+          updatedBattle = { ...updatedBattle, wave: nextWave, isBossWave: false, currentEnemy: newEnemy, log };
         }
       }
     } else {
@@ -198,27 +257,27 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set({
       player: updatedPlayer,
       battle: updatedBattle,
-      totalPlayTime: get().totalPlayTime + 1,
+      inventory: newInventory,
+      totalPlayTime: state.totalPlayTime + 1,
     });
   },
 
   clickAttack: () => {
-    const { player, battle } = get();
+    const state = get();
+    const { battle } = state;
     if (!battle.currentEnemy) return;
 
+    const effectiveStats = state.getEffectiveStats();
     const enemy = { ...battle.currentEnemy };
     let log = [...battle.log];
-    const dmg = player.clickPower;
+    const dmg = effectiveStats.clickPower;
     enemy.hp -= dmg;
     log = addLog(log, `👆 点击 → ${enemy.emoji} ${enemy.name}  -${dmg}`, 'attack');
 
-    set({
-      battle: { ...battle, currentEnemy: enemy.hp <= 0 ? enemy : enemy, log },
-    });
-
-    // If killed, let tick handle it (enemy hp <= 0 will trigger on next tick)
     if (enemy.hp <= 0) {
-      set({ battle: { ...get().battle, currentEnemy: { ...enemy, hp: 0 } } });
+      set({ battle: { ...battle, currentEnemy: { ...enemy, hp: 0 }, log } });
+    } else {
+      set({ battle: { ...battle, currentEnemy: enemy, log } });
     }
   },
 
@@ -247,10 +306,88 @@ export const useGameStore = create<GameStore>((set, get) => ({
     });
   },
 
+  // Equipment actions
+  equipItem: (uid: string) => {
+    const { inventory, equipment } = get();
+    const item = inventory.find(i => i.uid === uid);
+    if (!item) return;
+
+    const slot = item.slot;
+    const currentEquipped = equipment[slot];
+    let newInventory = inventory.filter(i => i.uid !== uid);
+    if (currentEquipped) {
+      newInventory = [...newInventory, currentEquipped];
+    }
+
+    set({
+      equipment: { ...equipment, [slot]: item },
+      inventory: newInventory,
+    });
+  },
+
+  unequipItem: (slot: EquipSlot) => {
+    const { equipment, inventory } = get();
+    const item = equipment[slot];
+    if (!item) return;
+    if (inventory.length >= 50) return; // inventory full
+
+    set({
+      equipment: { ...equipment, [slot]: null },
+      inventory: [...inventory, item],
+    });
+  },
+
+  enhanceItem: (uid: string) => {
+    const { inventory, equipment, player } = get();
+    // Find item in inventory or equipment
+    let item: EquipmentItem | null = inventory.find(i => i.uid === uid) ?? null;
+    let inSlot: EquipSlot | null = null;
+    if (!item) {
+      for (const slot of ['weapon', 'armor', 'treasure'] as EquipSlot[]) {
+        if (equipment[slot]?.uid === uid) {
+          item = equipment[slot];
+          inSlot = slot;
+          break;
+        }
+      }
+    }
+    if (!item || item.level >= MAX_ENHANCE_LEVEL) return;
+
+    const cost = getEnhanceCost(item);
+    if (player.lingshi < cost) return;
+
+    const enhanced = { ...item, level: item.level + 1 };
+
+    if (inSlot) {
+      set({
+        player: { ...player, lingshi: player.lingshi - cost },
+        equipment: { ...equipment, [inSlot]: enhanced },
+      });
+    } else {
+      set({
+        player: { ...player, lingshi: player.lingshi - cost },
+        inventory: inventory.map(i => i.uid === uid ? enhanced : i),
+      });
+    }
+  },
+
+  sellItem: (uid: string) => {
+    const { inventory, player } = get();
+    const item = inventory.find(i => i.uid === uid);
+    if (!item) return;
+
+    const sellValue = Math.floor(getEquipEffectiveStat(item) * 2 + (item.level + 1) * 50);
+
+    set({
+      inventory: inventory.filter(i => i.uid !== uid),
+      player: { ...player, lingshi: player.lingshi + sellValue },
+    });
+  },
+
   save: () => {
     const state = get();
     const save: GameSave = {
-      version: 1,
+      version: 2,
       player: state.player,
       battle: {
         chapterId: state.battle.chapterId,
@@ -261,6 +398,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       highestStage: state.highestStage,
       lastSaveTimestamp: Date.now(),
       totalPlayTime: state.totalPlayTime,
+      equipment: state.equipment,
+      inventory: state.inventory,
     };
     localStorage.setItem('xiyou-idle-save', JSON.stringify(save));
     set({ lastSaveTimestamp: Date.now() });
@@ -273,9 +412,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const save: GameSave = JSON.parse(raw);
       const enemy = createEnemy(save.battle.chapterId, save.battle.stageNum, false)!;
 
-      // Calculate offline earnings
-      const offlineSec = Math.min((Date.now() - save.lastSaveTimestamp) / 1000, 86400); // max 24h
-      const dps = save.player.stats.attack; // rough estimate
+      const offlineSec = Math.min((Date.now() - save.lastSaveTimestamp) / 1000, 86400);
+      const dps = save.player.stats.attack;
       const offlineLingshi = Math.floor(offlineSec * dps * 0.3);
       const offlineExp = Math.floor(offlineSec * dps * 0.2);
 
@@ -301,6 +439,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         highestStage: save.highestStage,
         totalPlayTime: save.totalPlayTime,
         lastSaveTimestamp: Date.now(),
+        equipment: save.equipment ?? { weapon: null, armor: null, treasure: null },
+        inventory: save.inventory ?? [],
         offlineReport: offlineSec > 60 ? { duration: offlineSec, lingshi: offlineLingshi, exp: offlineExp } : null,
       });
     } catch {
@@ -313,6 +453,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set({
       player: makeInitialPlayer(),
       battle: makeInitialBattle(),
+      equipment: { weapon: null, armor: null, treasure: null },
+      inventory: [],
       highestChapter: 1,
       highestStage: 1,
       totalPlayTime: 0,

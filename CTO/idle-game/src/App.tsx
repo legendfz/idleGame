@@ -2,7 +2,9 @@ import { useEffect, useRef } from 'react';
 import { useGameStore } from './store/gameStore';
 import { REALMS } from './data/realms';
 import { CHAPTERS } from './data/chapters';
+import { getEquipEffectiveStat, getEnhanceCost, MAX_ENHANCE_LEVEL, getActiveSetBonuses } from './data/equipment';
 import { formatNumber, expForLevel, formatTime } from './utils/format';
+import { EquipmentItem, EquipSlot, QUALITY_INFO } from './types';
 
 function TopBar() {
   const player = useGameStore(s => s.player);
@@ -23,8 +25,9 @@ function BattleView() {
   const battle = useGameStore(s => s.battle);
   const clickAttack = useGameStore(s => s.clickAttack);
   const player = useGameStore(s => s.player);
+  const getEffectiveStats = useGameStore(s => s.getEffectiveStats);
+  const eStats = getEffectiveStats();
   const enemy = battle.currentEnemy;
-
   const hpPct = enemy ? Math.max(0, (enemy.hp / enemy.maxHp) * 100) : 0;
 
   return (
@@ -52,8 +55,9 @@ function BattleView() {
       </div>
 
       <div className="stats-row">
-        <span>⚡攻击 {formatNumber(player.stats.attack)}</span>
-        <span>❤️血量 {formatNumber(player.stats.maxHp)}</span>
+        <span>⚡{formatNumber(eStats.attack)}</span>
+        <span>❤️{formatNumber(eStats.maxHp)}</span>
+        <span>💥{eStats.critRate.toFixed(0)}%</span>
         <span>✨{formatNumber(player.exp)}/{formatNumber(expForLevel(player.level))}</span>
       </div>
 
@@ -68,7 +72,9 @@ function BattleView() {
 
 function TeamView() {
   const player = useGameStore(s => s.player);
+  const getEffectiveStats = useGameStore(s => s.getEffectiveStats);
   const attemptBreakthrough = useGameStore(s => s.attemptBreakthrough);
+  const eStats = getEffectiveStats();
   const currentRealm = REALMS[player.realmIndex];
   const nextRealm = REALMS[player.realmIndex + 1];
   const canBreak = nextRealm && player.level >= nextRealm.levelReq && player.pantao >= nextRealm.pantaoReq;
@@ -78,12 +84,12 @@ function TeamView() {
       <div className="char-card">
         <h3>🐒 {player.name}</h3>
         <div className="stat-grid">
-          <span>⚡ 攻击: {formatNumber(player.stats.attack)}</span>
-          <span>❤️ 血量: {formatNumber(player.stats.maxHp)}</span>
-          <span>💨 速度: {player.stats.speed.toFixed(1)}</span>
-          <span>💥 暴击: {player.stats.critRate}%</span>
+          <span>⚡ 攻击: {formatNumber(eStats.attack)}</span>
+          <span>❤️ 血量: {formatNumber(eStats.maxHp)}</span>
+          <span>💨 速度: {eStats.speed.toFixed(1)}</span>
+          <span>💥 暴击: {eStats.critRate.toFixed(0)}%</span>
+          <span>💥 暴伤: {eStats.critDmg.toFixed(1)}x</span>
           <span>👆 点击: {player.clickPower}</span>
-          <span>✨ Lv.{player.level}</span>
         </div>
       </div>
 
@@ -132,6 +138,133 @@ function JourneyView() {
   );
 }
 
+// === Equipment / Bag View ===
+
+function EquipSlotDisplay({ label, item, slot }: { label: string; item: EquipmentItem | null; slot: EquipSlot }) {
+  const unequip = useGameStore(s => s.unequipSlot);
+  const enhance = useGameStore(s => s.enhanceEquip);
+  const player = useGameStore(s => s.player);
+
+  if (!item) {
+    return (
+      <div className="equip-slot empty">
+        <span className="slot-label">{label}</span>
+        <span className="slot-empty">— 空 —</span>
+      </div>
+    );
+  }
+
+  const stat = getEquipEffectiveStat(item);
+  const cost = item.level < MAX_ENHANCE_LEVEL ? getEnhanceCost(item) : 0;
+  const canEnhance = item.level < MAX_ENHANCE_LEVEL && player.lingshi >= cost;
+
+  return (
+    <div className="equip-slot" style={{ borderLeftColor: QUALITY_INFO[item.quality].color }}>
+      <div className="equip-header">
+        <span>{item.emoji} {item.name} {item.level > 0 ? `+${item.level}` : ''}</span>
+        <span className="equip-quality" style={{ color: QUALITY_INFO[item.quality].color }}>
+          {QUALITY_INFO[item.quality].label}
+        </span>
+      </div>
+      <div className="equip-stats">
+        {item.slot === 'weapon' && <span>⚡+{formatNumber(stat)}</span>}
+        {item.slot === 'armor' && <span>❤️+{formatNumber(stat)}</span>}
+        {item.passive && <span style={{ color: '#64b5f6' }}>{item.passive.description}</span>}
+      </div>
+      <div className="equip-actions">
+        {item.level < MAX_ENHANCE_LEVEL && (
+          <button className="small-btn" disabled={!canEnhance} onClick={() => enhance(item.uid)}>
+            ⬆️强化 🪙{formatNumber(cost)}
+          </button>
+        )}
+        <button className="small-btn" onClick={() => unequip(slot)}>卸下</button>
+      </div>
+    </div>
+  );
+}
+
+function BagView() {
+  const weapon = useGameStore(s => s.equippedWeapon);
+  const armor = useGameStore(s => s.equippedArmor);
+  const treasure = useGameStore(s => s.equippedTreasure);
+  const inventory = useGameStore(s => s.inventory);
+  const equipItem = useGameStore(s => s.equipItem);
+  const sellEquip = useGameStore(s => s.sellEquip);
+  const enhance = useGameStore(s => s.enhanceEquip);
+  const player = useGameStore(s => s.player);
+
+  const setBonuses = getActiveSetBonuses(weapon, armor, treasure);
+
+  return (
+    <div className="main-content">
+      <h3 style={{ textAlign: 'center', color: '#f0c040', marginBottom: 12 }}>⚔️ 装备</h3>
+
+      <EquipSlotDisplay label="武器" item={weapon} slot="weapon" />
+      <EquipSlotDisplay label="护甲" item={armor} slot="armor" />
+      <EquipSlotDisplay label="法宝" item={treasure} slot="treasure" />
+
+      {setBonuses.length > 0 && (
+        <div className="set-bonus-section">
+          {setBonuses.map(sb => (
+            <div key={sb.set.id} className="set-bonus">
+              <div className="set-name">🔗 {sb.set.name} ({sb.activeCount}/{sb.set.pieces.length})</div>
+              {sb.bonuses.map((b, i) => (
+                <div key={i} className="set-effect">✨ {b.description}</div>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+
+      <h3 style={{ textAlign: 'center', color: '#f0c040', margin: '16px 0 8px' }}>📦 背包 ({inventory.length})</h3>
+
+      {inventory.length === 0 && (
+        <div style={{ textAlign: 'center', color: '#8b8b9e', padding: 16 }}>背包空空如也，击败Boss获取装备！</div>
+      )}
+
+      {inventory
+        .sort((a, b) => {
+          const qi = Object.keys(QUALITY_INFO);
+          return qi.indexOf(b.quality) - qi.indexOf(a.quality);
+        })
+        .map(item => {
+          const stat = getEquipEffectiveStat(item);
+          const cost = item.level < MAX_ENHANCE_LEVEL ? getEnhanceCost(item) : 0;
+          const canEnhance = item.level < MAX_ENHANCE_LEVEL && player.lingshi >= cost;
+          const sellPrice = Math.floor(stat * 0.5 + 10);
+
+          return (
+            <div key={item.uid} className="inv-item" style={{ borderLeftColor: QUALITY_INFO[item.quality].color }}>
+              <div className="equip-header">
+                <span>{item.emoji} {item.name} {item.level > 0 ? `+${item.level}` : ''}</span>
+                <span style={{ color: QUALITY_INFO[item.quality].color, fontSize: 11 }}>
+                  {QUALITY_INFO[item.quality].label}
+                </span>
+              </div>
+              <div className="equip-stats">
+                {item.slot === 'weapon' && <span>⚡+{formatNumber(stat)}</span>}
+                {item.slot === 'armor' && <span>❤️+{formatNumber(stat)}</span>}
+                {item.passive && <span style={{ color: '#64b5f6' }}>{item.passive.description}</span>}
+                {item.setId && <span style={{ color: '#ce93d8', fontSize: 11 }}>🔗套装</span>}
+              </div>
+              <div className="equip-actions">
+                <button className="small-btn accent" onClick={() => equipItem(item)}>装备</button>
+                {item.level < MAX_ENHANCE_LEVEL && (
+                  <button className="small-btn" disabled={!canEnhance} onClick={() => enhance(item.uid)}>
+                    ⬆️ 🪙{formatNumber(cost)}
+                  </button>
+                )}
+                <button className="small-btn danger" onClick={() => sellEquip(item.uid)}>
+                  卖 🪙{sellPrice}
+                </button>
+              </div>
+            </div>
+          );
+        })}
+    </div>
+  );
+}
+
 function SettingsView() {
   const save = useGameStore(s => s.save);
   const reset = useGameStore(s => s.reset);
@@ -143,7 +276,7 @@ function SettingsView() {
       <div className="char-card">
         <div style={{ marginBottom: 12 }}>⏱️ 总游戏时间：{formatTime(totalPlayTime)}</div>
         <button className="breakthrough-btn" onClick={save} style={{ marginRight: 8 }}>💾 手动存档</button>
-        <button className="breakthrough-btn" onClick={() => { if (confirm('确定重置？')) reset(); }}
+        <button className="breakthrough-btn" onClick={() => { if (confirm('确定重置？所有进度将丢失！')) reset(); }}
           style={{ background: '#f44336' }}>🗑️ 重置</button>
       </div>
     </div>
@@ -154,7 +287,6 @@ function OfflineReportModal() {
   const report = useGameStore(s => s.offlineReport);
   const dismiss = useGameStore(s => s.dismissOfflineReport);
   if (!report) return null;
-
   const hours = Math.floor(report.duration / 3600);
   const mins = Math.floor((report.duration % 3600) / 60);
 
@@ -187,28 +319,11 @@ export default function App() {
   const tick = useGameStore(s => s.tick);
   const save = useGameStore(s => s.save);
   const load = useGameStore(s => s.load);
-
   const loaded = useRef(false);
 
-  // Load save on mount
-  useEffect(() => {
-    if (!loaded.current) {
-      loaded.current = true;
-      load();
-    }
-  }, [load]);
-
-  // Game loop — tick every second
-  useEffect(() => {
-    const interval = setInterval(tick, 1000);
-    return () => clearInterval(interval);
-  }, [tick]);
-
-  // Auto-save every 30 seconds
-  useEffect(() => {
-    const interval = setInterval(save, 30000);
-    return () => clearInterval(interval);
-  }, [save]);
+  useEffect(() => { if (!loaded.current) { loaded.current = true; load(); } }, [load]);
+  useEffect(() => { const id = setInterval(tick, 1000); return () => clearInterval(id); }, [tick]);
+  useEffect(() => { const id = setInterval(save, 30000); return () => clearInterval(id); }, [save]);
 
   return (
     <>
@@ -216,7 +331,7 @@ export default function App() {
       {activeTab === 'battle' && <BattleView />}
       {activeTab === 'team' && <TeamView />}
       {activeTab === 'journey' && <JourneyView />}
-      {activeTab === 'bag' && <div className="main-content"><p style={{ textAlign: 'center', color: '#8b8b9e' }}>📦 背包系统开发中...</p></div>}
+      {activeTab === 'bag' && <BagView />}
       {activeTab === 'settings' && <SettingsView />}
       <div className="bottom-nav">
         {TABS.map(tab => (

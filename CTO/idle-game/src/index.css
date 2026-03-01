@@ -229,3 +229,52 @@ body {
   font-weight: bold;
   margin-top: var(--space-md);
 }
+
+/* Equipment slots */
+.equip-slot {
+  background: var(--panel);
+  border-radius: 8px;
+  padding: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-sm);
+  border-left: 3px solid var(--border);
+}
+.equip-slot.empty { opacity: 0.6; display: flex; justify-content: space-between; align-items: center; }
+.slot-label { font-size: 12px; color: var(--text-dim); }
+.slot-empty { font-size: 12px; color: var(--text-dim); }
+.equip-header { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+.equip-quality { font-size: 11px; }
+.equip-stats { font-size: 12px; color: var(--text-dim); margin: 2px 0; display: flex; gap: var(--space-md); flex-wrap: wrap; }
+.equip-actions { display: flex; gap: var(--space-xs); margin-top: 4px; }
+.small-btn {
+  background: var(--border);
+  color: var(--text);
+  border: none;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+}
+.small-btn:disabled { opacity: 0.4; cursor: default; }
+.small-btn.accent { background: var(--accent); color: var(--bg); font-weight: bold; }
+.small-btn.danger { background: var(--red); color: white; }
+
+/* Set bonuses */
+.set-bonus-section { margin: var(--space-sm) 0; }
+.set-bonus {
+  background: var(--panel);
+  border: 1px solid #ce93d8;
+  border-radius: 8px;
+  padding: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-xs);
+}
+.set-name { font-size: 13px; color: #ce93d8; font-weight: bold; }
+.set-effect { font-size: 12px; color: var(--accent); }
+
+/* Inventory items */
+.inv-item {
+  background: var(--panel);
+  border-radius: 8px;
+  padding: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-xs);
+  border-left: 3px solid var(--border);
+}
