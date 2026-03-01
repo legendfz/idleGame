@@ -9,7 +9,17 @@
 - 2026-03-01: UI 设计方案 v1.0 完成（UI-DESIGN.md），核心决策：Emoji符号体系、5-Tab底部导航、暗色默认主题（#1a1a2e + 金色强调）
 
 ## 待办事项
-- 等待 CEO/CTO 反馈所有设计文档
+- 等待 CTO 应用 UI-FIXES.md 修复
+- 等待 v1.1 设计反馈
+
+## 已交付设计文档
+- UI-DESIGN.md v1.0
+- UI-DESIGN-V1.1.md（品质特效/离线收益/反馈入口）
+- UI-SPEC.md v1.0
+- UI-REVIEW.md（23项差异审查）
+- UI-FIXES.md（9项修复代码）
+- LAUNCH-ASSETS.md（6张截图说明）
+- MOBILE-OPTIMIZE.md（14项适配建议）
 
 ## 已完成
 - UI-DESIGN.md v1.0
