@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { PlayerState, BattleState, BattleLogEntry, Enemy, TabId, GameSave, EquipmentItem, EquipSlot, Stats, QUALITY_INFO, FloatingText, INVENTORY_MAX } from '../types';
+import { PlayerState, BattleState, BattleLogEntry, Enemy, TabId, GameSave, EquipmentItem, EquipSlot, Stats, QUALITY_INFO, FloatingText, INVENTORY_MAX, OfflineReport } from '../types';
 import { REALMS } from '../data/realms';
 import { CHAPTERS, createEnemy } from '../data/chapters';
 import { expForLevel } from '../utils/format';
@@ -7,6 +7,7 @@ import {
   rollEquipDrop, createEquipFromTemplate, getEquipEffectiveStat,
   getEnhanceCost, MAX_ENHANCE_LEVEL, getActiveSetBonuses
 } from '../data/equipment';
+import { calculateOfflineEarnings } from '../engine/offline';
 
 let logIdCounter = 0;
 let floatIdCounter = 0;
@@ -29,7 +30,7 @@ interface GameStore {
   activeTab: TabId;
   totalPlayTime: number;
   lastSaveTimestamp: number;
-  offlineReport: { duration: number; lingshi: number; exp: number; equipment: string[] } | null;
+  offlineReport: OfflineReport | null;
 
   // Actions
   setTab: (tab: TabId) => void;
@@ -414,7 +415,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   save: () => {
     const state = get();
     const save: GameSave = {
-      version: 2,
+      version: 3,
       player: state.player,
       battle: { chapterId: state.battle.chapterId, stageNum: state.battle.stageNum, wave: state.battle.wave },
       highestChapter: state.highestChapter,
@@ -433,30 +434,73 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (!raw) return;
     try {
       const save: GameSave = JSON.parse(raw);
-      const enemy = createEnemy(save.battle.chapterId, save.battle.stageNum, false)!;
 
-      const offlineSec = Math.min((Date.now() - save.lastSaveTimestamp) / 1000, 86400);
-      const dps = save.player.stats.attack;
-      const offlineLingshi = Math.floor(offlineSec * dps * 0.5); // PRD: 50% efficiency
-      const offlineExp = Math.floor(offlineSec * dps * 0.3);
-
-      // P0-4: Offline equipment drops
-      const offlineEquipment: string[] = [];
-      if (offlineSec > 60) {
-        const estimatedBossKills = Math.floor(offlineSec / 120); // ~1 boss per 2 min
-        const globalStage = getGlobalStage(save.battle.chapterId, save.battle.stageNum);
-        const offlineInv = save.inventory ? [...save.inventory] : [];
-        for (let i = 0; i < estimatedBossKills && offlineInv.length < INVENTORY_MAX; i++) {
-          const drop = rollEquipDrop(globalStage, true);
-          if (drop) {
-            offlineInv.push(createEquipFromTemplate(drop));
-            offlineEquipment.push(`${QUALITY_INFO[drop.quality].symbol}${drop.name}`);
-          }
+      // v1.1: Save migration v2 → v3 (quality remap)
+      if (save.version <= 2) {
+        const remap = (item: EquipmentItem | null) => {
+          if (item && (item.quality as string) === 'chaos') (item as any).quality = 'mythic';
+          return item;
+        };
+        if (save.equipment) {
+          save.equipment.weapon = remap(save.equipment.weapon);
+          save.equipment.armor = remap(save.equipment.armor);
+          save.equipment.treasure = remap(save.equipment.treasure);
         }
-        save.inventory = offlineInv;
+        if (save.inventory) {
+          save.inventory = save.inventory.map(i => remap(i)!);
+        }
+        save.version = 3;
       }
 
-      const player = { ...save.player, lingshi: save.player.lingshi + offlineLingshi, exp: save.player.exp + offlineExp };
+      const enemy = createEnemy(save.battle.chapterId, save.battle.stageNum, false)!;
+      const offlineSec = (Date.now() - save.lastSaveTimestamp) / 1000;
+
+      const weapon = save.equipment?.weapon ?? null;
+      const armor = save.equipment?.armor ?? null;
+      const treasure = save.equipment?.treasure ?? null;
+      const invSize = save.inventory?.length ?? 0;
+
+      // v1.1: Simulation-based offline calculation
+      const offline = calculateOfflineEarnings(
+        offlineSec,
+        save.player,
+        weapon, armor, treasure,
+        save.battle.chapterId, save.battle.stageNum,
+        invSize,
+        CHAPTERS,
+      );
+
+      // Apply offline earnings to player
+      const player = {
+        ...save.player,
+        lingshi: save.player.lingshi + offline.lingshi,
+        exp: save.player.exp + offline.exp,
+        pantao: save.player.pantao + offline.pantao,
+      };
+
+      // Batch level-up after offline earnings
+      while (player.exp >= expForLevel(player.level)) {
+        player.exp -= expForLevel(player.level);
+        player.level++;
+        player.stats.attack += Math.floor(3 + player.level * 0.5);
+        player.stats.maxHp += Math.floor(10 + player.level * 2);
+        player.stats.hp = player.stats.maxHp;
+        player.clickPower = Math.floor(5 + player.level * 0.8);
+      }
+
+      // Merge offline equipment into inventory
+      const finalInventory = [...(save.inventory ?? []), ...offline.equipmentItems].slice(0, INVENTORY_MAX);
+
+      const report: OfflineReport | null = offline.duration >= 60 ? {
+        duration: offline.duration,
+        lingshi: offline.lingshi,
+        exp: offline.exp,
+        pantao: offline.pantao,
+        equipment: offline.equipment,
+        kills: offline.kills,
+        stagesCleared: offline.stagesCleared,
+        levelsGained: offline.levelsGained,
+      } : null;
 
       set({
         player,
@@ -470,11 +514,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
         highestStage: save.highestStage,
         totalPlayTime: save.totalPlayTime,
         lastSaveTimestamp: Date.now(),
-        equippedWeapon: save.equipment?.weapon ?? null,
-        equippedArmor: save.equipment?.armor ?? null,
-        equippedTreasure: save.equipment?.treasure ?? null,
-        inventory: save.inventory ?? [],
-        offlineReport: offlineSec > 60 ? { duration: offlineSec, lingshi: offlineLingshi, exp: offlineExp, equipment: offlineEquipment } : null,
+        equippedWeapon: weapon,
+        equippedArmor: armor,
+        equippedTreasure: treasure,
+        inventory: finalInventory,
+        offlineReport: report,
       });
     } catch {
       console.error('Failed to load save');

@@ -149,6 +149,17 @@ export interface FloatingText {
   timestamp: number;
 }
 
+export interface OfflineReport {
+  duration: number;
+  lingshi: number;
+  exp: number;
+  pantao: number;
+  equipment: string[];
+  kills: number;
+  stagesCleared: number;
+  levelsGained: number;
+}
+
 export interface GameSave {
   version: number;
   player: PlayerState;

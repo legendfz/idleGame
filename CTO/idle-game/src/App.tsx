@@ -415,7 +415,7 @@ function SettingsView() {
   );
 }
 
-// ─── Offline Report (P0-4: with equipment) ───
+// ─── Offline Report (v1.1: simulation-based) ───
 function OfflineReportModal() {
   const report = useGameStore(s => s.offlineReport);
   const dismiss = useGameStore(s => s.dismissOfflineReport);
@@ -426,11 +426,19 @@ function OfflineReportModal() {
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         <h2>🌙 离线修炼报告</h2>
         <div>⏱️ 离线时长：{formatDuration(report.duration)}</div>
-        <div style={{ marginTop: 12, fontFamily: 'monospace' }}>
-          <div>🪙 +{formatNumber(report.lingshi)}</div>
-          <div>✨ +{formatNumber(report.exp)}</div>
+        <div style={{ marginTop: 12, fontFamily: 'monospace', textAlign: 'left' }}>
+          <div>⚔️ 击败怪物：{formatNumber(report.kills)} 只</div>
+          {report.stagesCleared > 0 && <div>🗺️ 通关关卡：{report.stagesCleared} 关</div>}
+          <div style={{ marginTop: 8, borderTop: '1px solid #2a2a4a', paddingTop: 8 }}>
+            <div>🪙 灵石 +{formatNumber(report.lingshi)}</div>
+            <div>✨ 经验 +{formatNumber(report.exp)}</div>
+            {report.pantao > 0 && <div>🍑 蟠桃 +{report.pantao}</div>}
+            {report.levelsGained > 0 && (
+              <div style={{ color: '#f0c040', fontWeight: 'bold' }}>⬆️ 升级 ×{report.levelsGained}</div>
+            )}
+          </div>
           {report.equipment.length > 0 && (
-            <div style={{ marginTop: 8 }}>
+            <div style={{ marginTop: 8, borderTop: '1px solid #2a2a4a', paddingTop: 8 }}>
               📦 获得装备：
               {report.equipment.map((name, i) => (
                 <div key={i} style={{ paddingLeft: 12 }}>{name}</div>
