@@ -24,8 +24,10 @@
 - 品质命名已对齐PRD：凡/灵/仙/神/混沌/鸿蒙
 
 ## 待办事项
-- 等董事会决策：方案A(v1.2补)还是方案B(紧急补全)
+- v1.2 Sprint 1 进行中：CPO(PRD)、CDO(UI)、CMO(文案) 已并行启动
+- CPO PRD 完成后需立即启动 CTO 开发
 - 反馈表单 Google Apps Script URL 待配置
+- Sprint 2 待 Sprint 1 完成后启动
 
 ## 经验教训
 - CTO 开发范围与 PRD 有 gap — 精炼系统和高阶强化完全未实现
