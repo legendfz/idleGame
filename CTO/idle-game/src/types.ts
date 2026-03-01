@@ -95,14 +95,10 @@ export interface EquipmentTemplate {
   emoji: string;
   slot: EquipSlot;
   quality: Quality;
-  baseStat: number;       // attack for weapon, hp for armor, special for treasure
-  /** Special passive effect */
+  baseStat: number;
   passive?: EquipPassive;
-  /** Set id (for set bonuses) */
   setId?: string;
-  /** Minimum stage to drop */
   dropFromStage: number;
-  /** Drop weight (higher = more likely within pool) */
   dropWeight: number;
 }
 
@@ -113,14 +109,14 @@ export interface EquipPassive {
 }
 
 export interface EquipmentItem {
-  uid: string;            // unique instance id
+  uid: string;
   templateId: string;
   name: string;
   emoji: string;
   slot: EquipSlot;
   quality: Quality;
   baseStat: number;
-  level: number;          // enhance level 0-10
+  level: number;
   passive?: EquipPassive;
   setId?: string;
 }
@@ -128,19 +124,30 @@ export interface EquipmentItem {
 export interface EquipSet {
   id: string;
   name: string;
-  pieces: string[];       // template ids
+  pieces: string[];
   bonuses: { count: number; description: string; effect: Partial<Stats> }[];
 }
 
-export const QUALITY_INFO: Record<Quality, { label: string; multiplier: number; color: string }> = {
-  common:   { label: '⬜凡品', multiplier: 1,  color: '#aaa' },
-  spirit:   { label: '🟢灵品', multiplier: 2,  color: '#4caf50' },
-  immortal: { label: '🔵仙品', multiplier: 5,  color: '#64b5f6' },
-  divine:   { label: '🟣神品', multiplier: 12, color: '#ce93d8' },
-  chaos:    { label: '🟡混沌', multiplier: 30, color: '#f0c040' },
+/** Quality display info — using Unicode symbol prefixes per CDO spec */
+export const QUALITY_INFO: Record<Quality, { label: string; symbol: string; multiplier: number; color: string }> = {
+  common:   { label: '○凡品', symbol: '○', multiplier: 1,  color: '#aaa' },
+  spirit:   { label: '●灵品', symbol: '●', multiplier: 2,  color: '#4caf50' },
+  immortal: { label: '◆仙品', symbol: '◆', multiplier: 5,  color: '#64b5f6' },
+  divine:   { label: '★神品', symbol: '★', multiplier: 12, color: '#ce93d8' },
+  chaos:    { label: '✦混沌', symbol: '✦', multiplier: 30, color: '#f0c040' },
 };
 
+export const INVENTORY_MAX = 50;
+
 export type TabId = 'battle' | 'team' | 'journey' | 'bag' | 'settings';
+
+/** Floating damage text */
+export interface FloatingText {
+  id: number;
+  text: string;
+  type: 'normal' | 'crit' | 'click';
+  timestamp: number;
+}
 
 export interface GameSave {
   version: number;

@@ -3,7 +3,7 @@
 **日期**：2026-03-01  
 **作者**：CMO  
 **状态**：Ready for Review  
-**链接占位**：所有游戏链接用 `[GAME_URL]` 代替
+**链接占位**：所有游戏链接用 `https://legendfz.github.io/idleGame/` 代替
 
 ---
 
@@ -15,7 +15,7 @@
 
 After weeks of dev and alpha feedback from this sub, **Journey to the West: Idle Cultivation** is live!
 
-🔗 **Play free, no login:** [GAME_URL]
+🔗 **Play free, no login:** https://legendfz.github.io/idleGame/
 
 ### What is it?
 
@@ -71,7 +71,7 @@ Happy to answer any questions. Every comment gets a reply. 🙏
 
 **正文**:
 
-🔗 [GAME_URL]
+🔗 https://legendfz.github.io/idleGame/
 
 A free idle game set in Chinese mythology (Journey to the West / Monkey King). The entire UI is built with Unicode text and emoji — no images at all.
 
@@ -95,7 +95,7 @@ Made it as a solo dev experiment in "zero-asset game design." Feedback welcome!
 
 I built a browser idle game using only Unicode text and emoji for the UI — no images, sprites, or canvas. The theme is Journey to the West (Chinese Monkey King epic).
 
-Play: [GAME_URL]
+Play: https://legendfz.github.io/idleGame/
 
 The constraint was intentional: can a game feel engaging with pure text? Turns out emoji + box-drawing characters + careful spacing create a surprisingly readable battle UI.
 
@@ -118,7 +118,7 @@ Considering open-sourcing. Happy to discuss the design decisions.
 
 做了个小东西：一个纯文字符号的西游记放置游戏。
 
-🔗 在线玩：[GAME_URL]
+🔗 在线玩：https://legendfz.github.io/idleGame/
 
 **特点**：
 - 零图片，整个界面用 Unicode 符号 + Emoji 构成
@@ -162,7 +162,7 @@ Considering open-sourcing. Happy to discuss the design decisions.
 
 「西游 Idle」给出了一个有趣的答案。这是一个用纯文字符号构建的放置游戏，灵感来自 A Dark Room 和 Candy Box 这类极简经典，但套上了所有中国人都熟悉的西游记外壳。
 
-🔗 [GAME_URL]
+🔗 https://legendfz.github.io/idleGame/
 
 ### 第一眼
 
@@ -251,7 +251,7 @@ Considering open-sourcing. Happy to discuss the design decisions.
 ✅ 手机竖屏单手玩
 ✅ 秒开不用下载
 
-链接放评论区！[GAME_URL]
+链接放评论区！https://legendfz.github.io/idleGame/
 
 适合通勤/午休/睡前的挂机小游戏 📱
 
@@ -262,11 +262,11 @@ Considering open-sourcing. Happy to discuss the design decisions.
 ## 8. 社交媒体通用短文案（微博/即刻/推特）
 
 ### 中文版
-> 做了一个完全没有图片的西游放置游戏。从石猴修炼到齐天大圣，全靠符号和文字。关掉手机，悟空替你打妖怪。免费无广告 → [GAME_URL] 🐒
+> 做了一个完全没有图片的西游放置游戏。从石猴修炼到齐天大圣，全靠符号和文字。关掉手机，悟空替你打妖怪。免费无广告 → https://legendfz.github.io/idleGame/ 🐒
 
 ### 英文版
-> Built an idle game set in Journey to the West — with zero images. The entire UI is text & emoji. Grow from a stone monkey to the Monkey King. Free, no ads, plays in your browser → [GAME_URL] 🐒
+> Built an idle game set in Journey to the West — with zero images. The entire UI is text & emoji. Grow from a stone monkey to the Monkey King. Free, no ads, plays in your browser → https://legendfz.github.io/idleGame/ 🐒
 
 ---
 
-*所有文案中 [GAME_URL] 待正式链接确定后全局替换。*
+*所有文案中 https://legendfz.github.io/idleGame/ 待正式链接确定后全局替换。*
