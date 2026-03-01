@@ -10,7 +10,8 @@
 
 ## 待办事项
 - 等待 CTO 应用 UI-FIXES.md 修复
-- 等待 v1.1 设计反馈
+- 等待 CPO 确认品质命名（仙品+鸿蒙）
+- 品质命名协商已发 shared/handoffs/cdo-to-cpo/quality-naming-proposal.md
 
 ## 已交付设计文档
 - UI-DESIGN.md v1.0

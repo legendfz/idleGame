@@ -43,8 +43,24 @@ export const EQUIPMENT_TEMPLATES: EquipmentTemplate[] = [
     passive: { type: 'lingshiBonus', value: 0.5, description: '灵石+50%' } },
   { id: 'banana_fan', name: '芭蕉扇', emoji: '🪭', slot: 'treasure', quality: 'divine', baseStat: 0, dropFromStage: 130, dropWeight: 3,
     passive: { type: 'clickPower', value: 50, description: '点击力+50' } },
-  { id: 'jingu_needle', name: '定海神针', emoji: '📍', slot: 'treasure', quality: 'chaos', baseStat: 0, dropFromStage: 180, dropWeight: 1,
+  { id: 'jingu_needle', name: '定海神针', emoji: '📍', slot: 'treasure', quality: 'divine', baseStat: 0, dropFromStage: 180, dropWeight: 2,
     passive: { type: 'critDmg', value: 1.0, description: '暴伤+100%' } },
+
+  // ─── v1.1: Legendary (橙品) ───
+  { id: 'pangu_axe', name: '盘古斧', emoji: '🪓', slot: 'weapon', quality: 'legendary', baseStat: 500, dropFromStage: 200, dropWeight: 1,
+    setId: 'primordial', passive: { type: 'critRate', value: 20, description: '暴击+20%' } },
+  { id: 'nuwa_armor', name: '女娲石甲', emoji: '💎', slot: 'armor', quality: 'legendary', baseStat: 1200, dropFromStage: 200, dropWeight: 1,
+    setId: 'primordial', passive: { type: 'speed', value: 0.25, description: '攻速+25%' } },
+  { id: 'chaos_clock', name: '混沌钟', emoji: '🔔', slot: 'treasure', quality: 'legendary', baseStat: 0, dropFromStage: 190, dropWeight: 1,
+    passive: { type: 'offlineEfficiency', value: 0.3, description: '离线效率+30%' } },
+
+  // ─── v1.1: Mythic (红品) ───
+  { id: 'heavenly_rod', name: '天道之棒', emoji: '⚡', slot: 'weapon', quality: 'mythic', baseStat: 1000, dropFromStage: 210, dropWeight: 0.5,
+    setId: 'heavenly', passive: { type: 'critDmg', value: 1.5, description: '暴伤+150%' } },
+  { id: 'hongmeng_armor', name: '鸿蒙铠', emoji: '🌌', slot: 'armor', quality: 'mythic', baseStat: 2500, dropFromStage: 210, dropWeight: 0.5,
+    setId: 'heavenly', passive: { type: 'critRate', value: 25, description: '暴击+25%' } },
+  { id: 'dao_fruit', name: '道果', emoji: '🍇', slot: 'treasure', quality: 'mythic', baseStat: 0, dropFromStage: 210, dropWeight: 0.3,
+    passive: { type: 'offlineEfficiency', value: 0.5, description: '离线效率+50%' } },
 ];
 
 // === Equipment Sets ===
@@ -65,6 +81,22 @@ export const EQUIP_SETS: EquipSet[] = [
     bonuses: [
       { count: 2, description: '攻击+30%, 暴击+10%', effect: { attack: 0.3, critRate: 10 } },
       { count: 3, description: '全属性+50%', effect: { attack: 0.5, maxHp: 0.5, critRate: 15, critDmg: 0.5 } },
+    ],
+  },
+  {
+    id: 'primordial',
+    name: '太古套装',
+    pieces: ['pangu_axe', 'nuwa_armor'],
+    bonuses: [
+      { count: 2, description: '全属性+80%, 暴击+15%', effect: { attack: 0.8, maxHp: 0.8, critRate: 15 } },
+    ],
+  },
+  {
+    id: 'heavenly',
+    name: '天道套装',
+    pieces: ['heavenly_rod', 'hongmeng_armor'],
+    bonuses: [
+      { count: 2, description: '全属性+150%, 暴伤+100%', effect: { attack: 1.5, maxHp: 1.5, critDmg: 1.0 } },
     ],
   },
 ];
