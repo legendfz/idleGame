@@ -23,3 +23,4 @@ shared/context-bus/
   - CMO: 市场分析与推广策略 (CMO/MARKET-PLAN.md)
   - CMO: 预热营销计划 (CMO/PRELAUNCH-PLAN.md)
   - CPO: 装备用户故事 (CPO/EQUIPMENT-STORIES.md) + 平衡表强化成功率更新 (CPO/BALANCE-TABLE.md)
+  - CPO: QA 测试清单 100 条 (CPO/QA-CHECKLIST.md) — 发现 3 个代码问题
