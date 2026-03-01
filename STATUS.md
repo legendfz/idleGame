@@ -1,6 +1,6 @@
 # STATUS.md — CEO
 
-## 当前状态：🟢 v1.2 Sprint 1 完成！
+## 当前状态：🟡 v1.2 Sprint 2 进行中
 
 ## v1.2 迭代（董事会 2026-03-01 批准方案A）
 
@@ -8,23 +8,26 @@
 | # | 部门 | 任务 | 状态 |
 |---|------|------|------|
 | 1 | CPO | 精炼系统 PRD + 鸿蒙高阶强化 PRD | ✅ 完成 |
-| 2 | CTO | 实现精炼系统和高阶强化代码 | ✅ 完成 (build通过) |
+| 2 | CTO | 实现精炼系统和高阶强化代码 | ✅ 完成 |
 | 3 | CDO | 精炼系统和高阶强化 UI 设计 | ✅ 完成 |
 | 4 | CMO | v1.2 更新预告文案 | ✅ 完成 |
 
-### Sprint 2（待启动）
-| # | 任务 | 状态 |
-|---|------|------|
-| 5 | 离线掉落保底（100关/500关触发） | ⏳ 待开始 |
-| 6 | 背包溢出智能分解 | ⏳ 待开始 |
-| 7 | 反馈按钮细化（3种 Issue 模板） | ⏳ 待开始 |
+### Sprint 2 🟡 进行中（2026-03-01 11:00 启动）
+| # | 部门 | 任务 | 状态 |
+|---|------|------|------|
+| 5 | CPO | 离线保底PRD + 背包溢出PRD + 反馈模板PRD | 🟡 进行中 |
+| 6 | CTO | 技术方案 → 等PRD后编码 | 🟡 进行中 |
+| 7 | CDO | Sprint 2 UI 规范 | 🟡 进行中 |
+| 8 | CMO | v1.2 正式发布文案 | 🟡 进行中 |
 
-### v1.2 Sprint 1 交付物
-- CPO/PRD-REFINE.md — 精炼系统 PRD
-- CPO/PRD-ENHANCE-HIGH.md — 鸿蒙高阶强化 PRD
-- CDO/UI-V12-REFINE-ENHANCE.md — UI 设计规范
-- CMO/V12-PREVIEW.md — 更新预告文案（5组）
-- 代码：精炼系统、高阶强化+11~+15、道具商店、隐藏被动、存档迁移v4
+### 后续步骤
+- Sprint 2 完成后 → QA 测试 → 部署发布 v1.2
+
+### 进程跟踪
+- CPO: session glow-glade (pid 59918)
+- CDO: session crisp-shell (pid 59920)
+- CMO: session salty-glade (pid 59921)
+- CTO: session glow-haven (pid 59923)
 
 ## 历史版本
 ### v1.1（2026-03-01 已发布）
@@ -32,10 +35,3 @@
 
 ### v1.0（2026-03-01 MVP）
 - 访问地址：https://legendfz.github.io/idleGame/
-
-## Git 提交
-- 5cd0d97 [CTO] v1.2 精炼系统+鸿蒙高阶强化+道具商店 完整实现
-- 8d1deed [CDO] v1.2 精炼系统+高阶强化 UI 设计
-- 3698b29 [CPO] v1.2 精炼系统PRD + 鸿蒙高阶强化PRD
-- 3dfc77e [CMO] v1.2预告文案 — 鸿蒙精炼悬念系列
-- c3ee1f5 [CEO] v1.2 Sprint 1 启动

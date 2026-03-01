@@ -5,7 +5,7 @@
 
 import { PlayerState, Stats, EquipmentItem, QUALITY_INFO, INVENTORY_MAX } from '../types';
 import { createEnemy } from '../data/chapters';
-import { rollEquipDrop, createEquipFromTemplate, getEquipEffectiveStat, getActiveSetBonuses } from '../data/equipment';
+import { rollEquipDrop, createEquipFromTemplate, getEquipEffectiveStat, getActiveSetBonuses, EQUIPMENT_TEMPLATES } from '../data/equipment';
 import { expForLevel } from '../utils/format';
 
 export interface OfflineResult {
@@ -154,6 +154,32 @@ export function calculateOfflineEarnings(
       const item = createEquipFromTemplate(drop);
       equipmentItems.push(item);
       equipmentNames.push(`${QUALITY_INFO[drop.quality].symbol}${drop.name}`);
+    }
+  }
+
+  // 离线掉落保底：每100关保底灵品，每500关保底仙品
+  if (stagesCleared >= 100 && invSize + equipmentItems.length < INVENTORY_MAX) {
+    const spiritGuaranteed = Math.floor(stagesCleared / 100);
+    const spiritPool = EQUIPMENT_TEMPLATES.filter(e => e.quality === 'spirit' && globalStage >= e.dropFromStage);
+    for (let i = 0; i < spiritGuaranteed && invSize + equipmentItems.length < INVENTORY_MAX; i++) {
+      if (spiritPool.length > 0) {
+        const tmpl = spiritPool[Math.floor(Math.random() * spiritPool.length)];
+        const item = createEquipFromTemplate(tmpl);
+        equipmentItems.push(item);
+        equipmentNames.push(`${QUALITY_INFO[tmpl.quality].symbol}${tmpl.name}(保底)`);
+      }
+    }
+  }
+  if (stagesCleared >= 500 && invSize + equipmentItems.length < INVENTORY_MAX) {
+    const immortalGuaranteed = Math.floor(stagesCleared / 500);
+    const immortalPool = EQUIPMENT_TEMPLATES.filter(e => e.quality === 'immortal' && globalStage >= e.dropFromStage);
+    for (let i = 0; i < immortalGuaranteed && invSize + equipmentItems.length < INVENTORY_MAX; i++) {
+      if (immortalPool.length > 0) {
+        const tmpl = immortalPool[Math.floor(Math.random() * immortalPool.length)];
+        const item = createEquipFromTemplate(tmpl);
+        equipmentItems.push(item);
+        equipmentNames.push(`${QUALITY_INFO[tmpl.quality].symbol}${tmpl.name}(保底)`);
+      }
     }
   }
 
