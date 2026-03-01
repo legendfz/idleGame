@@ -9,22 +9,26 @@
 - **2026-03-01**：董事会下达产品方向 — 西游记 Idle Game
   - 纯文字+符号竖屏 Idle Game，无图片
   - 西游记孙悟空魔改版
-  - 已完成首轮 C-suite 产出：PRD、技术方案、UI设计、市场分析
-- **2026-03-01**：董事会审批通过，进入 MVP 开发
-  - CTO: 搭建完成 React+TS+Vite+Zustand 项目脚手架
-  - 核心游戏循环已实现：自动战斗、升级、境界突破、存档、离线收益
-  - 前3章数据完成（花果山、龙宫、天庭）
-  - CPO: 15个用户故事 + 验收标准 → CPO/MVP-STORIES.md
-  - CDO: ASCII UI mockups → CDO/UI-MOCKUPS.md
-  - CMO: Reddit 发帖计划 + 3篇文案 → CMO/LAUNCH-POSTS.md
+- **2026-03-01**：三轮开发全部完成
+  - 第一轮：脚手架+核心循环+用户故事+UI mockup+推广计划
+  - 第二轮：装备系统+PWA+数值平衡+装备UI+预热营销
+  - 第三轮：构建验证+QA清单+UI审查+发布文案
+
+## 项目状态
+- 代码：CTO/idle-game/，TypeScript + Vite，构建通过
+- 部署：GitHub Pages https://legendfz.github.io/idleGame/
+- 仓库：https://github.com/legendfz/idleGame
+- QA：100条测试用例 CPO/QA-CHECKLIST.md
+- UI审查：CDO/UI-REVIEW.md 有差异项待修复
+- 发布文案：CMO/LAUNCH-COPY.md 8个渠道
 
 ## 待办事项
-- 装备系统实现
-- PWA 配置
-- GitHub Pages 部署
-- 数值平衡测试
-- 汇报董事会 MVP 进展
+- 验证 GitHub Pages 部署可访问
+- 执行 QA 测试
+- 修复 UI 差异项
+- 向董事会汇报 MVP 上线
 
 ## 经验教训
-- 4个 C-suite agent 可并行工作，约5分钟全部完成
-- 项目代码在 CTO/idle-game/，TypeScript + Vite 构建通过
+- 4个 C-suite agent 可并行工作
+- openclaw agent --agent xx --message 'task' 可后台并行
+- 项目代码在 CTO/idle-game/
