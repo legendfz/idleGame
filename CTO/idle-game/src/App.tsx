@@ -2,7 +2,12 @@ import { useEffect, useRef, useState } from 'react';
 import { useGameStore } from './store/gameStore';
 import { REALMS } from './data/realms';
 import { CHAPTERS } from './data/chapters';
-import { getEquipEffectiveStat, getEnhanceCost, MAX_ENHANCE_LEVEL, getActiveSetBonuses } from './data/equipment';
+import {
+  getEquipEffectiveStat, getEnhanceCost, getMaxEnhanceLevel, getActiveSetBonuses,
+  isHighEnhance, getHighEnhanceRate, getHighEnhanceDrop,
+  canRefine, getRefineCost, REFINE_MATERIAL_COUNT, REFINE_SHARD_PITY,
+  hasHiddenPassive, hasFullMythic15, SCROLL_PRICES,
+} from './data/equipment';
 import { formatNumber, expForLevel, formatTime, formatDuration } from './utils/format';
 import { EquipmentItem, EquipSlot, QUALITY_INFO, INVENTORY_MAX, FloatingText } from './types';
 import FeedbackForm from './components/FeedbackForm';
@@ -247,6 +252,8 @@ function EquipSlotDisplay({ label, item, slot }: { label: string; item: Equipmen
   const unequip = useGameStore(s => s.unequipSlot);
   const enhance = useGameStore(s => s.enhanceEquip);
   const player = useGameStore(s => s.player);
+  const [useProtect, setUseProtect] = useState(false);
+  const [useLucky, setUseLucky] = useState(false);
 
   if (!item) {
     return (
@@ -258,14 +265,26 @@ function EquipSlotDisplay({ label, item, slot }: { label: string; item: Equipmen
   }
 
   const stat = getEquipEffectiveStat(item);
-  const cost = item.level < MAX_ENHANCE_LEVEL ? getEnhanceCost(item) : 0;
-  const canEnhance = item.level < MAX_ENHANCE_LEVEL && player.lingshi >= cost;
+  const maxLvl = getMaxEnhanceLevel(item);
+  const atMax = item.level >= maxLvl;
+  const cost = !atMax ? getEnhanceCost(item) : 0;
+  const canEnhanceNow = !atMax && player.lingshi >= cost;
   const qi = QUALITY_INFO[item.quality];
+  const highEnhance = isHighEnhance(item);
+  const hidden = hasHiddenPassive(item);
+
+  // High enhance info
+  const targetLvl = item.level + 1;
+  const rate = highEnhance ? getHighEnhanceRate(targetLvl) + (useLucky ? 10 : 0) : 100;
+  const drop = highEnhance ? (useProtect ? 0 : getHighEnhanceDrop(targetLvl)) : 0;
 
   return (
     <div className="equip-slot" style={{ borderLeftColor: qi.color }}>
       <div className="equip-header">
-        <span>{qi.symbol}{item.emoji} {item.name} {item.level > 0 ? `+${item.level}` : ''}</span>
+        <span>
+          {qi.symbol}{item.emoji} {item.name} {item.level > 0 ? `+${item.level}` : ''}
+          {item.quality === 'mythic' && item.level >= 15 ? ' ✦' : ''}
+        </span>
         <span style={{ color: qi.color, fontSize: 11 }}>{qi.label}</span>
       </div>
       <div className="equip-stats">
@@ -273,11 +292,32 @@ function EquipSlotDisplay({ label, item, slot }: { label: string; item: Equipmen
         {item.slot === 'armor' && <span>❤️+{formatNumber(stat)}</span>}
         {item.passive && <span style={{ color: '#64b5f6' }}>{item.passive.description}</span>}
         {item.setId && <span style={{ color: '#ce93d8', fontSize: 11 }}>🔗套装</span>}
+        {hidden && <span style={{ color: '#ff4444', fontSize: 11 }}>🔥{hidden.name}</span>}
       </div>
+
+      {/* High-enhance scroll toggles */}
+      {highEnhance && !atMax && (
+        <div className="scroll-toggles">
+          <span style={{ fontSize: 11, color: rate >= 50 ? '#4caf50' : rate >= 30 ? '#f0c040' : '#f44336' }}>
+            🎯{rate}%
+          </span>
+          {drop > 0 && <span style={{ fontSize: 11, color: '#f44336' }}>📉-{drop}级</span>}
+          <label className="scroll-label">
+            <input type="checkbox" checked={useProtect} onChange={e => setUseProtect(e.target.checked)} />
+            🛡️护级({player.protectScrolls})
+          </label>
+          <label className="scroll-label">
+            <input type="checkbox" checked={useLucky} onChange={e => setUseLucky(e.target.checked)} />
+            🍀幸运({player.luckyScrolls})
+          </label>
+        </div>
+      )}
+
       <div className="equip-actions">
-        {item.level < MAX_ENHANCE_LEVEL ? (
-          <button className="small-btn" disabled={!canEnhance} onClick={() => enhance(item.uid)}>
-            ⬆️强化 🪙{formatNumber(cost)}
+        {!atMax ? (
+          <button className="small-btn" disabled={!canEnhanceNow}
+            onClick={() => enhance(item.uid, useProtect, useLucky)}>
+            {highEnhance ? '🔨高阶' : '⬆️强化'} 🪙{formatNumber(cost)}
           </button>
         ) : (
           <span style={{ fontSize: 11, color: '#f0c040' }}>✨ 已满级</span>
@@ -288,7 +328,128 @@ function EquipSlotDisplay({ label, item, slot }: { label: string; item: Equipmen
   );
 }
 
-// ─── Bag View (P0-1: list layout) ───
+// ─── Refine Panel ───
+function RefinePanel() {
+  const inventory = useGameStore(s => s.inventory);
+  const player = useGameStore(s => s.player);
+  const refineItem = useGameStore(s => s.refineItem);
+  const [targetUid, setTargetUid] = useState<string | null>(null);
+  const [selectedMats, setSelectedMats] = useState<Set<string>>(new Set());
+  const [useTianming, setUseTianming] = useState(false);
+
+  // Find all legendary items
+  const legendaryItems = inventory.filter(i => i.quality === 'legendary');
+  const target = legendaryItems.find(i => i.uid === targetUid);
+  const availableMats = legendaryItems.filter(i => i.uid !== targetUid);
+
+  const toggleMat = (uid: string) => {
+    const next = new Set(selectedMats);
+    if (next.has(uid)) next.delete(uid); else if (next.size < REFINE_MATERIAL_COUNT) next.add(uid);
+    setSelectedMats(next);
+  };
+
+  const cost = target ? getRefineCost(target) : 0;
+  const canRefineNow = target && selectedMats.size >= REFINE_MATERIAL_COUNT && player.lingshi >= cost;
+  const canPity = target && selectedMats.size >= REFINE_MATERIAL_COUNT && player.hongmengShards >= REFINE_SHARD_PITY && player.lingshi >= cost;
+
+  if (legendaryItems.length === 0) return null;
+
+  return (
+    <div className="refine-section">
+      <h3 style={{ color: '#f0c040', marginBottom: 8 }}>🔥 精炼为鸿蒙</h3>
+
+      {/* Target selection */}
+      <div style={{ fontSize: 12, color: '#8b8b9e', marginBottom: 4 }}>选择目标（✧混沌装备）：</div>
+      <div className="refine-targets">
+        {legendaryItems.map(item => (
+          <button key={item.uid}
+            className={`small-btn ${targetUid === item.uid ? 'accent' : ''}`}
+            onClick={() => { setTargetUid(item.uid === targetUid ? null : item.uid); setSelectedMats(new Set()); }}
+          >
+            {item.emoji}{item.name}{item.level > 0 ? `+${item.level}` : ''}
+          </button>
+        ))}
+      </div>
+
+      {target && (
+        <>
+          <div style={{ fontSize: 12, marginTop: 8 }}>
+            ✧{target.emoji}{target.name} → ✦{target.name} (×80)
+          </div>
+
+          {/* Material selection */}
+          <div style={{ fontSize: 12, color: '#8b8b9e', marginTop: 8 }}>
+            📦 材料：混沌装备 ×{selectedMats.size}/{REFINE_MATERIAL_COUNT}
+          </div>
+          <div className="refine-targets">
+            {availableMats.map(item => (
+              <button key={item.uid}
+                className={`small-btn ${selectedMats.has(item.uid) ? 'accent' : ''}`}
+                onClick={() => toggleMat(item.uid)}
+              >
+                {selectedMats.has(item.uid) ? '☑️' : '☐'} {item.emoji}{item.name}
+              </button>
+            ))}
+          </div>
+
+          <div style={{ fontSize: 12, marginTop: 8 }}>
+            💰 灵石：{formatNumber(cost)} | 🎯 成功率：{useTianming ? '15%' : '10%'}
+          </div>
+          <div style={{ fontSize: 12, color: '#ce93d8' }}>
+            🔮 鸿蒙碎片：{player.hongmengShards}/{REFINE_SHARD_PITY}
+          </div>
+
+          <label className="scroll-label" style={{ marginTop: 4 }}>
+            <input type="checkbox" checked={useTianming} onChange={e => setUseTianming(e.target.checked)} />
+            天命符({player.tianmingScrolls}) +5%成功率
+          </label>
+
+          <div className="equip-actions" style={{ marginTop: 8 }}>
+            <button className="small-btn accent" disabled={!canRefineNow}
+              onClick={() => { refineItem(target.uid, [...selectedMats], useTianming, false); setTargetUid(null); setSelectedMats(new Set()); }}>
+              🔥 精炼
+            </button>
+            <button className="small-btn" disabled={!canPity} style={{ background: canPity ? '#ce93d8' : undefined }}
+              onClick={() => { refineItem(target.uid, [...selectedMats], false, true); setTargetUid(null); setSelectedMats(new Set()); }}>
+              🔮 碎片保底 ({player.hongmengShards}/{REFINE_SHARD_PITY})
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ─── Scroll Shop ───
+function ScrollShop() {
+  const player = useGameStore(s => s.player);
+  const buyScroll = useGameStore(s => s.buyScroll);
+
+  const scrolls = [
+    { type: 'tianming' as const, name: '天命符', icon: '📜', desc: '精炼成功率+5%', price: SCROLL_PRICES.tianming, count: player.tianmingScrolls },
+    { type: 'protect' as const, name: '护级符', icon: '🛡️', desc: '高阶强化失败不降级', price: SCROLL_PRICES.protect, count: player.protectScrolls },
+    { type: 'lucky' as const, name: '幸运符', icon: '🍀', desc: '高阶强化成功率+10%', price: SCROLL_PRICES.lucky, count: player.luckyScrolls },
+  ];
+
+  return (
+    <div className="scroll-shop">
+      <h3 style={{ color: '#f0c040', marginBottom: 8 }}>🏪 道具商店</h3>
+      <div style={{ fontSize: 11, color: '#8b8b9e', marginBottom: 4 }}>🍑 蟠桃：{player.pantao}</div>
+      {scrolls.map(s => (
+        <div key={s.type} className="shop-item">
+          <span>{s.icon} {s.name} ×{s.count}</span>
+          <span style={{ fontSize: 11, color: '#8b8b9e' }}>{s.desc}</span>
+          <button className="small-btn" disabled={player.pantao < s.price}
+            onClick={() => buyScroll(s.type)}>
+            购买 🍑{s.price}
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ─── Bag View ───
 function BagView() {
   const weapon = useGameStore(s => s.equippedWeapon);
   const armor = useGameStore(s => s.equippedArmor);
@@ -329,6 +490,25 @@ function BagView() {
         </div>
       )}
 
+      {/* Full Mythic +15 bonus */}
+      {hasFullMythic15(weapon, armor, treasure) && (
+        <div className="set-bonus" style={{ border: '1px solid #f44336', marginTop: 8 }}>
+          <div className="set-name" style={{ color: '#f44336' }}>👑 鸿蒙至尊</div>
+          <div className="set-effect">✨ 全属性额外 +100%</div>
+        </div>
+      )}
+
+      {/* Refine panel */}
+      <RefinePanel />
+
+      {/* Scroll shop */}
+      <ScrollShop />
+
+      {/* Resources */}
+      <div style={{ textAlign: 'center', fontSize: 12, color: '#8b8b9e', margin: '8px 0' }}>
+        🔮碎片 {player.hongmengShards} | 📜天命 {player.tianmingScrolls} | 🛡️护级 {player.protectScrolls} | 🍀幸运 {player.luckyScrolls}
+      </div>
+
       {/* T-055: capacity display */}
       <h3 style={{ textAlign: 'center', color: '#f0c040', margin: '16px 0 8px' }}>
         📦 背包 ({inventory.length}/{INVENTORY_MAX})
@@ -357,8 +537,9 @@ function BagView() {
       {/* P0-1: List layout with full info per row */}
       {filtered.map(item => {
         const stat = getEquipEffectiveStat(item);
-        const cost = item.level < MAX_ENHANCE_LEVEL ? getEnhanceCost(item) : 0;
-        const canEnhance = item.level < MAX_ENHANCE_LEVEL && player.lingshi >= cost;
+        const maxLvl = getMaxEnhanceLevel(item);
+        const cost = item.level < maxLvl ? getEnhanceCost(item) : 0;
+        const canEnhance = item.level < maxLvl && player.lingshi >= cost;
         const sellPrice = Math.floor(stat * 2 + (item.level + 1) * 50);
         const qi = QUALITY_INFO[item.quality];
 
@@ -379,7 +560,7 @@ function BagView() {
             {/* Row 3: actions */}
             <div className="equip-actions">
               <button className="small-btn accent" onClick={() => equipItem(item)}>装备</button>
-              {item.level < MAX_ENHANCE_LEVEL && (
+              {item.level < maxLvl && (
                 <button className="small-btn" disabled={!canEnhance} onClick={() => enhance(item.uid)}>
                   ⬆️ 🪙{formatNumber(cost)}
                 </button>

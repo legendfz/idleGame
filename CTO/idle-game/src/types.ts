@@ -4,11 +4,16 @@ export interface PlayerState {
   name: string;
   level: number;
   exp: number;
-  lingshi: number; // 灵石 (gold)
-  pantao: number;  // 蟠桃 (breakthrough material)
+  lingshi: number;
+  pantao: number;
   realmIndex: number;
   stats: Stats;
   clickPower: number;
+  // v1.2: Refine & enhance items
+  hongmengShards: number;   // 鸿蒙碎片
+  tianmingScrolls: number;  // 天命符 (refine +5%)
+  protectScrolls: number;   // 护级符 (prevent downgrade)
+  luckyScrolls: number;     // 幸运符 (enhance +10%)
 }
 
 export interface Stats {

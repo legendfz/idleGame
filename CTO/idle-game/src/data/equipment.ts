@@ -121,20 +121,118 @@ export function createEquipFromTemplate(template: EquipmentTemplate): EquipmentI
   };
 }
 
-/** Get effective stat of an equipment item (baseStat * quality * (1 + level*0.15)) */
+/** Get effective stat: baseStat * qualityMul * (1 + level*0.15) */
 export function getEquipEffectiveStat(item: EquipmentItem): number {
   const qMul = QUALITY_INFO[item.quality].multiplier;
   return Math.floor(item.baseStat * qMul * (1 + item.level * 0.15));
 }
 
-/** Enhancement cost = (level+1)^2 * 100 * qualityMultiplier */
+// ─── Enhancement System ───
+
+/** Max enhance level: mythic(鸿蒙) can go to +15, others +10 */
+export const MAX_ENHANCE_LEVEL = 10;
+export const MAX_ENHANCE_LEVEL_MYTHIC = 15;
+
+export function getMaxEnhanceLevel(item: EquipmentItem): number {
+  return item.quality === 'mythic' ? MAX_ENHANCE_LEVEL_MYTHIC : MAX_ENHANCE_LEVEL;
+}
+
+/** Standard enhancement cost (+1~+10): (level+1)^2 * 100 * qualityMul */
 export function getEnhanceCost(item: EquipmentItem): number {
+  if (item.level >= 10) {
+    return getHighEnhanceCost(item);
+  }
   const qMul = QUALITY_INFO[item.quality].multiplier;
   return Math.floor(Math.pow(item.level + 1, 2) * 100 * qMul);
 }
 
-/** Max enhance level */
-export const MAX_ENHANCE_LEVEL = 10;
+/** High-tier enhance cost (+11~+15): (level+1)^3 * 200 * qualityMul */
+export function getHighEnhanceCost(item: EquipmentItem): number {
+  const qMul = QUALITY_INFO[item.quality].multiplier;
+  return Math.floor(Math.pow(item.level + 1, 3) * 200 * qMul);
+}
+
+/** High-tier success rates */
+const HIGH_ENHANCE_RATES: Record<number, number> = {
+  11: 50, 12: 40, 13: 30, 14: 20, 15: 10,
+};
+
+/** High-tier downgrade levels on failure */
+const HIGH_ENHANCE_DROP: Record<number, number> = {
+  11: 1, 12: 1, 13: 1, 14: 1, 15: 2,
+};
+
+export function getHighEnhanceRate(targetLevel: number): number {
+  return HIGH_ENHANCE_RATES[targetLevel] ?? 0;
+}
+
+export function getHighEnhanceDrop(targetLevel: number): number {
+  return HIGH_ENHANCE_DROP[targetLevel] ?? 1;
+}
+
+/** Check if item is in high-enhance territory */
+export function isHighEnhance(item: EquipmentItem): boolean {
+  return item.quality === 'mythic' && item.level >= 10;
+}
+
+// ─── Refine System (legendary→mythic) ───
+
+export const REFINE_MATERIAL_COUNT = 5;
+export const REFINE_BASE_RATE = 10; // 10%
+export const REFINE_TIANMING_BONUS = 5; // +5%
+export const REFINE_SHARD_PITY = 10; // 10 shards = guaranteed
+
+/** Refine cost in lingshi */
+export function getRefineCost(item: EquipmentItem): number {
+  if (item.baseStat === 0) return 500_000; // 法宝 baseStat=0 floor
+  return Math.floor(item.baseStat * 80 * 500);
+}
+
+/** Check if item can be refined (must be legendary) */
+export function canRefine(item: EquipmentItem): boolean {
+  return item.quality === 'legendary';
+}
+
+// ─── Hidden Passives for +15 Mythic ───
+
+export interface HiddenPassive {
+  slot: 'weapon' | 'armor' | 'treasure';
+  name: string;
+  description: string;
+  /** For weapon: chance of 3x dmg; armor: chance dodge; treasure: cooldown reduction */
+  procChance?: number;
+  multiplier?: number;
+}
+
+export const HIDDEN_PASSIVES: HiddenPassive[] = [
+  { slot: 'weapon', name: '鸿蒙一击', description: '攻击有5%概率造成3倍伤害', procChance: 5, multiplier: 3 },
+  { slot: 'armor', name: '混沌护盾', description: '受击有10%概率免疫伤害', procChance: 10 },
+  { slot: 'treasure', name: '鸿蒙之力', description: '所有技能冷却-25%' },
+];
+
+/** Check if item has +15 mythic hidden passive */
+export function hasHiddenPassive(item: EquipmentItem): HiddenPassive | null {
+  if (item.quality !== 'mythic' || item.level < 15) return null;
+  return HIDDEN_PASSIVES.find(p => p.slot === item.slot) ?? null;
+}
+
+/** Check if all 3 equipped items are +15 mythic */
+export function hasFullMythic15(
+  weapon: EquipmentItem | null,
+  armor: EquipmentItem | null,
+  treasure: EquipmentItem | null,
+): boolean {
+  return [weapon, armor, treasure].every(
+    e => e && e.quality === 'mythic' && e.level >= 15
+  );
+}
+
+// ─── Scroll Shop Prices ───
+export const SCROLL_PRICES = {
+  tianming: 50,   // 天命符: 50 蟠桃
+  protect: 100,   // 护级符: 100 蟠桃
+  lucky: 80,      // 幸运符: 80 蟠桃
+};
 
 /** Roll equipment drop from a boss kill at given stage */
 export function rollEquipDrop(stageIndex: number, isBoss: boolean): EquipmentTemplate | null {

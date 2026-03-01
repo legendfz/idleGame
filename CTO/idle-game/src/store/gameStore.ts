@@ -5,7 +5,11 @@ import { CHAPTERS, createEnemy } from '../data/chapters';
 import { expForLevel } from '../utils/format';
 import {
   rollEquipDrop, createEquipFromTemplate, getEquipEffectiveStat,
-  getEnhanceCost, MAX_ENHANCE_LEVEL, getActiveSetBonuses
+  getEnhanceCost, getMaxEnhanceLevel, getActiveSetBonuses,
+  isHighEnhance, getHighEnhanceRate, getHighEnhanceDrop,
+  canRefine, getRefineCost, REFINE_MATERIAL_COUNT, REFINE_BASE_RATE,
+  REFINE_TIANMING_BONUS, REFINE_SHARD_PITY, hasHiddenPassive,
+  SCROLL_PRICES,
 } from '../data/equipment';
 import { calculateOfflineEarnings } from '../engine/offline';
 
@@ -43,8 +47,10 @@ interface GameStore {
   reset: () => void;
   equipItem: (item: EquipmentItem) => void;
   unequipSlot: (slot: EquipSlot) => void;
-  enhanceEquip: (uid: string) => void;
+  enhanceEquip: (uid: string, useProtect?: boolean, useLucky?: boolean) => void;
   sellEquip: (uid: string) => void;
+  refineItem: (targetUid: string, materialUids: string[], useTianming?: boolean, usePity?: boolean) => void;
+  buyScroll: (type: 'tianming' | 'protect' | 'lucky') => void;
   clearFloatingText: (id: number) => void;
   getEffectiveStats: () => Stats;
 }
@@ -59,6 +65,10 @@ function makeInitialPlayer(): PlayerState {
     realmIndex: 0,
     stats: { attack: 10, hp: 100, maxHp: 100, speed: 1, critRate: 5, critDmg: 1.5 },
     clickPower: 5,
+    hongmengShards: 0,
+    tianmingScrolls: 0,
+    protectScrolls: 0,
+    luckyScrolls: 0,
   };
 }
 
@@ -132,6 +142,29 @@ function getGlobalStage(chapterId: number, stageNum: number): number {
     else break;
   }
   return total + stageNum;
+}
+
+/** Helper to apply enhance result to the correct location */
+function applyEnhanceResult(
+  set: any,
+  state: any,
+  location: string,
+  invIdx: number,
+  newItem: EquipmentItem,
+  updatedPlayer: PlayerState,
+  log: BattleLogEntry[],
+) {
+  if (location === 'inventory') {
+    const newInv = [...state.inventory];
+    newInv[invIdx] = newItem;
+    set({ player: updatedPlayer, inventory: newInv, battle: { ...state.battle, log } });
+  } else {
+    set({
+      player: updatedPlayer,
+      [location]: newItem,
+      battle: { ...state.battle, log },
+    } as any);
+  }
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -367,35 +400,210 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set({ [key]: null, inventory: [...state.inventory, item] } as any);
   },
 
-  enhanceEquip: (uid) => {
+  enhanceEquip: (uid, useProtect = false, useLucky = false) => {
     const state = get();
+
+    // Find the item (equipped or inventory)
+    let eq: EquipmentItem | null = null;
+    let location: 'equippedWeapon' | 'equippedArmor' | 'equippedTreasure' | 'inventory' = 'inventory';
+    let invIdx = -1;
+
     for (const key of ['equippedWeapon', 'equippedArmor', 'equippedTreasure'] as const) {
-      const eq = state[key];
-      if (eq && eq.uid === uid) {
-        if (eq.level >= MAX_ENHANCE_LEVEL) return;
-        const cost = getEnhanceCost(eq);
-        if (state.player.lingshi < cost) return;
-        set({
-          player: { ...state.player, lingshi: state.player.lingshi - cost },
-          [key]: { ...eq, level: eq.level + 1 },
-          battle: { ...state.battle, log: addLog(state.battle.log, `⬆️ 强化 ${eq.emoji}${eq.name} → +${eq.level + 1}（🪙-${cost}）`, 'info') },
-        } as any);
-        return;
-      }
+      if (state[key]?.uid === uid) { eq = state[key]; location = key; break; }
     }
-    const idx = state.inventory.findIndex(i => i.uid === uid);
-    if (idx === -1) return;
-    const eq = state.inventory[idx];
-    if (eq.level >= MAX_ENHANCE_LEVEL) return;
+    if (!eq) {
+      invIdx = state.inventory.findIndex(i => i.uid === uid);
+      if (invIdx === -1) return;
+      eq = state.inventory[invIdx];
+    }
+
+    const maxLvl = getMaxEnhanceLevel(eq);
+    if (eq.level >= maxLvl) return;
+
     const cost = getEnhanceCost(eq);
     if (state.player.lingshi < cost) return;
-    const newInv = [...state.inventory];
-    newInv[idx] = { ...eq, level: eq.level + 1 };
-    set({
-      player: { ...state.player, lingshi: state.player.lingshi - cost },
-      inventory: newInv,
-      battle: { ...state.battle, log: addLog(state.battle.log, `⬆️ 强化 ${eq.emoji}${eq.name} → +${eq.level + 1}（🪙-${cost}）`, 'info') },
-    });
+
+    const targetLevel = eq.level + 1;
+    const isHigh = isHighEnhance(eq); // +11~+15 territory
+    let updatedPlayer = { ...state.player, lingshi: state.player.lingshi };
+
+    // Consume scrolls if requested
+    if (isHigh && useProtect && updatedPlayer.protectScrolls > 0) {
+      updatedPlayer.protectScrolls--;
+    } else {
+      useProtect = false; // can't use what you don't have
+    }
+    if (isHigh && useLucky && updatedPlayer.luckyScrolls > 0) {
+      updatedPlayer.luckyScrolls--;
+    } else {
+      useLucky = false;
+    }
+
+    let success: boolean;
+    let log = [...state.battle.log];
+
+    if (isHigh) {
+      // High-tier: variable success rate
+      let rate = getHighEnhanceRate(targetLevel);
+      if (useLucky) rate = Math.min(90, rate + 10);
+      success = Math.random() * 100 < rate;
+
+      if (success) {
+        updatedPlayer.lingshi -= cost;
+        const newItem = { ...eq, level: targetLevel };
+        log = addLog(log, `🎉 高阶强化成功！${eq.emoji}${eq.name} → +${targetLevel}`, 'levelup');
+
+        // Check hidden passive unlock
+        const hidden = hasHiddenPassive(newItem);
+        if (hidden) {
+          log = addLog(log, `✨ 觉醒隐藏被动「${hidden.name}」：${hidden.description}`, 'levelup');
+        }
+
+        applyEnhanceResult(set, state, location, invIdx, newItem, updatedPlayer, log);
+      } else {
+        // Failure: consume 60% lingshi
+        updatedPlayer.lingshi -= Math.floor(cost * 0.6);
+
+        const dropLevels = useProtect ? 0 : getHighEnhanceDrop(targetLevel);
+        const newLevel = Math.max(10, eq.level - dropLevels);
+        const newItem = { ...eq, level: newLevel };
+
+        if (useProtect) {
+          log = addLog(log, `💔 强化失败！🛡️护级符生效，等级保持 +${eq.level}`, 'info');
+        } else {
+          log = addLog(log, `💔 强化失败！${eq.emoji}${eq.name} +${eq.level} → +${newLevel} ⬇️`, 'info');
+        }
+
+        applyEnhanceResult(set, state, location, invIdx, newItem, updatedPlayer, log);
+      }
+    } else {
+      // Standard +1~+10: always success
+      success = true;
+      updatedPlayer.lingshi -= cost;
+      const newItem = { ...eq, level: targetLevel };
+      log = addLog(log, `⬆️ 强化 ${eq.emoji}${eq.name} → +${targetLevel}（🪙-${cost}）`, 'info');
+      applyEnhanceResult(set, state, location, invIdx, newItem, updatedPlayer, log);
+    }
+  },
+
+  refineItem: (targetUid, materialUids, useTianming = false, usePity = false) => {
+    const state = get();
+
+    // Find target item (must be legendary/混沌, equipped or inventory)
+    let target: EquipmentItem | null = null;
+    let targetLoc: 'equippedWeapon' | 'equippedArmor' | 'equippedTreasure' | 'inventory' = 'inventory';
+    let targetInvIdx = -1;
+
+    for (const key of ['equippedWeapon', 'equippedArmor', 'equippedTreasure'] as const) {
+      if (state[key]?.uid === targetUid) { target = state[key]; targetLoc = key; break; }
+    }
+    if (!target) {
+      targetInvIdx = state.inventory.findIndex(i => i.uid === targetUid);
+      if (targetInvIdx === -1) return;
+      target = state.inventory[targetInvIdx];
+    }
+
+    if (!canRefine(target)) return;
+
+    // Validate materials: 5 legendary items from inventory
+    const materials = materialUids
+      .map(uid => state.inventory.find(i => i.uid === uid))
+      .filter((i): i is EquipmentItem => !!i && i.quality === 'legendary' && i.uid !== targetUid);
+    if (materials.length < REFINE_MATERIAL_COUNT) return;
+
+    const cost = getRefineCost(target);
+    let updatedPlayer = { ...state.player };
+
+    // Pity path
+    if (usePity) {
+      if (updatedPlayer.hongmengShards < REFINE_SHARD_PITY) return;
+      if (updatedPlayer.lingshi < cost) return;
+
+      // 100% success
+      updatedPlayer.hongmengShards -= REFINE_SHARD_PITY;
+      updatedPlayer.lingshi -= cost;
+
+      // Remove materials
+      const matUids = new Set(materials.slice(0, REFINE_MATERIAL_COUNT).map(m => m.uid));
+      const newInv = state.inventory.filter(i => !matUids.has(i.uid));
+
+      // Upgrade target
+      const refined = { ...target, quality: 'mythic' as const };
+      let log = addLog(state.battle.log, `✨✨✨ 碎片保底精炼成功！${target.emoji}${target.name} → ✦鸿蒙`, 'levelup');
+
+      if (targetLoc === 'inventory') {
+        const idx = newInv.findIndex(i => i.uid === targetUid);
+        if (idx >= 0) newInv[idx] = refined;
+        set({ player: updatedPlayer, inventory: newInv, battle: { ...state.battle, log } });
+      } else {
+        set({
+          player: updatedPlayer,
+          [targetLoc]: refined,
+          inventory: newInv,
+          battle: { ...state.battle, log },
+        } as any);
+      }
+      return;
+    }
+
+    // Normal refine path
+    if (updatedPlayer.lingshi < cost) return;
+
+    // Tianming scroll
+    let rate = REFINE_BASE_RATE;
+    if (useTianming && updatedPlayer.tianmingScrolls > 0) {
+      updatedPlayer.tianmingScrolls--;
+      rate += REFINE_TIANMING_BONUS;
+    }
+
+    const success = Math.random() * 100 < rate;
+    let log = [...state.battle.log];
+
+    if (success) {
+      updatedPlayer.lingshi -= cost;
+
+      // Remove materials
+      const matUids = new Set(materials.slice(0, REFINE_MATERIAL_COUNT).map(m => m.uid));
+      const newInv = state.inventory.filter(i => !matUids.has(i.uid));
+
+      const refined = { ...target, quality: 'mythic' as const };
+      log = addLog(log, `✨✨✨ 精炼成功！${target.emoji}${target.name} → ✦鸿蒙`, 'levelup');
+
+      if (targetLoc === 'inventory') {
+        const idx = newInv.findIndex(i => i.uid === targetUid);
+        if (idx >= 0) newInv[idx] = refined;
+        set({ player: updatedPlayer, inventory: newInv, battle: { ...state.battle, log } });
+      } else {
+        set({
+          player: updatedPlayer,
+          [targetLoc]: refined,
+          inventory: newInv,
+          battle: { ...state.battle, log },
+        } as any);
+      }
+    } else {
+      // Failure: consume 50% lingshi, keep materials, gain shard
+      updatedPlayer.lingshi -= Math.floor(cost * 0.5);
+      updatedPlayer.hongmengShards += 1;
+      log = addLog(log, `💔 精炼失败！🔮鸿蒙碎片 +1 (${updatedPlayer.hongmengShards}/${REFINE_SHARD_PITY})`, 'info');
+      log = addLog(log, `💰 消耗灵石 ${Math.floor(cost * 0.5)}，材料已返还`, 'info');
+      set({ player: updatedPlayer, battle: { ...state.battle, log } });
+    }
+  },
+
+  buyScroll: (type) => {
+    const state = get();
+    const price = SCROLL_PRICES[type];
+    if (state.player.pantao < price) return;
+    const updatedPlayer = { ...state.player, pantao: state.player.pantao - price };
+    switch (type) {
+      case 'tianming': updatedPlayer.tianmingScrolls++; break;
+      case 'protect': updatedPlayer.protectScrolls++; break;
+      case 'lucky': updatedPlayer.luckyScrolls++; break;
+    }
+    const scrollName = type === 'tianming' ? '天命符' : type === 'protect' ? '护级符' : '幸运符';
+    const log = addLog(state.battle.log, `🛒 购买 ${scrollName} ×1（🍑-${price}）`, 'info');
+    set({ player: updatedPlayer, battle: { ...state.battle, log } });
   },
 
   sellEquip: (uid) => {
@@ -415,7 +623,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   save: () => {
     const state = get();
     const save: GameSave = {
-      version: 3,
+      version: 4,
       player: state.player,
       battle: { chapterId: state.battle.chapterId, stageNum: state.battle.stageNum, wave: state.battle.wave },
       highestChapter: state.highestChapter,
@@ -435,7 +643,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     try {
       const save: GameSave = JSON.parse(raw);
 
-      // v1.1: Save migration v2 → v3 (quality remap)
+      // Save migrations
       if (save.version <= 2) {
         const remap = (item: EquipmentItem | null) => {
           if (item && (item.quality as string) === 'chaos') (item as any).quality = 'mythic';
@@ -446,10 +654,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
           save.equipment.armor = remap(save.equipment.armor);
           save.equipment.treasure = remap(save.equipment.treasure);
         }
-        if (save.inventory) {
-          save.inventory = save.inventory.map(i => remap(i)!);
-        }
+        if (save.inventory) save.inventory = save.inventory.map(i => remap(i)!);
         save.version = 3;
+      }
+      // v1.2: Add scroll/shard fields
+      if (save.version <= 3) {
+        save.player.hongmengShards = save.player.hongmengShards ?? 0;
+        save.player.tianmingScrolls = save.player.tianmingScrolls ?? 0;
+        save.player.protectScrolls = save.player.protectScrolls ?? 0;
+        save.player.luckyScrolls = save.player.luckyScrolls ?? 0;
+        save.version = 4;
       }
 
       const enemy = createEnemy(save.battle.chapterId, save.battle.stageNum, false)!;
