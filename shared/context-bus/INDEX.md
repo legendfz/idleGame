@@ -18,7 +18,7 @@ shared/context-bus/
 - **2026-03-01**：产品启动 — 西游记 Idle Game
   - CEO: 产品方向定义
   - CPO: PRD v1.0 (CPO/PRD.md)
-  - CTO: 技术方案 (CTO/TECH-PLAN.md)
+  - CTO: 技术方案 (CTO/TECH-PLAN.md) + MVP计划 (CTO/MVP-PLAN.md) + 核心引擎代码 (src/engine/)
   - CDO: UI 设计方案 (CDO/UI-DESIGN.md)
   - CMO: 市场分析与推广策略 (CMO/MARKET-PLAN.md)
   - CMO: 预热营销计划 (CMO/PRELAUNCH-PLAN.md)
