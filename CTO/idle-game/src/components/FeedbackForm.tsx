@@ -11,7 +11,7 @@ import { formatTime } from '../utils/format';
 // TODO: Replace with actual Google Apps Script deployment URL
 const APPS_SCRIPT_URL = '';
 
-type FeedbackType = 'bug' | 'suggestion' | 'other';
+type FeedbackType = 'bug' | 'suggestion' | 'experience';
 
 export default function FeedbackForm() {
   const [type, setType] = useState<FeedbackType>('suggestion');
@@ -49,10 +49,18 @@ export default function FeedbackForm() {
         setError(true);
       }
     } else {
-      // Fallback: GitHub Issues
-      const title = encodeURIComponent(`[${type}] 用户反馈`);
-      const body = encodeURIComponent(`**类型**：${type}\n**内容**：${message}\n**游戏信息**：${gameInfo}`);
-      window.open(`https://github.com/legendfz/idleGame/issues/new?title=${title}&body=${body}`, '_blank');
+      // GitHub Issues with templates
+      const labels: Record<FeedbackType, string> = { bug: 'bug', suggestion: 'enhancement', experience: 'feedback' };
+      const titles: Record<FeedbackType, string> = { bug: '🐛 Bug报告', suggestion: '💡 功能建议', experience: '🎮 体验反馈' };
+      const templates: Record<FeedbackType, string> = {
+        bug: `### Bug 描述\n${message}\n\n### 复现步骤\n1. \n\n### 游戏信息\n${gameInfo}`,
+        suggestion: `### 建议内容\n${message}\n\n### 期望效果\n\n\n### 游戏信息\n${gameInfo}`,
+        experience: `### 体验描述\n${message}\n\n### 改进建议\n\n\n### 游戏信息\n${gameInfo}`,
+      };
+      const title = encodeURIComponent(titles[type]);
+      const body = encodeURIComponent(templates[type]);
+      const label = encodeURIComponent(labels[type]);
+      window.open(`https://github.com/legendfz/idleGame/issues/new?title=${title}&body=${body}&labels=${label}`, '_blank');
       setSent(true);
       setMessage('');
     }
@@ -83,7 +91,7 @@ export default function FeedbackForm() {
       <h3 style={{ color: '#f0c040', marginBottom: 8 }}>📝 反馈</h3>
 
       <div className="feedback-type-row">
-        {([['bug', '🐛 Bug'], ['suggestion', '💡 建议'], ['other', '💬 其他']] as const).map(([key, label]) => (
+        {([['bug', '🐛 Bug'], ['suggestion', '💡 建议'], ['experience', '🎮 体验']] as const).map(([key, label]) => (
           <button
             key={key}
             className={`filter-btn ${type === key ? 'active' : ''}`}

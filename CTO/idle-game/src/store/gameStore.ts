@@ -49,6 +49,8 @@ interface GameStore {
   unequipSlot: (slot: EquipSlot) => void;
   enhanceEquip: (uid: string, useProtect?: boolean, useLucky?: boolean) => void;
   sellEquip: (uid: string) => void;
+  decomposeEquip: (uid: string) => void;
+  batchDecompose: (uids: string[]) => void;
   refineItem: (targetUid: string, materialUids: string[], useTianming?: boolean, usePity?: boolean) => void;
   buyScroll: (type: 'tianming' | 'protect' | 'lucky') => void;
   clearFloatingText: (id: number) => void;
@@ -628,12 +630,59 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const idx = state.inventory.findIndex(i => i.uid === uid);
     if (idx === -1) return;
     const eq = state.inventory[idx];
-    // T-049: sell price = effectiveStat * 2 + (level+1) * 50
     const sellPrice = Math.floor(getEquipEffectiveStat(eq) * 2 + (eq.level + 1) * 50);
     set({
       player: { ...state.player, lingshi: state.player.lingshi + sellPrice },
       inventory: state.inventory.filter(i => i.uid !== uid),
       battle: { ...state.battle, log: addLog(state.battle.log, `💰 卖出 ${eq.emoji}${eq.name} → 🪙+${sellPrice}`, 'info') },
+    });
+  },
+
+  decomposeEquip: (uid) => {
+    const state = get();
+    const idx = state.inventory.findIndex(i => i.uid === uid);
+    if (idx === -1) return;
+    const eq = state.inventory[idx];
+    // 分解得灵石 = sellPrice * 0.6，legendary/mythic 额外得鸿蒙碎片
+    const sellPrice = Math.floor(getEquipEffectiveStat(eq) * 2 + (eq.level + 1) * 50);
+    const decompLingshi = Math.floor(sellPrice * 0.6);
+    const updatedPlayer = { ...state.player, lingshi: state.player.lingshi + decompLingshi };
+    let shardMsg = '';
+    if (eq.quality === 'legendary' || eq.quality === 'mythic') {
+      updatedPlayer.hongmengShards += 1;
+      shardMsg = ' 🔮碎片+1';
+    }
+    set({
+      player: updatedPlayer,
+      inventory: state.inventory.filter(i => i.uid !== uid),
+      battle: { ...state.battle, log: addLog(state.battle.log, `🔨 分解 ${eq.emoji}${eq.name} → 🪙+${decompLingshi}${shardMsg}`, 'info') },
+    });
+  },
+
+  batchDecompose: (uids) => {
+    const state = get();
+    let totalLingshi = 0;
+    let totalShards = 0;
+    let count = 0;
+    const uidSet = new Set(uids);
+    const remaining: EquipmentItem[] = [];
+    for (const item of state.inventory) {
+      if (uidSet.has(item.uid)) {
+        const sellPrice = Math.floor(getEquipEffectiveStat(item) * 2 + (item.level + 1) * 50);
+        totalLingshi += Math.floor(sellPrice * 0.6);
+        if (item.quality === 'legendary' || item.quality === 'mythic') totalShards++;
+        count++;
+      } else {
+        remaining.push(item);
+      }
+    }
+    if (count === 0) return;
+    const updatedPlayer = { ...state.player, lingshi: state.player.lingshi + totalLingshi, hongmengShards: state.player.hongmengShards + totalShards };
+    const shardMsg = totalShards > 0 ? ` 🔮碎片+${totalShards}` : '';
+    set({
+      player: updatedPlayer,
+      inventory: remaining,
+      battle: { ...state.battle, log: addLog(state.battle.log, `🔨 批量分解 ${count}件 → 🪙+${totalLingshi}${shardMsg}`, 'info') },
     });
   },
 

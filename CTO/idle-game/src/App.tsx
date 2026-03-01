@@ -458,8 +458,42 @@ function BagView() {
   const equipItem = useGameStore(s => s.equipItem);
   const sellEquip = useGameStore(s => s.sellEquip);
   const enhance = useGameStore(s => s.enhanceEquip);
+  const decomposeEquip = useGameStore(s => s.decomposeEquip);
+  const batchDecompose = useGameStore(s => s.batchDecompose);
   const player = useGameStore(s => s.player);
   const [filter, setFilter] = useState<EquipSlot | 'all'>('all');
+  const [decomposeMode, setDecomposeMode] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  const toggleSelect = (uid: string) => {
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (next.has(uid)) next.delete(uid); else next.add(uid);
+      return next;
+    });
+  };
+
+  const smartRecommend = () => {
+    // 按品质升序、等级升序推荐（保留最好的）
+    const qualityOrder = Object.keys(QUALITY_INFO);
+    const sorted = [...inventory].sort((a, b) => {
+      const qa = qualityOrder.indexOf(a.quality), qb = qualityOrder.indexOf(b.quality);
+      if (qa !== qb) return qa - qb;
+      return a.level - b.level;
+    });
+    // 推荐前半数（至少1件，最多到背包半满）
+    const count = Math.max(1, Math.min(Math.floor(inventory.length / 2), inventory.length - 25));
+    setSelected(new Set(sorted.slice(0, count).map(i => i.uid)));
+  };
+
+  const handleBatchDecompose = () => {
+    if (selected.size === 0) return;
+    if (confirm(`确定分解 ${selected.size} 件装备？`)) {
+      batchDecompose(Array.from(selected));
+      setSelected(new Set());
+      setDecomposeMode(false);
+    }
+  };
 
   const setBonuses = getActiveSetBonuses(weapon, armor, treasure);
   const filtered = inventory
