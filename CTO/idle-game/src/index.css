@@ -1,0 +1,231 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #1a1a2e;
+  --panel: #16213e;
+  --text: #e8e8e8;
+  --text-dim: #8b8b9e;
+  --accent: #f0c040;
+  --green: #4caf50;
+  --red: #f44336;
+  --blue: #64b5f6;
+  --border: #2a2a4a;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+}
+
+/* Top bar */
+.top-bar {
+  background: var(--panel);
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.top-bar .location { font-size: 15px; color: var(--accent); }
+.top-bar .resources { font-size: 13px; color: var(--text-dim); margin-top: 2px; }
+
+/* Main content */
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-md);
+}
+
+/* Bottom nav */
+.bottom-nav {
+  display: flex;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.bottom-nav button {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  padding: var(--space-sm) 0;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.bottom-nav button.active { color: var(--accent); }
+.bottom-nav button .icon { font-size: 18px; }
+
+/* Battle view */
+.enemy-section {
+  background: var(--panel);
+  border-radius: 8px;
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+.enemy-name { font-size: 16px; margin-bottom: var(--space-xs); }
+.hp-bar-bg {
+  background: var(--border);
+  border-radius: 4px;
+  height: 20px;
+  overflow: hidden;
+  position: relative;
+}
+.hp-bar-fill {
+  background: var(--red);
+  height: 100%;
+  transition: width 0.3s ease-out;
+}
+.hp-bar-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 11px;
+  font-family: monospace;
+  color: var(--text);
+  text-shadow: 0 0 3px #000;
+}
+
+.battle-log {
+  background: var(--panel);
+  border-radius: 8px;
+  padding: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-md);
+  max-height: 200px;
+  overflow-y: auto;
+  font-family: monospace;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.battle-log .crit { color: var(--accent); }
+.battle-log .kill { color: var(--green); }
+.battle-log .drop { color: var(--blue); }
+.battle-log .levelup { color: var(--accent); font-weight: bold; }
+.battle-log .boss { color: var(--red); font-weight: bold; }
+
+.click-area {
+  background: var(--panel);
+  border-radius: 8px;
+  padding: var(--space-lg);
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  margin-bottom: var(--space-md);
+  transition: transform 0.1s;
+  border: 1px solid var(--border);
+}
+.click-area:active { transform: scale(0.97); }
+
+.stats-row {
+  display: flex;
+  gap: var(--space-md);
+  font-size: 13px;
+  color: var(--text-dim);
+  justify-content: center;
+  margin-bottom: var(--space-sm);
+}
+
+/* Team view */
+.char-card {
+  background: var(--panel);
+  border-radius: 8px;
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+.char-card h3 { color: var(--accent); margin-bottom: var(--space-sm); }
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-xs) var(--space-md);
+  font-size: 13px;
+  font-family: monospace;
+}
+
+/* Realm section */
+.realm-info {
+  background: var(--panel);
+  border-radius: 8px;
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
+  text-align: center;
+}
+.realm-name { font-size: 18px; color: var(--accent); }
+.realm-desc { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+.breakthrough-btn {
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: var(--space-sm);
+}
+.breakthrough-btn:disabled {
+  background: var(--border);
+  color: var(--text-dim);
+  cursor: default;
+}
+
+/* Journey view */
+.chapter-item {
+  background: var(--panel);
+  border-radius: 8px;
+  padding: var(--space-md);
+  margin-bottom: var(--space-sm);
+}
+.chapter-item.locked { opacity: 0.5; }
+.chapter-item.current { border-left: 3px solid var(--accent); }
+
+/* Offline report modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+.modal-content {
+  background: var(--panel);
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  padding: var(--space-lg);
+  max-width: 320px;
+  width: 90%;
+  text-align: center;
+}
+.modal-content h2 { color: var(--accent); margin-bottom: var(--space-md); }
+.modal-content button {
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: var(--space-md);
+}

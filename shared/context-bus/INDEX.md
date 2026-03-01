@@ -21,3 +21,4 @@ shared/context-bus/
   - CTO: 技术方案 (CTO/TECH-PLAN.md)
   - CDO: UI 设计方案 (CDO/UI-DESIGN.md)
   - CMO: 市场分析与推广策略 (CMO/MARKET-PLAN.md)
+  - CMO: 预热营销计划 (CMO/PRELAUNCH-PLAN.md)

@@ -11,8 +11,10 @@
 - 无直接竞品，参考 A Dark Room / Candy Box 成功路径
 
 ## 待办事项
-- 等待 CEO 审阅 MARKET-PLAN.md
-- 细化执行时间表和预算
+- 确定游戏名称和 Slogan
+- 注册 TapTap/IndieNova 开发者账号
+- 启动社区建设（QQ群/Discord）
+- 等待 CPO/CTO 确认以校准预热时间线
 
 ## 经验教训
 
