@@ -87,7 +87,7 @@ export interface Realm {
 // === Equipment Types ===
 
 export type EquipSlot = 'weapon' | 'armor' | 'treasure';
-export type Quality = 'common' | 'spirit' | 'immortal' | 'divine' | 'chaos';
+export type Quality = 'common' | 'spirit' | 'immortal' | 'divine' | 'legendary' | 'mythic';
 
 export interface EquipmentTemplate {
   id: string;
