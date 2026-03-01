@@ -431,3 +431,46 @@ body {
   font-weight: bold;
   margin-top: var(--space-md);
 }
+
+/* ─── Feedback form ─── */
+.feedback-section {
+  background: var(--panel);
+  border-radius: 8px;
+  padding: var(--space-md);
+  margin-top: var(--space-md);
+}
+.feedback-type-row {
+  display: flex;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-sm);
+}
+.feedback-textarea {
+  width: 100%;
+  background: var(--border);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: var(--space-sm);
+  font-size: 13px;
+  font-family: inherit;
+  resize: vertical;
+  margin-bottom: var(--space-xs);
+}
+.feedback-textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.feedback-btn {
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  padding: 4px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.feedback-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

@@ -5,6 +5,7 @@ import { CHAPTERS } from './data/chapters';
 import { getEquipEffectiveStat, getEnhanceCost, MAX_ENHANCE_LEVEL, getActiveSetBonuses } from './data/equipment';
 import { formatNumber, expForLevel, formatTime, formatDuration } from './utils/format';
 import { EquipmentItem, EquipSlot, QUALITY_INFO, INVENTORY_MAX, FloatingText } from './types';
+import FeedbackForm from './components/FeedbackForm';
 
 // ─── TopBar ───
 function TopBar() {
@@ -411,6 +412,8 @@ function SettingsView() {
         <button className="breakthrough-btn" onClick={() => { if (confirm('确定重置？所有进度将丢失！')) reset(); }}
           style={{ background: '#f44336' }}>🗑️ 重置</button>
       </div>
+
+      <FeedbackForm />
     </div>
   );
 }
