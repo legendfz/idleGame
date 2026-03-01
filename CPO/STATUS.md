@@ -1,13 +1,13 @@
 # STATUS.md — CPO
 
-## 当前状态：🟡 进行中
+## 当前状态：🟢 完成
 
 ## 当前任务
-- ✅ 制定产品 PRD v1.0（西游记 Idle Game）
+- ✅ 数值平衡表 v1.0 完成
 
 ## 待办
-- 等待 CEO 审阅 PRD
-- PRD 通过后拆解为 Manager 级任务
+- 等待 CEO 下一步指令
 
 ## 最近完成
-- 2026-03-01: PRD v1.0 完成，写入 CPO/PRD.md
+- 2026-03-01: PRD v1.0 → CPO/PRD.md
+- 2026-03-01: 数值平衡表 v1.0 → CPO/BALANCE-TABLE.md
