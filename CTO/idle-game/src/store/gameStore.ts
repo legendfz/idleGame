@@ -8,7 +8,7 @@ import {
   getEnhanceCost, getMaxEnhanceLevel, getActiveSetBonuses,
   isHighEnhance, getHighEnhanceRate, getHighEnhanceDrop,
   canRefine, getRefineCost, REFINE_MATERIAL_COUNT, REFINE_BASE_RATE,
-  REFINE_TIANMING_BONUS, REFINE_SHARD_PITY, hasHiddenPassive,
+  REFINE_TIANMING_BONUS, REFINE_SHARD_PITY, hasHiddenPassive, hasFullMythic15,
   SCROLL_PRICES,
 } from '../data/equipment';
 import { calculateOfflineEarnings } from '../engine/offline';
@@ -116,6 +116,13 @@ function calcEffectiveStats(
       if (bonus.effect.critRate) s.critRate += bonus.effect.critRate;
       if (bonus.effect.critDmg) s.critDmg += bonus.effect.critDmg;
     }
+  }
+  // v1.2: Full Mythic +15 bonus (鸿蒙至尊: +100% all stats)
+  if (hasFullMythic15(weapon, armor, treasure)) {
+    s.attack = Math.floor(s.attack * 2);
+    s.maxHp = Math.floor(s.maxHp * 2);
+    s.critRate = Math.min(100, s.critRate * 2);
+    s.critDmg *= 2;
   }
   return s;
 }
