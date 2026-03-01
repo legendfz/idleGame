@@ -27,8 +27,9 @@
 - 发布素材：CDO/LAUNCH-ASSETS.md
 
 ## 待办事项
-- 验证 GitHub Pages 部署可正常访问
-- 向董事会汇报 MVP 准备就绪
+- ✅ 验证 GitHub Pages 部署可正常访问（2026-03-01 完成）
+- ⚠️ 向董事会汇报 MVP 已上线（Telegram bot token 缺失，需重试）
+- 执行 CMO 的 D-day 发布计划
 
 ## 经验教训
 - 4个 C-suite agent 可并行工作
