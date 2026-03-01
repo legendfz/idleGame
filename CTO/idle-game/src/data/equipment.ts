@@ -46,7 +46,7 @@ export const EQUIPMENT_TEMPLATES: EquipmentTemplate[] = [
   { id: 'jingu_needle', name: '定海神针', emoji: '📍', slot: 'treasure', quality: 'divine', baseStat: 0, dropFromStage: 180, dropWeight: 2,
     passive: { type: 'critDmg', value: 1.0, description: '暴伤+100%' } },
 
-  // ─── v1.1: Legendary (橙品) ───
+  // ─── v1.1: Legendary (仙品) ───
   { id: 'pangu_axe', name: '盘古斧', emoji: '🪓', slot: 'weapon', quality: 'legendary', baseStat: 500, dropFromStage: 200, dropWeight: 1,
     setId: 'primordial', passive: { type: 'critRate', value: 20, description: '暴击+20%' } },
   { id: 'nuwa_armor', name: '女娲石甲', emoji: '💎', slot: 'armor', quality: 'legendary', baseStat: 1200, dropFromStage: 200, dropWeight: 1,
@@ -54,7 +54,7 @@ export const EQUIPMENT_TEMPLATES: EquipmentTemplate[] = [
   { id: 'chaos_clock', name: '混沌钟', emoji: '🔔', slot: 'treasure', quality: 'legendary', baseStat: 0, dropFromStage: 190, dropWeight: 1,
     passive: { type: 'offlineEfficiency', value: 0.3, description: '离线效率+30%' } },
 
-  // ─── v1.1: Mythic (红品) ───
+  // ─── v1.1: Mythic (鸿蒙) ───
   { id: 'heavenly_rod', name: '天道之棒', emoji: '⚡', slot: 'weapon', quality: 'mythic', baseStat: 1000, dropFromStage: 210, dropWeight: 0.5,
     setId: 'heavenly', passive: { type: 'critDmg', value: 1.5, description: '暴伤+150%' } },
   { id: 'hongmeng_armor', name: '鸿蒙铠', emoji: '🌌', slot: 'armor', quality: 'mythic', baseStat: 2500, dropFromStage: 210, dropWeight: 0.5,

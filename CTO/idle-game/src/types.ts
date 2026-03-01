@@ -134,8 +134,8 @@ export const QUALITY_INFO: Record<Quality, { label: string; symbol: string; mult
   spirit:    { label: '●灵品', symbol: '●', multiplier: 2,   color: '#4caf50' },
   immortal:  { label: '◆仙品', symbol: '◆', multiplier: 5,   color: '#64b5f6' },
   divine:    { label: '★神品', symbol: '★', multiplier: 12,  color: '#ce93d8' },
-  legendary: { label: '✧橙品', symbol: '✧', multiplier: 50,  color: '#ff9800' },
-  mythic:    { label: '✦红品', symbol: '✦', multiplier: 100, color: '#f44336' },
+  legendary: { label: '✧混沌', symbol: '✧', multiplier: 30,  color: '#f0c040' },
+  mythic:    { label: '✦鸿蒙', symbol: '✦', multiplier: 80,  color: '#ff4444' },
 };
 
 export const INVENTORY_MAX = 50;
