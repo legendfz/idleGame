@@ -544,9 +544,30 @@ function BagView() {
       </div>
 
       {/* T-055: capacity display */}
-      <h3 style={{ textAlign: 'center', color: '#f0c040', margin: '16px 0 8px' }}>
-        📦 背包 ({inventory.length}/{INVENTORY_MAX})
-      </h3>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, margin: '16px 0 8px' }}>
+        <h3 style={{ color: '#f0c040', margin: 0 }}>
+          📦 背包 ({inventory.length}/{INVENTORY_MAX})
+        </h3>
+        <button
+          className={`small-btn ${decomposeMode ? 'danger' : ''}`}
+          onClick={() => { setDecomposeMode(!decomposeMode); setSelected(new Set()); }}
+          style={{ fontSize: 11 }}
+        >
+          {decomposeMode ? '✕ 取消' : '🔨 分解'}
+        </button>
+      </div>
+
+      {/* Decompose mode toolbar */}
+      {decomposeMode && (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 8 }}>
+          <button className="small-btn" onClick={smartRecommend}>🤖 智能推荐</button>
+          <button className="small-btn" onClick={() => setSelected(new Set(inventory.map(i => i.uid)))}>全选</button>
+          <button className="small-btn" onClick={() => setSelected(new Set())}>清空</button>
+          <button className="small-btn danger" onClick={handleBatchDecompose} disabled={selected.size === 0}>
+            🔨 分解({selected.size})
+          </button>
+        </div>
+      )}
 
       {/* T-056: filter buttons */}
       <div className="bag-filters">
@@ -577,11 +598,25 @@ function BagView() {
         const sellPrice = Math.floor(stat * 2 + (item.level + 1) * 50);
         const qi = QUALITY_INFO[item.quality];
 
+        const decompLingshi = Math.floor(sellPrice * 0.6);
+        const isSelected = selected.has(item.uid);
+
         return (
-          <div key={item.uid} className="inv-item" style={{ borderLeftColor: qi.color }}>
+          <div
+            key={item.uid}
+            className="inv-item"
+            style={{
+              borderLeftColor: qi.color,
+              background: decomposeMode && isSelected ? 'rgba(244,67,54,0.1)' : undefined,
+            }}
+            onClick={decomposeMode ? () => toggleSelect(item.uid) : undefined}
+          >
             {/* Row 1: name + quality */}
             <div className="equip-header">
-              <span>{qi.symbol}{item.emoji} {item.name} {item.level > 0 ? `+${item.level}` : ''}</span>
+              <span>
+                {decomposeMode && <span style={{ marginRight: 4 }}>{isSelected ? '☑️' : '⬜'}</span>}
+                {qi.symbol}{item.emoji} {item.name} {item.level > 0 ? `+${item.level}` : ''}
+              </span>
               <span style={{ color: qi.color, fontSize: 11 }}>{qi.label}</span>
             </div>
             {/* Row 2: stats */}
@@ -592,19 +627,26 @@ function BagView() {
               {item.setId && <span style={{ color: '#ce93d8', fontSize: 11 }}>🔗套装</span>}
             </div>
             {/* Row 3: actions */}
-            <div className="equip-actions">
-              <button className="small-btn accent" onClick={() => equipItem(item)}>装备</button>
-              {item.level < maxLvl && (
-                <button className="small-btn" disabled={!canEnhance} onClick={() => enhance(item.uid)}>
-                  ⬆️ 🪙{formatNumber(cost)}
+            {!decomposeMode && (
+              <div className="equip-actions">
+                <button className="small-btn accent" onClick={() => equipItem(item)}>装备</button>
+                {item.level < maxLvl && (
+                  <button className="small-btn" disabled={!canEnhance} onClick={() => enhance(item.uid)}>
+                    ⬆️ 🪙{formatNumber(cost)}
+                  </button>
+                )}
+                <button className="small-btn" onClick={() => {
+                  if (confirm(`确定分解 ${qi.symbol}${item.name}？获得 🪙${decompLingshi}`)) decomposeEquip(item.uid);
+                }}>
+                  🔨 🪙{decompLingshi}
                 </button>
-              )}
-              <button className="small-btn danger" onClick={() => {
-                if (confirm(`确定卖出 ${qi.symbol}${item.name}？获得 🪙${sellPrice}`)) sellEquip(item.uid);
-              }}>
-                卖 🪙{sellPrice}
-              </button>
-            </div>
+                <button className="small-btn danger" onClick={() => {
+                  if (confirm(`确定卖出 ${qi.symbol}${item.name}？获得 🪙${sellPrice}`)) sellEquip(item.uid);
+                }}>
+                  卖 🪙{sellPrice}
+                </button>
+              </div>
+            )}
           </div>
         );
       })}
