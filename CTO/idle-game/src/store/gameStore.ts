@@ -55,6 +55,25 @@ interface GameStore {
   buyScroll: (type: 'tianming' | 'protect' | 'lucky') => void;
   clearFloatingText: (id: number) => void;
   getEffectiveStats: () => Stats;
+  // Multi-save
+  saveToSlot: (slotId: number) => void;
+  loadFromSlot: (slotId: number) => void;
+  deleteSlot: (slotId: number) => void;
+  getSaveSlots: () => SaveSlotInfo[];
+}
+
+interface SaveSlotInfo {
+  id: number;
+  hasData: boolean;
+  summary?: {
+    name: string;
+    level: number;
+    realm: string;
+    chapter: number;
+    stage: number;
+    playTime: number;
+    savedAt: number;
+  };
 }
 
 function makeInitialPlayer(): PlayerState {
@@ -82,7 +101,7 @@ function makeInitialBattle(): BattleState {
     wave: 1,
     maxWaves: 10,
     currentEnemy: enemy,
-    log: [{ id: logIdCounter++, text: `⚔️ ${enemy.emoji} ${enemy.name} 出现了！`, type: 'info', timestamp: Date.now() }],
+    log: [{ id: logIdCounter++, text: `${enemy.name} 出现了！`, type: 'info', timestamp: Date.now() }],
     isAutoBattle: true,
     isBossWave: false,
   };
@@ -238,32 +257,32 @@ export const useGameStore = create<GameStore>((set, get) => ({
     // Floating text
     newFloats.push({
       id: floatIdCounter++,
-      text: isHongmengStrike ? `🔥 ${dmg}` : isCrit ? `💥 ${dmg}` : `-${dmg}`,
+      text: isHongmengStrike ? `鸿蒙 ${dmg}` : isCrit ? `暴击 ${dmg}` : `-${dmg}`,
       type: isCrit || isHongmengStrike ? 'crit' : 'normal',
       timestamp: Date.now(),
     });
 
     if (isHongmengStrike) {
-      log = addLog(log, `🐒 悟空 →→→ ${enemy.emoji} ${enemy.name}  -${dmg} 🔥鸿蒙一击！`, 'crit');
+      log = addLog(log, `悟空 >>> ${enemy.name}  -${dmg} 鸿蒙一击！`, 'crit');
     } else if (isCrit) {
-      log = addLog(log, `🐒 悟空 →→ ${enemy.emoji} ${enemy.name}  -${dmg} 💥暴击！`, 'crit');
+      log = addLog(log, `悟空 >> ${enemy.name}  -${dmg} 暴击！`, 'crit');
     } else {
-      log = addLog(log, `🐒 悟空 → ${enemy.emoji} ${enemy.name}  -${dmg}`, 'attack');
+      log = addLog(log, `悟空 > ${enemy.name}  -${dmg}`, 'attack');
     }
 
     if (enemy.hp <= 0) {
-      log = addLog(log, `${enemy.emoji} ${enemy.name} 💀 击败！`, 'kill');
+      log = addLog(log, `${enemy.name} 击败！`, 'kill');
 
       const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul);
       updatedPlayer.lingshi += lingshiDrop;
       updatedPlayer.exp += enemy.expDrop;
       tickGold += lingshiDrop;
       tickExp += enemy.expDrop;
-      log = addLog(log, `  → 🪙 +${lingshiDrop}  ✨ +${enemy.expDrop}`, 'drop');
+      log = addLog(log, `  灵石+${lingshiDrop}  经验+${enemy.expDrop}`, 'drop');
 
       if (enemy.pantaoDrop > 0 && Math.random() < enemy.pantaoDrop) {
         updatedPlayer.pantao += 1;
-        log = addLog(log, `  → 🍑 蟠桃 +1！`, 'drop');
+        log = addLog(log, `  蟠桃+1！`, 'drop');
       }
 
       // Equipment drop (with inventory limit check — T-100 fix)
@@ -274,7 +293,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           const newItem = createEquipFromTemplate(eqDrop);
           updatedInventory.push(newItem);
           const qi = QUALITY_INFO[eqDrop.quality];
-          log = addLog(log, `  → 📦 ${qi.symbol}${eqDrop.name}`, 'drop');
+          log = addLog(log, `  获得 ${qi.symbol}${eqDrop.name}`, 'drop');
         }
       }
 
@@ -286,7 +305,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         updatedPlayer.stats.maxHp += Math.floor(10 + updatedPlayer.level * 2);
         updatedPlayer.stats.hp = updatedPlayer.stats.maxHp;
         updatedPlayer.clickPower = Math.floor(5 + updatedPlayer.level * 0.8);
-        log = addLog(log, `⬆️ 升级！Lv.${updatedPlayer.level}  ⚡+${Math.floor(3 + updatedPlayer.level * 0.5)}  ❤️+${Math.floor(10 + updatedPlayer.level * 2)}`, 'levelup');
+        log = addLog(log, `升级 Lv.${updatedPlayer.level}  攻+${Math.floor(3 + updatedPlayer.level * 0.5)}  血+${Math.floor(10 + updatedPlayer.level * 2)}`, 'levelup');
       }
 
       // Next wave / stage
@@ -301,10 +320,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
           if (nextChapter) {
             newChapterId = nextChapter.id;
             newStageNum = 1;
-            log = addLog(log, `🏆 第${chapter.id}章「${chapter.name}」通关！`, 'info');
+            log = addLog(log, `第${chapter.id}章「${chapter.name}」通关！`, 'info');
           } else {
             newStageNum = chapter.stages;
-            log = addLog(log, `🎉 所有章节通关！继续刷最后一关`, 'info');
+            log = addLog(log, `所有章节通关！继续刷最后一关`, 'info');
           }
         }
 
@@ -313,7 +332,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           ...updatedBattle, chapterId: newChapterId, stageNum: newStageNum,
           wave: 1, isBossWave: false, currentEnemy: newEnemy, log,
         };
-        log = addLog(log, `⚔️ ${newEnemy.emoji} ${newEnemy.name} 出现了！`, 'info');
+        log = addLog(log, `${newEnemy.name} 出现了！`, 'info');
 
         const hc = newChapterId > state.highestChapter ? newChapterId : state.highestChapter;
         const hs = newChapterId > state.highestChapter ? newStageNum :
@@ -323,7 +342,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const nextWave = updatedBattle.wave + 1;
         if (nextWave > updatedBattle.maxWaves) {
           const boss = createEnemy(updatedBattle.chapterId, updatedBattle.stageNum, true)!;
-          log = addLog(log, `═══ 🐉 BOSS: ${boss.name} ═══`, 'boss');
+          log = addLog(log, `══ BOSS: ${boss.name} ══`, 'boss');
           updatedBattle = { ...updatedBattle, wave: nextWave, isBossWave: true, currentEnemy: boss, log };
         } else {
           const newEnemy = createEnemy(updatedBattle.chapterId, updatedBattle.stageNum, false)!;
@@ -357,10 +376,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const enemy = { ...battle.currentEnemy };
     const cp = calcClickPower(player.clickPower, equippedTreasure);
     enemy.hp -= cp;
-    const log = addLog([...battle.log], `👆 点击 → ${enemy.emoji} ${enemy.name}  -${cp}`, 'attack');
+    const log = addLog([...battle.log], `点击 > ${enemy.name}  -${cp}`, 'attack');
     const newFloat: FloatingText = {
       id: floatIdCounter++,
-      text: `👆 ${cp}`,
+      text: `点击 ${cp}`,
       type: 'click',
       timestamp: Date.now(),
     };
@@ -389,7 +408,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       },
       battle: {
         ...battle,
-        log: addLog(battle.log, `🌟 境界突破！「${nextRealm.name}」— ${nextRealm.bonus}`, 'levelup'),
+        log: addLog(battle.log, `境界突破！「${nextRealm.name}」— ${nextRealm.bonus}`, 'levelup'),
       },
     });
   },
@@ -405,7 +424,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set({
       [key]: item,
       inventory: newInv,
-      battle: { ...state.battle, log: addLog(state.battle.log, `🔧 装备 ${QUALITY_INFO[item.quality].symbol}${item.name}`, 'info') },
+      battle: { ...state.battle, log: addLog(state.battle.log, `装备 ${QUALITY_INFO[item.quality].symbol}${item.name}`, 'info') },
     } as any);
   },
 
@@ -470,12 +489,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
       if (success) {
         updatedPlayer.lingshi -= cost;
         const newItem = { ...eq, level: targetLevel };
-        log = addLog(log, `🎉 高阶强化成功！${eq.emoji}${eq.name} → +${targetLevel}`, 'levelup');
+        log = addLog(log, `高阶强化成功！${eq.name} → +${targetLevel}`, 'levelup');
 
         // Check hidden passive unlock
         const hidden = hasHiddenPassive(newItem);
         if (hidden) {
-          log = addLog(log, `✨ 觉醒隐藏被动「${hidden.name}」：${hidden.description}`, 'levelup');
+          log = addLog(log, `觉醒隐藏被动「${hidden.name}」：${hidden.description}`, 'levelup');
         }
 
         applyEnhanceResult(set, state, location, invIdx, newItem, updatedPlayer, log);
@@ -488,9 +507,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const newItem = { ...eq, level: newLevel };
 
         if (useProtect) {
-          log = addLog(log, `💔 强化失败！🛡️护级符生效，等级保持 +${eq.level}`, 'info');
+          log = addLog(log, `强化失败！护级符生效，等级保持 +${eq.level}`, 'info');
         } else {
-          log = addLog(log, `💔 强化失败！${eq.emoji}${eq.name} +${eq.level} → +${newLevel} ⬇️`, 'info');
+          log = addLog(log, `强化失败！${eq.name} +${eq.level} → +${newLevel}`, 'info');
         }
 
         applyEnhanceResult(set, state, location, invIdx, newItem, updatedPlayer, log);
@@ -500,7 +519,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       success = true;
       updatedPlayer.lingshi -= cost;
       const newItem = { ...eq, level: targetLevel };
-      log = addLog(log, `⬆️ 强化 ${eq.emoji}${eq.name} → +${targetLevel}（🪙-${cost}）`, 'info');
+      log = addLog(log, `强化 ${eq.name} → +${targetLevel}（灵石-${cost}）`, 'info');
       applyEnhanceResult(set, state, location, invIdx, newItem, updatedPlayer, log);
     }
   },
@@ -548,7 +567,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
       // Upgrade target
       const refined = { ...target, quality: 'mythic' as const };
-      let log = addLog(state.battle.log, `✨✨✨ 碎片保底精炼成功！${target.emoji}${target.name} → ✦鸿蒙`, 'levelup');
+      let log = addLog(state.battle.log, `碎片保底精炼成功！${target.name} → 鸿蒙`, 'levelup');
 
       if (targetLoc === 'inventory') {
         const idx = newInv.findIndex(i => i.uid === targetUid);
@@ -586,7 +605,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const newInv = state.inventory.filter(i => !matUids.has(i.uid));
 
       const refined = { ...target, quality: 'mythic' as const };
-      log = addLog(log, `✨✨✨ 精炼成功！${target.emoji}${target.name} → ✦鸿蒙`, 'levelup');
+      log = addLog(log, `精炼成功！${target.name} → 鸿蒙`, 'levelup');
 
       if (targetLoc === 'inventory') {
         const idx = newInv.findIndex(i => i.uid === targetUid);
@@ -604,8 +623,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       // Failure: consume 50% lingshi, keep materials, gain shard
       updatedPlayer.lingshi -= Math.floor(cost * 0.5);
       updatedPlayer.hongmengShards += 1;
-      log = addLog(log, `💔 精炼失败！🔮鸿蒙碎片 +1 (${updatedPlayer.hongmengShards}/${REFINE_SHARD_PITY})`, 'info');
-      log = addLog(log, `💰 消耗灵石 ${Math.floor(cost * 0.5)}，材料已返还`, 'info');
+      log = addLog(log, `精炼失败！鸿蒙碎片+1 (${updatedPlayer.hongmengShards}/${REFINE_SHARD_PITY})`, 'info');
+      log = addLog(log, `消耗灵石 ${Math.floor(cost * 0.5)}，材料已返还`, 'info');
       set({ player: updatedPlayer, battle: { ...state.battle, log } });
     }
   },
@@ -621,7 +640,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       case 'lucky': updatedPlayer.luckyScrolls++; break;
     }
     const scrollName = type === 'tianming' ? '天命符' : type === 'protect' ? '护级符' : '幸运符';
-    const log = addLog(state.battle.log, `🛒 购买 ${scrollName} ×1（🍑-${price}）`, 'info');
+    const log = addLog(state.battle.log, `购买 ${scrollName} x1（蟠桃-${price}）`, 'info');
     set({ player: updatedPlayer, battle: { ...state.battle, log } });
   },
 
@@ -634,7 +653,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set({
       player: { ...state.player, lingshi: state.player.lingshi + sellPrice },
       inventory: state.inventory.filter(i => i.uid !== uid),
-      battle: { ...state.battle, log: addLog(state.battle.log, `💰 卖出 ${eq.emoji}${eq.name} → 🪙+${sellPrice}`, 'info') },
+      battle: { ...state.battle, log: addLog(state.battle.log, `卖出 ${eq.name} → 灵石+${sellPrice}`, 'info') },
     });
   },
 
@@ -650,12 +669,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     let shardMsg = '';
     if (eq.quality === 'legendary' || eq.quality === 'mythic') {
       updatedPlayer.hongmengShards += 1;
-      shardMsg = ' 🔮碎片+1';
+      shardMsg = ' 碎片+1';
     }
     set({
       player: updatedPlayer,
       inventory: state.inventory.filter(i => i.uid !== uid),
-      battle: { ...state.battle, log: addLog(state.battle.log, `🔨 分解 ${eq.emoji}${eq.name} → 🪙+${decompLingshi}${shardMsg}`, 'info') },
+      battle: { ...state.battle, log: addLog(state.battle.log, `分解 ${eq.name} → 灵石+${decompLingshi}${shardMsg}`, 'info') },
     });
   },
 
@@ -678,11 +697,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
     if (count === 0) return;
     const updatedPlayer = { ...state.player, lingshi: state.player.lingshi + totalLingshi, hongmengShards: state.player.hongmengShards + totalShards };
-    const shardMsg = totalShards > 0 ? ` 🔮碎片+${totalShards}` : '';
+    const shardMsg = totalShards > 0 ? ` 碎片+${totalShards}` : '';
     set({
       player: updatedPlayer,
       inventory: remaining,
-      battle: { ...state.battle, log: addLog(state.battle.log, `🔨 批量分解 ${count}件 → 🪙+${totalLingshi}${shardMsg}`, 'info') },
+      battle: { ...state.battle, log: addLog(state.battle.log, `批量分解 ${count}件 → 灵石+${totalLingshi}${shardMsg}`, 'info') },
     });
   },
 
@@ -787,7 +806,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         battle: {
           chapterId: save.battle.chapterId, stageNum: save.battle.stageNum,
           wave: save.battle.wave, maxWaves: 10, currentEnemy: enemy,
-          log: [{ id: logIdCounter++, text: '📖 存档已加载', type: 'info', timestamp: Date.now() }],
+          log: [{ id: logIdCounter++, text: '存档已加载', type: 'info', timestamp: Date.now() }],
           isAutoBattle: true, isBossWave: false,
         },
         highestChapter: save.highestChapter,
@@ -817,5 +836,66 @@ export const useGameStore = create<GameStore>((set, get) => ({
       idleStats: { goldPerSec: 0, expPerSec: 0, sessionTime: 0 },
       totalPlayTime: 0, lastSaveTimestamp: Date.now(), offlineReport: null,
     });
+  },
+
+  // ─── Multi-save slots ───
+  saveToSlot: (slotId: number) => {
+    const state = get();
+    const save: GameSave = {
+      version: 4,
+      player: state.player,
+      battle: { chapterId: state.battle.chapterId, stageNum: state.battle.stageNum, wave: state.battle.wave },
+      highestChapter: state.highestChapter,
+      highestStage: state.highestStage,
+      lastSaveTimestamp: Date.now(),
+      totalPlayTime: state.totalPlayTime,
+      equipment: { weapon: state.equippedWeapon, armor: state.equippedArmor, treasure: state.equippedTreasure },
+      inventory: state.inventory,
+    };
+    localStorage.setItem(`xiyou-idle-slot-${slotId}`, JSON.stringify(save));
+  },
+
+  loadFromSlot: (slotId: number) => {
+    const raw = localStorage.getItem(`xiyou-idle-slot-${slotId}`);
+    if (!raw) return;
+    // Save current to auto-save first
+    get().save();
+    // Then load from slot (reuse load logic by temporarily setting localStorage)
+    localStorage.setItem('xiyou-idle-save', raw);
+    get().load();
+  },
+
+  deleteSlot: (slotId: number) => {
+    localStorage.removeItem(`xiyou-idle-slot-${slotId}`);
+  },
+
+  getSaveSlots: () => {
+    const slots: SaveSlotInfo[] = [];
+    for (let i = 1; i <= 3; i++) {
+      const raw = localStorage.getItem(`xiyou-idle-slot-${i}`);
+      if (raw) {
+        try {
+          const save: GameSave = JSON.parse(raw);
+          slots.push({
+            id: i,
+            hasData: true,
+            summary: {
+              name: save.player.name,
+              level: save.player.level,
+              realm: REALMS[save.player.realmIndex]?.name ?? '未知',
+              chapter: save.battle.chapterId,
+              stage: save.battle.stageNum,
+              playTime: save.totalPlayTime,
+              savedAt: save.lastSaveTimestamp,
+            },
+          });
+        } catch {
+          slots.push({ id: i, hasData: false });
+        }
+      } else {
+        slots.push({ id: i, hasData: false });
+      }
+    }
+    return slots;
   },
 }));
