@@ -1,0 +1,7 @@
+[
+  { "id": "stage-1", "name": "鹰愁涧", "difficulty": 1, "isBoss": false, "monsterTemplateId": "xiaoguai-1", "requiredPower": 10 },
+  { "id": "stage-2", "name": "高老庄", "difficulty": 2, "isBoss": false, "monsterTemplateId": "xiaoguai-2", "requiredPower": 30 },
+  { "id": "stage-3", "name": "黄风岭", "difficulty": 3, "isBoss": true, "monsterTemplateId": "huangfengguai", "requiredPower": 80 },
+  { "id": "stage-4", "name": "流沙河", "difficulty": 4, "isBoss": false, "monsterTemplateId": "xiaoguai-3", "requiredPower": 150 },
+  { "id": "stage-5", "name": "白虎岭", "difficulty": 5, "isBoss": true, "monsterTemplateId": "baigujing", "requiredPower": 300 }
+]

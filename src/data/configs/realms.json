@@ -1,0 +1,9 @@
+[
+  { "id": "lianqi", "name": "练气", "tier": 0, "baseCost": 100, "multiplier": 1, "stages": 9 },
+  { "id": "zhuji", "name": "筑基", "tier": 1, "baseCost": 1000, "multiplier": 3, "stages": 3 },
+  { "id": "jiedan", "name": "结丹", "tier": 2, "baseCost": 10000, "multiplier": 10, "stages": 3 },
+  { "id": "yuanying", "name": "元婴", "tier": 3, "baseCost": 100000, "multiplier": 30, "stages": 3 },
+  { "id": "huashen", "name": "化神", "tier": 4, "baseCost": 1000000, "multiplier": 100, "stages": 3 },
+  { "id": "dacheng", "name": "大乘", "tier": 5, "baseCost": 10000000, "multiplier": 500, "stages": 3 },
+  { "id": "dujie", "name": "渡劫", "tier": 6, "baseCost": 100000000, "multiplier": 2000, "stages": 9 }
+]

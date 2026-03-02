@@ -1,0 +1,7 @@
+[
+  { "id": "wooden-staff", "name": "木杖", "slot": "weapon", "baseAttack": 5, "baseDefense": 0, "quality": 0 },
+  { "id": "cloth-robe", "name": "布衣", "slot": "armor", "baseAttack": 0, "baseDefense": 5, "quality": 0 },
+  { "id": "jade-pendant", "name": "玉佩", "slot": "accessory", "baseAttack": 3, "baseDefense": 3, "quality": 1 },
+  { "id": "golden-cudgel", "name": "如意金箍棒", "slot": "weapon", "baseAttack": 100, "baseDefense": 10, "quality": 5 },
+  { "id": "kasaya", "name": "锦斓袈裟", "slot": "armor", "baseAttack": 10, "baseDefense": 100, "quality": 5 }
+]

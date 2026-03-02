@@ -1,0 +1,19 @@
+[
+  {
+    "stageId": "stage-1",
+    "dropRate": 0.3,
+    "entries": [
+      { "templateId": "wooden-staff", "weight": 50, "minQuality": 0, "maxQuality": 1 },
+      { "templateId": "cloth-robe", "weight": 50, "minQuality": 0, "maxQuality": 1 }
+    ]
+  },
+  {
+    "stageId": "stage-3",
+    "dropRate": 0.6,
+    "entries": [
+      { "templateId": "jade-pendant", "weight": 40, "minQuality": 1, "maxQuality": 2 },
+      { "templateId": "wooden-staff", "weight": 30, "minQuality": 1, "maxQuality": 3 },
+      { "templateId": "cloth-robe", "weight": 30, "minQuality": 1, "maxQuality": 3 }
+    ]
+  }
+]

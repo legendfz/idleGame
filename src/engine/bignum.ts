@@ -23,7 +23,7 @@ export function formatBigNum(value: Decimal, decimals = 2): string {
   if (value.lt(1000)) {
     return value.toFixed(decimals);
   }
-  const exp = Math.floor(value.log10().toNumber());
+  const exp = Math.floor(value.log10());
   const tier = Math.floor(exp / 3);
   if (tier < SUFFIXES.length) {
     const scaled = value.div(Decimal.pow(10, tier * 3));

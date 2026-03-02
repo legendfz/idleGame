@@ -1,0 +1,7 @@
+[
+  { "id": "xiaoguai-1", "name": "山精", "hp": 100, "attack": 5, "defense": 2, "xpReward": 10 },
+  { "id": "xiaoguai-2", "name": "野猪妖", "hp": 250, "attack": 12, "defense": 5, "xpReward": 25 },
+  { "id": "huangfengguai", "name": "黄风怪", "hp": 1000, "attack": 30, "defense": 15, "xpReward": 100 },
+  { "id": "xiaoguai-3", "name": "水鬼", "hp": 500, "attack": 20, "defense": 10, "xpReward": 50 },
+  { "id": "baigujing", "name": "白骨精", "hp": 3000, "attack": 50, "defense": 25, "xpReward": 300 }
+]

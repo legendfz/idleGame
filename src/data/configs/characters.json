@@ -1,0 +1,7 @@
+[
+  { "id": "tangseng", "name": "唐僧", "role": "leader", "baseAttack": 10, "baseDefense": 20 },
+  { "id": "wukong", "name": "孙悟空", "role": "dps", "baseAttack": 50, "baseDefense": 10 },
+  { "id": "bajie", "name": "猪八戒", "role": "tank", "baseAttack": 25, "baseDefense": 35 },
+  { "id": "wujing", "name": "沙悟净", "role": "support", "baseAttack": 20, "baseDefense": 30 },
+  { "id": "bailongma", "name": "白龙马", "role": "mount", "baseAttack": 15, "baseDefense": 15 }
+]
