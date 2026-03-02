@@ -262,9 +262,8 @@ export function tickDungeonBattle(
       s.killCount++;
       s.log = addLog(s.log, `☠️ 击败 ${s.enemy.icon}${s.enemy.name}！`, 'kill');
 
-      // Next enemy
-      const currentIdx = enemies.findIndex(e => e.name === s.enemy!.name && e.isBoss === s.enemy!.isBoss);
-      const nextIdx = currentIdx + 1;
+      // Next enemy — use tracked index, not findIndex (BUG-1: same-name enemies)
+      const nextIdx = s.currentEnemyIndex + 1;
       if (nextIdx < enemies.length) {
         const next = enemies[nextIdx];
         s.enemy = { ...next, hp: next.maxHp };

@@ -1015,7 +1015,19 @@ export default function App() {
       useLeaderboardStore.getState().load();
     }
   }, [load]);
-  useEffect(() => { const id = setInterval(tick, 1000); return () => clearInterval(id); }, [tick]);
+  useEffect(() => {
+    const id = setInterval(() => {
+      tick();
+      // BUG-4/5: Track achievements on each tick
+      const gs = useGameStore.getState();
+      const achStore = useAchievementStore.getState();
+      achStore.updateProgress('monkey_awaken', gs.player.level);
+      achStore.updateProgress('level_100', gs.player.level);
+      achStore.updateProgress('online_24h', gs.totalPlayTime);
+      achStore.checkAchievements();
+    }, 1000);
+    return () => clearInterval(id);
+  }, [tick]);
   useEffect(() => {
     const id = setInterval(() => {
       save();

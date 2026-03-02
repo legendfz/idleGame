@@ -5,6 +5,8 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { useDungeonStore } from '../store/dungeonStore';
 import { useGameStore } from '../store/gameStore';
+import { useLeaderboardStore } from '../store/leaderboardStore';
+import { useAchievementStore } from '../store/achievementStore';
 import { formatNumber } from '../utils/format';
 import BattleResult from './BattleResult';
 
@@ -51,6 +53,25 @@ export default function DungeonBattle({ onEnd }: Props) {
           pantao: state.player.pantao + rewards.pantao,
         },
       });
+
+      // BUG-6: Submit leaderboard scores
+      const lbStore = useLeaderboardStore.getState();
+      const clearTime = battle.elapsed;
+      lbStore.submitScore(`dungeon_speed_${battle.dungeonId}`, {
+        playerId: 'local', playerName: state.player.name,
+        score: Math.floor(clearTime), timestamp: Date.now(),
+      });
+
+      // Track achievement counters
+      const achStore = useAchievementStore.getState();
+      achStore.incrementCounter('totalDungeonClears');
+      if (clearTime < achStore.counters.bestDungeonSpeed) {
+        achStore.counters.bestDungeonSpeed = clearTime;
+      }
+      if (battle.totalDamageTaken === 0) {
+        achStore.incrementCounter('noDamageClear' as any);
+      }
+      achStore.checkAchievements();
     }
     onEnd();
   };

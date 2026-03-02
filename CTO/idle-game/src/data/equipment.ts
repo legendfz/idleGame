@@ -61,6 +61,27 @@ export const EQUIPMENT_TEMPLATES: EquipmentTemplate[] = [
     setId: 'heavenly', passive: { type: 'critRate', value: 25, description: '暴击+25%' } },
   { id: 'dao_fruit', name: '道果', emoji: '🍇', slot: 'treasure', quality: 'mythic', baseStat: 0, dropFromStage: 210, dropWeight: 0.3,
     passive: { type: 'offlineEfficiency', value: 0.5, description: '离线效率+50%' } },
+
+  // ─── v1.3: Dungeon First-Clear Rewards ───
+  { id: 'stone_chain_armor', name: '石中锁链', emoji: '⛓️', slot: 'armor', quality: 'common', baseStat: 50, dropFromStage: 999, dropWeight: 0,
+    passive: { type: 'critRate', value: 2, description: '防御+20%' } },
+  { id: 'white_dragon_scale', name: '白龙之鳞', emoji: '🐲', slot: 'treasure', quality: 'spirit', baseStat: 0, dropFromStage: 999, dropWeight: 0,
+    passive: { type: 'speed', value: 0.15, description: '速度+15%' } },
+  { id: 'broken_rake', name: '九齿钉耙·残', emoji: '🔱', slot: 'weapon', quality: 'spirit', baseStat: 55, dropFromStage: 999, dropWeight: 0,
+    passive: { type: 'critDmg', value: 0.25, description: '暴伤+25%' } },
+  { id: 'shadow_staff', name: '降妖宝杖·影', emoji: '🪄', slot: 'weapon', quality: 'immortal', baseStat: 120, dropFromStage: 999, dropWeight: 0,
+    passive: { type: 'speed', value: 0.1, description: '攻速+10%' } },
+  { id: 'snake_skin_armor', name: '蛇皮甲', emoji: '🐍', slot: 'armor', quality: 'spirit', baseStat: 150, dropFromStage: 999, dropWeight: 0 },
+  { id: 'wind_eye_amulet', name: '风眼护符', emoji: '👁️', slot: 'treasure', quality: 'immortal', baseStat: 0, dropFromStage: 999, dropWeight: 0,
+    passive: { type: 'critRate', value: 8, description: '暴击+8%' } },
+  { id: 'banana_fan_shard', name: '芭蕉扇·碎片', emoji: '🪭', slot: 'treasure', quality: 'divine', baseStat: 0, dropFromStage: 999, dropWeight: 0,
+    passive: { type: 'clickPower', value: 30, description: '点击力+30' } },
+  { id: 'spider_silk_robe', name: '蛛丝仙衣', emoji: '🕸️', slot: 'armor', quality: 'divine', baseStat: 600, dropFromStage: 999, dropWeight: 0,
+    passive: { type: 'speed', value: 0.2, description: '攻速+20%' } },
+  { id: 'chaos_yinyang_bottle', name: '阴阳瓶', emoji: '🏺', slot: 'treasure', quality: 'legendary', baseStat: 0, dropFromStage: 999, dropWeight: 0,
+    passive: { type: 'critDmg', value: 0.8, description: '暴伤+80%' } },
+  { id: 'hongmeng_diamond_sutra', name: '金刚经', emoji: '📜', slot: 'treasure', quality: 'mythic', baseStat: 0, dropFromStage: 999, dropWeight: 0,
+    passive: { type: 'offlineEfficiency', value: 0.15, description: '全属性+15%' } },
 ];
 
 // === Equipment Sets ===
