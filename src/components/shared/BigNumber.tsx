@@ -1,5 +1,5 @@
 /** 大数字显示组件 */
-import { formatBigNum, bn } from '../../engine';
+import { formatBigNum, bn } from '../../engine/bignum';
 
 interface BigNumberProps {
   value: string;
