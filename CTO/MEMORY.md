@@ -61,12 +61,20 @@
 - 技术方案: shared/context-bus/cto/TECH-SPEC-FORGE.md
 - 交付: shared/handoffs/cto-forge-delivery.md
 
+## v3.0 UI集成 (2026-03-02)
+- commit 651b157
+- ForgeView: 锻造台+炼化+材料背包, 8配方+5炼化
+- GatherView: 4采集节点, 实时CD, 开始/收取
+- DungeonView: 4秘境, 挑战+结果弹窗
+- BattleView: Boss机制标签(7种)
+- 底部Nav 5→8标签, 横向滚动
+- deploy.yml更新: 支持root src/ + feature/v2.0
+- Build: 271KB/85KB gzip
+
 ## 待办事项
-- M3 战斗系统UI完善
 - 关卡19-81配置补全
 - engine单测
 - PWA图标等CDO
-- 锻造/采集/秘境UI组件
 - CPO PRD后数值微调
 
 ## 经验教训
