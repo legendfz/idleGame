@@ -1,0 +1,7 @@
+[
+  { "id": "smelt_spirit_shard", "inputs": [{ "materialId": "iron_ore", "count": 5 }], "output": { "materialId": "spirit_shard", "count": 1 }, "coinsCost": 200 },
+  { "id": "smelt_spirit_wood", "inputs": [{ "materialId": "spirit_shard", "count": 3 }], "output": { "materialId": "spirit_wood", "count": 1 }, "coinsCost": 500 },
+  { "id": "smelt_star_iron", "inputs": [{ "materialId": "spirit_wood", "count": 3 }, { "materialId": "iron_ore", "count": 10 }], "output": { "materialId": "star_iron", "count": 1 }, "coinsCost": 2000 },
+  { "id": "smelt_jade_essence", "inputs": [{ "materialId": "spirit_shard", "count": 5 }, { "materialId": "fairy_fruit", "count": 2 }], "output": { "materialId": "jade_essence", "count": 1 }, "coinsCost": 1000 },
+  { "id": "smelt_chaos_essence", "inputs": [{ "materialId": "buddha_stone", "count": 5 }, { "materialId": "star_iron", "count": 3 }], "output": { "materialId": "chaos_essence", "count": 1 }, "coinsCost": 20000 }
+]

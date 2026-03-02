@@ -1,0 +1,20 @@
+{
+  "stageMechanics": {
+    "10": [{ "type": "enrage", "hpThreshold": 0.3, "atkBoost": 1.5 }],
+    "11": [{ "type": "enrage", "hpThreshold": 0.3, "atkBoost": 1.5 }],
+    "12": [{ "type": "enrage", "hpThreshold": 0.3, "atkBoost": 1.5 }],
+    "13": [{ "type": "enrage", "hpThreshold": 0.3, "atkBoost": 1.5 }],
+    "14": [{ "type": "enrage", "hpThreshold": 0.3, "atkBoost": 1.5 }],
+    "15": [{ "type": "enrage", "hpThreshold": 0.3, "atkBoost": 1.5 }],
+    "16": [{ "type": "enrage", "hpThreshold": 0.3, "atkBoost": 1.5 }],
+    "17": [{ "type": "enrage", "hpThreshold": 0.3, "atkBoost": 1.5 }],
+    "18": [{ "type": "enrage", "hpThreshold": 0.3, "atkBoost": 1.8 }, { "type": "phase", "phases": [{ "hpPercent": 0.5, "atkMultiplier": 1.3, "defMultiplier": 1.0, "announcement": "Boss进入第二阶段！" }] }],
+    "27": [{ "type": "enrage", "hpThreshold": 0.25, "atkBoost": 2.0 }, { "type": "phase", "phases": [{ "hpPercent": 0.6, "atkMultiplier": 1.5, "defMultiplier": 1.2, "announcement": "Boss狂暴！" }, { "hpPercent": 0.3, "atkMultiplier": 2.0, "defMultiplier": 1.5, "announcement": "Boss进入最终阶段！" }] }],
+    "36": [{ "type": "reflect", "percent": 0.15, "duration": 10 }, { "type": "phase", "phases": [{ "hpPercent": 0.5, "atkMultiplier": 1.5, "defMultiplier": 1.0, "announcement": "红孩儿释放三昧真火！" }] }],
+    "45": [{ "type": "immune", "element": "physical", "duration": 5 }, { "type": "summon", "minionId": "bull_minion", "count": 2, "interval": 15 }],
+    "54": [{ "type": "shield", "amount": "1e18", "breakCondition": "连续点击20次" }, { "type": "heal", "percent": 0.05, "cooldown": 20 }],
+    "63": [{ "type": "enrage", "hpThreshold": 0.3, "atkBoost": 2.5 }, { "type": "immune", "element": "physical", "duration": 3 }, { "type": "phase", "phases": [{ "hpPercent": 0.7, "atkMultiplier": 1.3, "defMultiplier": 1.0, "announcement": "六耳猕猴现出真身！" }, { "hpPercent": 0.4, "atkMultiplier": 1.8, "defMultiplier": 1.3, "announcement": "真假难辨！" }, { "hpPercent": 0.15, "atkMultiplier": 2.5, "defMultiplier": 1.5, "announcement": "最终决战！" }] }],
+    "72": [{ "type": "shield", "amount": "1e24", "breakCondition": "连续点击30次" }, { "type": "summon", "minionId": "head_minion", "count": 3, "interval": 10 }, { "type": "reflect", "percent": 0.2, "duration": 8 }],
+    "81": [{ "type": "enrage", "hpThreshold": 0.2, "atkBoost": 3.0 }, { "type": "phase", "phases": [{ "hpPercent": 0.75, "atkMultiplier": 1.5, "defMultiplier": 1.0, "announcement": "老龟翻身！" }, { "hpPercent": 0.5, "atkMultiplier": 2.0, "defMultiplier": 1.5, "announcement": "经书落水！" }, { "hpPercent": 0.25, "atkMultiplier": 3.0, "defMultiplier": 2.0, "announcement": "最终试炼！" }] }, { "type": "heal", "percent": 0.03, "cooldown": 15 }, { "type": "immune", "element": "physical", "duration": 4 }] 
+  }
+}

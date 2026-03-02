@@ -1,0 +1,38 @@
+[
+  {
+    "id": "dragon_palace", "name": "东海龙宫", "icon": "🐉", "tier": 1,
+    "waves": 3, "bossId": "dragon_prince",
+    "rewards": [
+      { "materialId": "dragon_scale", "count": 2, "chance": 0.8 },
+      { "materialId": "spirit_shard", "count": 5, "chance": 1.0 }
+    ],
+    "dailyLimit": 3, "staminaCost": 20, "unlockStage": 5
+  },
+  {
+    "id": "phoenix_terrace", "name": "凤凰台", "icon": "🔥", "tier": 2,
+    "waves": 4, "bossId": "phoenix_guardian",
+    "rewards": [
+      { "materialId": "phoenix_feather", "count": 2, "chance": 0.7 },
+      { "materialId": "heaven_mat", "count": 3, "chance": 0.8 }
+    ],
+    "dailyLimit": 2, "staminaCost": 40, "unlockStage": 18
+  },
+  {
+    "id": "demon_abyss", "name": "妖魔深渊", "icon": "👹", "tier": 3,
+    "waves": 5, "bossId": "abyss_lord",
+    "rewards": [
+      { "materialId": "demon_bone", "count": 5, "chance": 0.9 },
+      { "materialId": "chaos_essence", "count": 1, "chance": 0.3 }
+    ],
+    "dailyLimit": 1, "staminaCost": 60, "unlockStage": 36
+  },
+  {
+    "id": "celestial_trial", "name": "天道试炼", "icon": "⚡", "tier": 4,
+    "waves": 6, "bossId": "celestial_judge",
+    "rewards": [
+      { "materialId": "chaos_essence", "count": 2, "chance": 0.6 },
+      { "materialId": "hongmeng_core", "count": 1, "chance": 0.1 }
+    ],
+    "dailyLimit": 1, "staminaCost": 100, "unlockStage": 54
+  }
+]
