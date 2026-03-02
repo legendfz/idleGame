@@ -1,0 +1,94 @@
+{
+  "agents": {
+    "list": [
+      {
+        "id": "ig-ceo",
+        "name": "CEO",
+        "workspace": "/Users/zengfu/workspace/openclaw/idleGame",
+        "identity": { "name": "CEO", "emoji": "👔" },
+        "subagents": { "allowAgents": ["*"] }
+      },
+      {
+        "id": "ig-cto",
+        "name": "CTO",
+        "workspace": "/Users/zengfu/workspace/openclaw/idleGame/CTO",
+        "identity": { "name": "CTO", "emoji": "💻" },
+        "subagents": { "allowAgents": ["*"] }
+      },
+      {
+        "id": "ig-cpo",
+        "name": "CPO",
+        "workspace": "/Users/zengfu/workspace/openclaw/idleGame/CPO",
+        "identity": { "name": "CPO", "emoji": "🎯" },
+        "subagents": { "allowAgents": ["*"] }
+      },
+      {
+        "id": "ig-cdo",
+        "name": "CDO",
+        "workspace": "/Users/zengfu/workspace/openclaw/idleGame/CDO",
+        "identity": { "name": "CDO", "emoji": "📊" },
+        "subagents": { "allowAgents": ["*"] }
+      },
+      {
+        "id": "ig-cmo",
+        "name": "CMO",
+        "workspace": "/Users/zengfu/workspace/openclaw/idleGame/CMO",
+        "identity": { "name": "CMO", "emoji": "📣" },
+        "subagents": { "allowAgents": ["*"] }
+      }
+    ]
+  },
+  "channels": {
+    "telegram": {
+      "accounts": {
+        "ig-ceo": {
+          "name": "CEO",
+          "dmPolicy": "pairing",
+          "botToken": "NONE",
+          "groupPolicy": "allowlist",
+          "streamMode": "partial"
+        },
+        "ig-cto": {
+          "name": "CTO",
+          "dmPolicy": "pairing",
+          "botToken": "NONE",
+          "groupPolicy": "allowlist",
+          "streamMode": "partial"
+        },
+        "ig-cpo": {
+          "name": "CPO",
+          "dmPolicy": "pairing",
+          "botToken": "NONE",
+          "groupPolicy": "allowlist",
+          "streamMode": "partial"
+        },
+        "ig-cdo": {
+          "name": "CDO",
+          "dmPolicy": "pairing",
+          "botToken": "NONE",
+          "groupPolicy": "allowlist",
+          "streamMode": "partial"
+        },
+        "ig-cmo": {
+          "name": "CMO",
+          "dmPolicy": "pairing",
+          "botToken": "NONE",
+          "groupPolicy": "allowlist",
+          "streamMode": "partial"
+        }
+      }
+    }
+  },
+  "bindings": [
+    { "agentId": "ig-ceo", "match": { "channel": "telegram", "accountId": "ig-ceo" } },
+    { "agentId": "ig-cto", "match": { "channel": "telegram", "accountId": "ig-cto" } },
+    { "agentId": "ig-cpo", "match": { "channel": "telegram", "accountId": "ig-cpo" } },
+    { "agentId": "ig-cdo", "match": { "channel": "telegram", "accountId": "ig-cdo" } },
+    { "agentId": "ig-cmo", "match": { "channel": "telegram", "accountId": "ig-cmo" } }
+  ],
+  "tools": {
+    "agentToAgent": {
+      "enabled": true
+    }
+  }
+}

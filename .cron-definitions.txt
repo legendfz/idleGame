@@ -1,0 +1,31 @@
+# IdleGame Cron Jobs
+
+# CEO 巡逻 — 每30分钟 (8AM-11PM)
+name: ig-ceo-patrol
+schedule: */30 8-23 * * *
+agentId: ig-ceo
+message: 巡逻时间。执行10步核心循环：读取记忆→检查状态→检查交接→检查Git→评估进度→处理交接→分派任务→更新状态→汇报董事会→更新记忆。
+
+# CTO 巡逻 — 每天3次
+name: ig-cto-patrol
+schedule: 0 9,14,19 * * *
+agentId: ig-cto
+message: 巡逻：读取 MEMORY.md → 检查 inbox → 检查 Manager 产出 → 更新 STATUS.md → git commit+push
+
+# CPO 巡逻 — 每天3次 (偏移10分钟)
+name: ig-cpo-patrol
+schedule: 10 9,14,19 * * *
+agentId: ig-cpo
+message: 巡逻：读取 MEMORY.md → 检查 inbox → 检查 Manager 产出 → 更新 STATUS.md → git commit+push
+
+# CDO 巡逻 — 每天3次 (偏移20分钟)
+name: ig-cdo-patrol
+schedule: 20 9,14,19 * * *
+agentId: ig-cdo
+message: 巡逻：读取 MEMORY.md → 检查 inbox → 检查 Manager 产出 → 更新 STATUS.md → git commit+push
+
+# CMO 巡逻 — 每天3次 (偏移30分钟)
+name: ig-cmo-patrol
+schedule: 30 9,14,19 * * *
+agentId: ig-cmo
+message: 巡逻：读取 MEMORY.md → 检查 inbox → 检查 Manager 产出 → 更新 STATUS.md → git commit+push
