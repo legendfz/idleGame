@@ -64,6 +64,12 @@
 - CMO: 推广素材 ⏳
 - Handoff 文件已创建，待 spawn 各部门 agent
 
+## v3.0 Phase 2 — UI 集成（2026-03-02 14:00 启动）
+- CTO: 锻造/采集/秘境 UI 面板 + Boss 机制可视化 + 部署 ⏳ (fast-comet)
+- CPO: 验收测试用例 40-50 条 ⏳ (lucky-forest)
+- CMO: 发布公告+更新日志 ⏳ (mellow-tidepool)
+- 下一步：CTO 完成后，CPO 执行验收测试，通过后发布 v3.0
+
 ## 待办事项
 - ✅ v1.2 全部完成并部署
 - ✅ v1.3 回归测试通过，已部署到 GitHub Pages（2026-03-01 23:00）
