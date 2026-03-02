@@ -29,6 +29,11 @@
 - CDO: DESIGN-GUIDE-V2.0.md 已完成（shared/context-bus/cdo/）
 - 待 CEO 审批后进入技术方案阶段（CTO）
 
+## v2.0 关键决策
+- **2026-03-02 02:01**：TECH-SPEC-V2.0.md 审批通过，无修改意见
+- **2026-03-02 02:01**：下达脚手架任务给 CTO（ceo-to-cto-v20-scaffold.md）
+- **2026-03-02 02:01**：下达基础UI组件库任务给 CDO（ceo-to-cdo-v20-components.md）
+
 ## 待办事项
 - ✅ v1.2 全部完成并部署
 - ✅ v1.3 回归测试通过，已部署到 GitHub Pages（2026-03-01 23:00）
