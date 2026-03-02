@@ -624,3 +624,37 @@ body {
   cursor: pointer;
 }
 .feedback-btn:disabled { opacity: 0.4; cursor: default; }
+
+/* v1.3: Dungeon styles */
+.dungeon-card {
+  background: var(--card);
+  border-radius: 6px;
+  padding: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-xs);
+}
+.dungeon-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.dungeon-icon { font-size: 24px; }
+.dungeon-info { flex: 1; }
+.dungeon-name { font-weight: bold; font-size: 14px; }
+.dungeon-enemy-card {
+  background: rgba(244,67,54,0.08);
+  border: 1px solid rgba(244,67,54,0.3);
+  border-radius: 6px;
+  padding: var(--space-sm);
+  margin-bottom: var(--space-xs);
+}
+.hp-bar-container {
+  background: var(--border);
+  border-radius: 3px;
+  height: 8px;
+  overflow: hidden;
+}
+.hp-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}

@@ -11,6 +11,13 @@ import {
 import { formatNumber, expForLevel, formatTime, formatDuration } from './utils/format';
 import { EquipmentItem, EquipSlot, QUALITY_INFO, INVENTORY_MAX, FloatingText } from './types';
 import FeedbackForm from './components/FeedbackForm';
+import DungeonList from './components/DungeonList';
+import DungeonBattle from './components/DungeonBattle';
+import AchievementList from './components/AchievementList';
+import Leaderboard from './components/Leaderboard';
+import { useDungeonStore } from './store/dungeonStore';
+import { useAchievementStore } from './store/achievementStore';
+import { useLeaderboardStore } from './store/leaderboardStore';
 
 // ─── Card wrapper component ───
 function Card({ title, titleColor, children, className, style, borderColor, onClick }: {
@@ -34,7 +41,11 @@ type SubPage =
   | { type: 'shop' }
   | { type: 'characterDetail' }
   | { type: 'chapterSelect' }
-  | { type: 'saveManager' };
+  | { type: 'saveManager' }
+  | { type: 'dungeonList' }
+  | { type: 'dungeonBattle' }
+  | { type: 'achievements' }
+  | { type: 'leaderboard' };
 
 function SubPageHeader({ title, onBack }: { title: string; onBack: () => void }) {
   return (
@@ -351,6 +362,40 @@ function JourneyView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
         </div>
         <div className="color-dim" style={{ fontSize: 11, marginTop: 4, textAlign: 'right' }}>
           查看全部章节 →
+        </div>
+      </Card>
+
+      {/* v1.3: Dungeon, Achievement, Leaderboard */}
+      <Card title="🗺️ 取经副本" className="clickable-card"
+        style={{ cursor: 'pointer' }}
+        onClick={() => setSubPage({ type: 'dungeonList' })}>
+        <div className="color-dim" style={{ fontSize: 12 }}>
+          挑战西游取经路线 Boss 战，获取稀有奖励
+        </div>
+        <div className="color-dim" style={{ fontSize: 11, marginTop: 4, textAlign: 'right' }}>
+          进入副本 →
+        </div>
+      </Card>
+
+      <Card title="🏆 成就" className="clickable-card"
+        style={{ cursor: 'pointer' }}
+        onClick={() => setSubPage({ type: 'achievements' })}>
+        <div className="color-dim" style={{ fontSize: 12 }}>
+          里程碑与挑战成就，获取永久属性加成
+        </div>
+        <div className="color-dim" style={{ fontSize: 11, marginTop: 4, textAlign: 'right' }}>
+          查看成就 →
+        </div>
+      </Card>
+
+      <Card title="📊 排行榜" className="clickable-card"
+        style={{ cursor: 'pointer' }}
+        onClick={() => setSubPage({ type: 'leaderboard' })}>
+        <div className="color-dim" style={{ fontSize: 12 }}>
+          查看你的历史最佳记录
+        </div>
+        <div className="color-dim" style={{ fontSize: 11, marginTop: 4, textAlign: 'right' }}>
+          查看排行 →
         </div>
       </Card>
     </div>
@@ -959,9 +1004,25 @@ export default function App() {
   const loaded = useRef(false);
   const [subPage, setSubPage] = useState<SubPage>({ type: 'none' });
 
-  useEffect(() => { if (!loaded.current) { loaded.current = true; load(); } }, [load]);
+  useEffect(() => {
+    if (!loaded.current) {
+      loaded.current = true;
+      load();
+      useDungeonStore.getState().load();
+      useAchievementStore.getState().load();
+      useLeaderboardStore.getState().load();
+    }
+  }, [load]);
   useEffect(() => { const id = setInterval(tick, 1000); return () => clearInterval(id); }, [tick]);
-  useEffect(() => { const id = setInterval(save, 30000); return () => clearInterval(id); }, [save]);
+  useEffect(() => {
+    const id = setInterval(() => {
+      save();
+      useDungeonStore.getState().save();
+      useAchievementStore.getState().save();
+      useLeaderboardStore.getState().save();
+    }, 30000);
+    return () => clearInterval(id);
+  }, [save]);
 
   // Reset sub-page when tab changes
   useEffect(() => { setSubPage({ type: 'none' }); }, [activeTab]);
@@ -1001,6 +1062,53 @@ export default function App() {
   );
   if (subPage.type === 'saveManager') return (
     <><TopBar /><SaveManagerPage onBack={goBack} />
+    <div className="bottom-nav">{TABS.map(tab => (
+      <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); }}>{tab.label}</button>
+    ))}</div><OfflineReportModal /></>
+  );
+  if (subPage.type === 'dungeonList') return (
+    <><TopBar />
+    <div className="main-content fade-in">
+      <SubPageHeader title="取经副本" onBack={goBack} />
+      <DungeonList onStartDungeon={(id) => {
+        const player = useGameStore.getState().player;
+        const stats = useGameStore.getState().getEffectiveStats();
+        useDungeonStore.getState().startDungeon(id, stats.maxHp);
+        setSubPage({ type: 'dungeonBattle' });
+      }} />
+    </div>
+    <div className="bottom-nav">{TABS.map(tab => (
+      <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); }}>{tab.label}</button>
+    ))}</div><OfflineReportModal /></>
+  );
+  if (subPage.type === 'dungeonBattle') return (
+    <><TopBar />
+    <div className="main-content fade-in">
+      <DungeonBattle onEnd={() => {
+        useDungeonStore.getState().save();
+        setSubPage({ type: 'dungeonList' });
+      }} />
+    </div>
+    <div className="bottom-nav">{TABS.map(tab => (
+      <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); }}>{tab.label}</button>
+    ))}</div><OfflineReportModal /></>
+  );
+  if (subPage.type === 'achievements') return (
+    <><TopBar />
+    <div className="main-content fade-in">
+      <SubPageHeader title="成就" onBack={goBack} />
+      <AchievementList />
+    </div>
+    <div className="bottom-nav">{TABS.map(tab => (
+      <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); }}>{tab.label}</button>
+    ))}</div><OfflineReportModal /></>
+  );
+  if (subPage.type === 'leaderboard') return (
+    <><TopBar />
+    <div className="main-content fade-in">
+      <SubPageHeader title="排行榜" onBack={goBack} />
+      <Leaderboard />
+    </div>
     <div className="bottom-nav">{TABS.map(tab => (
       <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); }}>{tab.label}</button>
     ))}</div><OfflineReportModal /></>
