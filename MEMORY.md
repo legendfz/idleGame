@@ -34,6 +34,12 @@
 - **2026-03-02 02:01**：下达脚手架任务给 CTO（ceo-to-cto-v20-scaffold.md）
 - **2026-03-02 02:01**：下达基础UI组件库任务给 CDO（ceo-to-cdo-v20-components.md）
 
+## v2.0 并行任务（2026-03-02 03:00）
+- CTO: 项目脚手架搭建（进行中）
+- CDO: 基础UI组件库（进行中）
+- CPO: 核心循环详细功能规格 CORE-LOOP-SPEC-V2.0.md（刚下达）
+- CMO: 市场定位和用户获取策略 MARKETING-STRATEGY-V2.0.md（刚下达）
+
 ## 待办事项
 - ✅ v1.2 全部完成并部署
 - ✅ v1.3 回归测试通过，已部署到 GitHub Pages（2026-03-01 23:00）
