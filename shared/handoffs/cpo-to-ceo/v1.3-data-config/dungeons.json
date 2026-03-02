@@ -1,0 +1,509 @@
+[
+  {
+    "id": "wuxingshan",
+    "name": "五行山",
+    "chapter": 1,
+    "icon": "🏔️",
+    "description": "五行山下，石灵觉醒，封印之力化为妖邪。取经路的第一难。",
+    "requiredLevel": 10,
+    "requiredRealm": "通灵",
+    "prerequisite": null,
+    "dailyLimit": 3,
+    "timeLimitSec": 300,
+    "waves": [
+      { "waveNum": 1, "type": "normal", "enemies": [{ "name": "石精", "icon": "🪨", "hp": 200, "attack": 25, "defense": 15, "count": 3 }] },
+      { "waveNum": 2, "type": "normal", "enemies": [{ "name": "山魈", "icon": "👹", "hp": 300, "attack": 30, "defense": 10, "count": 2 }] },
+      { "waveNum": 3, "type": "normal", "enemies": [{ "name": "石精", "icon": "🪨", "hp": 200, "attack": 25, "defense": 15, "count": 2 }, { "name": "山魈", "icon": "👹", "hp": 300, "attack": 30, "defense": 10, "count": 2 }] },
+      { "waveNum": 4, "type": "normal", "enemies": [{ "name": "封印傀儡", "icon": "🗿", "hp": 500, "attack": 40, "defense": 25, "count": 2 }] },
+      { "waveNum": 5, "type": "normal", "enemies": [{ "name": "石精", "icon": "🪨", "hp": 200, "attack": 25, "defense": 15, "count": 4 }] },
+      { "waveNum": 6, "type": "elite", "enemies": [{ "name": "五行石将", "icon": "⛰️", "hp": 1200, "attack": 60, "defense": 40, "count": 1 }] },
+      { "waveNum": 7, "type": "elite", "enemies": [{ "name": "封印守卫", "icon": "🛡️", "hp": 1500, "attack": 50, "defense": 60, "count": 1 }] }
+    ],
+    "boss": {
+      "name": "五行山石灵",
+      "icon": "🗻",
+      "hp": 8000,
+      "attack": 80,
+      "defense": 50,
+      "skills": [
+        { "id": "stone_slam", "name": "巨石崩击", "damage": 150, "cooldownSec": 8, "type": "single", "warning": "石灵举起巨拳！", "warningTimeSec": 3, "dodgeable": true },
+        { "id": "quake", "name": "五行震荡", "damage": 80, "cooldownSec": 15, "type": "aoe", "warning": "大地开始颤抖！", "warningTimeSec": 4, "dodgeable": false }
+      ],
+      "phases": [
+        { "hpThreshold": 1.0, "description": "石灵觉醒", "attackMultiplier": 1.0, "speedMultiplier": 1.0, "unlockSkills": ["stone_slam"] },
+        { "hpThreshold": 0.5, "description": "五行狂暴！石灵吸收山脉之力！", "attackMultiplier": 1.5, "speedMultiplier": 1.2, "unlockSkills": ["quake"] }
+      ]
+    },
+    "rewards": {
+      "lingshi": 5000,
+      "exp": 800,
+      "pantao": 0,
+      "randomEquipPool": [
+        { "templateId": "iron_sword", "chance": 0.3 },
+        { "templateId": "stone_shield", "chance": 0.2 }
+      ]
+    },
+    "firstClearReward": {
+      "lingshi": 10000,
+      "exp": 2000,
+      "pantao": 10,
+      "equipmentIds": ["stone_chain_armor"]
+    }
+  },
+  {
+    "id": "yingchoujian",
+    "name": "鹰愁涧",
+    "chapter": 2,
+    "icon": "🌊",
+    "description": "涧中白龙翻波逐浪，正是西海龙王三太子。降服他，便得白龙马。",
+    "requiredLevel": 20,
+    "requiredRealm": "通灵",
+    "prerequisite": "wuxingshan",
+    "dailyLimit": 3,
+    "timeLimitSec": 300,
+    "waves": [
+      { "waveNum": 1, "type": "normal", "enemies": [{ "name": "水妖", "icon": "🐟", "hp": 350, "attack": 35, "defense": 12, "count": 3 }] },
+      { "waveNum": 2, "type": "normal", "enemies": [{ "name": "蛟灵", "icon": "🐉", "hp": 500, "attack": 45, "defense": 18, "count": 2 }] },
+      { "waveNum": 3, "type": "normal", "enemies": [{ "name": "水妖", "icon": "🐟", "hp": 350, "attack": 35, "defense": 12, "count": 3 }, { "name": "蛟灵", "icon": "🐉", "hp": 500, "attack": 45, "defense": 18, "count": 1 }] },
+      { "waveNum": 4, "type": "normal", "enemies": [{ "name": "涧底虾兵", "icon": "🦐", "hp": 250, "attack": 30, "defense": 8, "count": 5 }] },
+      { "waveNum": 5, "type": "normal", "enemies": [{ "name": "蛟灵", "icon": "🐉", "hp": 500, "attack": 45, "defense": 18, "count": 3 }] },
+      { "waveNum": 6, "type": "elite", "enemies": [{ "name": "涧龙卫", "icon": "🐲", "hp": 2000, "attack": 75, "defense": 45, "count": 1 }] },
+      { "waveNum": 7, "type": "elite", "enemies": [{ "name": "水幕护法", "icon": "🌊", "hp": 1800, "attack": 65, "defense": 55, "count": 1 }] }
+    ],
+    "boss": {
+      "name": "小白龙",
+      "icon": "🐲",
+      "hp": 15000,
+      "attack": 120,
+      "defense": 60,
+      "skills": [
+        { "id": "dragon_breath", "name": "龙息喷涌", "damage": 200, "cooldownSec": 10, "type": "aoe", "warning": "白龙深吸一口气！", "warningTimeSec": 3, "dodgeable": true },
+        { "id": "tail_sweep", "name": "龙尾横扫", "damage": 300, "cooldownSec": 12, "type": "single", "warning": "白龙转身甩尾！", "warningTimeSec": 2, "dodgeable": true }
+      ],
+      "phases": [
+        { "hpThreshold": 1.0, "description": "白龙怒啸", "attackMultiplier": 1.0, "speedMultiplier": 1.0, "unlockSkills": ["dragon_breath"] },
+        { "hpThreshold": 0.5, "description": "白龙化为真身！", "attackMultiplier": 1.5, "speedMultiplier": 1.3, "unlockSkills": ["tail_sweep"] }
+      ]
+    },
+    "rewards": {
+      "lingshi": 8000,
+      "exp": 1500,
+      "randomEquipPool": [
+        { "templateId": "water_blade", "chance": 0.25 },
+        { "templateId": "dragon_scale_vest", "chance": 0.15 }
+      ]
+    },
+    "firstClearReward": {
+      "lingshi": 15000,
+      "exp": 3000,
+      "pantao": 10,
+      "equipmentIds": ["white_dragon_scale"]
+    }
+  },
+  {
+    "id": "gaolaozhuang",
+    "name": "高老庄",
+    "chapter": 3,
+    "icon": "🏠",
+    "description": "高老庄中妖怪作乱，天蓬元帅下凡为猪。一番恶战后收为弟子。",
+    "requiredLevel": 35,
+    "requiredRealm": "炼气",
+    "prerequisite": "yingchoujian",
+    "dailyLimit": 3,
+    "timeLimitSec": 300,
+    "waves": [
+      { "waveNum": 1, "type": "normal", "enemies": [{ "name": "猪妖小兵", "icon": "🐷", "hp": 500, "attack": 50, "defense": 20, "count": 3 }] },
+      { "waveNum": 2, "type": "normal", "enemies": [{ "name": "野猪精", "icon": "🐗", "hp": 700, "attack": 60, "defense": 30, "count": 2 }] },
+      { "waveNum": 3, "type": "normal", "enemies": [{ "name": "猪妖小兵", "icon": "🐷", "hp": 500, "attack": 50, "defense": 20, "count": 4 }] },
+      { "waveNum": 4, "type": "normal", "enemies": [{ "name": "野猪精", "icon": "🐗", "hp": 700, "attack": 60, "defense": 30, "count": 3 }] },
+      { "waveNum": 5, "type": "normal", "enemies": [{ "name": "猪妖小兵", "icon": "🐷", "hp": 500, "attack": 50, "defense": 20, "count": 2 }, { "name": "野猪精", "icon": "🐗", "hp": 700, "attack": 60, "defense": 30, "count": 2 }] },
+      { "waveNum": 6, "type": "elite", "enemies": [{ "name": "猪妖统领", "icon": "🐖", "hp": 3000, "attack": 100, "defense": 55, "count": 1 }] },
+      { "waveNum": 7, "type": "elite", "enemies": [{ "name": "高老庄护院", "icon": "💪", "hp": 2500, "attack": 90, "defense": 65, "count": 1 }] }
+    ],
+    "boss": {
+      "name": "猪八戒",
+      "icon": "🐽",
+      "hp": 25000,
+      "attack": 160,
+      "defense": 80,
+      "skills": [
+        { "id": "rake_strike", "name": "九齿钉耙", "damage": 400, "cooldownSec": 8, "type": "single", "warning": "八戒举起钉耙！", "warningTimeSec": 2, "dodgeable": true },
+        { "id": "belly_slam", "name": "泰山压顶", "damage": 250, "cooldownSec": 15, "type": "aoe", "warning": "八戒跳了起来！", "warningTimeSec": 4, "dodgeable": true }
+      ],
+      "phases": [
+        { "hpThreshold": 1.0, "description": "天蓬元帅显威", "attackMultiplier": 1.0, "speedMultiplier": 1.0, "unlockSkills": ["rake_strike"] },
+        { "hpThreshold": 0.5, "description": "八戒恼羞成怒！", "attackMultiplier": 1.5, "speedMultiplier": 0.9, "unlockSkills": ["belly_slam"] }
+      ]
+    },
+    "rewards": {
+      "lingshi": 12000,
+      "exp": 2500,
+      "randomEquipPool": [
+        { "templateId": "pig_iron_rake", "chance": 0.2 },
+        { "templateId": "farm_cloth", "chance": 0.3 }
+      ]
+    },
+    "firstClearReward": {
+      "lingshi": 20000,
+      "exp": 5000,
+      "pantao": 10,
+      "equipmentIds": ["broken_rake"]
+    }
+  },
+  {
+    "id": "liushahe",
+    "name": "流沙河",
+    "chapter": 4,
+    "icon": "🏜️",
+    "description": "流沙河中沙僧拦路，卷帘大将一身煞气。",
+    "requiredLevel": 50,
+    "requiredRealm": "筑基",
+    "prerequisite": "gaolaozhuang",
+    "dailyLimit": 3,
+    "timeLimitSec": 300,
+    "waves": [
+      { "waveNum": 1, "type": "normal", "enemies": [{ "name": "沙蝎", "icon": "🦂", "hp": 800, "attack": 70, "defense": 25, "count": 3 }] },
+      { "waveNum": 2, "type": "normal", "enemies": [{ "name": "流沙鬼卒", "icon": "💀", "hp": 1000, "attack": 80, "defense": 35, "count": 2 }] },
+      { "waveNum": 3, "type": "normal", "enemies": [{ "name": "沙蝎", "icon": "🦂", "hp": 800, "attack": 70, "defense": 25, "count": 4 }] },
+      { "waveNum": 4, "type": "normal", "enemies": [{ "name": "流沙鬼卒", "icon": "💀", "hp": 1000, "attack": 80, "defense": 35, "count": 3 }] },
+      { "waveNum": 5, "type": "normal", "enemies": [{ "name": "沙蝎", "icon": "🦂", "hp": 800, "attack": 70, "defense": 25, "count": 2 }, { "name": "流沙鬼卒", "icon": "💀", "hp": 1000, "attack": 80, "defense": 35, "count": 2 }] },
+      { "waveNum": 6, "type": "elite", "enemies": [{ "name": "河底蛟龙", "icon": "🐊", "hp": 4000, "attack": 130, "defense": 70, "count": 1 }] },
+      { "waveNum": 7, "type": "elite", "enemies": [{ "name": "沙暴魔将", "icon": "🌪️", "hp": 3500, "attack": 140, "defense": 50, "count": 1 }] }
+    ],
+    "boss": {
+      "name": "沙悟净",
+      "icon": "🧔",
+      "hp": 40000,
+      "attack": 200,
+      "defense": 110,
+      "skills": [
+        { "id": "staff_smash", "name": "降妖宝杖", "damage": 500, "cooldownSec": 7, "type": "single", "warning": "沙僧挥杖！", "warningTimeSec": 2, "dodgeable": true },
+        { "id": "sandstorm", "name": "流沙漩涡", "damage": 300, "cooldownSec": 18, "type": "aoe", "warning": "河水开始翻涌！", "warningTimeSec": 5, "dodgeable": false }
+      ],
+      "phases": [
+        { "hpThreshold": 1.0, "description": "卷帘大将", "attackMultiplier": 1.0, "speedMultiplier": 1.0, "unlockSkills": ["staff_smash"] },
+        { "hpThreshold": 0.5, "description": "沙僧暴怒，流沙席卷！", "attackMultiplier": 1.5, "speedMultiplier": 1.1, "unlockSkills": ["sandstorm"] }
+      ]
+    },
+    "rewards": {
+      "lingshi": 15000,
+      "exp": 4000,
+      "randomEquipPool": [
+        { "templateId": "sand_crystal", "chance": 0.2 },
+        { "templateId": "river_boots", "chance": 0.25 }
+      ]
+    },
+    "firstClearReward": {
+      "lingshi": 25000,
+      "exp": 7000,
+      "pantao": 10,
+      "equipmentIds": ["shadow_staff"]
+    }
+  },
+  {
+    "id": "shepanshan",
+    "name": "蛇盘山",
+    "chapter": 5,
+    "icon": "🐍",
+    "description": "蛇盘山上蟒蛇精盘踞，毒雾弥漫，行路艰难。",
+    "requiredLevel": 45,
+    "requiredRealm": "炼气",
+    "prerequisite": "gaolaozhuang",
+    "dailyLimit": 3,
+    "timeLimitSec": 300,
+    "waves": [
+      { "waveNum": 1, "type": "normal", "enemies": [{ "name": "毒蛇", "icon": "🐍", "hp": 600, "attack": 65, "defense": 15, "count": 4 }] },
+      { "waveNum": 2, "type": "normal", "enemies": [{ "name": "蛇妖", "icon": "🐍", "hp": 900, "attack": 75, "defense": 25, "count": 2 }] },
+      { "waveNum": 3, "type": "normal", "enemies": [{ "name": "毒蛇", "icon": "🐍", "hp": 600, "attack": 65, "defense": 15, "count": 3 }, { "name": "蛇妖", "icon": "🐍", "hp": 900, "attack": 75, "defense": 25, "count": 1 }] },
+      { "waveNum": 4, "type": "normal", "enemies": [{ "name": "蛇妖", "icon": "🐍", "hp": 900, "attack": 75, "defense": 25, "count": 3 }] },
+      { "waveNum": 5, "type": "normal", "enemies": [{ "name": "毒蛇", "icon": "🐍", "hp": 600, "attack": 65, "defense": 15, "count": 5 }] },
+      { "waveNum": 6, "type": "elite", "enemies": [{ "name": "蛇王卫士", "icon": "🐉", "hp": 3500, "attack": 120, "defense": 50, "count": 1 }] },
+      { "waveNum": 7, "type": "elite", "enemies": [{ "name": "毒雾蛇灵", "icon": "☠️", "hp": 3000, "attack": 110, "defense": 40, "count": 1 }] }
+    ],
+    "boss": {
+      "name": "蟒蛇精",
+      "icon": "🐍",
+      "hp": 35000,
+      "attack": 180,
+      "defense": 90,
+      "skills": [
+        { "id": "venom_spit", "name": "毒雾喷射", "damage": 250, "damagePercent": 0.1, "cooldownSec": 10, "type": "aoe", "warning": "蟒蛇精张开巨口！", "warningTimeSec": 3, "dodgeable": true },
+        { "id": "constrict", "name": "缠绕绞杀", "damage": 600, "cooldownSec": 20, "type": "single", "warning": "蟒蛇精盘起身躯！", "warningTimeSec": 4, "dodgeable": true }
+      ],
+      "phases": [
+        { "hpThreshold": 1.0, "description": "蟒蛇精吐信", "attackMultiplier": 1.0, "speedMultiplier": 1.0, "unlockSkills": ["venom_spit"] },
+        { "hpThreshold": 0.5, "description": "蟒蛇精暴怒缠绕！", "attackMultiplier": 1.4, "speedMultiplier": 1.2, "unlockSkills": ["constrict"] }
+      ]
+    },
+    "rewards": {
+      "lingshi": 13000,
+      "exp": 3500,
+      "randomEquipPool": [
+        { "templateId": "snake_fang_dagger", "chance": 0.2 },
+        { "templateId": "venom_cloak", "chance": 0.15 }
+      ]
+    },
+    "firstClearReward": {
+      "lingshi": 22000,
+      "exp": 6000,
+      "pantao": 10,
+      "equipmentIds": ["snake_skin_armor"]
+    }
+  },
+  {
+    "id": "huangfengling",
+    "name": "黄风岭",
+    "chapter": 6,
+    "icon": "👁️",
+    "description": "黄风怪吹起三昧神风，遮天蔽日，令人目不能视。",
+    "requiredLevel": 60,
+    "requiredRealm": "金丹",
+    "prerequisite": "liushahe",
+    "dailyLimit": 3,
+    "timeLimitSec": 300,
+    "waves": [
+      { "waveNum": 1, "type": "normal", "enemies": [{ "name": "黄风小妖", "icon": "🐀", "hp": 1000, "attack": 85, "defense": 30, "count": 3 }] },
+      { "waveNum": 2, "type": "normal", "enemies": [{ "name": "风蝠", "icon": "🦇", "hp": 800, "attack": 95, "defense": 15, "count": 4 }] },
+      { "waveNum": 3, "type": "normal", "enemies": [{ "name": "黄风小妖", "icon": "🐀", "hp": 1000, "attack": 85, "defense": 30, "count": 2 }, { "name": "风蝠", "icon": "🦇", "hp": 800, "attack": 95, "defense": 15, "count": 2 }] },
+      { "waveNum": 4, "type": "normal", "enemies": [{ "name": "黄风小妖", "icon": "🐀", "hp": 1000, "attack": 85, "defense": 30, "count": 4 }] },
+      { "waveNum": 5, "type": "normal", "enemies": [{ "name": "风蝠", "icon": "🦇", "hp": 800, "attack": 95, "defense": 15, "count": 5 }] },
+      { "waveNum": 6, "type": "elite", "enemies": [{ "name": "风暴鬼将", "icon": "🌪️", "hp": 5000, "attack": 160, "defense": 70, "count": 1 }] },
+      { "waveNum": 7, "type": "elite", "enemies": [{ "name": "黄风先锋", "icon": "⚔️", "hp": 4500, "attack": 150, "defense": 80, "count": 1 }] }
+    ],
+    "boss": {
+      "name": "黄风怪",
+      "icon": "🐀",
+      "hp": 55000,
+      "attack": 240,
+      "defense": 120,
+      "skills": [
+        { "id": "divine_wind", "name": "三昧神风", "damage": 400, "cooldownSec": 12, "type": "aoe", "warning": "黄风怪张口吐风！", "warningTimeSec": 3, "dodgeable": false },
+        { "id": "sand_blind", "name": "飞沙走石", "damage": 350, "cooldownSec": 8, "type": "single", "warning": "沙尘暴来袭！", "warningTimeSec": 2, "dodgeable": true }
+      ],
+      "phases": [
+        { "hpThreshold": 1.0, "description": "黄风初起", "attackMultiplier": 1.0, "speedMultiplier": 1.0, "unlockSkills": ["sand_blind"] },
+        { "hpThreshold": 0.5, "description": "三昧神风大作！", "attackMultiplier": 1.5, "speedMultiplier": 1.3, "unlockSkills": ["divine_wind"] }
+      ]
+    },
+    "rewards": {
+      "lingshi": 18000,
+      "exp": 5000,
+      "randomEquipPool": [
+        { "templateId": "wind_charm", "chance": 0.2 },
+        { "templateId": "sandstorm_ring", "chance": 0.15 }
+      ]
+    },
+    "firstClearReward": {
+      "lingshi": 30000,
+      "exp": 8000,
+      "pantao": 10,
+      "equipmentIds": ["wind_eye_amulet"]
+    }
+  },
+  {
+    "id": "huoyanshan",
+    "name": "火焰山",
+    "chapter": 7,
+    "icon": "🔥",
+    "description": "火焰山八百里火焰，非芭蕉扇不能熄灭。牛魔王与铁扇公主联手阻路。",
+    "requiredLevel": 70,
+    "requiredRealm": "金丹",
+    "prerequisite": "huangfengling",
+    "dailyLimit": 3,
+    "timeLimitSec": 300,
+    "waves": [
+      { "waveNum": 1, "type": "normal", "enemies": [{ "name": "火鸦", "icon": "🔥", "hp": 1200, "attack": 100, "defense": 25, "count": 3 }] },
+      { "waveNum": 2, "type": "normal", "enemies": [{ "name": "炎魔兵", "icon": "👿", "hp": 1500, "attack": 110, "defense": 40, "count": 2 }] },
+      { "waveNum": 3, "type": "normal", "enemies": [{ "name": "火鸦", "icon": "🔥", "hp": 1200, "attack": 100, "defense": 25, "count": 2 }, { "name": "炎魔兵", "icon": "👿", "hp": 1500, "attack": 110, "defense": 40, "count": 2 }] },
+      { "waveNum": 4, "type": "normal", "enemies": [{ "name": "炎魔兵", "icon": "👿", "hp": 1500, "attack": 110, "defense": 40, "count": 3 }] },
+      { "waveNum": 5, "type": "normal", "enemies": [{ "name": "火鸦", "icon": "🔥", "hp": 1200, "attack": 100, "defense": 25, "count": 5 }] },
+      { "waveNum": 6, "type": "elite", "enemies": [{ "name": "铁扇公主", "icon": "👸", "hp": 8000, "attack": 180, "defense": 90, "count": 1 }] },
+      { "waveNum": 7, "type": "elite", "enemies": [{ "name": "红孩儿", "icon": "👦", "hp": 7000, "attack": 200, "defense": 70, "count": 1 }] }
+    ],
+    "boss": {
+      "name": "牛魔王",
+      "icon": "🐉",
+      "hp": 580000,
+      "attack": 350,
+      "defense": 180,
+      "skills": [
+        { "id": "iron_fan_flame", "name": "铁扇烈焰", "damage": 12000, "cooldownSec": 15, "type": "aoe", "warning": "铁扇公主摇动芭蕉扇！", "warningTimeSec": 3, "dodgeable": true },
+        { "id": "bull_charge", "name": "狂牛冲撞", "damage": 8000, "cooldownSec": 10, "type": "single", "warning": "牛魔王低头冲来！", "warningTimeSec": 2, "dodgeable": true },
+        { "id": "true_form", "name": "大力牛魔真身", "damage": 15000, "cooldownSec": 25, "type": "aoe", "warning": "牛魔王现出原形！", "warningTimeSec": 5, "dodgeable": false }
+      ],
+      "phases": [
+        { "hpThreshold": 1.0, "description": "牛魔王持叉迎战", "attackMultiplier": 1.0, "speedMultiplier": 1.0, "unlockSkills": ["bull_charge"] },
+        { "hpThreshold": 0.5, "description": "牛魔王狂暴！铁扇公主助阵！", "attackMultiplier": 1.5, "speedMultiplier": 1.2, "unlockSkills": ["iron_fan_flame", "true_form"] }
+      ]
+    },
+    "rewards": {
+      "lingshi": 20000,
+      "exp": 7000,
+      "randomEquipPool": [
+        { "templateId": "flame_sword", "chance": 0.15 },
+        { "templateId": "fire_resist_robe", "chance": 0.2 }
+      ]
+    },
+    "firstClearReward": {
+      "lingshi": 40000,
+      "exp": 12000,
+      "pantao": 10,
+      "equipmentIds": ["banana_fan_shard", "banana_fan_shard", "banana_fan_shard"]
+    }
+  },
+  {
+    "id": "pansidong",
+    "name": "盘丝洞",
+    "chapter": 8,
+    "icon": "🕸️",
+    "description": "七个蜘蛛精盘踞盘丝洞，以蛛丝为网，困杀过路行人。",
+    "requiredLevel": 85,
+    "requiredRealm": "元婴",
+    "prerequisite": "huoyanshan",
+    "dailyLimit": 3,
+    "timeLimitSec": 300,
+    "waves": [
+      { "waveNum": 1, "type": "normal", "enemies": [{ "name": "蛛丝小妖", "icon": "🕷️", "hp": 1800, "attack": 130, "defense": 40, "count": 3 }] },
+      { "waveNum": 2, "type": "normal", "enemies": [{ "name": "毒蛛卫", "icon": "🕷️", "hp": 2200, "attack": 150, "defense": 50, "count": 2 }] },
+      { "waveNum": 3, "type": "normal", "enemies": [{ "name": "蛛丝小妖", "icon": "🕷️", "hp": 1800, "attack": 130, "defense": 40, "count": 4 }] },
+      { "waveNum": 4, "type": "normal", "enemies": [{ "name": "毒蛛卫", "icon": "🕷️", "hp": 2200, "attack": 150, "defense": 50, "count": 3 }] },
+      { "waveNum": 5, "type": "normal", "enemies": [{ "name": "蛛丝小妖", "icon": "🕷️", "hp": 1800, "attack": 130, "defense": 40, "count": 3 }, { "name": "毒蛛卫", "icon": "🕷️", "hp": 2200, "attack": 150, "defense": 50, "count": 2 }] },
+      { "waveNum": 6, "type": "elite", "enemies": [{ "name": "蛛后护法", "icon": "🕸️", "hp": 8000, "attack": 220, "defense": 100, "count": 1 }] },
+      { "waveNum": 7, "type": "elite", "enemies": [{ "name": "丝网魔将", "icon": "🕸️", "hp": 7500, "attack": 200, "defense": 110, "count": 1 }] }
+    ],
+    "boss": {
+      "name": "七蜘蛛精",
+      "icon": "🕷️",
+      "hp": 120000,
+      "attack": 300,
+      "defense": 150,
+      "skills": [
+        { "id": "web_trap", "name": "天罗地网", "damage": 500, "cooldownSec": 12, "type": "aoe", "warning": "蛛丝从四面八方射来！", "warningTimeSec": 3, "dodgeable": true },
+        { "id": "venom_bite", "name": "噬魂毒牙", "damage": 800, "damagePercent": 0.15, "cooldownSec": 18, "type": "single", "warning": "蜘蛛精露出毒牙！", "warningTimeSec": 2, "dodgeable": true }
+      ],
+      "phases": [
+        { "hpThreshold": 1.0, "description": "七蛛结阵", "attackMultiplier": 1.0, "speedMultiplier": 1.0, "unlockSkills": ["web_trap"] },
+        { "hpThreshold": 0.5, "description": "蜘蛛精合体为蛛后！", "attackMultiplier": 1.6, "speedMultiplier": 1.3, "unlockSkills": ["venom_bite"] }
+      ]
+    },
+    "rewards": {
+      "lingshi": 25000,
+      "exp": 9000,
+      "randomEquipPool": [
+        { "templateId": "silk_gloves", "chance": 0.2 },
+        { "templateId": "spider_ring", "chance": 0.15 }
+      ]
+    },
+    "firstClearReward": {
+      "lingshi": 50000,
+      "exp": 15000,
+      "pantao": 10,
+      "equipmentIds": ["spider_silk_robe"]
+    }
+  },
+  {
+    "id": "shituoling",
+    "name": "狮驼岭",
+    "chapter": 9,
+    "icon": "🏯",
+    "description": "狮驼岭三魔聚首：青狮、白象、大鹏。西行路上最凶险的一战。",
+    "requiredLevel": 100,
+    "requiredRealm": "化神",
+    "prerequisite": "pansidong",
+    "dailyLimit": 3,
+    "timeLimitSec": 300,
+    "waves": [
+      { "waveNum": 1, "type": "normal", "enemies": [{ "name": "狮驼小妖", "icon": "👹", "hp": 2500, "attack": 180, "defense": 60, "count": 3 }] },
+      { "waveNum": 2, "type": "normal", "enemies": [{ "name": "象兵", "icon": "🐘", "hp": 3000, "attack": 160, "defense": 90, "count": 2 }] },
+      { "waveNum": 3, "type": "normal", "enemies": [{ "name": "狮驼小妖", "icon": "👹", "hp": 2500, "attack": 180, "defense": 60, "count": 3 }, { "name": "象兵", "icon": "🐘", "hp": 3000, "attack": 160, "defense": 90, "count": 1 }] },
+      { "waveNum": 4, "type": "normal", "enemies": [{ "name": "鹏妖卫", "icon": "🦅", "hp": 2000, "attack": 220, "defense": 40, "count": 3 }] },
+      { "waveNum": 5, "type": "normal", "enemies": [{ "name": "狮驼小妖", "icon": "👹", "hp": 2500, "attack": 180, "defense": 60, "count": 2 }, { "name": "象兵", "icon": "🐘", "hp": 3000, "attack": 160, "defense": 90, "count": 2 }, { "name": "鹏妖卫", "icon": "🦅", "hp": 2000, "attack": 220, "defense": 40, "count": 1 }] },
+      { "waveNum": 6, "type": "elite", "enemies": [{ "name": "白象精", "icon": "🐘", "hp": 12000, "attack": 280, "defense": 150, "count": 1 }] },
+      { "waveNum": 7, "type": "elite", "enemies": [{ "name": "青狮精", "icon": "🦁", "hp": 15000, "attack": 320, "defense": 130, "count": 1 }] }
+    ],
+    "boss": {
+      "name": "大鹏金翅",
+      "icon": "🦅",
+      "hp": 250000,
+      "attack": 500,
+      "defense": 200,
+      "skills": [
+        { "id": "golden_wing", "name": "金翅斩", "damage": 1500, "cooldownSec": 8, "type": "single", "warning": "大鹏展翅！", "warningTimeSec": 2, "dodgeable": true },
+        { "id": "sky_devour", "name": "吞天噬地", "damage": 1000, "cooldownSec": 20, "type": "aoe", "warning": "天空暗了下来！", "warningTimeSec": 5, "dodgeable": false },
+        { "id": "tri_demon", "name": "三魔合击", "damage": 2000, "cooldownSec": 30, "type": "aoe", "warning": "三大魔王同时发力！", "warningTimeSec": 4, "dodgeable": true }
+      ],
+      "phases": [
+        { "hpThreshold": 1.0, "description": "大鹏独战", "attackMultiplier": 1.0, "speedMultiplier": 1.0, "unlockSkills": ["golden_wing"] },
+        { "hpThreshold": 0.5, "description": "三魔合击！青狮白象加入战斗！", "attackMultiplier": 1.8, "speedMultiplier": 1.5, "unlockSkills": ["sky_devour", "tri_demon"] }
+      ]
+    },
+    "rewards": {
+      "lingshi": 35000,
+      "exp": 15000,
+      "randomEquipPool": [
+        { "templateId": "lion_mane_helm", "chance": 0.15 },
+        { "templateId": "elephant_tusk_spear", "chance": 0.1 },
+        { "templateId": "peng_feather", "chance": 0.1 }
+      ]
+    },
+    "firstClearReward": {
+      "lingshi": 80000,
+      "exp": 25000,
+      "pantao": 10,
+      "equipmentIds": ["chaos_yinyang_bottle"]
+    }
+  },
+  {
+    "id": "lingshan",
+    "name": "灵山雷音寺",
+    "chapter": 10,
+    "icon": "🏛️",
+    "description": "取经路的终点，如来设下最终考验。全队Boss Rush，九九八十一难的终章。",
+    "requiredLevel": 150,
+    "requiredRealm": "大乘",
+    "prerequisite": "shituoling",
+    "dailyLimit": 3,
+    "timeLimitSec": 600,
+    "waves": [
+      { "waveNum": 1, "type": "normal", "enemies": [{ "name": "金刚力士", "icon": "💪", "hp": 5000, "attack": 300, "defense": 150, "count": 2 }] },
+      { "waveNum": 2, "type": "normal", "enemies": [{ "name": "天兵", "icon": "⚔️", "hp": 4000, "attack": 280, "defense": 120, "count": 3 }] },
+      { "waveNum": 3, "type": "normal", "enemies": [{ "name": "金刚力士", "icon": "💪", "hp": 5000, "attack": 300, "defense": 150, "count": 2 }, { "name": "天兵", "icon": "⚔️", "hp": 4000, "attack": 280, "defense": 120, "count": 2 }] },
+      { "waveNum": 4, "type": "elite", "enemies": [{ "name": "四大天王·增长", "icon": "👑", "hp": 20000, "attack": 400, "defense": 200, "count": 1 }] },
+      { "waveNum": 5, "type": "elite", "enemies": [{ "name": "四大天王·广目", "icon": "👑", "hp": 20000, "attack": 380, "defense": 220, "count": 1 }] },
+      { "waveNum": 6, "type": "elite", "enemies": [{ "name": "韦陀护法", "icon": "🛡️", "hp": 30000, "attack": 450, "defense": 300, "count": 1 }] },
+      { "waveNum": 7, "type": "elite", "enemies": [{ "name": "观音化身", "icon": "🙏", "hp": 25000, "attack": 500, "defense": 250, "count": 1 }] }
+    ],
+    "boss": {
+      "name": "如来考验",
+      "icon": "☸️",
+      "hp": 1000000,
+      "attack": 800,
+      "defense": 400,
+      "skills": [
+        { "id": "palm_press", "name": "如来神掌", "damage": 5000, "cooldownSec": 10, "type": "single", "warning": "金光大盛！", "warningTimeSec": 3, "dodgeable": true },
+        { "id": "golden_body", "name": "金身不坏", "damage": 0, "cooldownSec": 30, "type": "single", "warning": "如来化身金光护体！", "warningTimeSec": 1, "dodgeable": false },
+        { "id": "dharma_wheel", "name": "法轮转世", "damage": 3000, "damagePercent": 0.2, "cooldownSec": 25, "type": "aoe", "warning": "法轮在空中旋转！", "warningTimeSec": 5, "dodgeable": true }
+      ],
+      "phases": [
+        { "hpThreshold": 1.0, "description": "如来初试", "attackMultiplier": 1.0, "speedMultiplier": 1.0, "unlockSkills": ["palm_press"] },
+        { "hpThreshold": 0.5, "description": "如来正式考验！", "attackMultiplier": 1.5, "speedMultiplier": 1.2, "unlockSkills": ["golden_body", "dharma_wheel"] },
+        { "hpThreshold": 0.2, "description": "最终试炼！大彻大悟之门！", "attackMultiplier": 2.0, "speedMultiplier": 1.5, "unlockSkills": [] }
+      ]
+    },
+    "rewards": {
+      "lingshi": 100000,
+      "exp": 50000,
+      "pantao": 20,
+      "randomEquipPool": [
+        { "templateId": "buddha_relic", "chance": 0.1 },
+        { "templateId": "golden_kasaya", "chance": 0.08 }
+      ]
+    },
+    "firstClearReward": {
+      "lingshi": 200000,
+      "exp": 100000,
+      "pantao": 50,
+      "equipmentIds": ["hongmeng_diamond_sutra"]
+    }
+  }
+]

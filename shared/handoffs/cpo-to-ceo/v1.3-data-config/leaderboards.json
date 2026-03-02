@@ -1,0 +1,8 @@
+[
+  { "id": "lb_combat_power", "name": "战力排行", "icon": "⚔️", "description": "综合战斗力排名", "sortBy": "desc", "scoreType": "combat_power", "maxEntries": 10, "refreshCycle": "none" },
+  { "id": "lb_level", "name": "等级排行", "icon": "📈", "description": "玩家等级排名", "sortBy": "desc", "scoreType": "level", "maxEntries": 10, "refreshCycle": "none" },
+  { "id": "lb_kill_count", "name": "杀敌排行", "icon": "💀", "description": "累计击杀数排名", "sortBy": "desc", "scoreType": "kill_count", "maxEntries": 10, "refreshCycle": "weekly" },
+  { "id": "lb_speed_wuxingshan", "name": "五行山速通", "icon": "⚡", "description": "五行山最快通关时间", "sortBy": "asc", "scoreType": "dungeon_time", "maxEntries": 10, "refreshCycle": "none", "dungeonId": "wuxingshan" },
+  { "id": "lb_speed_lingshan", "name": "灵山速通", "icon": "🏛️", "description": "灵山雷音寺最快通关时间", "sortBy": "asc", "scoreType": "dungeon_time", "maxEntries": 10, "refreshCycle": "none", "dungeonId": "lingshan" },
+  { "id": "lb_collect", "name": "收藏排行", "icon": "💎", "description": "不同装备收集数排名", "sortBy": "desc", "scoreType": "collect_count", "maxEntries": 10, "refreshCycle": "none" }
+]
