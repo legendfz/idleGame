@@ -43,11 +43,31 @@
 - CORE-LOOP-SPEC全部公式实现, npm run build通过(239KB/75KB gzip)
 - src/ 根目录为v2.0主项目, CTO/idle-game/src/v2/ 为旧脚手架
 
+## v2.1 Bug修复 (2026-03-02)
+- commit 209eb91, 8/8 bugs修复
+- BUG-01: 大境界突破材料检查+扣除
+- BUG-03+04: tick接入装备/角色被动加成
+- BUG-06: OfflineModal离线收益弹窗
+- PlayerState新增: materials, activeCharId
+
+## v3.0 锻造系统 (2026-03-02)
+- commit c0ee5aa, +831行, 5引擎+3store+7JSON
+- forge.ts: 配方验证+品质抽奖+随机词条+锻造等级1-50
+- gather.ts: 4采集节点+定时器+离线50%
+- dungeon.ts: 4秘境+每日次数+体力
+- smelt.ts: 5炼化配方
+- bossMechanic.ts: 7种Boss机制(免疫/反击/狂暴/阶段/召唤/回复/护盾)
+- MaterialStore: 独立材料背包
+- 技术方案: shared/context-bus/cto/TECH-SPEC-FORGE.md
+- 交付: shared/handoffs/cto-forge-delivery.md
+
 ## 待办事项
 - M3 战斗系统UI完善
 - 关卡19-81配置补全
 - engine单测
 - PWA图标等CDO
+- 锻造/采集/秘境UI组件
+- CPO PRD后数值微调
 
 ## 经验教训
 - Telegram bot token未配置，DM发送失败
