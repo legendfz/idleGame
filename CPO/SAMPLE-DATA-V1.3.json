@@ -1,0 +1,514 @@
+{
+  "dungeons": [
+    {
+      "id": "wuxingshan",
+      "name": "五行山",
+      "chapter": 1,
+      "icon": "🏔️",
+      "description": "五百年压于山下，石灵守护封印。击败石灵，挣脱束缚！",
+      "requiredLevel": 10,
+      "requiredRealm": "通灵",
+      "prerequisite": null,
+      "dailyLimit": 3,
+      "timeLimitSec": 300,
+      "waves": [
+        {
+          "waveNum": 1,
+          "type": "normal",
+          "enemies": [
+            { "name": "山石傀儡", "icon": "🪨", "hp": 500, "attack": 30, "defense": 10, "count": 1 }
+          ]
+        },
+        {
+          "waveNum": 2,
+          "type": "normal",
+          "enemies": [
+            { "name": "山石傀儡", "icon": "🪨", "hp": 500, "attack": 30, "defense": 10, "count": 2 }
+          ]
+        },
+        {
+          "waveNum": 3,
+          "type": "normal",
+          "enemies": [
+            { "name": "落石精", "icon": "💎", "hp": 800, "attack": 45, "defense": 15, "count": 1 }
+          ]
+        },
+        {
+          "waveNum": 4,
+          "type": "elite",
+          "enemies": [
+            { "name": "巨岩守卫", "icon": "🗿", "hp": 1500, "attack": 60, "defense": 25, "count": 1 }
+          ]
+        },
+        {
+          "waveNum": 5,
+          "type": "elite",
+          "enemies": [
+            { "name": "封印使者", "icon": "⛓️", "hp": 2000, "attack": 80, "defense": 30, "count": 1 }
+          ]
+        }
+      ],
+      "boss": {
+        "name": "五行山石灵",
+        "icon": "🏔️",
+        "hp": 8000,
+        "attack": 120,
+        "defense": 40,
+        "skills": [
+          {
+            "id": "stone_slam",
+            "name": "巨石轰击",
+            "damage": 200,
+            "cooldownSec": 8,
+            "type": "single",
+            "warning": "石灵举起巨岩！",
+            "warningTimeSec": 3,
+            "dodgeable": true
+          },
+          {
+            "id": "quake",
+            "name": "山崩地裂",
+            "damage": 150,
+            "cooldownSec": 15,
+            "type": "aoe",
+            "warning": "大地开始震动...",
+            "warningTimeSec": 3,
+            "dodgeable": true
+          }
+        ],
+        "phases": [
+          {
+            "hpThreshold": 1.0,
+            "description": "石灵缓慢攻击",
+            "attackMultiplier": 1.0,
+            "speedMultiplier": 1.0,
+            "unlockSkills": ["stone_slam"]
+          },
+          {
+            "hpThreshold": 0.5,
+            "description": "石灵狂暴！攻击力提升50%",
+            "attackMultiplier": 1.5,
+            "speedMultiplier": 1.2,
+            "unlockSkills": ["quake"]
+          }
+        ]
+      },
+      "rewards": {
+        "lingshi": 5000,
+        "exp": 3000,
+        "pantao": 0,
+        "randomEquipPool": [
+          { "templateId": "stone_club", "chance": 0.3 },
+          { "templateId": "leather_vest", "chance": 0.2 }
+        ]
+      },
+      "firstClearReward": {
+        "lingshi": 20000,
+        "exp": 10000,
+        "pantao": 10,
+        "equipmentIds": ["stone_chain"]
+      }
+    },
+    {
+      "id": "yingchoujian",
+      "name": "鹰愁涧",
+      "chapter": 2,
+      "icon": "🌊",
+      "description": "白龙化蛇盘踞深涧，收服白龙马，取经路始行。",
+      "requiredLevel": 20,
+      "requiredRealm": "通灵",
+      "prerequisite": "wuxingshan",
+      "dailyLimit": 3,
+      "timeLimitSec": 300,
+      "waves": [
+        {
+          "waveNum": 1,
+          "type": "normal",
+          "enemies": [
+            { "name": "水蛇", "icon": "🐍", "hp": 1200, "attack": 65, "defense": 20, "count": 2 }
+          ]
+        },
+        {
+          "waveNum": 2,
+          "type": "normal",
+          "enemies": [
+            { "name": "涧中鱼妖", "icon": "🐟", "hp": 1500, "attack": 75, "defense": 25, "count": 1 }
+          ]
+        },
+        {
+          "waveNum": 3,
+          "type": "elite",
+          "enemies": [
+            { "name": "蛟龙卫", "icon": "🐲", "hp": 3000, "attack": 110, "defense": 40, "count": 1 }
+          ]
+        },
+        {
+          "waveNum": 4,
+          "type": "elite",
+          "enemies": [
+            { "name": "蛟龙卫", "icon": "🐲", "hp": 3000, "attack": 110, "defense": 40, "count": 2 }
+          ]
+        }
+      ],
+      "boss": {
+        "name": "小白龙",
+        "icon": "🐉",
+        "hp": 20000,
+        "attack": 200,
+        "defense": 60,
+        "skills": [
+          {
+            "id": "water_spout",
+            "name": "水柱冲击",
+            "damage": 400,
+            "cooldownSec": 6,
+            "type": "single",
+            "warning": "涧水翻涌！",
+            "warningTimeSec": 2,
+            "dodgeable": true
+          },
+          {
+            "id": "dragon_roar",
+            "name": "龙啸",
+            "damage": 250,
+            "cooldownSec": 12,
+            "type": "aoe",
+            "warning": "龙吟震天！",
+            "warningTimeSec": 3,
+            "dodgeable": false
+          }
+        ],
+        "phases": [
+          {
+            "hpThreshold": 1.0,
+            "description": "白龙试探攻击",
+            "attackMultiplier": 1.0,
+            "speedMultiplier": 1.0,
+            "unlockSkills": ["water_spout"]
+          },
+          {
+            "hpThreshold": 0.5,
+            "description": "白龙化为真龙形态！攻击力+50%",
+            "attackMultiplier": 1.5,
+            "speedMultiplier": 1.3,
+            "unlockSkills": ["dragon_roar"]
+          }
+        ]
+      },
+      "rewards": {
+        "lingshi": 12000,
+        "exp": 8000,
+        "pantao": 1,
+        "randomEquipPool": [
+          { "templateId": "coral_blade", "chance": 0.25 },
+          { "templateId": "chain_mail", "chance": 0.2 }
+        ]
+      },
+      "firstClearReward": {
+        "lingshi": 50000,
+        "exp": 25000,
+        "pantao": 10,
+        "equipmentIds": ["dragon_scale_shard"]
+      }
+    },
+    {
+      "id": "huoyenshan",
+      "name": "火焰山",
+      "chapter": 5,
+      "icon": "🔥",
+      "description": "八百里火焰，牛魔王与铁扇公主联手守关。需借芭蕉扇方能前行。",
+      "requiredLevel": 70,
+      "requiredRealm": "金丹",
+      "prerequisite": "liushahe",
+      "dailyLimit": 3,
+      "timeLimitSec": 300,
+      "waves": [
+        {
+          "waveNum": 1,
+          "type": "normal",
+          "enemies": [
+            { "name": "火焰小妖", "icon": "🔥", "hp": 8000, "attack": 350, "defense": 80, "count": 3 }
+          ]
+        },
+        {
+          "waveNum": 2,
+          "type": "normal",
+          "enemies": [
+            { "name": "熔岩巨人", "icon": "🌋", "hp": 15000, "attack": 500, "defense": 120, "count": 1 }
+          ]
+        },
+        {
+          "waveNum": 3,
+          "type": "elite",
+          "enemies": [
+            { "name": "红孩儿", "icon": "👦", "hp": 25000, "attack": 600, "defense": 150, "count": 1 }
+          ]
+        },
+        {
+          "waveNum": 4,
+          "type": "elite",
+          "enemies": [
+            { "name": "铁扇公主", "icon": "🪭", "hp": 35000, "attack": 700, "defense": 180, "count": 1 }
+          ]
+        },
+        {
+          "waveNum": 5,
+          "type": "elite",
+          "enemies": [
+            { "name": "火焰护法", "icon": "🔥", "hp": 20000, "attack": 550, "defense": 130, "count": 2 }
+          ]
+        }
+      ],
+      "boss": {
+        "name": "牛魔王",
+        "icon": "🐉",
+        "hp": 580000,
+        "attack": 1200,
+        "defense": 300,
+        "skills": [
+          {
+            "id": "iron_fan_blaze",
+            "name": "铁扇烈焰",
+            "damage": 12000,
+            "cooldownSec": 10,
+            "type": "aoe",
+            "warning": "牛魔王挥动芭蕉扇！",
+            "warningTimeSec": 3,
+            "dodgeable": true
+          },
+          {
+            "id": "bull_charge",
+            "name": "蛮牛冲锋",
+            "damage": 8000,
+            "cooldownSec": 6,
+            "type": "single",
+            "warning": "牛魔王低头蓄力...",
+            "warningTimeSec": 2,
+            "dodgeable": true
+          },
+          {
+            "id": "demon_transform",
+            "name": "大力牛魔王真身",
+            "damage": 0,
+            "damagePercent": 0.2,
+            "cooldownSec": 30,
+            "type": "aoe",
+            "warning": "天地变色！牛魔王现出真身！",
+            "warningTimeSec": 4,
+            "dodgeable": false
+          }
+        ],
+        "phases": [
+          {
+            "hpThreshold": 1.0,
+            "description": "牛魔王常规攻击",
+            "attackMultiplier": 1.0,
+            "speedMultiplier": 1.0,
+            "unlockSkills": ["bull_charge", "iron_fan_blaze"]
+          },
+          {
+            "hpThreshold": 0.5,
+            "description": "牛魔王狂暴！攻击+50%，解锁真身技能",
+            "attackMultiplier": 1.5,
+            "speedMultiplier": 1.3,
+            "unlockSkills": ["demon_transform"]
+          }
+        ]
+      },
+      "rewards": {
+        "lingshi": 80000,
+        "exp": 50000,
+        "pantao": 3,
+        "randomEquipPool": [
+          { "templateId": "banana_fan", "chance": 0.15 },
+          { "templateId": "golden_mail", "chance": 0.1 }
+        ]
+      },
+      "firstClearReward": {
+        "lingshi": 300000,
+        "exp": 150000,
+        "pantao": 10,
+        "equipmentIds": ["banana_fan_shard"]
+      }
+    }
+  ],
+
+  "achievements": [
+    {
+      "id": "ach_monkey_awaken",
+      "name": "灵猴初醒",
+      "icon": "🐒",
+      "description": "角色达到 Lv.10",
+      "category": "milestone",
+      "hidden": false,
+      "condition": { "type": "level", "target": 10 },
+      "reward": { "type": "stat_boost", "stat": "attack", "value": 5 }
+    },
+    {
+      "id": "ach_hundred_battles",
+      "name": "百战之师",
+      "icon": "⚔️",
+      "description": "累计击杀 1,000 怪物",
+      "category": "milestone",
+      "hidden": false,
+      "condition": { "type": "kill_count", "target": 1000 },
+      "reward": { "type": "resource", "resourceType": "lingshi", "value": 10000 }
+    },
+    {
+      "id": "ach_collector",
+      "name": "收藏家",
+      "icon": "💎",
+      "description": "拥有 50 件装备（含已分解）",
+      "category": "milestone",
+      "hidden": false,
+      "condition": { "type": "equipment_count", "target": 50 },
+      "reward": { "type": "unlock", "unlockType": "bag_expand", "value": 10 }
+    },
+    {
+      "id": "ach_first_dungeon",
+      "name": "取经启程",
+      "icon": "🏔️",
+      "description": "通关第一个副本",
+      "category": "milestone",
+      "hidden": false,
+      "condition": { "type": "dungeon_clear", "target": 1, "dungeonId": "wuxingshan" },
+      "reward": { "type": "resource", "resourceType": "pantao", "value": 5 }
+    },
+    {
+      "id": "ach_hongmeng_power",
+      "name": "鸿蒙之力",
+      "icon": "🔴",
+      "description": "获得第一件鸿蒙装备",
+      "category": "milestone",
+      "hidden": false,
+      "condition": { "type": "collect_unique", "target": 1 },
+      "reward": { "type": "stat_boost", "stat": "all", "value": 3 }
+    },
+    {
+      "id": "ach_reach_100",
+      "name": "突破极限",
+      "icon": "📈",
+      "description": "角色达到 Lv.100",
+      "category": "milestone",
+      "hidden": false,
+      "condition": { "type": "level", "target": 100 },
+      "reward": { "type": "stat_boost", "stat": "attack", "value": 10 }
+    },
+    {
+      "id": "ach_online_24h",
+      "name": "坚持修炼",
+      "icon": "⏰",
+      "description": "累计在线 24 小时",
+      "category": "milestone",
+      "hidden": false,
+      "condition": { "type": "online_time", "target": 86400 },
+      "reward": { "type": "unlock", "unlockType": "offline_boost", "value": 20 }
+    },
+    {
+      "id": "ach_speed_clear",
+      "name": "速战速决",
+      "icon": "⚡",
+      "description": "60 秒内通关任意副本",
+      "category": "challenge",
+      "hidden": false,
+      "condition": { "type": "dungeon_speed", "target": 60 },
+      "reward": { "type": "stat_boost", "stat": "attack", "value": 3 }
+    },
+    {
+      "id": "ach_no_damage",
+      "name": "无伤通关",
+      "icon": "🛡️",
+      "description": "不受任何伤害通关副本",
+      "category": "challenge",
+      "hidden": false,
+      "condition": { "type": "no_damage", "target": 1 },
+      "reward": { "type": "stat_boost", "stat": "defense", "value": 5 }
+    },
+    {
+      "id": "ach_max_enhance",
+      "name": "满强之路",
+      "icon": "✦",
+      "description": "拥有一件 +15 鸿蒙装备",
+      "category": "challenge",
+      "hidden": false,
+      "condition": { "type": "enhance_max", "target": 15 },
+      "reward": { "type": "title", "title": "锻造大师", "value": 0 }
+    }
+  ],
+
+  "leaderboards": [
+    {
+      "id": "lb_combat_power",
+      "name": "战力排行",
+      "icon": "🏆",
+      "description": "综合战斗力排行",
+      "sortBy": "desc",
+      "scoreType": "combat_power",
+      "maxEntries": 10,
+      "refreshCycle": "none"
+    },
+    {
+      "id": "lb_speed_wuxingshan",
+      "name": "五行山速通",
+      "icon": "⚔️",
+      "description": "五行山副本最快通关时间",
+      "sortBy": "asc",
+      "scoreType": "dungeon_time",
+      "maxEntries": 10,
+      "refreshCycle": "none",
+      "dungeonId": "wuxingshan"
+    },
+    {
+      "id": "lb_speed_huoyenshan",
+      "name": "火焰山速通",
+      "icon": "⚔️",
+      "description": "火焰山副本最快通关时间",
+      "sortBy": "asc",
+      "scoreType": "dungeon_time",
+      "maxEntries": 10,
+      "refreshCycle": "none",
+      "dungeonId": "huoyenshan"
+    },
+    {
+      "id": "lb_kill_count",
+      "name": "击杀排行",
+      "icon": "💀",
+      "description": "累计击杀怪物数量",
+      "sortBy": "desc",
+      "scoreType": "kill_count",
+      "maxEntries": 10,
+      "refreshCycle": "none"
+    },
+    {
+      "id": "lb_level",
+      "name": "等级排行",
+      "icon": "📈",
+      "description": "最高角色等级",
+      "sortBy": "desc",
+      "scoreType": "level",
+      "maxEntries": 10,
+      "refreshCycle": "none"
+    }
+  ],
+
+  "combatPowerFormula": {
+    "weights": {
+      "attack": 1.0,
+      "defense": 0.8,
+      "speed": 0.5,
+      "hp": 0.3
+    },
+    "realmCoefficients": {
+      "灵猴初醒": 1.0,
+      "通灵": 1.1,
+      "炼气": 1.3,
+      "筑基": 1.6,
+      "金丹": 2.0,
+      "元婴": 2.5,
+      "化神": 3.0,
+      "大乘": 4.0,
+      "齐天大圣": 6.0,
+      "斗战胜佛": 10.0
+    }
+  }
+}
