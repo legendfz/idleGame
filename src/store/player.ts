@@ -6,8 +6,10 @@ import Decimal from 'break_infinity.js';
 import { bn, ZERO } from '../engine/bignum';
 import { getXiuweiPerSecond } from '../engine/idle';
 import { doBreakthrough } from '../engine/breakthrough';
-import { getRealmConfig } from '../data/config';
+import { getRealmConfig, getCharacterConfig } from '../data/config';
 import { formatBigNum } from '../engine/bignum';
+import { useEquipStore } from './equipment';
+import { calcEquipBonusPercent } from '../engine/equipment';
 
 export interface PlayerState {
   xiuwei: string;         // Decimal string
@@ -15,7 +17,9 @@ export interface PlayerState {
   lingshi: string;
   realmId: string;
   realmLevel: number;     // 1-9
+  activeCharId: string;   // 当前主控角色
   totalXiuwei: string;
+  materials: Record<string, number>; // materialId -> count
   lastOnlineAt: number;
   createdAt: number;
   playTime: number;       // seconds
@@ -34,6 +38,8 @@ interface PlayerStore {
   addCoins: (amount: Decimal) => void;
   addLingshi: (amount: number) => void;
   spendCoins: (amount: Decimal) => boolean;
+  addMaterial: (id: string, count: number) => void;
+  switchCharacter: (charId: string) => void;
   breakthrough: () => { success: boolean; message: string; unlockMessage?: string };
   incrementClicks: () => void;
   incrementKills: (count?: number) => void;
@@ -50,7 +56,9 @@ function createInitialPlayer(): PlayerState {
     lingshi: '0',
     realmId: 'fanren',
     realmLevel: 1,
+    activeCharId: 'wukong',
     totalXiuwei: '0',
+    materials: {},
     lastOnlineAt: Date.now(),
     createdAt: Date.now(),
     playTime: 0,
@@ -67,7 +75,15 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 
   tick: (dt) => {
     const { player } = get();
-    const xps = getXiuweiPerSecond(player.realmId, 0, 0, 0); // TODO: pass equip/team/buff bonuses
+
+    // BUG-03+04 fix: 计算装备加成 + 角色被动加成
+    const equipItems = useEquipStore.getState().getEquippedItems(player.activeCharId);
+    const equipBonus = calcEquipBonusPercent(equipItems);
+    const charConfig = getCharacterConfig(player.activeCharId);
+    const teamBonus = charConfig?.passive.effect.type === 'xiuweiBonus'
+      ? (charConfig.passive.effect.value ?? 0) : 0;
+
+    const xps = getXiuweiPerSecond(player.realmId, equipBonus.atkPercent, teamBonus, 0);
     const gain = xps.mul(dt);
     const newXiuwei = bn(player.xiuwei).add(gain);
     const newTotal = bn(player.totalXiuwei).add(gain);
@@ -113,16 +129,29 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     return true;
   },
 
+  addMaterial: (id, count) => {
+    const { player } = get();
+    const newMats = { ...player.materials, [id]: (player.materials[id] ?? 0) + count };
+    set({ player: { ...player, materials: newMats } });
+  },
+
   breakthrough: () => {
     const { player } = get();
-    const result = doBreakthrough(bn(player.xiuwei), player.realmId, player.realmLevel);
+    const result = doBreakthrough(bn(player.xiuwei), player.realmId, player.realmLevel, player.materials);
     if (result.success) {
+      // 扣除材料
+      const newMats = { ...player.materials };
+      for (const mat of result.materialsConsumed) {
+        newMats[mat.id] = (newMats[mat.id] ?? 0) - mat.count;
+        if (newMats[mat.id] <= 0) delete newMats[mat.id];
+      }
       set({
         player: {
           ...player,
           xiuwei: bn(player.xiuwei).sub(result.xiuweiConsumed).toString(),
           realmId: result.newRealmId,
           realmLevel: result.newRealmLevel,
+          materials: newMats,
           totalBreakthroughs: player.totalBreakthroughs + 1,
         },
       });
@@ -130,6 +159,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     return { success: result.success, message: result.message, unlockMessage: result.unlockMessage };
   },
 
+  switchCharacter: (charId: string) => set(s => ({ player: { ...s.player, activeCharId: charId } })),
   incrementClicks: () => set(s => ({ player: { ...s.player, totalClicks: s.player.totalClicks + 1 } })),
   incrementKills: (count = 1) => set(s => ({ player: { ...s.player, totalKills: s.player.totalKills + count } })),
   setLastOnline: (t) => set(s => ({ player: { ...s.player, lastOnlineAt: t } })),

@@ -42,9 +42,13 @@ export function useGameLoop() {
           coins: reward.coins,
           bonusApplied: reward.bonusApplied,
         });
-        useUIStore.getState().addToast(
-          `离线 ${Math.floor(reward.duration / 60)} 分钟，修为 +${reward.xiuwei.toFixed(0)}`,
-          'success'
+        // BUG-06 fix: 弹窗显示离线收益
+        const hours = Math.floor(reward.duration / 3600);
+        const mins = Math.floor((reward.duration % 3600) / 60);
+        const timeStr = hours > 0 ? `${hours}小时${mins}分钟` : `${mins}分钟`;
+        const bonusStr = reward.bonusApplied ? '\n🎁 回归奖励 +10%！' : '';
+        useUIStore.getState().setModal(
+          `🌙 离线收益\n离线 ${timeStr}\n修为 +${reward.xiuwei.toFixed(0)}\n金币 +${reward.coins.toFixed(0)}${bonusStr}`
         );
       }
     }

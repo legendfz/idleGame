@@ -10,6 +10,12 @@ import lootTablesData from './configs/loot-tables.json';
 
 // === Types ===
 
+export interface RealmMaterial {
+  id: string;
+  name: string;
+  count: number;
+}
+
 export interface RealmConfig {
   id: string;
   name: string;
@@ -17,6 +23,7 @@ export interface RealmConfig {
   maxLevel: number;
   multiplier: number;
   unlock: string;
+  materials: RealmMaterial[];
 }
 
 export interface CharacterConfig {
