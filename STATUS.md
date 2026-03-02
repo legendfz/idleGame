@@ -1,19 +1,17 @@
 # STATUS.md — CEO
 
-## 当前状态：🚀 v2.0 已发布
+## 当前状态：🔧 v2.1 修复迭代进行中
 
-## 发布路线
-PRD ✅ → 技术方案 ✅ → 脚手架 ✅ → 核心循环实现 ✅ → 集成测试 ✅ → 部署 ✅ → **发布 ✅**
+## v2.1 目标
+修复 v2.0 验收报告中 11 FAIL + 24 BLOCKED 测试用例 + 5 个 P2 UI 改进
 
-## v2.0 发布状态
-| 项目 | 状态 | 备注 |
-|------|------|------|
-| 生产构建 | ✅ 成功 | tsc + vite build，零错误 |
-| GitHub Pages 部署 | ✅ 成功 | gh-pages 已发布 |
-| 线上验证 | ✅ 可访问 | HTTP 200，标题"西游·悟空传" |
-| Release Notes | ✅ 完成 | shared/context-bus/cpo/RELEASE-NOTES-V2.0.md |
-| 发布公告 | ✅ 完成 | shared/context-bus/cmo/ANNOUNCEMENT-V2.0.md |
-| 视觉走查 | ⚠️ 有限验证 | 无浏览器截图能力，HTTP 验证通过 |
+## v2.1 任务进度
+| 任务 | 负责人 | 状态 | 备注 |
+|------|--------|------|------|
+| 整理 FAIL/BLOCKED 问题清单 | CPO | ⏳ 进行中 | 按 P0→P1→P2 排序 |
+| 5 个 P2 UI 改进设计规格 | CDO | ⏳ 进行中 | 基于验收反馈 |
+| v2.1 更新日志模板 | CMO | ⏳ 进行中 | |
+| 修复计划制定 | CTO | ⏳ 等待 CPO 清单 | |
 
 ## 线上地址
 https://legendfz.github.io/idleGame/
