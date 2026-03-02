@@ -13,3 +13,7 @@ export { useJourneyStore } from './journey';
 
 export { useUIStore } from './ui';
 export type { ViewId } from './ui';
+
+export { useMaterialStore } from './material';
+export { useForgeStore } from './forge';
+export { useGatherStore } from './gather';
