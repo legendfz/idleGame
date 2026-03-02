@@ -1,0 +1,88 @@
+/* 取经地图 */
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+  padding: var(--sp-lg);
+  min-height: 100%;
+}
+.title {
+  text-align: center;
+  font-family: var(--font-title);
+  font-size: var(--fs-lg);
+  color: var(--color-accent);
+  letter-spacing: 2px;
+}
+.progress {
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--color-text-dim);
+  margin-bottom: var(--sp-sm);
+}
+
+/* 关卡列表 */
+.stageList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+}
+.stageCard {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-md);
+  padding: var(--sp-md);
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  border-left: 3px solid var(--color-border);
+  transition: transform var(--dur-fast);
+}
+.stageCard:active { transform: scale(0.98); }
+.stageCurrent {
+  border-left-color: var(--color-warning);
+  background: rgba(230, 126, 34, 0.06);
+}
+.stageCleared {
+  border-left-color: var(--color-success);
+}
+.stageLocked {
+  opacity: 0.5;
+}
+
+/* 左侧：状态图标 */
+.stageIcon {
+  font-size: 24px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* 右侧：信息 */
+.stageInfo { flex: 1; min-width: 0; }
+.stageName {
+  font-size: var(--fs-body);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.stageDesc {
+  font-size: var(--fs-xs);
+  color: var(--color-text-dim);
+  line-height: 1.4;
+}
+.stageBoss {
+  font-size: var(--fs-xs);
+  color: var(--color-text-dim);
+  margin-top: 2px;
+}
+.stageStars {
+  font-size: var(--fs-sm);
+  color: var(--color-accent);
+  letter-spacing: 2px;
+  margin-top: 4px;
+}
+
+/* 连接线 */
+.connector {
+  width: 2px;
+  height: 16px;
+  background: var(--color-border);
+  margin-left: 28px;
+}
