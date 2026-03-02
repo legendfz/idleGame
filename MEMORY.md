@@ -23,6 +23,12 @@
 - **已实现**：品质6级显示、离线装备掉落、反馈入口、存档迁移、全回归通过
 - 品质命名已对齐PRD：凡/灵/仙/神/混沌/鸿蒙
 
+## v2.0 状态
+- **2026-03-02**：v2.0 PRD 阶段启动
+- CPO: PRD-V2.0.md 已完成（shared/context-bus/cpo/）
+- CDO: DESIGN-GUIDE-V2.0.md 已完成（shared/context-bus/cdo/）
+- 待 CEO 审批后进入技术方案阶段（CTO）
+
 ## 待办事项
 - ✅ v1.2 全部完成并部署
 - ✅ v1.3 回归测试通过，已部署到 GitHub Pages（2026-03-01 23:00）
