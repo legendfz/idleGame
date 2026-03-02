@@ -1,19 +1,17 @@
 /**
  * useIdleCalc — 修为计算 hook
  */
-import { useCallback } from 'react';
-import useGameStore from '../store';
-import { formatBigNum, bn } from '../engine';
+import { usePlayerStore } from '../store/player';
+import { getXiuweiPerSecond, getBreakthroughCost, canBreakthrough } from '../engine/idle';
+import { bn } from '../engine/bignum';
+import { getRealmConfig } from '../data/config';
 
 export function useIdleCalc() {
-  const xiuwei = useGameStore((s) => s.xiuwei);
-  const addXiuwei = useGameStore((s) => s.addXiuwei);
+  const player = usePlayerStore(s => s.player);
+  const realm = getRealmConfig(player.realmId);
+  const xps = getXiuweiPerSecond(player.realmId, 0, 0, 0);
+  const cost = getBreakthroughCost(realm?.order ?? 1, player.realmLevel);
+  const canBreak = canBreakthrough(bn(player.xiuwei), realm?.order ?? 1, player.realmLevel);
 
-  const formattedXiuwei = formatBigNum(bn(xiuwei || '0'));
-
-  const tap = useCallback(() => {
-    addXiuwei('1');
-  }, [addXiuwei]);
-
-  return { xiuwei, formattedXiuwei, tap };
+  return { xps, cost, canBreak, realm };
 }

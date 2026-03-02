@@ -6,14 +6,15 @@ import { GameLayout } from './components/layout';
 import { TopBar } from './components/layout/TopBar/TopBar';
 import { BottomNav } from './components/layout/BottomNav/BottomNav';
 import { useGameLoop } from './hooks/useGameLoop';
-import useGameStore from './store';
-import type { ViewId } from './store/ui';
+import { usePlayerStore } from './store/player';
+import { useUIStore, ViewId } from './store/ui';
 import { IdleView } from './components/views/IdleView';
 import { BattleView } from './components/views/BattleView';
 import { CharacterView } from './components/views/CharacterView';
 import { InventoryView } from './components/views/InventoryView';
 import { JourneyMap } from './components/views/JourneyMap';
-import { formatBigNum, bn } from './engine';
+import { formatBigNum, bn } from './engine/bignum';
+import { getRealmConfig } from './data/config';
 
 const NAV_ITEMS = [
   { id: 'idle', icon: '🧘', label: '修炼' },
@@ -24,7 +25,7 @@ const NAV_ITEMS = [
 ];
 
 function AppContent() {
-  const currentView = useGameStore((s) => s.currentView);
+  const currentView = useUIStore(s => s.currentView);
 
   const viewMap: Record<string, ReactNode> = {
     idle: <IdleView />,
@@ -40,22 +41,21 @@ function AppContent() {
 export default function App() {
   useGameLoop();
 
-  const xiuwei = useGameStore((s) => s.xiuwei);
-  const gold = useGameStore((s) => s.gold);
-  const level = useGameStore((s) => s.level);
-  const realmId = useGameStore((s) => s.realmId);
-  const currentView = useGameStore((s) => s.currentView);
-  const setView = useGameStore((s) => s.setView);
+  const player = usePlayerStore(s => s.player);
+  const xpsDisplay = usePlayerStore(s => s.xpsDisplay);
+  const currentView = useUIStore(s => s.currentView);
+  const setView = useUIStore(s => s.setView);
+  const realm = getRealmConfig(player.realmId);
 
   return (
     <GameLayout
       topBar={
         <TopBar
-          name="唐僧"
-          level={level}
-          realm={realmId}
-          xiuwei={formatBigNum(bn(xiuwei || '0'))}
-          gold={formatBigNum(bn(gold || '0'))}
+          name="取经人"
+          level={player.realmLevel}
+          realm={realm?.name ?? '凡人'}
+          xiuwei={formatBigNum(bn(player.xiuwei || '0'))}
+          gold={formatBigNum(bn(player.coins || '0'))}
         />
       }
       bottomNav={

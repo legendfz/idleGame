@@ -1,28 +1,66 @@
 /**
- * BattleStore — 战斗状态
+ * BattleStore — 战斗状态管理
  */
-import { StateCreator } from 'zustand';
+import { create } from 'zustand';
+import {
+  BattleRuntimeState, initBattle, processClick, tickBattle,
+  calcClickDamage, calcAutoDps,
+} from '../engine/battle';
+import { bn, ZERO } from '../engine/bignum';
+import { calcAttack } from '../engine/formulas';
+import { getRealmConfig } from '../data/config';
+import { usePlayerStore } from './player';
 
-export interface BattleSlice {
-  active: boolean;
-  stageId: string;
-  monsterHp: string;
-  monsterMaxHp: string;
-  isBoss: boolean;
-  bossTimer: number;
-  startBattle: (stageId: string, hp: string, isBoss: boolean) => void;
+interface BattleStore {
+  battle: BattleRuntimeState | null;
+
+  startBattle: (stageId: number) => void;
+  click: (x?: number, y?: number) => { damage: string; isCrit: boolean } | null;
+  tickBattle: (dtMs: number) => void;
   endBattle: () => void;
-  setMonsterHp: (hp: string) => void;
 }
 
-export const createBattleSlice: StateCreator<BattleSlice> = (set) => ({
-  active: false,
-  stageId: '',
-  monsterHp: '0',
-  monsterMaxHp: '0',
-  isBoss: false,
-  bossTimer: 0,
-  startBattle: (stageId, hp, isBoss) => set({ active: true, stageId, monsterHp: hp, monsterMaxHp: hp, isBoss, bossTimer: 0 }),
-  endBattle: () => set({ active: false, stageId: '', monsterHp: '0', monsterMaxHp: '0' }),
-  setMonsterHp: (hp) => set({ monsterHp: hp }),
-});
+export const useBattleStore = create<BattleStore>((set, get) => ({
+  battle: null,
+
+  startBattle: (stageId) => {
+    const battle = initBattle(stageId);
+    set({ battle });
+  },
+
+  click: () => {
+    const { battle } = get();
+    if (!battle || battle.status !== 'fighting') return null;
+
+    const player = usePlayerStore.getState().player;
+    const realm = getRealmConfig(player.realmId);
+    const attack = calcAttack(1, realm?.multiplier ?? 1, 0); // TODO: level + equip
+    const critRate = 0.05; // base 5%
+
+    const { damage, isCrit } = calcClickDamage(attack, 0, critRate, 2.0, battle.comboBuff > 0);
+    const newBattle = processClick(battle, damage, isCrit, Date.now());
+
+    usePlayerStore.getState().incrementClicks();
+    set({ battle: newBattle });
+    return { damage: damage.toString(), isCrit };
+  },
+
+  tickBattle: (dtMs) => {
+    const { battle } = get();
+    if (!battle || battle.status !== 'fighting') return;
+
+    const player = usePlayerStore.getState().player;
+    const realm = getRealmConfig(player.realmId);
+    const attack = calcAttack(1, realm?.multiplier ?? 1, 0);
+    const dps = calcAutoDps(attack, 1.0, 0, 0.05, 2.0);
+
+    const newBattle = tickBattle(battle, dtMs, dps);
+    set({ battle: newBattle });
+
+    if (newBattle.status === 'victory') {
+      usePlayerStore.getState().incrementKills(newBattle.killCount);
+    }
+  },
+
+  endBattle: () => set({ battle: null }),
+}));

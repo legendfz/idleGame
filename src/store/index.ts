@@ -1,30 +1,15 @@
 /**
- * 合并 Store — Zustand 主入口
+ * Store Layer — 统一导出
  */
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { createPlayerSlice, PlayerSlice } from './player';
-import { createBattleSlice, BattleSlice } from './battle';
-import { createEquipmentSlice, EquipmentSlice } from './equipment';
-import { createJourneySlice, JourneySlice } from './journey';
-import { createUISlice, UISlice } from './ui';
+export { usePlayerStore } from './player';
+export type { PlayerState } from './player';
 
-export type GameStore = PlayerSlice & BattleSlice & EquipmentSlice & JourneySlice & UISlice;
+export { useBattleStore } from './battle';
 
-export const useGameStore = create<GameStore>()(
-  persist(
-    (...a) => ({
-      ...createPlayerSlice(...a),
-      ...createBattleSlice(...a),
-      ...createEquipmentSlice(...a),
-      ...createJourneySlice(...a),
-      ...createUISlice(...a),
-    }),
-    {
-      name: 'xiyou-idle-v2',
-      version: 1,
-    }
-  )
-);
+export { useEquipStore } from './equipment';
+export type { EquippedSlots } from './equipment';
 
-export default useGameStore;
+export { useJourneyStore } from './journey';
+
+export { useUIStore } from './ui';
+export type { ViewId } from './ui';

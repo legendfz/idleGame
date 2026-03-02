@@ -1,7 +1,20 @@
 [
-  { "id": "xiaoguai-1", "name": "山精", "hp": 100, "attack": 5, "defense": 2, "xpReward": 10 },
-  { "id": "xiaoguai-2", "name": "野猪妖", "hp": 250, "attack": 12, "defense": 5, "xpReward": 25 },
-  { "id": "huangfengguai", "name": "黄风怪", "hp": 1000, "attack": 30, "defense": 15, "xpReward": 100 },
-  { "id": "xiaoguai-3", "name": "水鬼", "hp": 500, "attack": 20, "defense": 10, "xpReward": 50 },
-  { "id": "baigujing", "name": "白骨精", "hp": 3000, "attack": 50, "defense": 25, "xpReward": 300 }
+  { "id": "tiger_general", "name": "寅将军",     "icon": "🐅", "capturable": false },
+  { "id": "wolf_king",     "name": "狼妖王",     "icon": "🐺", "capturable": false },
+  { "id": "black_bear",    "name": "黑熊精",     "icon": "🐻", "capturable": true,  "captureBonus": { "type": "defense", "value": 0.1, "desc": "防御+10%" } },
+  { "id": "snake_demon",   "name": "蛇妖",       "icon": "🐍", "capturable": false },
+  { "id": "white_dragon",  "name": "小白龙",     "icon": "🐉", "capturable": true,  "captureBonus": { "type": "speed", "value": 0.15, "desc": "攻速+15%" } },
+  { "id": "boar_spirit",   "name": "野猪精",     "icon": "🐗", "capturable": false },
+  { "id": "river_monster", "name": "河怪",       "icon": "🌊", "capturable": false },
+  { "id": "ginseng_spirit","name": "人参果妖",   "icon": "🌳", "capturable": false },
+  { "id": "zhenyuan",      "name": "镇元大仙",   "icon": "👴", "capturable": false },
+  { "id": "white_bone",    "name": "白骨精",     "icon": "💀", "capturable": true,  "captureBonus": { "type": "critRate", "value": 0.05, "desc": "暴击+5%" } },
+  { "id": "yellow_robe",   "name": "黄袍怪",     "icon": "👹", "capturable": false },
+  { "id": "gold_horn",     "name": "金角大王",   "icon": "👺", "capturable": true,  "captureBonus": { "type": "attack", "value": 0.1, "desc": "攻击+10%" } },
+  { "id": "silver_horn",   "name": "银角大王",   "icon": "👺", "capturable": true,  "captureBonus": { "type": "attack", "value": 0.1, "desc": "攻击+10%" } },
+  { "id": "green_lion",    "name": "青毛狮",     "icon": "🦁", "capturable": false },
+  { "id": "red_boy",       "name": "红孩儿",     "icon": "👶", "capturable": true,  "captureBonus": { "type": "attack", "value": 0.2, "desc": "三昧真火+20%攻击" } },
+  { "id": "tiger_sage",    "name": "虎力大仙",   "icon": "🐯", "capturable": false },
+  { "id": "catfish_king",  "name": "灵感大王",   "icon": "🐟", "capturable": false },
+  { "id": "rhino_king",    "name": "独角兕大王", "icon": "🦏", "capturable": true,  "captureBonus": { "type": "defense", "value": 0.2, "desc": "防御+20%" } }
 ]

@@ -1,7 +1,20 @@
 [
-  { "id": "stage-1", "name": "鹰愁涧", "difficulty": 1, "isBoss": false, "monsterTemplateId": "xiaoguai-1", "requiredPower": 10 },
-  { "id": "stage-2", "name": "高老庄", "difficulty": 2, "isBoss": false, "monsterTemplateId": "xiaoguai-2", "requiredPower": 30 },
-  { "id": "stage-3", "name": "黄风岭", "difficulty": 3, "isBoss": true, "monsterTemplateId": "huangfengguai", "requiredPower": 80 },
-  { "id": "stage-4", "name": "流沙河", "difficulty": 4, "isBoss": false, "monsterTemplateId": "xiaoguai-3", "requiredPower": 150 },
-  { "id": "stage-5", "name": "白虎岭", "difficulty": 5, "isBoss": true, "monsterTemplateId": "baigujing", "requiredPower": 300 }
+  { "id": 1,  "chapter": 1, "name": "长安城外",   "waves": 3, "boss": { "name": "寅将军", "icon": "🐅", "monsterId": "tiger_general" }, "rewards": { "firstClearCoins": 500, "firstClearLingshi": 10 } },
+  { "id": 2,  "chapter": 1, "name": "荒野小径",   "waves": 3, "boss": { "name": "狼妖王", "icon": "🐺", "monsterId": "wolf_king" }, "rewards": { "firstClearCoins": 800, "firstClearLingshi": 15 } },
+  { "id": 3,  "chapter": 1, "name": "黑风山",     "waves": 3, "boss": { "name": "黑熊精", "icon": "🐻", "monsterId": "black_bear" }, "rewards": { "firstClearCoins": 1500, "firstClearLingshi": 25 } },
+  { "id": 4,  "chapter": 1, "name": "蛇盘山",     "waves": 3, "boss": { "name": "蛇妖",   "icon": "🐍", "monsterId": "snake_demon" }, "rewards": { "firstClearCoins": 2000, "firstClearLingshi": 30 } },
+  { "id": 5,  "chapter": 1, "name": "鹰愁涧",     "waves": 3, "boss": { "name": "小白龙", "icon": "🐉", "monsterId": "white_dragon" }, "rewards": { "firstClearCoins": 3000, "firstClearLingshi": 40 } },
+  { "id": 6,  "chapter": 1, "name": "高老庄",     "waves": 3, "boss": { "name": "野猪精", "icon": "🐗", "monsterId": "boar_spirit" }, "rewards": { "firstClearCoins": 4000, "firstClearLingshi": 50 } },
+  { "id": 7,  "chapter": 1, "name": "流沙河畔",   "waves": 3, "boss": { "name": "河怪",   "icon": "🌊", "monsterId": "river_monster" }, "rewards": { "firstClearCoins": 5000, "firstClearLingshi": 60 } },
+  { "id": 8,  "chapter": 1, "name": "万寿山",     "waves": 3, "boss": { "name": "人参果妖","icon": "🌳", "monsterId": "ginseng_spirit" }, "rewards": { "firstClearCoins": 7000, "firstClearLingshi": 80 } },
+  { "id": 9,  "chapter": 1, "name": "五庄观试炼", "waves": 4, "boss": { "name": "镇元大仙","icon": "👴", "monsterId": "zhenyuan" }, "rewards": { "firstClearCoins": 15000, "firstClearLingshi": 150 } },
+  { "id": 10, "chapter": 2, "name": "白虎岭",     "waves": 4, "boss": { "name": "白骨精", "icon": "💀", "monsterId": "white_bone" }, "rewards": { "firstClearCoins": 20000, "firstClearLingshi": 200 } },
+  { "id": 11, "chapter": 2, "name": "宝象国",     "waves": 4, "boss": { "name": "黄袍怪", "icon": "👹", "monsterId": "yellow_robe" }, "rewards": { "firstClearCoins": 25000, "firstClearLingshi": 250 } },
+  { "id": 12, "chapter": 2, "name": "平顶山",     "waves": 4, "boss": { "name": "金角大王","icon": "👺", "monsterId": "gold_horn" }, "rewards": { "firstClearCoins": 30000, "firstClearLingshi": 300 } },
+  { "id": 13, "chapter": 2, "name": "莲花洞",     "waves": 4, "boss": { "name": "银角大王","icon": "👺", "monsterId": "silver_horn" }, "rewards": { "firstClearCoins": 35000, "firstClearLingshi": 350 } },
+  { "id": 14, "chapter": 2, "name": "乌鸡国",     "waves": 4, "boss": { "name": "青毛狮", "icon": "🦁", "monsterId": "green_lion" }, "rewards": { "firstClearCoins": 40000, "firstClearLingshi": 400 } },
+  { "id": 15, "chapter": 2, "name": "枯松涧",     "waves": 4, "boss": { "name": "红孩儿", "icon": "👶", "monsterId": "red_boy" }, "rewards": { "firstClearCoins": 50000, "firstClearLingshi": 500 } },
+  { "id": 16, "chapter": 2, "name": "车迟国",     "waves": 4, "boss": { "name": "虎力大仙","icon": "🐯", "monsterId": "tiger_sage" }, "rewards": { "firstClearCoins": 60000, "firstClearLingshi": 600 } },
+  { "id": 17, "chapter": 2, "name": "通天河",     "waves": 4, "boss": { "name": "灵感大王","icon": "🐟", "monsterId": "catfish_king" }, "rewards": { "firstClearCoins": 70000, "firstClearLingshi": 700 } },
+  { "id": 18, "chapter": 2, "name": "金兜山",     "waves": 5, "boss": { "name": "独角兕大王","icon": "🦏", "monsterId": "rhino_king" }, "rewards": { "firstClearCoins": 150000, "firstClearLingshi": 1500 } }
 ]
