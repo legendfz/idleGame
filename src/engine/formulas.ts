@@ -1,80 +1,48 @@
 /**
- * 数值公式集中管理
- * 基于 CPO PRD 数值表
+ * FormulaLib — 所有数值公式集中管理
  */
+import { Decimal, bn, ZERO } from './bignum';
 
-/** 升级所需经验 = floor(10 * level^1.5) */
-export function expToNextLevel(level: number): number {
-  return Math.floor(10 * Math.pow(level, 1.5));
+/** 修为产出/秒 = 基础值 × 境界倍率 × (1 + 装备加成) */
+export function xiuweiPerSecond(
+  base: Decimal,
+  realmMultiplier: Decimal,
+  equipBonus: Decimal
+): Decimal {
+  return base.mul(realmMultiplier).mul(ONE_PLUS(equipBonus));
 }
 
-/** 关卡 n 的 Boss HP = floor(100 * 1.15^n) */
-export function bossHp(stageIndex: number): number {
-  return Math.floor(100 * Math.pow(1.15, stageIndex));
+/** 突破所需修为 = 基础需求 × 1.5^境界层级 */
+export function breakthroughCost(baseCost: Decimal, realmTier: number): Decimal {
+  return baseCost.mul(Decimal.pow(1.5, realmTier));
 }
 
-/** 小怪 HP = Boss HP × 0.2 */
-export function minionHp(stageIndex: number): number {
-  return Math.floor(bossHp(stageIndex) * 0.2);
+/** 战斗伤害 = 攻击力 × (1 + 暴击倍率 × isCrit) × 随机波动 */
+export function battleDamage(
+  attack: Decimal,
+  critMultiplier: number,
+  isCrit: boolean,
+  variance = 0.1
+): Decimal {
+  const critFactor = isCrit ? 1 + critMultiplier : 1;
+  const rand = 1 + (Math.random() * 2 - 1) * variance;
+  return attack.mul(critFactor).mul(rand);
 }
 
-/** 关卡 n 每波灵石掉落 = floor(10 * 1.12^n) */
-export function goldPerWave(stageIndex: number): number {
-  return Math.floor(10 * Math.pow(1.12, stageIndex));
+/** 离线收益 = 产出/秒 × 时间(秒) × 离线效率 */
+export function offlineReward(
+  perSecond: Decimal,
+  seconds: number,
+  efficiency: number = 0.5
+): Decimal {
+  return perSecond.mul(seconds).mul(efficiency);
 }
 
-/** 每波经验 ≈ 灵石 × 0.7 */
-export function expPerWave(stageIndex: number): number {
-  return Math.floor(goldPerWave(stageIndex) * 0.7);
+/** 装备强化费用 = 基础费用 × 2^当前等级 */
+export function enhanceCost(baseCost: Decimal, currentLevel: number): Decimal {
+  return baseCost.mul(Decimal.pow(2, currentLevel));
 }
 
-/** 基础伤害 = 攻击 - 敌人防御（最低 1） */
-export function calcDamage(attack: number, defense: number): number {
-  return Math.max(1, attack - defense);
-}
-
-/** 暴击判定 */
-export function rollCrit(critRate: number): boolean {
-  return Math.random() * 100 < critRate;
-}
-
-/** 暴击伤害 */
-export function critDamage(baseDmg: number, critMultiplier: number): number {
-  return Math.floor(baseDmg * critMultiplier);
-}
-
-/** 敌人防御 ≈ 关卡 × 2 */
-export function enemyDefense(stageIndex: number): number {
-  return Math.floor(stageIndex * 2);
-}
-
-/** 每级获得的基础攻击增长 */
-export function attackPerLevel(): number {
-  return 3;
-}
-
-/** 每级获得的基础血量增长 */
-export function hpPerLevel(): number {
-  return 10;
-}
-
-/** 离线收益计算 */
-export function offlineGold(
-  offlineSeconds: number,
-  goldPerSec: number,
-  efficiency: number = 0.5,
-  maxOfflineHours: number = 24
-): number {
-  const cappedSeconds = Math.min(offlineSeconds, maxOfflineHours * 3600);
-  return Math.floor(cappedSeconds * goldPerSec * efficiency);
-}
-
-export function offlineExp(
-  offlineSeconds: number,
-  expPerSec: number,
-  efficiency: number = 0.5,
-  maxOfflineHours: number = 24
-): number {
-  const cappedSeconds = Math.min(offlineSeconds, maxOfflineHours * 3600);
-  return Math.floor(cappedSeconds * expPerSec * efficiency);
+function ONE_PLUS(bonus: Decimal): Decimal {
+  return bn(1).add(bonus);
 }

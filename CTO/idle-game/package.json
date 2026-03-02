@@ -9,8 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "break_infinity.js": "^2.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "vitest": "^4.0.18",
     "zustand": "^5.0.0"
   },
   "devDependencies": {

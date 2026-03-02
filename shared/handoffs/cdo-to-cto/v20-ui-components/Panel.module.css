@@ -1,0 +1,17 @@
+.panel {
+  background: var(--color-panel);
+  border: 2px solid var(--color-border);
+  border-radius: var(--r-panel);
+  padding: var(--sp-lg);
+  margin-bottom: var(--sp-md);
+  box-shadow: var(--shadow-panel);
+}
+.accent { border-color: var(--color-gold); }
+.title {
+  font-family: var(--font-title);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 var(--sp-md) 0;
+}
+.body { font-family: var(--font-body); font-size: 14px; color: var(--color-text); }

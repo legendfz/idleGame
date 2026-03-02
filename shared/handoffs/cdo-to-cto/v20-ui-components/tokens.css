@@ -1,0 +1,61 @@
+/* ═══ v2.0 Design Tokens ═══ */
+
+:root {
+  /* 主色 */
+  --color-primary: #C13B3B;
+  --color-gold: #D4A843;
+  --color-bg: #2B4C7E;
+
+  /* 辅色 */
+  --color-success: #3A7D44;
+  --color-purple: #6B3FA0;
+  --color-warning: #E67E22;
+
+  /* 中性色 */
+  --color-text: #3E2723;
+  --color-panel: #FFF8E7;
+  --color-card: #F5E6C8;
+  --color-border: #E0D5C0;
+  --color-text-dim: #8D7B68;
+  --color-overlay: rgba(0, 0, 0, 0.6);
+
+  /* 品质 */
+  --q-common: #9E9E9E;
+  --q-spirit: #4CAF50;
+  --q-immortal: #2196F3;
+  --q-divine: #9C27B0;
+  --q-chaos: #FF9800;
+  --q-hongmeng: #FFD700;
+
+  /* 字体 */
+  --font-title: 'Noto Serif SC', serif;
+  --font-body: 'Noto Sans SC', system-ui, sans-serif;
+  --font-num: 'Roboto Mono', monospace;
+
+  /* 圆角 */
+  --r-btn: 8px;
+  --r-card: 12px;
+  --r-panel: 16px;
+  --r-input: 6px;
+
+  /* 间距 */
+  --sp-xs: 4px;
+  --sp-sm: 8px;
+  --sp-md: 16px;
+  --sp-lg: 24px;
+  --sp-xl: 32px;
+
+  /* 阴影 */
+  --shadow-card: 0 2px 8px rgba(0,0,0,0.1);
+  --shadow-btn: 0 2px 4px rgba(0,0,0,0.2);
+  --shadow-panel: 0 4px 16px rgba(0,0,0,0.15);
+
+  /* 动画 */
+  --t-fast: 150ms ease;
+  --t-normal: 300ms ease-out;
+
+  /* 层级 */
+  --z-nav: 100;
+  --z-modal: 200;
+  --z-toast: 300;
+}

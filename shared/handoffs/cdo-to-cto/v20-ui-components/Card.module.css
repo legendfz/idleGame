@@ -1,0 +1,24 @@
+.card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-card);
+  padding: var(--sp-md);
+  margin-bottom: var(--sp-sm);
+  box-shadow: var(--shadow-card);
+  border-left: 3px solid var(--color-border);
+}
+.clickable {
+  cursor: pointer;
+  transition: transform var(--t-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+.clickable:active { transform: scale(0.98); }
+.title {
+  font-family: var(--font-title);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: var(--sp-sm);
+  padding-bottom: var(--sp-xs);
+  border-bottom: 1px solid var(--color-border);
+}

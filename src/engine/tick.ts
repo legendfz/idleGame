@@ -1,56 +1,60 @@
 /**
- * 游戏主循环 — 每秒 tick
- * 驱动自动战斗、资源累积、自动存档
+ * TickEngine — 游戏主循环
+ * 每帧计算 deltaTime，分发给各子系统
  */
+import { eventBus } from './events';
 
-import { useGameStore } from '../store/gameStore';
-import { ensureEnemy, autoAttack, handleEnemyDeath } from './battle';
-import { checkLevelUp } from './growth';
+export interface TickSubscriber {
+  update(delta: number): void;
+}
 
-let tickCount = 0;
-let intervalId: ReturnType<typeof setInterval> | null = null;
+class TickEngineImpl {
+  private subscribers: TickSubscriber[] = [];
+  private lastTime = 0;
+  private rafId: number | null = null;
+  private _running = false;
+  private _elapsed = 0;
 
-/** 单次 tick */
-export function gameTick(): void {
-  tickCount++;
-  const s = useGameStore.getState();
+  get running(): boolean { return this._running; }
+  get elapsed(): number { return this._elapsed; }
 
-  // 1. 确保有敌人
-  ensureEnemy();
-
-  // 2. 自动攻击
-  autoAttack();
-
-  // 3. 检查敌人死亡 → 结算 + 推进
-  handleEnemyDeath();
-
-  // 4. 再次确保有敌人（死亡后立刻生成下一个）
-  ensureEnemy();
-
-  // 5. 检查升级
-  checkLevelUp();
-
-  // 6. 每 30 秒自动存档
-  if (tickCount % 30 === 0) {
-    useGameStore.getState().updateSaveTime();
+  register(subscriber: TickSubscriber): () => void {
+    this.subscribers.push(subscriber);
+    return () => {
+      this.subscribers = this.subscribers.filter(s => s !== subscriber);
+    };
   }
-}
 
-/** 启动游戏循环 */
-export function startGameLoop(): void {
-  if (intervalId) return;
-  intervalId = setInterval(gameTick, 1000);
-}
-
-/** 停止游戏循环 */
-export function stopGameLoop(): void {
-  if (intervalId) {
-    clearInterval(intervalId);
-    intervalId = null;
+  start(): void {
+    if (this._running) return;
+    this._running = true;
+    this.lastTime = performance.now();
+    this.loop();
   }
+
+  stop(): void {
+    this._running = false;
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+  }
+
+  private loop = (): void => {
+    if (!this._running) return;
+    const now = performance.now();
+    const delta = (now - this.lastTime) / 1000; // seconds
+    this.lastTime = now;
+    this._elapsed += delta;
+
+    for (const sub of this.subscribers) {
+      sub.update(delta);
+    }
+
+    eventBus.emit('tick', { delta, elapsed: this._elapsed });
+    this.rafId = requestAnimationFrame(this.loop);
+  };
 }
 
-/** 获取 tick 计数 */
-export function getTickCount(): number {
-  return tickCount;
-}
+export const tickEngine = new TickEngineImpl();
+export default tickEngine;

@@ -1,0 +1,29 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  color: var(--q-color);
+  background: color-mix(in srgb, var(--q-color) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--q-color) 30%, transparent);
+  white-space: nowrap;
+}
+
+.md { font-size: 12px; }
+.sm { font-size: 10px; padding: 1px 6px; }
+
+.prefix { font-size: 1.1em; }
+
+/* 高品质光效 */
+.chaos, .hongmeng { font-weight: 800; }
+.hongmeng {
+  text-shadow: 0 0 6px rgba(255,215,0,0.5);
+  animation: hongmengPulse 2s ease-in-out infinite;
+}
+@keyframes hongmengPulse {
+  0%, 100% { box-shadow: 0 0 4px rgba(255,215,0,0.2); }
+  50%      { box-shadow: 0 0 12px rgba(255,215,0,0.4); }
+}
