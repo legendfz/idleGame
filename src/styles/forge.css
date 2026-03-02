@@ -1,0 +1,84 @@
+/* === 锻造/采集/秘境面板样式 === */
+
+/* 锻造 */
+.forge-header { text-align: center; margin-bottom: 12px; }
+.forge-header h2 { margin: 0 0 8px; }
+.forge-level { display: flex; align-items: center; gap: 8px; justify-content: center; }
+.exp-bar { flex: 1; max-width: 200px; height: 14px; background: var(--color-bg-muted, #2a2a3a); border-radius: 7px; position: relative; overflow: hidden; }
+.exp-fill { height: 100%; background: linear-gradient(90deg, #f0c040, #ffa500); border-radius: 7px; transition: width 0.3s; }
+.exp-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+
+.forge-tabs { display: flex; gap: 4px; margin-bottom: 12px; }
+.forge-tabs button { flex: 1; padding: 8px; background: var(--color-bg-muted, #2a2a3a); border: 1px solid transparent; border-radius: 8px; color: var(--color-text, #ccc); font-size: 13px; cursor: pointer; }
+.forge-tabs button.active { border-color: var(--color-accent, #ffa500); color: var(--color-accent, #ffa500); background: rgba(255,165,0,0.1); }
+
+.recipe-list { display: flex; flex-direction: column; gap: 10px; }
+.recipe-card { background: var(--color-bg-elevated, #1e1e2e); border: 1px solid var(--color-border, #333); border-radius: 12px; padding: 12px; }
+.recipe-card.locked { opacity: 0.5; }
+.recipe-name { font-weight: bold; font-size: 15px; margin-bottom: 4px; }
+.recipe-meta { font-size: 11px; color: var(--color-text-muted, #888); display: flex; gap: 10px; margin-bottom: 6px; }
+.recipe-materials { display: flex; flex-wrap: wrap; gap: 6px; font-size: 12px; margin-bottom: 8px; }
+.mat-ok { color: #4caf50; }
+.mat-lack { color: #f44336; }
+
+.btn-forge, .btn-gather, .btn-dungeon { width: 100%; padding: 10px; border: none; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; background: var(--color-primary, #6c5ce7); color: #fff; }
+.btn-forge:disabled, .btn-gather:disabled, .btn-dungeon:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-collect { background: #4caf50; }
+
+/* 材料背包 */
+.material-bag { padding: 8px 0; }
+.empty-bag { text-align: center; color: var(--color-text-muted, #888); padding: 40px 0; }
+.material-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+.material-item { background: var(--color-bg-elevated, #1e1e2e); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.mat-icon { font-size: 24px; }
+.mat-name { font-size: 13px; font-weight: bold; }
+.mat-count { font-size: 14px; color: var(--color-accent, #ffa500); }
+.mat-tier { font-size: 10px; color: var(--color-text-muted, #888); }
+
+/* 采集 */
+.active-gather-banner { background: rgba(255,165,0,0.15); border: 1px solid var(--color-accent, #ffa500); border-radius: 10px; padding: 10px; display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 13px; }
+.gather-grid { display: flex; flex-direction: column; gap: 10px; }
+.gather-card { background: var(--color-bg-elevated, #1e1e2e); border: 1px solid var(--color-border, #333); border-radius: 12px; padding: 12px; }
+.gather-card.locked { opacity: 0.45; }
+.gather-card.active { border-color: var(--color-accent, #ffa500); }
+.gather-icon { font-size: 28px; float: left; margin-right: 8px; }
+.gather-name { font-weight: bold; font-size: 15px; }
+.gather-location { font-size: 11px; color: var(--color-text-muted, #888); margin-bottom: 6px; }
+.gather-materials { display: flex; flex-wrap: wrap; gap: 8px; font-size: 12px; margin-bottom: 6px; clear: both; }
+.gather-mat { display: flex; gap: 3px; align-items: center; }
+.mat-chance { color: var(--color-text-muted, #888); font-size: 10px; }
+.mat-range { color: var(--color-accent, #ffa500); font-size: 10px; }
+.gather-meta { font-size: 11px; color: var(--color-text-muted, #888); display: flex; gap: 12px; margin-bottom: 8px; }
+
+/* 秘境 */
+.dungeon-grid { display: flex; flex-direction: column; gap: 10px; }
+.dungeon-card { background: var(--color-bg-elevated, #1e1e2e); border: 1px solid var(--color-border, #333); border-radius: 12px; padding: 12px; }
+.dungeon-card.locked { opacity: 0.5; }
+.dungeon-header { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+.dungeon-icon { font-size: 32px; }
+.dungeon-name { font-weight: bold; font-size: 15px; }
+.dungeon-tier { font-size: 11px; color: var(--color-text-muted, #888); }
+.dungeon-info { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 12px; margin-bottom: 8px; }
+.dungeon-rewards { font-size: 12px; margin-bottom: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+.reward-label { color: var(--color-text-muted, #888); }
+.reward-item { color: var(--color-accent, #ffa500); }
+
+.dungeon-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.dungeon-modal { background: var(--color-bg-elevated, #1e1e2e); border: 2px solid var(--color-accent, #ffa500); border-radius: 16px; padding: 24px; max-width: 85%; text-align: center; }
+.dungeon-modal h3 { margin: 0 0 8px; font-size: 20px; }
+.reward-list { margin: 12px 0; }
+.reward-list h4 { margin: 0 0 6px; font-size: 13px; color: var(--color-text-muted, #888); }
+.reward-row { font-size: 14px; margin: 4px 0; }
+
+/* Boss 机制标签 */
+.boss-mechanics { display: flex; gap: 4px; flex-wrap: wrap; margin: 6px 0; }
+.mech-tag { padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
+.mech-immune { background: rgba(0,150,255,0.2); color: #4fc3f7; }
+.mech-reflect { background: rgba(255,100,0,0.2); color: #ff8a65; }
+.mech-enrage { background: rgba(255,50,50,0.2); color: #ef5350; }
+.mech-phase { background: rgba(180,100,255,0.2); color: #ce93d8; }
+.mech-summon { background: rgba(100,200,100,0.2); color: #81c784; }
+.mech-heal { background: rgba(0,200,150,0.2); color: #4db6ac; }
+.mech-shield { background: rgba(255,215,0,0.2); color: #ffd54f; }
+.mech-announcement { text-align: center; font-size: 16px; font-weight: bold; color: var(--color-accent, #ffa500); padding: 8px; animation: mechPulse 0.5s ease-in-out; }
+@keyframes mechPulse { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }

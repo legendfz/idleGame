@@ -7,6 +7,7 @@ import { usePlayerStore } from '../../store/player';
 import { formatBigNum, bn } from '../../engine/bignum';
 import { getStageConfig, getRealmConfig } from '../../data/config';
 import { bossHp, bossTimeLimit } from '../../engine/formulas';
+import { getStageMechanics, BossMechanic } from '../../engine/bossMechanic';
 
 export function BattleView() {
   const { battle, startBattle, click, endBattle } = useBattle();
@@ -73,9 +74,12 @@ export function BattleView() {
             <span className="hp-text">{formatBigNum(enemy.currentHp)} / {formatBigNum(enemy.maxHp)}</span>
           </div>
           {enemy.isBoss && (
-            <div className={`boss-timer ${isLowTime ? 'low-time' : ''}`}>
-              ⏱️ {bossTimerSec}s
-            </div>
+            <>
+              <div className={`boss-timer ${isLowTime ? 'low-time' : ''}`}>
+                ⏱️ {bossTimerSec}s
+              </div>
+              <BossMechanicTags stageId={battle.stageId} />
+            </>
           )}
         </div>
       )}
@@ -109,6 +113,34 @@ export function BattleView() {
           <button className="btn-primary" onClick={endBattle}>返回</button>
         </div>
       )}
+    </div>
+  );
+}
+
+const MECH_ICONS: Record<string, { icon: string; label: string; cls: string }> = {
+  immune:  { icon: '🛡️', label: '免疫', cls: 'mech-immune' },
+  reflect: { icon: '⚔️', label: '反击', cls: 'mech-reflect' },
+  enrage:  { icon: '🔥', label: '狂暴', cls: 'mech-enrage' },
+  phase:   { icon: '🔄', label: '多阶段', cls: 'mech-phase' },
+  summon:  { icon: '👥', label: '召唤', cls: 'mech-summon' },
+  heal:    { icon: '💚', label: '回复', cls: 'mech-heal' },
+  shield:  { icon: '🔰', label: '护盾', cls: 'mech-shield' },
+};
+
+function BossMechanicTags({ stageId }: { stageId: number }) {
+  const mechanics = getStageMechanics(stageId);
+  if (mechanics.length === 0) return null;
+
+  return (
+    <div className="boss-mechanics">
+      {mechanics.map((m, i) => {
+        const info = MECH_ICONS[m.type] ?? { icon: '❓', label: m.type, cls: '' };
+        return (
+          <span key={i} className={`mech-tag ${info.cls}`}>
+            {info.icon} {info.label}
+          </span>
+        );
+      })}
     </div>
   );
 }
