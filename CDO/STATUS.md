@@ -1,18 +1,16 @@
 # STATUS.md — CDO
 
-## 当前状态：🟢 就绪
+## 当前状态：⏳ 等待 CTO 集成
 
 ## 当前任务
-无
+- v2.0 集成后 UI 验证（阶段6）— 等待 CTO 完成集成
 
 ## 待办
-- 等待 CTO 应用 UI-FIXES.md 修复
-- 等待截图素材生成
+- CTO 集成完成后：验证5个面板（Cultivation/Battle/Equipment/Journey/Character）
+- 提交验证报告 shared/handoffs/cdo-to-ceo-v20-integration-qa.md
 
 ## 最近完成
-- 2026-03-01: UI-FIXES.md v1.0（9项具体CSS/JSX修复代码）
-- 2026-03-01: LAUNCH-ASSETS.md v1.0（6张截图说明+规格+构图）
-- 2026-03-01: MOBILE-OPTIMIZE.md v1.0（14项移动端适配建议）
-- 2026-03-01: UI-REVIEW.md v1.0
-- 2026-03-01: EQUIPMENT-UI.md + BATTLE-VFX.md
-- 2026-03-01: UI-SPEC.md + UI-DESIGN.md
+- 2026-03-01: COMPONENT-GUIDE-V1.3.md
+- 2026-03-01: UI-DESIGN-V1.3.md
+- 2026-03-01: UI-V12-SPRINT2.md
+- 2026-03-01: UI-FIXES.md / LAUNCH-ASSETS.md / MOBILE-OPTIMIZE.md

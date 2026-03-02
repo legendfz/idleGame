@@ -15,6 +15,7 @@ import { InventoryView } from './components/views/InventoryView';
 import { JourneyMap } from './components/views/JourneyMap';
 import { formatBigNum, bn } from './engine/bignum';
 import { getRealmConfig } from './data/config';
+import { ToastContainer } from './components/shared/ToastContainer';
 
 const NAV_ITEMS = [
   { id: 'idle', icon: '🧘', label: '修炼' },
@@ -67,6 +68,7 @@ export default function App() {
       }
     >
       <AppContent />
+      <ToastContainer />
     </GameLayout>
   );
 }
