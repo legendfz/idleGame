@@ -1,6 +1,6 @@
 /* === View 面板公用样式 === */
 
-.view-idle, .view-battle, .view-character, .view-inventory, .view-journey {
+.view-idle, .view-battle, .view-character, .view-inventory, .view-journey, .view-forge, .view-gather, .view-dungeon {
   padding: 16px;
   height: 100%;
   overflow-y: auto;
