@@ -76,7 +76,7 @@ export function formatBig(d: string | Decimal): string {
   if (val.lt(1e12)) return (val.toNumber() / 1e9).toFixed(2) + 'B';
   if (val.lt(1e15)) return (val.toNumber() / 1e12).toFixed(2) + 'T';
   // Scientific notation for very large
-  const exp = val.log10().floor().toNumber();
+  const exp = Math.floor(val.log10());
   const mantissa = val.div(Decimal.pow(10, exp)).toNumber();
   return `${mantissa.toFixed(2)}e${exp}`;
 }
