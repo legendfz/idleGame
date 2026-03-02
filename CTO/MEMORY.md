@@ -35,10 +35,18 @@
 - 21测试通过(bignum 16 + eventbus 5), build通过
 - CDO已提交UI组件到 shared/handoffs/cdo-to-cto/v20-ui-components/
 
+## v2.0 核心引擎 (2026-03-02)
+- commit ce720fb, 28文件 +1073行
+- engine/: formulas+battle+idle+breakthrough+equipment+loot+journey+tick+events+bignum 全实现
+- store/: player+battle+equipment+journey+ui 5个Zustand store
+- data/configs/: 6个JSON(realms/characters/stages/equipment/monsters/loot-tables)
+- CORE-LOOP-SPEC全部公式实现, npm run build通过(239KB/75KB gzip)
+- src/ 根目录为v2.0主项目, CTO/idle-game/src/v2/ 为旧脚手架
+
 ## 待办事项
-- 集成CDO UI组件
-- v2 AppShell接入主入口
-- v2.0 M2 战斗系统
+- M3 战斗系统UI完善
+- 关卡19-81配置补全
+- engine单测
 - PWA图标等CDO
 
 ## 经验教训
