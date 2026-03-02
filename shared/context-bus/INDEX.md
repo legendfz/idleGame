@@ -17,6 +17,7 @@ shared/context-bus/
 ## v2.0 文档
 - **CPO**: PRD v2.0 (cpo/PRD-V2.0.md) — 完整产品需求文档
 - **CDO**: 设计指南 v2.0 (cdo/DESIGN-GUIDE-V2.0.md) — 视觉风格+UI指南
+- **CTO**: 技术方案 v2.0 (cto/TECH-SPEC-V2.0.md) — 架构设计+数据模型+API+6里程碑
 
 ## 最近更新
 - **2026-03-01**：产品启动 — 西游记 Idle Game
