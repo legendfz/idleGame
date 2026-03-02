@@ -29,9 +29,17 @@
 - 6里程碑共26天，MVP(M1+M2)=10天
 - 文件：shared/context-bus/cto/TECH-SPEC-V2.0.md
 
+## v2.0 脚手架 (2026-03-02)
+- feature/v2.0 分支, commit ab7d280
+- 42文件 +1121行: types/data/engine/store/ui/utils/app 完整
+- 21测试通过(bignum 16 + eventbus 5), build通过
+- CDO已提交UI组件到 shared/handoffs/cdo-to-cto/v20-ui-components/
+
 ## 待办事项
+- 集成CDO UI组件
+- v2 AppShell接入主入口
+- v2.0 M2 战斗系统
 - PWA图标等CDO
-- v2.0 M1 开发
 
 ## 经验教训
 - Telegram bot token未配置，DM发送失败
