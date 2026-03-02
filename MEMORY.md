@@ -64,11 +64,16 @@
 - CMO: 推广素材 ⏳
 - Handoff 文件已创建，待 spawn 各部门 agent
 
-## v3.0 Phase 2 — UI 集成（2026-03-02 14:00 启动）
-- CTO: 锻造/采集/秘境 UI 面板 + Boss 机制可视化 + 部署 ⏳ (fast-comet)
-- CPO: 验收测试用例 40-50 条 ⏳ (lucky-forest)
-- CMO: 发布公告+更新日志 ⏳ (mellow-tidepool)
-- 下一步：CTO 完成后，CPO 执行验收测试，通过后发布 v3.0
+## v3.0 Phase 2 — UI 集成（完成 ✅）
+- CTO: 锻造/采集/秘境 UI 面板 + Boss 机制可视化 ✅
+- CPO: 验收测试用例 46 条 ✅
+- CMO: 发布公告+更新日志 ✅
+
+## v3.0 Phase 3 — 部署+验收（2026-03-02 15:00）
+- 构建通过（94 modules），GitHub Actions 自动部署
+- 代码级验收：5 引擎模块 + 3 UI 面板 + 1 Store 全部存在
+- 线上地址：https://legendfz.github.io/idleGame/
+- 下一步：v3.1 修复迭代（基于实际运行时测试反馈）
 
 ## 待办事项
 - ✅ v1.2 全部完成并部署
