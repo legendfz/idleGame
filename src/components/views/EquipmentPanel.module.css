@@ -1,0 +1,87 @@
+/* 背包装备面板 */
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+  padding: var(--sp-lg);
+  min-height: 100%;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.title {
+  font-family: var(--font-title);
+  font-size: var(--fs-lg);
+  color: var(--color-accent);
+}
+.count {
+  font-size: var(--fs-sm);
+  color: var(--color-text-dim);
+  font-family: var(--font-number);
+}
+
+/* 已装备区 */
+.equippedGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-sm);
+}
+.slotCard {
+  background: var(--color-bg);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--sp-md) var(--sp-xs);
+  text-align: center;
+  min-height: 72px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-xs);
+  cursor: pointer;
+}
+.slotCard[data-filled='true'] {
+  border-style: solid;
+}
+.slotEmoji { font-size: 24px; }
+.slotLabel { font-size: var(--fs-xs); color: var(--color-text-dim); }
+.slotName  { font-size: var(--fs-xs); font-weight: 600; }
+.slotEmpty { font-size: var(--fs-xs); color: var(--color-text-dim); }
+
+/* 背包列表 */
+.itemList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-xs);
+}
+.itemRow {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  padding: var(--sp-sm) var(--sp-md);
+  background: var(--color-bg-card);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--color-border);
+  cursor: pointer;
+  transition: transform var(--dur-fast);
+}
+.itemRow:active { transform: scale(0.98); }
+.itemEmoji { font-size: 20px; flex-shrink: 0; }
+.itemInfo  { flex: 1; min-width: 0; }
+.itemName  { font-size: var(--fs-body); font-weight: 600; }
+.itemStat  { font-size: var(--fs-xs); color: var(--color-text-dim); }
+.itemLevel {
+  font-size: var(--fs-xs);
+  font-family: var(--font-number);
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+/* 空 */
+.empty {
+  text-align: center;
+  color: var(--color-text-dim);
+  padding: var(--sp-xl);
+}
