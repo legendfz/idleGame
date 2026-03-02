@@ -1,26 +1,36 @@
 /**
- * v1.3 成就列表页
+ * v1.3 成就列表页 — per CDO COMPONENT-GUIDE-V1.3
  */
 
 import { useState } from 'react';
 import { ACHIEVEMENTS } from '../data/achievements';
 import { useAchievementStore } from '../store/achievementStore';
+import TabBar from './shared/TabBar';
+import MiniProgressBar from './shared/MiniProgressBar';
 
 export default function AchievementList() {
   const states = useAchievementStore(s => s.states);
   const selectedTitle = useAchievementStore(s => s.selectedTitle);
   const unlockedTitles = useAchievementStore(s => s.unlockedTitles);
   const selectTitle = useAchievementStore(s => s.selectTitle);
-  const [filter, setFilter] = useState<'all' | 'milestone' | 'challenge'>('all');
+  const [activeTab, setActiveTab] = useState<string>('milestone');
 
-  const filtered = ACHIEVEMENTS.filter(a => filter === 'all' || a.category === filter);
+  const filtered = ACHIEVEMENTS.filter(a =>
+    activeTab === 'all' ? true : a.category === activeTab
+  );
   const completedCount = ACHIEVEMENTS.filter(a => states[a.id]?.completed).length;
+  const pct = Math.round((completedCount / ACHIEVEMENTS.length) * 100);
 
   return (
-    <div className="achievement-list fade-in">
-      <h3 style={{ textAlign: 'center', color: '#f0c040', marginBottom: 4 }}>🏆 成就</h3>
-      <div style={{ textAlign: 'center', fontSize: 12, color: '#8b8b9e', marginBottom: 8 }}>
-        已完成 {completedCount}/{ACHIEVEMENTS.length} ({Math.floor((completedCount / ACHIEVEMENTS.length) * 100)}%)
+    <div className="achievement-panel fade-in">
+      {/* Title + progress */}
+      <div className="page-title-bar">
+        <span>═══ 🏆 成就 ═══</span>
+      </div>
+
+      <div className="achievement-summary">
+        <span>📊 完成进度：{completedCount}/{ACHIEVEMENTS.length} ({pct}%)</span>
+        <MiniProgressBar current={completedCount} max={ACHIEVEMENTS.length} color="var(--green)" height={8} />
       </div>
 
       {/* Title selector */}
@@ -29,58 +39,52 @@ export default function AchievementList() {
         <select
           value={selectedTitle}
           onChange={e => selectTitle(e.target.value)}
-          style={{ background: '#1a1a2e', color: '#e0e0e0', border: '1px solid #2a2a4a', borderRadius: 4, padding: '2px 4px', fontSize: 11 }}
+          style={{ background: 'var(--panel)', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: 4, padding: '2px 6px', fontSize: 11 }}
         >
           {unlockedTitles.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
       </div>
 
-      {/* Filter */}
-      <div className="bag-filters" style={{ marginBottom: 8 }}>
-        {([['all', '全部'], ['milestone', '🏅里程碑'], ['challenge', '⚡挑战']] as const).map(([key, label]) => (
-          <button
-            key={key}
-            className={`filter-btn ${filter === key ? 'active' : ''}`}
-            onClick={() => setFilter(key)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      {/* Tab */}
+      <TabBar
+        tabs={[
+          { id: 'milestone', label: '🏅 里程碑' },
+          { id: 'challenge', label: '⚡ 挑战' },
+        ]}
+        activeId={activeTab}
+        onChange={setActiveTab}
+      />
 
-      {filtered.map(ach => {
-        const state = states[ach.id];
-        const completed = state?.completed ?? false;
-        const progress = state?.progress ?? 0;
+      {/* List */}
+      <div className="achievement-list">
+        {filtered.map(ach => {
+          const state = states[ach.id];
+          const completed = state?.completed ?? false;
+          const progress = state?.progress ?? 0;
+          const status = completed ? 'completed' : progress > 0 ? 'in_progress' : 'locked';
 
-        return (
-          <div
-            key={ach.id}
-            className="inv-item"
-            style={{
-              borderLeftColor: completed ? '#4caf50' : progress > 0 ? '#f0c040' : '#555',
-              opacity: completed ? 0.7 : 1,
-            }}
-          >
-            <div className="equip-header">
-              <span>{ach.icon} {ach.name} {completed && '✅'}</span>
-              <span style={{ fontSize: 11, color: '#8b8b9e' }}>{ach.category === 'milestone' ? '里程碑' : '挑战'}</span>
-            </div>
-            <div style={{ fontSize: 11, color: '#8b8b9e' }}>{ach.description}</div>
-            {!completed && progress > 0 && (
-              <div style={{ marginTop: 4 }}>
-                <div className="hp-bar-container" style={{ height: 6 }}>
-                  <div className="hp-bar" style={{ width: `${progress * 100}%`, background: '#f0c040' }} />
-                </div>
-                <div style={{ fontSize: 10, color: '#8b8b9e', textAlign: 'right' }}>
-                  {Math.floor(progress * 100)}%
-                </div>
+          return (
+            <div key={ach.id} className={`achievement-item ach-${status}`}>
+              <span className="ach-status-icon">
+                {status === 'completed' ? '✅' : status === 'in_progress' ? '🔄' : '🔒'}
+              </span>
+              <div className="ach-info">
+                <div className="ach-name">{ach.icon} {ach.name}</div>
+                <div className="ach-desc">{ach.description}</div>
+                {status === 'in_progress' && (
+                  <MiniProgressBar
+                    current={Math.round(progress * ach.target)}
+                    max={ach.target}
+                    height={4}
+                    showText
+                  />
+                )}
               </div>
-            )}
-            <div style={{ fontSize: 11, color: '#64b5f6', marginTop: 2 }}>🎁 {ach.reward.description}</div>
-          </div>
-        );
-      })}
+              <span className="ach-reward">🎁 {ach.reward.description}</span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

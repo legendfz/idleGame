@@ -145,7 +145,7 @@ export const QUALITY_INFO: Record<Quality, { label: string; symbol: string; mult
 
 export const INVENTORY_MAX = 50;
 
-export type TabId = 'battle' | 'team' | 'journey' | 'bag' | 'settings';
+export type TabId = 'battle' | 'team' | 'journey' | 'bag' | 'achievement' | 'settings';
 
 /** Floating damage text */
 export interface FloatingText {

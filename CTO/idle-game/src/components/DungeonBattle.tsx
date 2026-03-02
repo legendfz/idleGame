@@ -2,10 +2,11 @@
  * v1.3 副本战斗界面
  */
 
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { useDungeonStore } from '../store/dungeonStore';
 import { useGameStore } from '../store/gameStore';
 import { formatNumber } from '../utils/format';
+import BattleResult from './BattleResult';
 
 interface Props {
   onEnd: () => void;
@@ -155,25 +156,30 @@ export default function DungeonBattle({ onEnd }: Props) {
         ))}
       </div>
 
-      {/* End state */}
-      {isOver && (
+      {/* End state - Defeat */}
+      {battle.status === 'defeat' && (
         <div style={{ textAlign: 'center', marginTop: 12 }}>
-          <div style={{
-            fontSize: 18, fontWeight: 'bold',
-            color: battle.status === 'victory' ? '#4caf50' : '#f44336',
-            marginBottom: 8,
-          }}>
-            {battle.status === 'victory' ? '🎉 通关成功！' : '💀 挑战失败'}
+          <div style={{ fontSize: 18, fontWeight: 'bold', color: '#f44336', marginBottom: 8 }}>
+            💀 挑战失败
           </div>
-          {battle.status === 'victory' && (
-            <div style={{ fontSize: 12, color: '#8b8b9e', marginBottom: 8 }}>
-              ⏱️ 用时 {Math.floor(battle.elapsed)}秒
-            </div>
-          )}
-          <button className="small-btn accent" onClick={handleEnd}>
-            {battle.status === 'victory' ? '📦 领取奖励' : '返回'}
-          </button>
+          <button className="small-btn accent" onClick={handleEnd}>返回</button>
         </div>
+      )}
+
+      {/* Victory - BattleResult modal */}
+      {battle.status === 'victory' && (
+        <BattleResult
+          dungeonName={dungeon.name}
+          clearTime={battle.elapsed}
+          isFirstClear={!useDungeonStore.getState().progress[dungeon.id]?.cleared}
+          rewards={[
+            { icon: '💰', name: '灵石', amount: dungeon.rewards.lingshi[0] },
+            { icon: '✨', name: '经验', amount: dungeon.rewards.exp[0] },
+            ...(dungeon.rewards.pantao > 0 ? [{ icon: '🍑', name: '蟠桃', amount: dungeon.rewards.pantao }] : []),
+          ]}
+          remainAttempts={dungeon.dailyLimit - (useDungeonStore.getState().dailyAttempts[dungeon.id] ?? 0)}
+          onConfirm={handleEnd}
+        />
       )}
     </div>
   );

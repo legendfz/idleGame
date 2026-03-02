@@ -15,6 +15,7 @@ import DungeonList from './components/DungeonList';
 import DungeonBattle from './components/DungeonBattle';
 import AchievementList from './components/AchievementList';
 import Leaderboard from './components/Leaderboard';
+import AchievementToast from './components/AchievementToast';
 import { useDungeonStore } from './store/dungeonStore';
 import { useAchievementStore } from './store/achievementStore';
 import { useLeaderboardStore } from './store/leaderboardStore';
@@ -987,11 +988,12 @@ function OfflineReportModal() {
 
 // ─── Tab Bar ───
 const TABS = [
-  { id: 'battle' as const, label: '战斗' },
-  { id: 'team' as const, label: '队伍' },
-  { id: 'journey' as const, label: '旅途' },
-  { id: 'bag' as const, label: '背包' },
-  { id: 'settings' as const, label: '更多' },
+  { id: 'battle' as const, icon: '⚔️', label: '战斗' },
+  { id: 'team' as const, icon: '👤', label: '队伍' },
+  { id: 'journey' as const, icon: '🏔️', label: '旅途' },
+  { id: 'bag' as const, icon: '🎒', label: '背包' },
+  { id: 'achievement' as const, icon: '🏆', label: '成就' },
+  { id: 'settings' as const, icon: '⚙️', label: '更多' },
 ];
 
 // ─── App ───
@@ -1033,37 +1035,37 @@ export default function App() {
   if (subPage.type === 'equipDetail') return (
     <><TopBar /><EquipDetailPage item={subPage.item} onBack={goBack} />
     <div className="bottom-nav">{TABS.map(tab => (
-      <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); }}>{tab.label}</button>
+      <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); }}><span className="icon">{tab.icon}</span><span>{tab.label}</span></button>
     ))}</div><OfflineReportModal /></>
   );
   if (subPage.type === 'refine') return (
     <><TopBar /><RefinePage onBack={goBack} />
     <div className="bottom-nav">{TABS.map(tab => (
-      <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); }}>{tab.label}</button>
+      <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); }}><span className="icon">{tab.icon}</span><span>{tab.label}</span></button>
     ))}</div><OfflineReportModal /></>
   );
   if (subPage.type === 'shop') return (
     <><TopBar /><ShopPage onBack={goBack} />
     <div className="bottom-nav">{TABS.map(tab => (
-      <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); }}>{tab.label}</button>
+      <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); }}><span className="icon">{tab.icon}</span><span>{tab.label}</span></button>
     ))}</div><OfflineReportModal /></>
   );
   if (subPage.type === 'characterDetail') return (
     <><TopBar /><CharacterDetailPage onBack={goBack} />
     <div className="bottom-nav">{TABS.map(tab => (
-      <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); }}>{tab.label}</button>
+      <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); }}><span className="icon">{tab.icon}</span><span>{tab.label}</span></button>
     ))}</div><OfflineReportModal /></>
   );
   if (subPage.type === 'chapterSelect') return (
     <><TopBar /><ChapterSelectPage onBack={goBack} />
     <div className="bottom-nav">{TABS.map(tab => (
-      <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); }}>{tab.label}</button>
+      <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); }}><span className="icon">{tab.icon}</span><span>{tab.label}</span></button>
     ))}</div><OfflineReportModal /></>
   );
   if (subPage.type === 'saveManager') return (
     <><TopBar /><SaveManagerPage onBack={goBack} />
     <div className="bottom-nav">{TABS.map(tab => (
-      <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); }}>{tab.label}</button>
+      <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); }}><span className="icon">{tab.icon}</span><span>{tab.label}</span></button>
     ))}</div><OfflineReportModal /></>
   );
   if (subPage.type === 'dungeonList') return (
@@ -1078,7 +1080,7 @@ export default function App() {
       }} />
     </div>
     <div className="bottom-nav">{TABS.map(tab => (
-      <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); }}>{tab.label}</button>
+      <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); }}><span className="icon">{tab.icon}</span><span>{tab.label}</span></button>
     ))}</div><OfflineReportModal /></>
   );
   if (subPage.type === 'dungeonBattle') return (
@@ -1090,7 +1092,7 @@ export default function App() {
       }} />
     </div>
     <div className="bottom-nav">{TABS.map(tab => (
-      <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); }}>{tab.label}</button>
+      <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); }}><span className="icon">{tab.icon}</span><span>{tab.label}</span></button>
     ))}</div><OfflineReportModal /></>
   );
   if (subPage.type === 'achievements') return (
@@ -1100,7 +1102,7 @@ export default function App() {
       <AchievementList />
     </div>
     <div className="bottom-nav">{TABS.map(tab => (
-      <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); }}>{tab.label}</button>
+      <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); }}><span className="icon">{tab.icon}</span><span>{tab.label}</span></button>
     ))}</div><OfflineReportModal /></>
   );
   if (subPage.type === 'leaderboard') return (
@@ -1110,7 +1112,7 @@ export default function App() {
       <Leaderboard />
     </div>
     <div className="bottom-nav">{TABS.map(tab => (
-      <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); }}>{tab.label}</button>
+      <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); }}><span className="icon">{tab.icon}</span><span>{tab.label}</span></button>
     ))}</div><OfflineReportModal /></>
   );
 
@@ -1121,14 +1123,19 @@ export default function App() {
       {activeTab === 'team' && <TeamView setSubPage={setSubPage} />}
       {activeTab === 'journey' && <JourneyView setSubPage={setSubPage} />}
       {activeTab === 'bag' && <BagView setSubPage={setSubPage} />}
+      {activeTab === 'achievement' && (
+        <div className="main-content fade-in"><AchievementList /></div>
+      )}
       {activeTab === 'settings' && <SettingsView setSubPage={setSubPage} />}
       <div className="bottom-nav">
         {TABS.map(tab => (
           <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => setTab(tab.id)}>
-            {tab.label}
+            <span className="icon">{tab.icon}</span>
+            <span>{tab.label}</span>
           </button>
         ))}
       </div>
+      <AchievementToast />
       <OfflineReportModal />
     </>
   );

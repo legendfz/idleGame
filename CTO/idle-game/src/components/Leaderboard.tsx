@@ -1,56 +1,85 @@
 /**
- * v1.3 排行榜页面（本地）
+ * v1.3 排行榜页面 — per CDO COMPONENT-GUIDE-V1.3
  */
 
 import { useState } from 'react';
 import { useLeaderboardStore } from '../store/leaderboardStore';
+import { LEADERBOARD_CONFIGS } from '../data/leaderboards';
 import { formatNumber } from '../utils/format';
+import TabBar from './shared/TabBar';
 
-const TABS = [
-  { key: 'combat_power', label: '🏆 战力' },
-  { key: 'total_kills', label: '💀 击杀' },
-  { key: 'max_level', label: '📈 等级' },
-] as const;
+const RANK_ICONS = ['', '🥇', '🥈', '🥉'];
+const RANK_COLORS = ['', '#ffd700', '#c0c0c0', '#cd7f32'];
 
 export default function Leaderboard() {
-  const [tab, setTab] = useState<string>('combat_power');
-  const rankings = useLeaderboardStore(s => s.getRanking(tab));
+  const [activeTab, setActiveTab] = useState(LEADERBOARD_CONFIGS[0].id);
+  const config = LEADERBOARD_CONFIGS.find(c => c.id === activeTab) ?? LEADERBOARD_CONFIGS[0];
+
+  const storeType = config.scoreType === 'dungeon_time' && config.dungeonId
+    ? `dungeon_speed_${config.dungeonId}`
+    : config.scoreType;
+  const rankings = useLeaderboardStore(s => s.getRanking(storeType));
+
+  const isSpeed = config.sortBy === 'asc';
+
+  const tabs = LEADERBOARD_CONFIGS.map(c => ({
+    id: c.id,
+    label: c.name.replace('排行', ''),
+    icon: c.icon,
+  }));
 
   return (
     <div className="leaderboard fade-in">
-      <h3 style={{ textAlign: 'center', color: '#f0c040', marginBottom: 8 }}>🏆 排行榜</h3>
+      <div className="page-title-bar">
+        <span>═══ 📊 排行榜 ═══</span>
+      </div>
 
-      <div className="bag-filters" style={{ marginBottom: 8 }}>
-        {TABS.map(t => (
-          <button
-            key={t.key}
-            className={`filter-btn ${tab === t.key ? 'active' : ''}`}
-            onClick={() => setTab(t.key)}
-          >
-            {t.label}
-          </button>
-        ))}
+      <TabBar
+        tabs={tabs}
+        activeId={activeTab}
+        onChange={setActiveTab}
+        scrollable
+      />
+
+      <div className="lb-category-title">
+        ── {config.icon} {config.name} ──
+      </div>
+      <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--text-dim)', marginBottom: 8 }}>
+        {config.description}
       </div>
 
       {rankings.length === 0 ? (
-        <div style={{ textAlign: 'center', color: '#8b8b9e', padding: 24 }}>
+        <div style={{ textAlign: 'center', color: 'var(--text-dim)', padding: 24 }}>
           暂无记录，继续冒险吧！
         </div>
       ) : (
-        rankings.map((entry, i) => {
-          const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`;
-          return (
-            <div key={`${entry.timestamp}-${i}`} className="inv-item" style={{ borderLeftColor: i < 3 ? '#f0c040' : '#555' }}>
-              <div className="equip-header">
-                <span>{medal} {entry.playerName}</span>
-                <span style={{ color: '#f0c040', fontWeight: 'bold' }}>{formatNumber(entry.score)}</span>
+        <div className="lb-list">
+          {rankings.map((entry, i) => {
+            const rank = i + 1;
+            return (
+              <div key={`${entry.timestamp}-${i}`} className="lb-row">
+                <span
+                  className="lb-rank"
+                  style={rank <= 3 ? { color: RANK_COLORS[rank] } : undefined}
+                >
+                  {rank <= 3 ? RANK_ICONS[rank] : `${rank}.`}
+                </span>
+                <span className="lb-value">
+                  {isSpeed ? `${entry.score}秒` : formatNumber(entry.score)}
+                </span>
+                <span className="lb-date">
+                  {new Date(entry.timestamp).toLocaleDateString()}
+                </span>
               </div>
-              <div style={{ fontSize: 10, color: '#8b8b9e' }}>
-                {new Date(entry.timestamp).toLocaleString()}
-              </div>
-            </div>
-          );
-        })
+            );
+          })}
+        </div>
+      )}
+
+      {rankings.length > 0 && (
+        <div className="lb-current">
+          <div>📊 最佳记录：{isSpeed ? `${rankings[0].score}秒` : formatNumber(rankings[0].score)}</div>
+        </div>
       )}
     </div>
   );
