@@ -14,6 +14,7 @@ import { useMilestoneStore } from './milestone';
 import { useTalentStore } from './talent';
 import { useCompanionStore } from './companion';
 import { useReincarnationStore } from './reincarnation';
+import { useEventStore } from './event';
 
 export interface PlayerState {
   xiuwei: string;         // Decimal string

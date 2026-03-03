@@ -24,3 +24,5 @@ export { useMilestoneStore } from './milestone';
 export { useTalentStore } from './talent';
 export { useCompanionStore } from './companion';
 export { useReincarnationStore } from './reincarnation';
+export { useShopStore } from './shop';
+export { useEventStore } from './event';

@@ -17,6 +17,8 @@ import { useMilestoneStore } from '../store/milestone';
 import { useTalentStore } from '../store/talent';
 import { useCompanionStore } from '../store/companion';
 import { useReincarnationStore } from '../store/reincarnation';
+import { useShopStore } from '../store/shop';
+import { useEventStore } from '../store/event';
 import { SaveManager } from '../data/save';
 import { GameStats } from '../engine/achievement';
 import { calcOfflineReward } from '../engine/idle';
@@ -52,6 +54,8 @@ export function useGameLoop() {
       if (saved.talent) useTalentStore.getState().loadState(saved.talent.points ?? 0, saved.talent.ranks ?? {});
       if (saved.companion) useCompanionStore.getState().loadState(saved.companion.instances ?? {}, saved.companion.equipped ?? []);
       if (saved.reincarnation) useReincarnationStore.getState().loadState(saved.reincarnation);
+      if (saved.shop) useShopStore.getState().loadState(saved.shop);
+      if (saved.event) useEventStore.getState().loadState(saved.event);
 
       // === 2. 离线收益 ===
       const lastOnline = saved.player?.lastOnlineAt || Date.now();
@@ -125,6 +129,10 @@ export function useGameLoop() {
       lastTickRef.current = now;
       tick(Math.min(dt, 2));
 
+      // 每秒: 商店自动刷新 + 活动tick
+      useShopStore.getState().tickRefresh();
+      useEventStore.getState().tick();
+
       // 每5秒检测成就+里程碑
       achCheckCounter++;
       if (achCheckCounter % 5 === 0) {
@@ -184,6 +192,8 @@ export function useGameLoop() {
       talent: useTalentStore.getState().getState(),
       companion: useCompanionStore.getState().getState(),
       reincarnation: useReincarnationStore.getState().getState(),
+      shop: useShopStore.getState().getState(),
+      event: useEventStore.getState().getState(),
     });
     const stopAutoSave = SaveManager.startAutoSave(getFullState);
 
