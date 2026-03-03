@@ -18,6 +18,8 @@ import { usePetStore } from './pet';
 import { useSkillStore } from './skill';
 import { useStrategyStore } from './strategy';
 import { useGuildStore } from './guild';
+import { useSanctuaryStore } from './sanctuary'; // v16.0 fix: Gap 13
+import { useAffinityStore } from './affinity'; // v16.0 fix: Gap 13
 import { useFestivalStore } from './festival';
 import { useAchievementStore } from './achievement';
 import { useDailyQuestStore } from './dailyQuest';
@@ -49,13 +51,16 @@ export const useBattleStore = create<BattleStore>((set, get) => ({
     const pB = usePetStore.getState().getBuffs();
     const sB = useSkillStore.getState().getAllBuffs();
     const stB = useStrategyStore.getState().getBuffs();
+    const sanB = useSanctuaryStore.getState().getBuffs(); // v16.0 fix: Gap 13
+    const affB = useAffinityStore.getState().getBuffs(); // v16.0 fix: Gap 13
     const totalAtk = (useMilestoneStore.getState().getBuffs().atkPercent || 0)
       + (useTalentStore.getState().getBuffs().atkPercent || 0)
       + (useCompanionStore.getState().getBuffs().atkPercent || 0)
-      + (rB.atkPercent || 0) + (pB.atkPercent || 0) + (sB.atkPercent || 0) + (stB.atkPercent || 0);
+      + (rB.atkPercent || 0) + (pB.atkPercent || 0) + (sB.atkPercent || 0) + (stB.atkPercent || 0)
+      + (sanB.atkPercent || 0) + (affB.atkPercent || 0);
     const totalCrit = (useTalentStore.getState().getBuffs().critRate || 0)
       + (useCompanionStore.getState().getBuffs().critRate || 0)
-      + (rB.critRate || 0) + (sB.critRate || 0) + (stB.critRate || 0);
+      + (rB.critRate || 0) + (sB.critRate || 0) + (stB.critRate || 0) + (affB.critRate || 0);
     const baseAtk = calcAttack(1, realm?.multiplier ?? 1, 0);
     const attack = baseAtk.mul(1 + totalAtk / 100);
     const critRate = 0.05 + totalCrit / 100;
@@ -79,13 +84,16 @@ export const useBattleStore = create<BattleStore>((set, get) => ({
     const pB2 = usePetStore.getState().getBuffs();
     const sB2 = useSkillStore.getState().getAllBuffs();
     const stB2 = useStrategyStore.getState().getBuffs();
+    const sanB2 = useSanctuaryStore.getState().getBuffs(); // v16.0 fix: Gap 13
+    const affB2 = useAffinityStore.getState().getBuffs(); // v16.0 fix: Gap 13
     const totalAtk2 = (useMilestoneStore.getState().getBuffs().atkPercent || 0)
       + (useTalentStore.getState().getBuffs().atkPercent || 0)
       + (useCompanionStore.getState().getBuffs().atkPercent || 0)
-      + (rB2.atkPercent || 0) + (pB2.atkPercent || 0) + (sB2.atkPercent || 0) + (stB2.atkPercent || 0);
+      + (rB2.atkPercent || 0) + (pB2.atkPercent || 0) + (sB2.atkPercent || 0) + (stB2.atkPercent || 0)
+      + (sanB2.atkPercent || 0) + (affB2.atkPercent || 0);
     const totalCrit2 = 0.05 + ((useTalentStore.getState().getBuffs().critRate || 0)
       + (useCompanionStore.getState().getBuffs().critRate || 0)
-      + (rB2.critRate || 0) + (sB2.critRate || 0) + (stB2.critRate || 0)) / 100;
+      + (rB2.critRate || 0) + (sB2.critRate || 0) + (stB2.critRate || 0) + (affB2.critRate || 0)) / 100;
     const baseAtk = calcAttack(1, realm?.multiplier ?? 1, 0);
     const attack = baseAtk.mul(1 + totalAtk2 / 100);
     const dps = calcAutoDps(attack, 1.0, 0, totalCrit2, 2.0);

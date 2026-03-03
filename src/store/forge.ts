@@ -18,6 +18,8 @@ import { useReincarnationStore } from './reincarnation';
 import { useSkillStore } from './skill';
 import { calcSynergyBuffs } from '../engine/synergy';
 import { useAchievementStore } from './achievement';
+import { useSanctuaryStore } from './sanctuary'; // v16.0 fix: Gap 13
+import { useAffinityStore } from './affinity'; // v16.0 fix: Gap 13
 import { useDailyQuestStore } from './dailyQuest';
 
 const PITY_THRESHOLD = 5;
@@ -55,6 +57,8 @@ export const useForgeStore = create<ForgeStore>((set, get) => ({
       + (useCompanionStore.getState().getBuffs().forgeRate || 0)
       + (useReincarnationStore.getState().getBuffs().forgeRate || 0)
       + (useSkillStore.getState().getAllBuffs().forgeRate || 0)
+      + (useSanctuaryStore.getState().getBuffs().forgeRate || 0) // v16.0 fix: Gap 13
+      + (useAffinityStore.getState().getBuffs().forgeRate || 0) // v16.0 fix: Gap 13
       + calcSynergyBuffs({
           talentUsedPoints: useTalentStore.getState().getUsedPoints(),
           skillTotalLevels: 0, achievementCount: 0, towerHighestFloor: 0,

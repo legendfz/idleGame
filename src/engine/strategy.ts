@@ -29,7 +29,7 @@ export const STRATEGIES: StrategyDef[] = [
     id: 'aggressive', name: '修罗战道', icon: '⚔️',
     desc: '全力进攻，适合Boss战',
     unlockRealm: 3,
-    weights: { atkWeight: 1.5, defWeight: 0.6, critWeight: 1.3, speedWeight: 1.2 },
+    weights: { atkWeight: 1.4, defWeight: 0.6, critWeight: 1.3, speedWeight: 1.2 }, // v16.0 fix: Gap 8 — 1.5→1.4
     bonuses: { atkPercent: 15, critRate: 3 },
   },
   {

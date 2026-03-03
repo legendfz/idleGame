@@ -57,7 +57,8 @@ export function simulateTowerBattle(floor: number, playerPower: Decimal): { succ
  * 层奖励
  */
 export function calcTowerReward(floor: number, isBoss: boolean): TowerReward {
-  const coins = Math.floor(100 * floor * (isBoss ? 3 : 1));
+  const baseCoins = floor >= 100 ? 150 : 100; // v16.0 fix: Gap 10 — 100+层金币提升50%
+  const coins = Math.floor(baseCoins * floor * (isBoss ? 3 : 1));
   const lingshi = isBoss ? Math.floor(floor / 10) : 0;
   const materials: { id: string; count: number }[] = [];
 
