@@ -88,6 +88,14 @@
 - 4源buff: milestone+talent+companion+reincarnation
 - Build: 324KB/99KB gzip, commit 4560768
 
+## v12.0 仙途指引 (2026-03-03)
+- commit 88b6184 (CEO batch), b3afc63 (CMO)
+- SettingsView: 动画开关+存档导出/导入/重置+版本号
+- PlayerState新增: totalCultivateTime/maxDamage/totalEquipDrops
+- StatsView新增3统计卡片
+- 导航+设置Tab
+- Build: 377KB/113KB gzip
+
 ## 待办事项
 - 关卡19-81配置补全
 - engine单测
