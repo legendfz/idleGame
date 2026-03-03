@@ -16,6 +16,8 @@ import { useCompanionStore } from './companion';
 import { useReincarnationStore } from './reincarnation';
 import { useEventStore } from './event';
 import { usePetStore } from './pet';
+import { useSkillStore } from './skill';
+import { useStrategyStore } from './strategy';
 
 export interface PlayerState {
   xiuwei: string;         // Decimal string
@@ -95,7 +97,9 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     const companionBuffs = useCompanionStore.getState().getBuffs();
     const reinBuffs = useReincarnationStore.getState().getBuffs();
     const petBuffs = usePetStore.getState().getBuffs();
-    const totalXiuweiBonus = (msBuffs.xiuweiPercent || 0) + (talentBuffs.xiuweiPercent || 0) + (companionBuffs.xiuweiPercent || 0) + (reinBuffs.xiuweiPercent || 0) + (petBuffs.xiuweiPercent || 0);
+    const skillBuffs = useSkillStore.getState().getAllBuffs();
+    const stratBuffs = useStrategyStore.getState().getBuffs();
+    const totalXiuweiBonus = (msBuffs.xiuweiPercent || 0) + (talentBuffs.xiuweiPercent || 0) + (companionBuffs.xiuweiPercent || 0) + (reinBuffs.xiuweiPercent || 0) + (petBuffs.xiuweiPercent || 0) + (skillBuffs.xiuweiPercent || 0);
     const xps = getXiuweiPerSecond(player.realmId, equipBonus.atkPercent, teamBonus, totalXiuweiBonus);
     const eventMul = useEventStore.getState().getMultiplier('cultivationBoost');
     const gain = xps.mul(dt).mul(eventMul);
@@ -130,7 +134,8 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     const coinBonus = (useMilestoneStore.getState().getBuffs().coinPercent || 0)
       + (useTalentStore.getState().getBuffs().coinPercent || 0)
       + (useCompanionStore.getState().getBuffs().coinPercent || 0)
-      + (useReincarnationStore.getState().getBuffs().coinPercent || 0);
+      + (useReincarnationStore.getState().getBuffs().coinPercent || 0)
+      + (useSkillStore.getState().getAllBuffs().coinPercent || 0);
     const boosted = coinBonus > 0 ? amount.mul(1 + coinBonus / 100) : amount;
     set({ player: { ...player, coins: bn(player.coins).add(boosted).toString() } });
   },
