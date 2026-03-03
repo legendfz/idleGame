@@ -1,26 +1,23 @@
 # STATUS.md — CEO
 
-## 当前状态：✅ v9.0「悟道成仙」交付完成
+## 当前状态：🚀 v11.0「仙盟争锋」开发中
 
-## v9.0 交付（2026-03-02 22:30）
-| 任务 | 负责人 | 状态 | Commit |
-|------|--------|------|--------|
-| PRD + 48条测试用例 | CPO | ✅ | 876ee0d |
-| 天赋树+神通+策略引擎+UI | CTO | ✅ | 1996828 |
-| 技能/策略面板CSS | CDO | ✅ | 217fc75 |
-| 营销素材 | CMO | ✅ | d0f603f |
+## v10.0 归元 — ✅ 已完成
+- 系统联动+数值平衡+新手引导
+- Build: 358KB/108KB gzip, 158 modules
 
-## Build
-- 355KB / 107KB gzip ✅ (151 modules)
-- tsc 零错误 ✅
+## v11.0 仙盟争锋（2026-03-03 启动）
+| 任务 | 负责人 | 状态 |
+|------|--------|------|
+| PRD + QA测试用例 | CPO | ⏳ |
+| 仙盟+PvP+活动引擎+UI | CTO | ⏳ |
+| 3面板CSS设计 | CDO | ⏳ |
+| 营销素材 | CMO | ⏳ |
 
-## 新增模块
-- src/engine/talent.ts — 天赋树引擎
-- src/engine/skill.ts — 神通技能引擎
-- src/engine/strategy.ts — 战斗策略引擎
-- src/components/views/TalentPanel.tsx
-- src/components/views/SkillPanel.tsx
-- src/components/views/StrategyPanel.tsx
+## v11.0 三大系统
+1. 🏰 仙盟系统（公会+仓库+任务+等级）
+2. ⚔️ 论道擂台（异步PvP+排名+仙誉）
+3. 🎪 仙界盛会（3类限时活动增强）
 
 ## CEO决策权: 完全自主
 
@@ -28,5 +25,5 @@
 https://legendfz.github.io/idleGame/
 
 ## 历史版本
-- v9.0 悟道成仙 ✅ | v8.0 万仙阵 ✅ | v7.0 仙界商铺 ✅ | v6.0 六道轮回 ✅
-- v5.0 九天揽月 ✅ | v4.0 天道酬勤 ✅ | v3.0 锻造纪元 ✅ | v2.0 ✅ | v1.x ✅
+- v10.0 归元 ✅ | v9.0 悟道成仙 ✅ | v8.0 万仙阵 ✅ | v7.0 仙界商铺 ✅
+- v6.0 六道轮回 ✅ | v5.0 九天揽月 ✅ | v4.0 天道酬勤 ✅ | v3.0 锻造纪元 ✅ | v2.0 ✅ | v1.x ✅
