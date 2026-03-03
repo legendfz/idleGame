@@ -6,6 +6,7 @@ import {
   GatherNode, ActiveGather, startGather, isGatherComplete, collectGather,
 } from '../engine/gather';
 import { useMaterialStore } from './material';
+import { usePlayerStore } from './player';
 import { useUIStore } from './ui';
 
 interface GatherStore {
@@ -25,10 +26,11 @@ export const useGatherStore = create<GatherStore>((set, get) => ({
 
   start: (node) => {
     const { activeGather, cooldowns } = get();
-    if (activeGather) return false; // 已在采集
-    if ((cooldowns[node.id] ?? 0) > Date.now()) return false; // 冷却中
+    if (activeGather) return false;
+    if ((cooldowns[node.id] ?? 0) > Date.now()) return false;
 
-    set({ activeGather: startGather(node) });
+    const charId = usePlayerStore.getState().player.activeCharId || '';
+    set({ activeGather: startGather(node, Date.now(), charId) });
     return true;
   },
 
@@ -37,7 +39,8 @@ export const useGatherStore = create<GatherStore>((set, get) => ({
     if (!activeGather || activeGather.nodeId !== node.id) return null;
     if (!isGatherComplete(activeGather)) return null;
 
-    const result = collectGather(node);
+    const charId = usePlayerStore.getState().player.activeCharId || '';
+    const result = collectGather(node, charId);
     useMaterialStore.getState().addMaterials(result.materials);
 
     set({

@@ -1,17 +1,22 @@
 /**
  * ForgeStore — 锻造状态管理
+ * Bug #2: 失败退还50%材料
+ * Bug #3: 连续失败5次保底成功
  */
 import { create } from 'zustand';
-import { canForge, doForge, forgeLevelExp, ForgeRecipe, ForgeResult } from '../engine/forge';
+import { canForge, doForge, doForgePity, forgeLevelExp, ForgeRecipe, ForgeResult } from '../engine/forge';
 import { bn } from '../engine/bignum';
 import { useMaterialStore } from './material';
 import { usePlayerStore } from './player';
 import { useEquipStore } from './equipment';
 import { useUIStore } from './ui';
 
+const PITY_THRESHOLD = 5;
+
 interface ForgeStore {
   forgeLevel: number;
   forgeExp: number;
+  failStreak: number;
 
   forge: (recipe: ForgeRecipe) => ForgeResult;
   loadState: (level: number, exp: number) => void;
@@ -20,26 +25,41 @@ interface ForgeStore {
 export const useForgeStore = create<ForgeStore>((set, get) => ({
   forgeLevel: 1,
   forgeExp: 0,
+  failStreak: 0,
 
   forge: (recipe) => {
-    const { forgeLevel, forgeExp } = get();
+    const { forgeLevel, forgeExp, failStreak } = get();
     const materials = useMaterialStore.getState().materials;
     const coins = bn(usePlayerStore.getState().player.coins);
 
-    // 检查
     const check = canForge(recipe, materials, coins, forgeLevel);
     if (!check.ok) {
       return { success: false, expGained: 0, message: `无法锻造：${check.missing.join('、')}` };
     }
 
-    // 扣除材料和金币
     useMaterialStore.getState().removeMaterials(recipe.materials);
     usePlayerStore.getState().spendCoins(bn(recipe.coinsCost));
 
-    // 执行锻造
-    const result = doForge(recipe, forgeLevel);
+    // Bug #3: 保底
+    const forcePity = failStreak >= PITY_THRESHOLD - 1;
+    const result = forcePity
+      ? doForgePity(recipe, forgeLevel)
+      : doForge(recipe, forgeLevel);
 
-    // 加经验
+    // Bug #2: 失败退还50%
+    if (!result.success) {
+      const refund = recipe.materials
+        .map(m => ({ materialId: m.materialId, count: Math.floor(m.count * 0.5) }))
+        .filter(m => m.count > 0);
+      if (refund.length > 0) {
+        useMaterialStore.getState().addMaterials(refund);
+        result.message += ` 退还50%材料。`;
+      }
+      set({ failStreak: failStreak + 1 });
+    } else {
+      set({ failStreak: 0 });
+    }
+
     let newExp = forgeExp + result.expGained;
     let newLevel = forgeLevel;
     while (newExp >= forgeLevelExp(newLevel) && newLevel < 50) {
@@ -47,9 +67,8 @@ export const useForgeStore = create<ForgeStore>((set, get) => ({
       newLevel++;
       useUIStore.getState().addToast(`锻造等级提升至 ${newLevel} 级！`, 'success');
     }
-    set({ forgeLevel: newLevel, forgeExp: newExp });
+    set(s => ({ forgeLevel: newLevel, forgeExp: newExp }));
 
-    // 装备入背包
     if (result.success && result.item) {
       useEquipStore.getState().addItem(result.item);
     }

@@ -12,7 +12,7 @@ import bossMechanicsData from '../data/configs/boss-mechanics.json';
 export type BossMechanic =
   | { type: 'immune'; element: string; duration: number }
   | { type: 'reflect'; percent: number; duration: number }
-  | { type: 'enrage'; hpThreshold: number; atkBoost: number }
+  | { type: 'enrage'; hpThreshold: number; atkBoost: number; timeThreshold?: number }
   | { type: 'phase'; phases: BossPhaseConfig[] }
   | { type: 'summon'; minionId: string; count: number; interval: number }
   | { type: 'heal'; percent: number; cooldown: number }
@@ -30,13 +30,14 @@ export interface ActiveBossMechanics {
   enraged: boolean;
   enrageBoost: number;
   currentPhase: number;
-  immuneTimer: number;        // remaining seconds
+  immuneTimer: number;
   reflectTimer: number;
   reflectPercent: number;
   shieldHp: Decimal;
   healCooldownTimer: number;
   summonTimer: number;
-  announcements: string[];    // pending announcements
+  elapsedTime: number;        // Bug #7: 累计战斗时间(秒)
+  announcements: string[];
 }
 
 // === Engine ===
@@ -59,6 +60,7 @@ export function createMechanicState(): ActiveBossMechanics {
     immuneTimer: 0, reflectTimer: 0, reflectPercent: 0,
     shieldHp: ZERO,
     healCooldownTimer: 0, summonTimer: 0,
+    elapsedTime: 0,
     announcements: [],
   };
 }
@@ -72,16 +74,21 @@ export function tickBossMechanics(
   boss: EnemyRuntime,
   dt: number,
 ): ActiveBossMechanics {
-  const newState = { ...state, announcements: [] as string[] };
+  const newState = { ...state, announcements: [] as string[], elapsedTime: state.elapsedTime + dt };
   const hpPercent = boss.currentHp.div(boss.maxHp).toNumber();
 
   for (const mech of mechanics) {
     switch (mech.type) {
       case 'enrage': {
-        if (!newState.enraged && hpPercent <= mech.hpThreshold) {
+        // Bug #7: 支持时间触发狂暴(优先) 或 HP阈值触发
+        const timeThreshold = (mech as any).timeThreshold ?? 0;
+        const triggerByTime = timeThreshold > 0 && newState.elapsedTime >= timeThreshold;
+        const triggerByHp = hpPercent <= mech.hpThreshold;
+        if (!newState.enraged && (triggerByTime || triggerByHp)) {
           newState.enraged = true;
           newState.enrageBoost = mech.atkBoost;
-          newState.announcements.push(`Boss 狂暴！攻击力 ×${mech.atkBoost}`);
+          const reason = triggerByTime ? `${timeThreshold}秒超时` : `HP≤${Math.round(mech.hpThreshold * 100)}%`;
+          newState.announcements.push(`Boss 狂暴！(${reason}) 攻击力 ×${mech.atkBoost}`);
         }
         break;
       }

@@ -21,15 +21,15 @@ import { getRealmConfig } from './data/config';
 import { ToastContainer } from './components/shared/ToastContainer';
 import { OfflineModal } from './components/shared/OfflineModal';
 
-const NAV_ITEMS = [
-  { id: 'idle', icon: '🧘', label: '修炼' },
-  { id: 'battle', icon: '⚔️', label: '战斗' },
-  { id: 'forge', icon: '🔨', label: '锻造' },
-  { id: 'gather', icon: '⛏️', label: '采集' },
-  { id: 'dungeon', icon: '🐉', label: '秘境' },
-  { id: 'character', icon: '🐒', label: '角色' },
-  { id: 'inventory', icon: '🎒', label: '背包' },
-  { id: 'journey', icon: '🗺️', label: '取经' },
+const ALL_NAV_ITEMS = [
+  { id: 'idle', icon: '🧘', label: '修炼', minRealm: 1 },
+  { id: 'battle', icon: '⚔️', label: '战斗', minRealm: 1 },
+  { id: 'forge', icon: '🔨', label: '锻造', minRealm: 3 },   // 筑基解锁
+  { id: 'gather', icon: '⛏️', label: '采集', minRealm: 2 },   // 练气解锁
+  { id: 'dungeon', icon: '🐉', label: '秘境', minRealm: 3 },  // 筑基解锁
+  { id: 'character', icon: '🐒', label: '角色', minRealm: 1 },
+  { id: 'inventory', icon: '🎒', label: '背包', minRealm: 1 },
+  { id: 'journey', icon: '🗺️', label: '取经', minRealm: 1 },
 ];
 
 function AppContent() {
@@ -57,6 +57,8 @@ export default function App() {
   const currentView = useUIStore(s => s.currentView);
   const setView = useUIStore(s => s.setView);
   const realm = getRealmConfig(player.realmId);
+  const realmOrder = realm?.order ?? 1;
+  const navItems = ALL_NAV_ITEMS.filter(item => realmOrder >= item.minRealm);
 
   return (
     <GameLayout
@@ -71,7 +73,7 @@ export default function App() {
       }
       bottomNav={
         <BottomNav
-          items={NAV_ITEMS}
+          items={navItems}
           activeId={currentView}
           onChange={(id) => setView(id as ViewId)}
         />

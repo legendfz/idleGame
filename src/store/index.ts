@@ -17,3 +17,4 @@ export type { ViewId } from './ui';
 export { useMaterialStore } from './material';
 export { useForgeStore } from './forge';
 export { useGatherStore } from './gather';
+export { useDungeonStore } from './dungeon';

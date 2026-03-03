@@ -170,3 +170,25 @@ export function doForge(recipe: ForgeRecipe, forgeLevel: number): ForgeResult {
     message: `锻造成功！获得 [${quality}] ${recipe.name}`,
   };
 }
+
+/**
+ * 保底锻造 — 必定成功 (Bug #3)
+ */
+export function doForgePity(recipe: ForgeRecipe, forgeLevel: number): ForgeResult {
+  const expGained = getForgeExp(recipe);
+  const quality = rollQuality(recipe, forgeLevel);
+  const bonusRolls = rollBonusStats(quality);
+  const basePower = recipe.levelRequired * 5 + 10;
+  const item = generateEquip(
+    recipe.resultTemplateId,
+    recipe.resultSlot === 'weapon' ? basePower : Math.floor(basePower * 0.3),
+    recipe.resultSlot === 'armor' ? basePower : Math.floor(basePower * 0.3),
+    basePower * 2,
+    quality,
+  );
+  eventBus.emit({ type: 'EQUIP_ENHANCED', itemUid: item.uid, level: 0, success: true });
+  return {
+    success: true, item, quality, bonusRolls, expGained,
+    message: `🎊 保底触发！锻造成功！获得 [${quality}] ${recipe.name}`,
+  };
+}

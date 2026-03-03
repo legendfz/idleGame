@@ -53,3 +53,35 @@ export function doSmelt(recipe: SmeltRecipe): SmeltResult {
     message: `炼化成功！获得 ${recipe.output.materialId} ×${recipe.output.count}`,
   };
 }
+
+// === 反向分解 (LH-03) ===
+
+export interface DecomposeResult {
+  success: boolean;
+  outputs: { materialId: string; count: number }[];
+  message: string;
+}
+
+/**
+ * 反向分解：高级材料 → 低级材料 (1:3)
+ */
+export function canDecompose(
+  materialId: string,
+  count: number,
+  materials: Record<string, number>,
+): boolean {
+  return (materials[materialId] ?? 0) >= count;
+}
+
+export function doDecompose(
+  materialId: string,
+  count: number,
+  lowerMaterialId: string,
+): DecomposeResult {
+  const outputCount = count * 3;
+  return {
+    success: true,
+    outputs: [{ materialId: lowerMaterialId, count: outputCount }],
+    message: `分解成功！${materialId} ×${count} → ${lowerMaterialId} ×${outputCount}`,
+  };
+}

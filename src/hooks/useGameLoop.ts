@@ -7,10 +7,16 @@ import { useBattleStore } from '../store/battle';
 import { useEquipStore } from '../store/equipment';
 import { useJourneyStore } from '../store/journey';
 import { useUIStore } from '../store/ui';
+import { useMaterialStore } from '../store/material';
+import { useForgeStore } from '../store/forge';
+import { useGatherStore } from '../store/gather';
+import { useDungeonStore } from '../store/dungeon';
 import { SaveManager } from '../data/save';
 import { calcOfflineReward } from '../engine/idle';
+import { calcOfflineGather, GatherNode } from '../engine/gather';
 import { eventBus } from '../engine/events';
 import { bn } from '../engine/bignum';
+import gatherNodesData from '../data/configs/gather-nodes.json';
 
 export function useGameLoop() {
   const tick = usePlayerStore(s => s.tick);
@@ -28,6 +34,10 @@ export function useGameLoop() {
       if (saved.player) usePlayerStore.getState().loadState(saved.player);
       if (saved.equipment) useEquipStore.getState().loadState(saved.equipment.items || [], saved.equipment.equipped || {});
       if (saved.journey) useJourneyStore.getState().loadState(saved.journey);
+      if (saved.materials) useMaterialStore.getState().loadState(saved.materials);
+      if (saved.forge) useForgeStore.getState().loadState(saved.forge.forgeLevel || 1, saved.forge.forgeExp || 0);
+      if (saved.gather) useGatherStore.getState().loadState(saved.gather.activeGather || null, saved.gather.cooldowns || {});
+      if (saved.dungeon) useDungeonStore.getState().loadState(saved.dungeon);
 
       // === 2. 离线收益 ===
       const lastOnline = saved.player?.lastOnlineAt || Date.now();
@@ -47,8 +57,22 @@ export function useGameLoop() {
         const mins = Math.floor((reward.duration % 3600) / 60);
         const timeStr = hours > 0 ? `${hours}小时${mins}分钟` : `${mins}分钟`;
         const bonusStr = reward.bonusApplied ? '\n🎁 回归奖励 +10%！' : '';
+        // Bug #4: 离线采集收益
+        const activeGather = useGatherStore.getState().activeGather;
+        let gatherStr = '';
+        if (activeGather) {
+          const node = (gatherNodesData as GatherNode[]).find(n => n.id === activeGather.nodeId);
+          if (node) {
+            const gatherResult = calcOfflineGather(node, reward.duration);
+            if (gatherResult.materials.length > 0) {
+              useMaterialStore.getState().addMaterials(gatherResult.materials);
+              gatherStr = '\n' + gatherResult.materials.map(m => `${m.materialId} ×${m.count}`).join(', ');
+            }
+          }
+        }
+
         useUIStore.getState().setModal(
-          `🌙 离线收益\n离线 ${timeStr}\n修为 +${reward.xiuwei.toFixed(0)}\n金币 +${reward.coins.toFixed(0)}${bonusStr}`
+          `🌙 离线收益\n离线 ${timeStr}\n修为 +${reward.xiuwei.toFixed(0)}\n金币 +${reward.coins.toFixed(0)}${bonusStr}${gatherStr ? `\n⛏️ 采集: ${gatherStr}` : ''}`
         );
       }
     }
@@ -103,6 +127,10 @@ export function useGameLoop() {
         equipped: useEquipStore.getState().equipped,
       },
       journey: useJourneyStore.getState().journey,
+      materials: useMaterialStore.getState().materials,
+      forge: { forgeLevel: useForgeStore.getState().forgeLevel, forgeExp: useForgeStore.getState().forgeExp },
+      gather: { activeGather: useGatherStore.getState().activeGather, cooldowns: useGatherStore.getState().cooldowns },
+      dungeon: useDungeonStore.getState().getState(),
     });
     const stopAutoSave = SaveManager.startAutoSave(getFullState);
 

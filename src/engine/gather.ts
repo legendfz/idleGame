@@ -31,13 +31,26 @@ export interface ActiveGather {
 // === Engine ===
 
 /**
- * 开始采集
+ * 角色采集加成
+ * 猪八戒: +25% 速度 (减少采集时间)
+ * 沙悟净: +20% 产量
  */
-export function startGather(node: GatherNode, now: number = Date.now()): ActiveGather {
+export function getCharGatherBonus(charId: string): { speedMult: number; yieldMult: number } {
+  if (charId === 'bajie') return { speedMult: 0.75, yieldMult: 1.0 };
+  if (charId === 'wujing') return { speedMult: 1.0, yieldMult: 1.2 };
+  return { speedMult: 1.0, yieldMult: 1.0 };
+}
+
+/**
+ * 开始采集 (Bug #6: 角色被动加成)
+ */
+export function startGather(node: GatherNode, now: number = Date.now(), charId: string = ''): ActiveGather {
+  const { speedMult } = getCharGatherBonus(charId);
+  const adjustedTime = Math.floor(node.gatherTime * speedMult);
   return {
     nodeId: node.id,
     startedAt: now,
-    completesAt: now + node.gatherTime * 1000,
+    completesAt: now + adjustedTime * 1000,
   };
 }
 
@@ -49,14 +62,16 @@ export function isGatherComplete(gather: ActiveGather, now: number = Date.now())
 }
 
 /**
- * 收取采集结果
+ * 收取采集结果 (Bug #6: 角色被动加成)
  */
-export function collectGather(node: GatherNode): GatherResult {
+export function collectGather(node: GatherNode, charId: string = ''): GatherResult {
+  const { yieldMult } = getCharGatherBonus(charId);
   const materials: { materialId: string; count: number }[] = [];
 
   for (const mat of node.materials) {
     if (Math.random() < mat.chance) {
-      const count = mat.countRange[0] + Math.floor(Math.random() * (mat.countRange[1] - mat.countRange[0] + 1));
+      const base = mat.countRange[0] + Math.floor(Math.random() * (mat.countRange[1] - mat.countRange[0] + 1));
+      const count = Math.max(1, Math.floor(base * yieldMult));
       materials.push({ materialId: mat.materialId, count });
     }
   }

@@ -1,11 +1,12 @@
 /**
  * DungeonView — 秘境/副本面板
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useMaterialStore } from '../../store/material';
 import { usePlayerStore } from '../../store/player';
 import { useJourneyStore } from '../../store/journey';
 import { useUIStore } from '../../store/ui';
+import { useDungeonStore } from '../../store/dungeon';
 import { bn, formatBigNum } from '../../engine/bignum';
 import { DungeonConfig, canEnterDungeon, simulateDungeon, dungeonBossHp } from '../../engine/dungeon';
 import dungeonsData from '../../data/configs/dungeons.json';
@@ -15,13 +16,19 @@ const dungeons = dungeonsData as DungeonConfig[];
 const materialMap = Object.fromEntries(materialsData.map(m => [m.id, m]));
 
 export function DungeonView() {
-  const [dailyAttempts, setDailyAttempts] = useState<Record<string, number>>({});
   const [resultModal, setResultModal] = useState<{ dungeon: string; success: boolean; rewards: { materialId: string; count: number }[]; message: string } | null>(null);
 
   const player = usePlayerStore(s => s.player);
   const journey = useJourneyStore(s => s.journey);
   const addToast = useUIStore(s => s.addToast);
   const addMaterials = useMaterialStore(s => s.addMaterials);
+  const dungeonState = useDungeonStore(s => s.state);
+  const getAttempts = useDungeonStore(s => s.getAttempts);
+  const addAttempt = useDungeonStore(s => s.addAttempt);
+  const checkReset = useDungeonStore(s => s.checkReset);
+
+  // 每次进入检查每日重置
+  useEffect(() => { checkReset(); }, [checkReset]);
 
   // 简化体力：用金币*0.01近似战力
   const playerPower = bn(player.xiuwei).add(bn(player.coins).mul(0.01));
@@ -32,9 +39,9 @@ export function DungeonView() {
 
       <div className="dungeon-grid">
         {dungeons.map(dungeon => {
-          const attempts = dailyAttempts[dungeon.id] ?? 0;
+          const attempts = getAttempts(dungeon.id);
           const currentStage = journey.currentStage;
-          const check = canEnterDungeon(dungeon, currentStage, attempts, 100); // 简化体力
+          const check = canEnterDungeon(dungeon, currentStage, attempts, 100);
           const bHp = dungeonBossHp(dungeon);
 
           return (
@@ -69,7 +76,7 @@ export function DungeonView() {
                 disabled={!check.ok}
                 onClick={() => {
                   const result = simulateDungeon(dungeon, playerPower);
-                  setDailyAttempts(prev => ({ ...prev, [dungeon.id]: (prev[dungeon.id] ?? 0) + 1 }));
+                  addAttempt(dungeon.id);
                   if (result.success && result.rewards.length > 0) {
                     addMaterials(result.rewards);
                   }
