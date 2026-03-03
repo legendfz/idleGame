@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, lazy, Suspense } from 'react';
 import { useGameStore } from './store/gameStore';
 import { useDungeonStore } from './store/dungeonStore';
 import { useAchievementStore } from './store/achievementStore';
@@ -9,10 +9,12 @@ import AchievementList from './components/AchievementList';
 import Leaderboard from './components/Leaderboard';
 import AchievementToast from './components/AchievementToast';
 import { TutorialOverlay } from './components/TutorialOverlay';
-import { StatsView } from './components/StatsView';
-import { SanctuaryPanel } from './components/SanctuaryPanel';
-import { ExplorationPanel } from './components/ExplorationPanel';
-import { AffinityPanel } from './components/AffinityPanel';
+
+// Lazy-loaded heavy panels (not needed on first render)
+const StatsView = lazy(() => import('./components/StatsView').then(m => ({ default: m.StatsView })));
+const SanctuaryPanel = lazy(() => import('./components/SanctuaryPanel').then(m => ({ default: m.SanctuaryPanel })));
+const ExplorationPanel = lazy(() => import('./components/ExplorationPanel').then(m => ({ default: m.ExplorationPanel })));
+const AffinityPanel = lazy(() => import('./components/AffinityPanel').then(m => ({ default: m.AffinityPanel })));
 
 import { TopBar, OfflineReportModal, SubPageHeader, SubPage } from './pages/shared';
 import { BattleView } from './pages/BattlePage';
@@ -22,6 +24,8 @@ import { EquipDetailPage, RefinePage } from './pages/EquipmentPage';
 import { ShopPage, SaveManagerPage } from './pages/ShopSavePage';
 import { BagView } from './pages/BagPage';
 import { SettingsView } from './pages/SettingsPage';
+
+const LazyFallback = () => <div style={{ padding: 40, textAlign: 'center', color: '#aaa' }}>加载中...</div>;
 
 const ALL_TABS = [
   { id: 'battle' as const, icon: '⚔️', label: '战斗', unlockLevel: 0 },
@@ -103,9 +107,10 @@ export default function App() {
     }
   }, [load]);
 
-  // Tick
+  // Tick (throttle when tab hidden)
   useEffect(() => {
-    const id = setInterval(() => {
+    let id: ReturnType<typeof setInterval>;
+    const doTick = () => {
       tick();
       const gs = useGameStore.getState();
       const achStore = useAchievementStore.getState();
@@ -113,8 +118,14 @@ export default function App() {
       achStore.updateProgress('level_100', gs.player.level);
       achStore.updateProgress('online_24h', gs.totalPlayTime);
       achStore.checkAchievements();
-    }, 1000);
-    return () => clearInterval(id);
+    };
+    const startLoop = () => {
+      clearInterval(id);
+      id = setInterval(doTick, document.hidden ? 5000 : 1000);
+    };
+    startLoop();
+    document.addEventListener('visibilitychange', startLoop);
+    return () => { clearInterval(id); document.removeEventListener('visibilitychange', startLoop); };
   }, [tick]);
 
   // Auto-save
@@ -175,10 +186,10 @@ export default function App() {
       case 'journey': return <JourneyView setSubPage={setSubPage} />;
       case 'bag': return <BagView setSubPage={setSubPage} />;
       case 'achievement': return <div className="main-content fade-in"><AchievementList /></div>;
-      case 'sanctuary': return <SanctuaryPanel />;
-      case 'exploration': return <ExplorationPanel />;
-      case 'affinity': return <AffinityPanel />;
-      case 'stats': return <StatsView />;
+      case 'sanctuary': return <Suspense fallback={<LazyFallback />}><SanctuaryPanel /></Suspense>;
+      case 'exploration': return <Suspense fallback={<LazyFallback />}><ExplorationPanel /></Suspense>;
+      case 'affinity': return <Suspense fallback={<LazyFallback />}><AffinityPanel /></Suspense>;
+      case 'stats': return <Suspense fallback={<LazyFallback />}><StatsView /></Suspense>;
       case 'settings': return <SettingsView setSubPage={setSubPage} />;
       default: return <BattleView />;
     }
