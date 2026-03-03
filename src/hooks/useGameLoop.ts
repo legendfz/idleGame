@@ -14,6 +14,8 @@ import { useDungeonStore } from '../store/dungeon';
 import { useAchievementStore } from '../store/achievement';
 import { useDailyQuestStore } from '../store/dailyQuest';
 import { useMilestoneStore } from '../store/milestone';
+import { useTalentStore } from '../store/talent';
+import { useCompanionStore } from '../store/companion';
 import { SaveManager } from '../data/save';
 import { GameStats } from '../engine/achievement';
 import { calcOfflineReward } from '../engine/idle';
@@ -46,6 +48,8 @@ export function useGameLoop() {
       if (saved.achievement) useAchievementStore.getState().loadState(saved.achievement.progress || {}, saved.achievement.stats || {});
       if (saved.dailyQuest) useDailyQuestStore.getState().loadState(saved.dailyQuest);
       if (saved.milestone) useMilestoneStore.getState().loadState(saved.milestone);
+      if (saved.talent) useTalentStore.getState().loadState(saved.talent.points ?? 0, saved.talent.ranks ?? {});
+      if (saved.companion) useCompanionStore.getState().loadState(saved.companion.instances ?? {}, saved.companion.equipped ?? []);
 
       // === 2. 离线收益 ===
       const lastOnline = saved.player?.lastOnlineAt || Date.now();
@@ -101,6 +105,10 @@ export function useGameLoop() {
     const unsubBreak = eventBus.on('BREAKTHROUGH', (e) => {
       useUIStore.getState().addToast(`突破至 ${e.toRealm}！`, 'success');
       useDailyQuestStore.getState().addProgress('breakthroughs', 1);
+      // 天赋点: 突破+1, 大境界突破(toLevel=1)+2
+      const pts = e.toLevel === 1 ? 2 : 1;
+      useTalentStore.getState().addPoints(pts);
+      useUIStore.getState().addToast(`获得 ${pts} 天赋点`, 'info');
     });
 
     const unsubLoot = eventBus.on('LOOT_DROP', (e) => {
@@ -171,6 +179,8 @@ export function useGameLoop() {
       achievement: useAchievementStore.getState().getState(),
       dailyQuest: useDailyQuestStore.getState().getState(),
       milestone: useMilestoneStore.getState().getState(),
+      talent: useTalentStore.getState().getState(),
+      companion: useCompanionStore.getState().getState(),
     });
     const stopAutoSave = SaveManager.startAutoSave(getFullState);
 

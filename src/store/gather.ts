@@ -9,6 +9,8 @@ import { useMaterialStore } from './material';
 import { usePlayerStore } from './player';
 import { useUIStore } from './ui';
 import { useMilestoneStore } from './milestone';
+import { useTalentStore } from './talent';
+import { useCompanionStore } from './companion';
 import { useAchievementStore } from './achievement';
 import { useDailyQuestStore } from './dailyQuest';
 
@@ -34,7 +36,9 @@ export const useGatherStore = create<GatherStore>((set, get) => ({
 
     const charId = usePlayerStore.getState().player.activeCharId || '';
     // 里程碑采集速度加成：缩短采集时间
-    const msSpeed = useMilestoneStore.getState().getBuffs().gatherSpeed;
+    const msSpeed = (useMilestoneStore.getState().getBuffs().gatherSpeed || 0)
+      + (useTalentStore.getState().getBuffs().gatherSpeed || 0)
+      + (useCompanionStore.getState().getBuffs().gatherSpeed || 0);
     const boostedNode = msSpeed > 0
       ? { ...node, gatherTime: Math.max(10, Math.floor(node.gatherTime * (1 - msSpeed / 100))) }
       : node;

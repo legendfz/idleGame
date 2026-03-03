@@ -11,6 +11,8 @@ import { calcAttack } from '../engine/formulas';
 import { getRealmConfig } from '../data/config';
 import { usePlayerStore } from './player';
 import { useMilestoneStore } from './milestone';
+import { useTalentStore } from './talent';
+import { useCompanionStore } from './companion';
 import { useAchievementStore } from './achievement';
 import { useDailyQuestStore } from './dailyQuest';
 
@@ -37,10 +39,14 @@ export const useBattleStore = create<BattleStore>((set, get) => ({
 
     const player = usePlayerStore.getState().player;
     const realm = getRealmConfig(player.realmId);
-    const msBuffs = useMilestoneStore.getState().getBuffs();
+    const totalAtk = (useMilestoneStore.getState().getBuffs().atkPercent || 0)
+      + (useTalentStore.getState().getBuffs().atkPercent || 0)
+      + (useCompanionStore.getState().getBuffs().atkPercent || 0);
+    const totalCrit = (useTalentStore.getState().getBuffs().critRate || 0)
+      + (useCompanionStore.getState().getBuffs().critRate || 0);
     const baseAtk = calcAttack(1, realm?.multiplier ?? 1, 0);
-    const attack = baseAtk.mul(1 + msBuffs.atkPercent / 100);
-    const critRate = 0.05;
+    const attack = baseAtk.mul(1 + totalAtk / 100);
+    const critRate = 0.05 + totalCrit / 100;
 
     const { damage, isCrit } = calcClickDamage(attack, 0, critRate, 2.0, battle.comboBuff > 0);
     const newBattle = processClick(battle, damage, isCrit, Date.now());
@@ -57,10 +63,14 @@ export const useBattleStore = create<BattleStore>((set, get) => ({
 
     const player = usePlayerStore.getState().player;
     const realm = getRealmConfig(player.realmId);
-    const msBuffs = useMilestoneStore.getState().getBuffs();
+    const totalAtk2 = (useMilestoneStore.getState().getBuffs().atkPercent || 0)
+      + (useTalentStore.getState().getBuffs().atkPercent || 0)
+      + (useCompanionStore.getState().getBuffs().atkPercent || 0);
+    const totalCrit2 = 0.05 + ((useTalentStore.getState().getBuffs().critRate || 0)
+      + (useCompanionStore.getState().getBuffs().critRate || 0)) / 100;
     const baseAtk = calcAttack(1, realm?.multiplier ?? 1, 0);
-    const attack = baseAtk.mul(1 + msBuffs.atkPercent / 100);
-    const dps = calcAutoDps(attack, 1.0, 0, 0.05, 2.0);
+    const attack = baseAtk.mul(1 + totalAtk2 / 100);
+    const dps = calcAutoDps(attack, 1.0, 0, totalCrit2, 2.0);
 
     const newBattle = tickBattle(battle, dtMs, dps);
     set({ battle: newBattle });
