@@ -10,8 +10,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico'],
       manifest: {
-        name: '西游修仙录',
-        short_name: '修仙录',
+        name: '西游·悟空传',
+        short_name: '悟空传',
         description: '西游记题材放置修仙游戏',
         theme_color: '#1a1a2e',
         background_color: '#0f0f1a',
