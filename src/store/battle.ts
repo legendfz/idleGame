@@ -40,11 +40,14 @@ export const useBattleStore = create<BattleStore>((set, get) => ({
 
     const player = usePlayerStore.getState().player;
     const realm = getRealmConfig(player.realmId);
+    const rB = useReincarnationStore.getState().getBuffs();
     const totalAtk = (useMilestoneStore.getState().getBuffs().atkPercent || 0)
       + (useTalentStore.getState().getBuffs().atkPercent || 0)
-      + (useCompanionStore.getState().getBuffs().atkPercent || 0);
+      + (useCompanionStore.getState().getBuffs().atkPercent || 0)
+      + (rB.atkPercent || 0);
     const totalCrit = (useTalentStore.getState().getBuffs().critRate || 0)
-      + (useCompanionStore.getState().getBuffs().critRate || 0);
+      + (useCompanionStore.getState().getBuffs().critRate || 0)
+      + (rB.critRate || 0);
     const baseAtk = calcAttack(1, realm?.multiplier ?? 1, 0);
     const attack = baseAtk.mul(1 + totalAtk / 100);
     const critRate = 0.05 + totalCrit / 100;
