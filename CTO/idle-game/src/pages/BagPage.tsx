@@ -7,6 +7,7 @@ import {
   isHighEnhance, getHighEnhanceRate, hasHiddenPassive, hasFullMythic15,
 } from '../data/equipment';
 import { Card, SubPage } from './shared';
+import { EquipSlotDisplay } from './EquipmentPage';
 
 export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
   const weapon = useGameStore(s => s.equippedWeapon);

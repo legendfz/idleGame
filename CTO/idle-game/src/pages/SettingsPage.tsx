@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { REALMS } from '../data/realms';
-import { formatNumber, formatTime } from '../utils/format';
+import { formatNumber, formatTime, formatDuration } from '../utils/format';
 import FeedbackForm from '../components/FeedbackForm';
 import { Card, SubPage } from './shared';
 
