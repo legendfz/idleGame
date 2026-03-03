@@ -10,6 +10,7 @@ import { useMaterialStore } from './material';
 import { usePlayerStore } from './player';
 import { useEquipStore } from './equipment';
 import { useUIStore } from './ui';
+import { vibrateSuccess, vibrateFail } from '../utils/feedback';
 
 const PITY_THRESHOLD = 5;
 
@@ -45,6 +46,9 @@ export const useForgeStore = create<ForgeStore>((set, get) => ({
     const result = forcePity
       ? doForgePity(recipe, forgeLevel)
       : doForge(recipe, forgeLevel);
+
+    // Feedback
+    result.success ? vibrateSuccess() : vibrateFail();
 
     // Bug #2: 失败退还50%
     if (!result.success) {
