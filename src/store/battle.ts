@@ -17,6 +17,8 @@ import { useReincarnationStore } from './reincarnation';
 import { usePetStore } from './pet';
 import { useSkillStore } from './skill';
 import { useStrategyStore } from './strategy';
+import { useGuildStore } from './guild';
+import { useFestivalStore } from './festival';
 import { useAchievementStore } from './achievement';
 import { useDailyQuestStore } from './dailyQuest';
 
@@ -98,6 +100,8 @@ export const useBattleStore = create<BattleStore>((set, get) => ({
       // Boss击杀获得功德 10-50 + 悟道值 5-15
       useReincarnationStore.getState().addMerit(10 + Math.floor(Math.random() * 41));
       useSkillStore.getState().addWudao(5 + Math.floor(Math.random() * 11));
+      useGuildStore.getState().addQuestProgress('kills', newBattle.killCount);
+      useFestivalStore.getState().addScore('kills', newBattle.killCount);
     }
   },
 

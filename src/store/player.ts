@@ -18,6 +18,7 @@ import { useEventStore } from './event';
 import { usePetStore } from './pet';
 import { useSkillStore } from './skill';
 import { useStrategyStore } from './strategy';
+import { useGuildStore } from './guild';
 
 export interface PlayerState {
   xiuwei: string;         // Decimal string
@@ -99,7 +100,8 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     const petBuffs = usePetStore.getState().getBuffs();
     const skillBuffs = useSkillStore.getState().getAllBuffs();
     const stratBuffs = useStrategyStore.getState().getBuffs();
-    const totalXiuweiBonus = (msBuffs.xiuweiPercent || 0) + (talentBuffs.xiuweiPercent || 0) + (companionBuffs.xiuweiPercent || 0) + (reinBuffs.xiuweiPercent || 0) + (petBuffs.xiuweiPercent || 0) + (skillBuffs.xiuweiPercent || 0);
+    const guildBuffs = useGuildStore.getState().getBuffs();
+    const totalXiuweiBonus = (msBuffs.xiuweiPercent || 0) + (talentBuffs.xiuweiPercent || 0) + (companionBuffs.xiuweiPercent || 0) + (reinBuffs.xiuweiPercent || 0) + (petBuffs.xiuweiPercent || 0) + (skillBuffs.xiuweiPercent || 0) + (guildBuffs.xiuweiPercent || 0);
     const xps = getXiuweiPerSecond(player.realmId, equipBonus.atkPercent, teamBonus, totalXiuweiBonus);
     const eventMul = useEventStore.getState().getMultiplier('cultivationBoost');
     const gain = xps.mul(dt).mul(eventMul);

@@ -11,10 +11,16 @@
 - 无直接竞品，参考 A Dark Room / Candy Box 成功路径
 
 ## 待办事项
-- 确定游戏名称和 Slogan
 - 注册 TapTap/IndieNova 开发者账号
 - 启动社区建设（QQ群/Discord）
 - 等待 CPO/CTO 确认以校准预热时间线
+
+## 已完成营销版本
+- v1.0~v1.3: 发布文案+推广素材 (CMO/)
+- v2.0: 市场策略+预热内容 (shared/context-bus/cmo/)
+- v2.1: changelog模板
+- v3.0: 锻造系统推广素材 (MARKETING-FORGE.md)
+- v11.0: 仙盟争锋 — 更新日志+3篇文案+亮点一页纸 (v110-changelog.md)
 
 ## 经验教训
 

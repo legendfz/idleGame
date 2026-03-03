@@ -27,6 +27,9 @@ import { TowerPanel } from './components/views/TowerPanel';
 import { PetPanel } from './components/views/PetPanel';
 import { WudaoView } from './components/views/WudaoView';
 import { TutorialOverlay } from './components/shared/TutorialOverlay';
+import { GuildPanel } from './components/views/GuildPanel';
+import { PvpPanel } from './components/views/PvpPanel';
+import { FestivalPanel } from './components/views/FestivalPanel';
 import { formatBigNum, bn } from './engine/bignum';
 import { getRealmConfig } from './data/config';
 import { ToastContainer } from './components/shared/ToastContainer';
@@ -49,7 +52,10 @@ const ALL_NAV_ITEMS = [
   { id: 'journey', icon: '🗺️', label: '取经', minRealm: 1 },
   { id: 'quest', icon: '📋', label: '任务', minRealm: 1 },
   { id: 'reincarnation', icon: '🔄', label: '轮回', minRealm: 5 },
+  { id: 'guild', icon: '🏯', label: '仙盟', minRealm: 3 },
+  { id: 'pvp', icon: '🤺', label: '擂台', minRealm: 3 },
   { id: 'shop', icon: '🏪', label: '商店', minRealm: 2 },
+  { id: 'festival', icon: '🎊', label: '竞技', minRealm: 2 },
   { id: 'event', icon: '🎉', label: '活动', minRealm: 1 },
   { id: 'leaderboard', icon: '🏆', label: '排行', minRealm: 1 },
   { id: 'stats', icon: '📊', label: '统计', minRealm: 1 },
@@ -73,6 +79,9 @@ function AppContent() {
     wudao: <WudaoView />,
     tower: <TowerPanel />,
     pet: <PetPanel />,
+    guild: <GuildPanel />,
+    pvp: <PvpPanel />,
+    festival: <FestivalPanel />,
     shop: <ShopPanel />,
     event: <EventPanel />,
     leaderboard: <LeaderboardPanel />,

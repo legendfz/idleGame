@@ -1,0 +1,360 @@
+/* ══ v11.0 仙盟面板 — GuildPanel ══ */
+
+/* ── 容器 ── */
+.guild-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+  padding: var(--sp-md);
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* ── 仙盟信息卡 ── */
+.guild-info-card {
+  background: linear-gradient(135deg, #2E2838 0%, #1E1230 100%);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-lg);
+  box-shadow: var(--shadow-panel), inset 0 1px 0 rgba(212,168,67,0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.guild-info-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
+}
+
+.guild-name {
+  font-family: var(--font-title);
+  font-size: var(--fs-xl);
+  color: var(--color-accent);
+  text-align: center;
+  margin-bottom: var(--sp-sm);
+  text-shadow: 0 0 12px rgba(212,168,67,0.4);
+}
+
+.guild-level-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-xs);
+  background: rgba(212,168,67,0.15);
+  border: 1px solid rgba(212,168,67,0.3);
+  border-radius: var(--radius-pill);
+  padding: 2px var(--sp-sm);
+  font-size: var(--fs-sm);
+  color: var(--color-accent);
+  margin: 0 auto var(--sp-md);
+}
+
+.guild-stats-row {
+  display: flex;
+  justify-content: space-around;
+  gap: var(--sp-sm);
+}
+
+.guild-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.guild-stat-label {
+  font-size: var(--fs-xs);
+  color: var(--color-text-dim);
+}
+
+.guild-stat-value {
+  font-family: var(--font-number);
+  font-size: var(--fs-md);
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.guild-buffs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-xs);
+  margin-top: var(--sp-md);
+  padding-top: var(--sp-sm);
+  border-top: 1px solid var(--color-border);
+}
+
+.guild-buff-tag {
+  font-size: var(--fs-xs);
+  color: var(--color-success);
+  background: rgba(58,125,68,0.15);
+  border: 1px solid rgba(58,125,68,0.25);
+  border-radius: var(--radius-pill);
+  padding: 2px var(--sp-sm);
+}
+
+/* ── 切换 Tab ── */
+.guild-tabs {
+  display: flex;
+  gap: var(--sp-xs);
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+  padding: var(--sp-xs);
+}
+
+.guild-tab {
+  flex: 1;
+  padding: var(--sp-sm) 0;
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--color-text-dim);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-out);
+}
+
+.guild-tab.active {
+  background: var(--color-bg-card);
+  color: var(--color-accent);
+  font-weight: 600;
+  box-shadow: var(--shadow-btn);
+}
+
+/* ── 成员列表 ── */
+.guild-member-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+}
+
+.guild-member-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  background: var(--color-bg-card);
+  border-radius: var(--radius-md);
+  padding: var(--sp-sm) var(--sp-md);
+  border: 1px solid var(--color-border);
+  transition: border-color var(--dur-fast);
+}
+
+.guild-member-item:hover {
+  border-color: var(--color-border-gold);
+}
+
+.guild-member-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-bg-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-lg);
+  flex-shrink: 0;
+}
+
+.guild-member-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.guild-member-name {
+  font-size: var(--fs-body);
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.guild-member-role {
+  font-size: var(--fs-xs);
+  color: var(--color-accent);
+}
+
+.guild-member-role.leader { color: #FFD700; }
+.guild-member-role.elder  { color: #ce93d8; }
+.guild-member-role.member { color: var(--color-text-dim); }
+
+.guild-member-contrib {
+  font-family: var(--font-number);
+  font-size: var(--fs-sm);
+  color: var(--color-text-dim);
+  text-align: right;
+}
+
+.guild-member-online {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.guild-member-online.online  { background: #4CAF50; box-shadow: 0 0 6px rgba(76,175,80,0.6); }
+.guild-member-online.offline { background: #555; }
+
+/* ── 仙盟任务 ── */
+.guild-quest-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+}
+
+.guild-quest-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--sp-md);
+  transition: border-color var(--dur-fast);
+}
+
+.guild-quest-card.completed {
+  border-color: var(--color-success);
+  opacity: 0.7;
+}
+
+.guild-quest-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--sp-sm);
+}
+
+.guild-quest-title {
+  font-size: var(--fs-body);
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.guild-quest-difficulty {
+  font-size: var(--fs-xs);
+  padding: 2px var(--sp-sm);
+  border-radius: var(--radius-pill);
+}
+
+.guild-quest-difficulty.easy   { background: rgba(76,175,80,0.15); color: #4CAF50; }
+.guild-quest-difficulty.medium { background: rgba(230,126,34,0.15); color: #E67E22; }
+.guild-quest-difficulty.hard   { background: rgba(193,59,59,0.15);  color: #C13B3B; }
+
+.guild-quest-progress {
+  height: 6px;
+  background: var(--color-bg);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  margin-bottom: var(--sp-sm);
+}
+
+.guild-quest-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-accent), #F0C060);
+  border-radius: var(--radius-pill);
+  transition: width var(--dur-norm) var(--ease-out);
+}
+
+.guild-quest-rewards {
+  display: flex;
+  gap: var(--sp-sm);
+  font-size: var(--fs-xs);
+  color: var(--color-text-dim);
+}
+
+.guild-quest-reward-item {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* ── 仙盟仓库 ── */
+.guild-storage-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--sp-sm);
+}
+
+.guild-storage-slot {
+  aspect-ratio: 1;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  cursor: pointer;
+  transition: all var(--dur-fast);
+  position: relative;
+}
+
+.guild-storage-slot:hover {
+  border-color: var(--color-accent);
+  transform: scale(1.05);
+}
+
+.guild-storage-slot.empty {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.guild-storage-slot .slot-icon {
+  font-size: var(--fs-lg);
+}
+
+.guild-storage-slot .slot-count {
+  font-family: var(--font-number);
+  font-size: var(--fs-xs);
+  color: var(--color-text-dim);
+}
+
+.guild-storage-actions {
+  display: flex;
+  gap: var(--sp-sm);
+  margin-top: var(--sp-md);
+}
+
+.guild-btn {
+  flex: 1;
+  padding: var(--sp-sm) var(--sp-md);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all var(--dur-fast);
+}
+
+.guild-btn-donate {
+  background: linear-gradient(135deg, var(--color-accent), #c49520);
+  color: var(--color-bg);
+}
+
+.guild-btn-claim {
+  background: var(--color-bg-elevated);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.guild-btn:active {
+  transform: scale(0.96);
+}
+
+.guild-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Section Header 通用 ── */
+.guild-section-title {
+  font-family: var(--font-title);
+  font-size: var(--fs-md);
+  color: var(--color-text);
+  padding-bottom: var(--sp-sm);
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--sp-md);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+}

@@ -24,6 +24,9 @@ import { usePetStore } from '../store/pet';
 import { useSkillStore } from '../store/skill';
 import { useStrategyStore } from '../store/strategy';
 import { useTutorialStore } from '../store/tutorial';
+import { useGuildStore } from '../store/guild';
+import { usePvpStore } from '../store/pvp';
+import { useFestivalStore } from '../store/festival';
 import { SaveManager } from '../data/save';
 import { GameStats } from '../engine/achievement';
 import { calcOfflineReward } from '../engine/idle';
@@ -66,6 +69,9 @@ export function useGameLoop() {
       if (saved.skill) useSkillStore.getState().loadState(saved.skill);
       if (saved.strategy) useStrategyStore.getState().loadState(saved.strategy);
       if (saved.tutorial) useTutorialStore.getState().loadState(saved.tutorial);
+      if (saved.guild) useGuildStore.getState().loadState(saved.guild);
+      if (saved.pvp) usePvpStore.getState().loadState(saved.pvp);
+      if (saved.festival) useFestivalStore.getState().loadState(saved.festival);
 
       // === 2. 离线收益 ===
       const lastOnline = saved.player?.lastOnlineAt || Date.now();
@@ -144,6 +150,9 @@ export function useGameLoop() {
       useEventStore.getState().tick();
       useTowerStore.getState().tickReset();
       useSkillStore.getState().cleanExpired();
+      useGuildStore.getState().tickReset();
+      usePvpStore.getState().tickReset();
+      useFestivalStore.getState().tick();
 
       // 每5秒检测成就+里程碑
       achCheckCounter++;
@@ -211,6 +220,9 @@ export function useGameLoop() {
       skill: useSkillStore.getState().getState(),
       strategy: useStrategyStore.getState().getState(),
       tutorial: useTutorialStore.getState().getState(),
+      guild: useGuildStore.getState().getState(),
+      pvp: usePvpStore.getState().getState(),
+      festival: useFestivalStore.getState().getState(),
     });
     const stopAutoSave = SaveManager.startAutoSave(getFullState);
 
