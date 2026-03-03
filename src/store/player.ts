@@ -36,6 +36,9 @@ export interface PlayerState {
   totalKills: number;
   totalBreakthroughs: number;
   prestigeCount: number;
+  totalCultivateTime: number; // 累计修炼秒数
+  maxDamage: number;          // 最高单次伤害
+  totalEquipDrops: number;    // 装备掉落总数
 }
 
 interface PlayerStore {
@@ -75,6 +78,9 @@ function createInitialPlayer(): PlayerState {
     totalKills: 0,
     totalBreakthroughs: 0,
     prestigeCount: 0,
+    totalCultivateTime: 0,
+    maxDamage: 0,
+    totalEquipDrops: 0,
   };
 }
 
