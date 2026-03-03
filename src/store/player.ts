@@ -10,6 +10,7 @@ import { getRealmConfig, getCharacterConfig } from '../data/config';
 import { formatBigNum } from '../engine/bignum';
 import { useEquipStore } from './equipment';
 import { calcEquipBonusPercent } from '../engine/equipment';
+import { useMilestoneStore } from './milestone';
 
 export interface PlayerState {
   xiuwei: string;         // Decimal string
@@ -83,7 +84,9 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     const teamBonus = charConfig?.passive.effect.type === 'xiuweiBonus'
       ? (charConfig.passive.effect.value ?? 0) : 0;
 
-    const xps = getXiuweiPerSecond(player.realmId, equipBonus.atkPercent, teamBonus, 0);
+    // 里程碑buff
+    const msBuffs = useMilestoneStore.getState().getBuffs();
+    const xps = getXiuweiPerSecond(player.realmId, equipBonus.atkPercent, teamBonus, msBuffs.xiuweiPercent);
     const gain = xps.mul(dt);
     const newXiuwei = bn(player.xiuwei).add(gain);
     const newTotal = bn(player.totalXiuwei).add(gain);
@@ -113,7 +116,9 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 
   addCoins: (amount) => {
     const { player } = get();
-    set({ player: { ...player, coins: bn(player.coins).add(amount).toString() } });
+    const coinBonus = useMilestoneStore.getState().getBuffs().coinPercent;
+    const boosted = coinBonus > 0 ? amount.mul(1 + coinBonus / 100) : amount;
+    set({ player: { ...player, coins: bn(player.coins).add(boosted).toString() } });
   },
 
   addLingshi: (amount) => {

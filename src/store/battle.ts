@@ -10,6 +10,7 @@ import { bn, ZERO } from '../engine/bignum';
 import { calcAttack } from '../engine/formulas';
 import { getRealmConfig } from '../data/config';
 import { usePlayerStore } from './player';
+import { useMilestoneStore } from './milestone';
 
 interface BattleStore {
   battle: BattleRuntimeState | null;
@@ -34,8 +35,10 @@ export const useBattleStore = create<BattleStore>((set, get) => ({
 
     const player = usePlayerStore.getState().player;
     const realm = getRealmConfig(player.realmId);
-    const attack = calcAttack(1, realm?.multiplier ?? 1, 0); // TODO: level + equip
-    const critRate = 0.05; // base 5%
+    const msBuffs = useMilestoneStore.getState().getBuffs();
+    const baseAtk = calcAttack(1, realm?.multiplier ?? 1, 0);
+    const attack = baseAtk.mul(1 + msBuffs.atkPercent / 100);
+    const critRate = 0.05;
 
     const { damage, isCrit } = calcClickDamage(attack, 0, critRate, 2.0, battle.comboBuff > 0);
     const newBattle = processClick(battle, damage, isCrit, Date.now());
@@ -51,7 +54,9 @@ export const useBattleStore = create<BattleStore>((set, get) => ({
 
     const player = usePlayerStore.getState().player;
     const realm = getRealmConfig(player.realmId);
-    const attack = calcAttack(1, realm?.multiplier ?? 1, 0);
+    const msBuffs = useMilestoneStore.getState().getBuffs();
+    const baseAtk = calcAttack(1, realm?.multiplier ?? 1, 0);
+    const attack = baseAtk.mul(1 + msBuffs.atkPercent / 100);
     const dps = calcAutoDps(attack, 1.0, 0, 0.05, 2.0);
 
     const newBattle = tickBattle(battle, dtMs, dps);

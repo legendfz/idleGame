@@ -11,6 +11,7 @@ import { usePlayerStore } from './player';
 import { useEquipStore } from './equipment';
 import { useUIStore } from './ui';
 import { vibrateSuccess, vibrateFail } from '../utils/feedback';
+import { useMilestoneStore } from './milestone';
 
 const PITY_THRESHOLD = 5;
 
@@ -41,11 +42,17 @@ export const useForgeStore = create<ForgeStore>((set, get) => ({
     useMaterialStore.getState().removeMaterials(recipe.materials);
     usePlayerStore.getState().spendCoins(bn(recipe.coinsCost));
 
+    // 里程碑buff: 锻造成功率加成
+    const msBonus = useMilestoneStore.getState().getBuffs().forgeSuccessRate;
+    const boostedRecipe = msBonus > 0
+      ? { ...recipe, successRate: Math.min(0.99, recipe.successRate + msBonus / 100) }
+      : recipe;
+
     // Bug #3: 保底
     const forcePity = failStreak >= PITY_THRESHOLD - 1;
     const result = forcePity
-      ? doForgePity(recipe, forgeLevel)
-      : doForge(recipe, forgeLevel);
+      ? doForgePity(boostedRecipe, forgeLevel)
+      : doForge(boostedRecipe, forgeLevel);
 
     // Feedback
     result.success ? vibrateSuccess() : vibrateFail();

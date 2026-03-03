@@ -8,6 +8,7 @@ import {
 import { useMaterialStore } from './material';
 import { usePlayerStore } from './player';
 import { useUIStore } from './ui';
+import { useMilestoneStore } from './milestone';
 
 interface GatherStore {
   activeGather: ActiveGather | null;

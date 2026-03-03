@@ -12,12 +12,12 @@ export function QuestView() {
   const [tab, setTab] = useState<QuestTab>('daily');
 
   return (
-    <div style={{ padding: 16, height: '100%', overflow: 'auto' }}>
-      <h2>📋 任务</h2>
-      <div className="forge-tabs" style={{ marginBottom: 12 }}>
-        <button className={tab === 'daily' ? 'active' : ''} onClick={() => setTab('daily')}>📅 每日</button>
-        <button className={tab === 'achievement' ? 'active' : ''} onClick={() => setTab('achievement')}>🏆 成就</button>
-        <button className={tab === 'milestone' ? 'active' : ''} onClick={() => setTab('milestone')}>🎯 里程碑</button>
+    <div className="view-quests">
+      <h2>📜 任务</h2>
+      <div className="quest-tabs">
+        <button className={`quest-tab ${tab === 'daily' ? 'active' : ''}`} onClick={() => setTab('daily')}>📅 每日</button>
+        <button className={`quest-tab ${tab === 'achievement' ? 'active' : ''}`} onClick={() => setTab('achievement')}>🏆 成就</button>
+        <button className={`quest-tab ${tab === 'milestone' ? 'active' : ''}`} onClick={() => setTab('milestone')}>🎯 里程碑</button>
       </div>
       {tab === 'daily' && <DailyQuestPanel />}
       {tab === 'achievement' && <AchievementPanel />}
