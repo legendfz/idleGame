@@ -4,6 +4,7 @@ import { REALMS } from '../data/realms';
 import { CHAPTERS, createEnemy } from '../data/chapters';
 import { expForLevel } from '../utils/format';
 import { sfx } from '../engine/audio';
+import { calcDaoPoints, REINC_PERKS, REINC_MIN_REALM, REINC_MIN_LEVEL } from '../data/reincarnation';
 import {
   rollEquipDrop, createEquipFromTemplate, getEquipEffectiveStat,
   getEnhanceCost, getMaxEnhanceLevel, getActiveSetBonuses,
@@ -45,6 +46,9 @@ interface GameStore {
   tick: () => void;
   clickAttack: () => void;
   attemptBreakthrough: () => void;
+  reincarnate: () => void;
+  buyReincPerk: (perkId: string) => void;
+  getReincMultiplier: (perkId: string) => number;
   dismissOfflineReport: () => void;
   save: () => void;
   load: () => void;
@@ -106,6 +110,10 @@ function makeInitialPlayer(): PlayerState {
     tutorialStep: 1,
     tutorialDone: false,
     systemTutorials: [],
+    reincarnations: 0,
+    daoPoints: 0,
+    totalDaoPoints: 0,
+    reincPerks: {},
   };
 }
 
@@ -244,6 +252,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const effectiveStats = calcEffectiveStats(player.stats, equippedWeapon, equippedArmor, equippedTreasure);
     const lingshiMul = getLingshiBonusMul(equippedWeapon, equippedArmor, equippedTreasure);
 
+    // v22.0 转世加成
+    const atkMul = REINC_PERKS.find(p => p.id === 'atk_mult')!.effect(player.reincPerks?.['atk_mult'] ?? 0);
+    const expMul = REINC_PERKS.find(p => p.id === 'exp_mult')!.effect(player.reincPerks?.['exp_mult'] ?? 0);
+    const goldMul = REINC_PERKS.find(p => p.id === 'gold_mult')!.effect(player.reincPerks?.['gold_mult'] ?? 0);
+    effectiveStats.attack = Math.floor(effectiveStats.attack * atkMul);
+
     const enemy = { ...battle.currentEnemy };
     let log = [...battle.log];
     let updatedPlayer = { ...player, stats: { ...player.stats } };
@@ -293,12 +307,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
       updatedPlayer.totalKills++;
       log = addLog(log, `${enemy.name} 击败！`, 'kill');
 
-      const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul);
+      const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul);
+      const expDrop = Math.floor(enemy.expDrop * expMul);
       updatedPlayer.lingshi += lingshiDrop;
-      updatedPlayer.exp += enemy.expDrop;
+      updatedPlayer.exp += expDrop;
       tickGold += lingshiDrop;
-      tickExp += enemy.expDrop;
-      log = addLog(log, `  灵石+${lingshiDrop}  经验+${enemy.expDrop}`, 'drop');
+      tickExp += expDrop;
+      log = addLog(log, `  灵石+${lingshiDrop}  经验+${expDrop}`, 'drop');
 
       if (enemy.pantaoDrop > 0 && Math.random() < enemy.pantaoDrop) {
         updatedPlayer.pantao += 1;
@@ -447,6 +462,78 @@ export const useGameStore = create<GameStore>((set, get) => ({
         log: addLog(battle.log, `境界突破！「${nextRealm.name}」— ${nextRealm.bonus}`, 'levelup'),
       },
     });
+    sfx.breakthrough();
+  },
+
+  reincarnate: () => {
+    const state = get();
+    const { player } = state;
+    if (player.realmIndex < REINC_MIN_REALM || player.level < REINC_MIN_LEVEL) return;
+
+    const daoGain = calcDaoPoints(player.level, player.realmIndex, player.reincarnations);
+    const startLevel = REINC_PERKS.find(p => p.id === 'start_level')!.effect(player.reincPerks['start_level'] ?? 0);
+
+    // Reset player but keep permanent stuff
+    const newPlayer = makeInitialPlayer();
+    newPlayer.reincarnations = player.reincarnations + 1;
+    newPlayer.daoPoints = player.daoPoints + daoGain;
+    newPlayer.totalDaoPoints = player.totalDaoPoints + daoGain;
+    newPlayer.reincPerks = { ...player.reincPerks };
+    newPlayer.tutorialDone = true;
+    newPlayer.tutorialStep = 6;
+    newPlayer.systemTutorials = [...player.systemTutorials];
+
+    // Apply start_level perk
+    if (startLevel > 0) {
+      newPlayer.level = Math.max(1, startLevel);
+      newPlayer.stats.attack += Math.floor(startLevel * 3.5);
+      newPlayer.stats.maxHp += Math.floor(startLevel * 12);
+      newPlayer.stats.hp = newPlayer.stats.maxHp;
+    }
+
+    // Apply crit perk
+    const critBonus = REINC_PERKS.find(p => p.id === 'crit_flat')!.effect(player.reincPerks['crit_flat'] ?? 0);
+    newPlayer.stats.critRate += critBonus;
+
+    set({
+      player: newPlayer,
+      battle: makeInitialBattle(),
+      inventory: [],
+      equippedWeapon: null,
+      equippedArmor: null,
+      equippedTreasure: null,
+      highestChapter: 1,
+      highestStage: 1,
+      floatingTexts: [],
+      idleStats: { goldPerSec: 0, expPerSec: 0, sessionTime: 0 },
+    });
+
+    sfx.breakthrough();
+  },
+
+  buyReincPerk: (perkId: string) => {
+    const { player } = get();
+    const perk = REINC_PERKS.find(p => p.id === perkId);
+    if (!perk) return;
+    const currentLv = player.reincPerks[perkId] ?? 0;
+    if (currentLv >= perk.maxLevel) return;
+    if (player.daoPoints < perk.costPerLevel) return;
+
+    set({
+      player: {
+        ...player,
+        daoPoints: player.daoPoints - perk.costPerLevel,
+        reincPerks: { ...player.reincPerks, [perkId]: currentLv + 1 },
+      },
+    });
+    sfx.click();
+  },
+
+  getReincMultiplier: (perkId: string) => {
+    const { player } = get();
+    const perk = REINC_PERKS.find(p => p.id === perkId);
+    if (!perk) return 1;
+    return perk.effect(player.reincPerks[perkId] ?? 0);
   },
 
   // === Equipment ===

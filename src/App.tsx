@@ -24,6 +24,7 @@ import { EquipDetailPage, RefinePage } from './pages/EquipmentPage';
 import { ShopPage, SaveManagerPage } from './pages/ShopSavePage';
 import { BagView } from './pages/BagPage';
 import { SettingsView } from './pages/SettingsPage';
+import { ReincarnationPanel } from './components/ReincarnationPanel';
 
 const LazyFallback = () => <div style={{ padding: 40, textAlign: 'center', color: '#aaa' }}>加载中...</div>;
 
@@ -34,6 +35,7 @@ const ALL_TABS = [
   { id: 'bag' as const, icon: '🎒', label: '背包', unlockLevel: 5 },
   { id: 'achievement' as const, icon: '🏆', label: '成就', unlockLevel: 10 },
   { id: 'stats' as const, icon: '📊', label: '统计', unlockLevel: 15 },
+  { id: 'reincarnation' as const, icon: '🔄', label: '转世', unlockLevel: 50 },
   { id: 'sanctuary' as const, icon: '🏔️', label: '洞天', unlockLevel: 20 },
   { id: 'exploration' as const, icon: '🗺️', label: '秘境', unlockLevel: 30 },
   { id: 'affinity' as const, icon: '💕', label: '仙缘', unlockLevel: 40 },
@@ -186,6 +188,7 @@ export default function App() {
       case 'journey': return <JourneyView setSubPage={setSubPage} />;
       case 'bag': return <BagView setSubPage={setSubPage} />;
       case 'achievement': return <div className="main-content fade-in"><AchievementList /></div>;
+      case 'reincarnation': return <ReincarnationPanel />;
       case 'sanctuary': return <Suspense fallback={<LazyFallback />}><SanctuaryPanel /></Suspense>;
       case 'exploration': return <Suspense fallback={<LazyFallback />}><ExplorationPanel /></Suspense>;
       case 'affinity': return <Suspense fallback={<LazyFallback />}><AffinityPanel /></Suspense>;
