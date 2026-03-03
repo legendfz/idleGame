@@ -28,3 +28,5 @@ export { useShopStore } from './shop';
 export { useEventStore } from './event';
 export { useTowerStore } from './tower';
 export { usePetStore } from './pet';
+export { useSkillStore } from './skill';
+export { useStrategyStore } from './strategy';
