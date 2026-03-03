@@ -14,6 +14,7 @@ import { useMilestoneStore } from './milestone';
 import { useTalentStore } from './talent';
 import { useCompanionStore } from './companion';
 import { useReincarnationStore } from './reincarnation';
+import { usePetStore } from './pet';
 import { useAchievementStore } from './achievement';
 import { useDailyQuestStore } from './dailyQuest';
 
@@ -41,10 +42,11 @@ export const useBattleStore = create<BattleStore>((set, get) => ({
     const player = usePlayerStore.getState().player;
     const realm = getRealmConfig(player.realmId);
     const rB = useReincarnationStore.getState().getBuffs();
+    const pB = usePetStore.getState().getBuffs();
     const totalAtk = (useMilestoneStore.getState().getBuffs().atkPercent || 0)
       + (useTalentStore.getState().getBuffs().atkPercent || 0)
       + (useCompanionStore.getState().getBuffs().atkPercent || 0)
-      + (rB.atkPercent || 0);
+      + (rB.atkPercent || 0) + (pB.atkPercent || 0);
     const totalCrit = (useTalentStore.getState().getBuffs().critRate || 0)
       + (useCompanionStore.getState().getBuffs().critRate || 0)
       + (rB.critRate || 0);
@@ -68,10 +70,11 @@ export const useBattleStore = create<BattleStore>((set, get) => ({
     const player = usePlayerStore.getState().player;
     const realm = getRealmConfig(player.realmId);
     const rB2 = useReincarnationStore.getState().getBuffs();
+    const pB2 = usePetStore.getState().getBuffs();
     const totalAtk2 = (useMilestoneStore.getState().getBuffs().atkPercent || 0)
       + (useTalentStore.getState().getBuffs().atkPercent || 0)
       + (useCompanionStore.getState().getBuffs().atkPercent || 0)
-      + (rB2.atkPercent || 0);
+      + (rB2.atkPercent || 0) + (pB2.atkPercent || 0);
     const totalCrit2 = 0.05 + ((useTalentStore.getState().getBuffs().critRate || 0)
       + (useCompanionStore.getState().getBuffs().critRate || 0)
       + (rB2.critRate || 0)) / 100;

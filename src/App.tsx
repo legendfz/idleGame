@@ -23,6 +23,8 @@ import { ReincarnationPanel } from './components/views/ReincarnationPanel';
 import { LeaderboardPanel } from './components/views/LeaderboardPanel';
 import { ShopPanel } from './components/views/ShopPanel';
 import { EventPanel } from './components/views/EventPanel';
+import { TowerPanel } from './components/views/TowerPanel';
+import { PetPanel } from './components/views/PetPanel';
 import { formatBigNum, bn } from './engine/bignum';
 import { getRealmConfig } from './data/config';
 import { ToastContainer } from './components/shared/ToastContainer';
@@ -41,6 +43,8 @@ const ALL_NAV_ITEMS = [
   { id: 'journey', icon: '🗺️', label: '取经', minRealm: 1 },
   { id: 'quest', icon: '📋', label: '任务', minRealm: 1 },
   { id: 'reincarnation', icon: '🔄', label: '轮回', minRealm: 5 },
+  { id: 'tower', icon: '🗼', label: '通天塔', minRealm: 3 },
+  { id: 'pet', icon: '🐾', label: '灵兽', minRealm: 3 },
   { id: 'shop', icon: '🏪', label: '商店', minRealm: 2 },
   { id: 'event', icon: '🎉', label: '活动', minRealm: 1 },
   { id: 'leaderboard', icon: '🏆', label: '排行', minRealm: 1 },
@@ -62,6 +66,8 @@ function AppContent() {
     cultivation: <CultivationView />,
     quest: <QuestView />,
     reincarnation: <ReincarnationPanel />,
+    tower: <TowerPanel />,
+    pet: <PetPanel />,
     shop: <ShopPanel />,
     event: <EventPanel />,
     leaderboard: <LeaderboardPanel />,

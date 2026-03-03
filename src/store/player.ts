@@ -15,6 +15,7 @@ import { useTalentStore } from './talent';
 import { useCompanionStore } from './companion';
 import { useReincarnationStore } from './reincarnation';
 import { useEventStore } from './event';
+import { usePetStore } from './pet';
 
 export interface PlayerState {
   xiuwei: string;         // Decimal string
@@ -93,7 +94,8 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     const talentBuffs = useTalentStore.getState().getBuffs();
     const companionBuffs = useCompanionStore.getState().getBuffs();
     const reinBuffs = useReincarnationStore.getState().getBuffs();
-    const totalXiuweiBonus = (msBuffs.xiuweiPercent || 0) + (talentBuffs.xiuweiPercent || 0) + (companionBuffs.xiuweiPercent || 0) + (reinBuffs.xiuweiPercent || 0);
+    const petBuffs = usePetStore.getState().getBuffs();
+    const totalXiuweiBonus = (msBuffs.xiuweiPercent || 0) + (talentBuffs.xiuweiPercent || 0) + (companionBuffs.xiuweiPercent || 0) + (reinBuffs.xiuweiPercent || 0) + (petBuffs.xiuweiPercent || 0);
     const xps = getXiuweiPerSecond(player.realmId, equipBonus.atkPercent, teamBonus, totalXiuweiBonus);
     const eventMul = useEventStore.getState().getMultiplier('cultivationBoost');
     const gain = xps.mul(dt).mul(eventMul);
