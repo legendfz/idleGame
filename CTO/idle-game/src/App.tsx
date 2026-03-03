@@ -20,6 +20,9 @@ import { useDungeonStore } from './store/dungeonStore';
 import { useAchievementStore } from './store/achievementStore';
 import { TutorialOverlay } from './components/TutorialOverlay';
 import { StatsView } from './components/StatsView';
+import { SanctuaryPanel } from './components/SanctuaryPanel';
+import { ExplorationPanel } from './components/ExplorationPanel';
+import { AffinityPanel } from './components/AffinityPanel';
 import { useLeaderboardStore } from './store/leaderboardStore';
 
 // ─── Card wrapper component ───
@@ -1068,6 +1071,9 @@ const TABS = [
   { id: 'journey' as const, icon: '🏔️', label: '旅途' },
   { id: 'bag' as const, icon: '🎒', label: '背包' },
   { id: 'achievement' as const, icon: '🏆', label: '成就' },
+  { id: 'sanctuary' as const, icon: '🏔️', label: '洞天' },
+  { id: 'exploration' as const, icon: '🗺️', label: '秘境' },
+  { id: 'affinity' as const, icon: '💕', label: '仙缘' },
   { id: 'stats' as const, icon: '📊', label: '统计' },
   { id: 'settings' as const, icon: '⚙️', label: '更多' },
 ];
@@ -1214,6 +1220,9 @@ export default function App() {
       {activeTab === 'achievement' && (
         <div className="main-content fade-in"><AchievementList /></div>
       )}
+      {activeTab === 'sanctuary' && <SanctuaryPanel />}
+      {activeTab === 'exploration' && <ExplorationPanel />}
+      {activeTab === 'affinity' && <AffinityPanel />}
       {activeTab === 'stats' && <StatsView />}
       {activeTab === 'settings' && <SettingsView setSubPage={setSubPage} />}
       <div className="bottom-nav">

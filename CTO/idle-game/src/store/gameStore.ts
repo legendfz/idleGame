@@ -12,6 +12,9 @@ import {
   SCROLL_PRICES,
 } from '../data/equipment';
 import { calculateOfflineEarnings } from '../engine/offline';
+import { useSanctuaryStore } from './sanctuaryStore';
+import { useExplorationStore } from './explorationStore';
+import { useAffinityStore } from './affinityStore';
 
 let logIdCounter = 0;
 let floatIdCounter = 0;
@@ -379,6 +382,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     updatedPlayer.totalCultivateTime += 1;
 
+    // v13: Sanctuary production per tick
+    const sBuffs = useSanctuaryStore.getState().getBuffs();
+    if (sBuffs.lingshi) updatedPlayer.lingshi += sBuffs.lingshi;
+    if (sBuffs.exp) updatedPlayer.exp += sBuffs.exp;
+
+    // v13: Exploration daily reset
+    useExplorationStore.getState().tickReset();
+
     set({
       player: updatedPlayer,
       battle: updatedBattle,
@@ -737,6 +748,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
       totalPlayTime: state.totalPlayTime,
       equipment: { weapon: state.equippedWeapon, armor: state.equippedArmor, treasure: state.equippedTreasure },
       inventory: state.inventory,
+      sanctuary: useSanctuaryStore.getState().sanctuary,
+      exploration: useExplorationStore.getState().exploration,
+      affinity: useAffinityStore.getState().affinity,
     };
     localStorage.setItem('xiyou-idle-save', JSON.stringify(save));
     set({ lastSaveTimestamp: Date.now() });
@@ -847,6 +861,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
         inventory: finalInventory,
         offlineReport: report,
       });
+
+      // Load v13 stores
+      if ((save as any).sanctuary) useSanctuaryStore.getState().load((save as any).sanctuary);
+      if ((save as any).exploration) useExplorationStore.getState().load((save as any).exploration);
+      if ((save as any).affinity) useAffinityStore.getState().load((save as any).affinity);
     } catch {
       console.error('Failed to load save');
     }

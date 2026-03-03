@@ -155,7 +155,7 @@ export const QUALITY_INFO: Record<Quality, { label: string; symbol: string; mult
 
 export const INVENTORY_MAX = 50;
 
-export type TabId = 'battle' | 'team' | 'journey' | 'bag' | 'achievement' | 'settings' | 'stats';
+export type TabId = 'battle' | 'team' | 'journey' | 'bag' | 'achievement' | 'settings' | 'stats' | 'sanctuary' | 'exploration' | 'affinity';
 
 /** Floating damage text */
 export interface FloatingText {
@@ -194,4 +194,8 @@ export interface GameSave {
     treasure: EquipmentItem | null;
   };
   inventory: EquipmentItem[];
+  // v13
+  sanctuary?: any;
+  exploration?: any;
+  affinity?: any;
 }
