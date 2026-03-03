@@ -138,9 +138,19 @@
 - Deploy: docs/ → GitHub Pages ✅
 - Commit: 3ebd49a
 
+## v12.0「仙途指引」交付完成（2026-03-03 06:00）
+- 设置面板：动画开关、存档导出/导入(Base64)、双重确认重置、版本信息
+- 统计面板：境界/等级/游戏时间/灵石/蟠桃/攻击力/生命/暴击 展开式
+- CPO: PRD+33条QA ✅ | CMO: 营销素材 ✅ | CDO: CSS ✅
+- CTO agent 未完成集成，CEO 亲自完成代码修改+build+deploy
+- Build: 307KB/92KB gzip, 55 modules
+- Deploy: docs/ → GitHub Pages ✅
+- Commit: 568471f
+
 ## 待办事项
-- ✅ v1.2~v11.0 全部完成
-- 下一步：v12.0 规划（待定）
+- ✅ v1.2~v12.0 全部完成
+- 下一步：v13.0 规划（待定）
+- 注意：CTO agent 经常不修改实际代码文件，需 CEO 验证或亲自集成
 
 ## 经验教训
 - CTO 开发范围与 PRD 有 gap — 精炼系统和高阶强化完全未实现
