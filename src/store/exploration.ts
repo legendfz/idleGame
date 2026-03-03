@@ -1,81 +1,76 @@
 /**
- * ExplorationStore — 秘境探索状态管理
+ * ExplorationStore — 秘境探索状态
  */
 import { create } from 'zustand';
-import { ExplorationState, createExplorationState, generateRun, resolveNode, getDifficultyConfig, Difficulty } from '../engine/exploration';
+import {
+  ExplorationState, createExplorationState, generateRun, resolveNode,
+  getDifficultyConfig, Difficulty,
+} from '../engine/exploration';
 import { usePlayerStore } from './player';
 import { useUIStore } from './ui';
+import { bn } from '../engine/bignum';
+
+const EXTRA_COST = 500;
 
 interface ExplorationStoreType {
   state: ExplorationState;
-  startRun: (difficulty: Difficulty) => void;
-  stepForward: () => void;
-  abandonRun: () => void;
+
+  startRun: (difficulty: Difficulty) => boolean;
+  resolve: () => void;
   tickReset: () => void;
-  getState: () => ExplorationState;
   loadState: (s: ExplorationState) => void;
+  getState: () => ExplorationState;
 }
 
 export const useExplorationStore = create<ExplorationStoreType>((set, get) => ({
   state: createExplorationState(),
 
-  startRun: (difficulty: Difficulty) => {
-    const s = get().state;
-    const today = new Date().toDateString();
-    let freeRuns = s.lastResetDay === today ? s.dailyFreeRuns : 3;
-
-    if (s.currentRun && !s.currentRun.completed) {
-      useUIStore.getState().addToast('请先完成当前秘境', 'warning'); return;
+  startRun: (difficulty) => {
+    const st = get().state;
+    if (st.currentRun && !st.currentRun.completed) {
+      useUIStore.getState().addToast('探索进行中', 'warn'); return false;
     }
-
-    if (freeRuns <= 0) {
-      const player = usePlayerStore.getState().player;
-      if (parseFloat(player.coins) < 500) { useUIStore.getState().addToast('次数不足，需500灵石', 'warning'); return; }
-      usePlayerStore.getState().addCoins(-500);
+    let newFree = st.dailyFreeRuns;
+    if (newFree > 0) {
+      newFree--;
     } else {
-      freeRuns--;
+      const coins = Number(usePlayerStore.getState().player.coins);
+      if (coins < EXTRA_COST) { useUIStore.getState().addToast(`灵石不足(需${EXTRA_COST})`, 'warn'); return false; }
+      usePlayerStore.setState(s => ({ player: { ...s.player, coins: bn(s.player.coins).sub(EXTRA_COST).toString() } }));
     }
-
     const run = generateRun(difficulty);
-    set({ state: { ...s, currentRun: run, dailyFreeRuns: freeRuns, lastResetDay: today, totalRuns: s.totalRuns + 1 } });
-    useUIStore.getState().addToast(`进入${getDifficultyConfig(difficulty).name}`, 'info');
+    set({ state: { ...st, dailyFreeRuns: newFree, currentRun: run, totalRuns: st.totalRuns + 1 } });
+    useUIStore.getState().addToast(`🗺️ ${getDifficultyConfig(difficulty).name} 开始！`, 'success');
+    return true;
   },
 
-  stepForward: () => {
-    const s = get().state;
-    if (!s.currentRun || s.currentRun.completed) return;
-
-    const run = { ...s.currentRun, nodes: [...s.currentRun.nodes.map(n => ({ ...n }))] };
+  resolve: () => {
+    const st = get().state;
+    if (!st.currentRun || st.currentRun.completed) return;
+    const run = { ...st.currentRun, nodes: st.currentRun.nodes.map(n => ({ ...n })) };
     const result = resolveNode(run);
 
     if (result.success && result.reward) {
-      usePlayerStore.getState().addCoins(result.reward.coins);
-      usePlayerStore.getState().addXiuwei(result.reward.xiuwei);
-      useUIStore.getState().addToast(`+${result.reward.coins}灵石 +${result.reward.xiuwei}修为`, 'success');
+      if (result.reward.coins) usePlayerStore.getState().addCoins(bn(result.reward.coins));
+      if (result.reward.xiuwei) usePlayerStore.getState().addXiuwei(bn(result.reward.xiuwei));
     } else if (!result.success) {
-      useUIStore.getState().addToast('遭遇陷阱，损失惨重！', 'error');
+      useUIStore.getState().addToast('⚠️ 遭遇陷阱！', 'warn');
     }
 
-    set({ state: { ...s, currentRun: run } });
     if (run.completed) {
-      useUIStore.getState().addToast('秘境探索完成！', 'success');
+      useUIStore.getState().addToast('🎉 秘境探索完成！', 'success');
     }
-  },
-
-  abandonRun: () => {
-    const s = get().state;
-    set({ state: { ...s, currentRun: null } });
-    useUIStore.getState().addToast('放弃探索', 'warning');
+    set({ state: { ...st, currentRun: run } });
   },
 
   tickReset: () => {
-    const s = get().state;
+    const st = get().state;
     const today = new Date().toDateString();
-    if (s.lastResetDay !== today) {
-      set({ state: { ...s, dailyFreeRuns: 3, lastResetDay: today } });
+    if (st.lastResetDay !== today) {
+      set({ state: { ...st, dailyFreeRuns: 3, lastResetDay: today } });
     }
   },
 
+  loadState: (s) => set({ state: s }),
   getState: () => get().state,
-  loadState: (s: ExplorationState) => set({ state: s }),
 }));

@@ -34,9 +34,6 @@ import { FestivalPanel } from './components/views/FestivalPanel';
 import { SanctuaryPanel } from './components/views/SanctuaryPanel';
 import { ExplorationPanel } from './components/views/ExplorationPanel';
 import { AffinityPanel } from './components/views/AffinityPanel';
-import { SanctuaryPanel } from './components/views/SanctuaryPanel';
-import { ExplorationPanel } from './components/views/ExplorationPanel';
-import { AffinityPanel } from './components/views/AffinityPanel';
 import { formatBigNum, bn } from './engine/bignum';
 import { getRealmConfig } from './data/config';
 import { ToastContainer } from './components/shared/ToastContainer';
@@ -68,9 +65,6 @@ const ALL_NAV_ITEMS = [
   { id: 'festival', icon: '🎊', label: '竞技', minRealm: 2 },
   { id: 'event', icon: '🎉', label: '活动', minRealm: 1 },
   { id: 'leaderboard', icon: '🏆', label: '排行', minRealm: 1 },
-  { id: 'sanctuary', icon: '🏔️', label: '洞天', minRealm: 4 },
-  { id: 'exploration', icon: '🧭', label: '探险', minRealm: 3 },
-  { id: 'affinity', icon: '💕', label: '仙缘', minRealm: 3 },
   { id: 'stats', icon: '📊', label: '统计', minRealm: 1 },
   { id: 'settings', icon: '⚙️', label: '设置', minRealm: 1 },
 ];
@@ -99,9 +93,6 @@ function AppContent() {
     guild: <GuildPanel />,
     pvp: <PvpPanel />,
     festival: <FestivalPanel />,
-    sanctuary: <SanctuaryPanel />,
-    exploration: <ExplorationPanel />,
-    affinity: <AffinityPanel />,
     shop: <ShopPanel />,
     event: <EventPanel />,
     leaderboard: <LeaderboardPanel />,

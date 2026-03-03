@@ -1,5 +1,5 @@
 /**
- * SanctuaryStore — 洞天福地状态管理
+ * SanctuaryStore — 洞天状态管理
  */
 import { create } from 'zustand';
 import { SanctuaryState, createSanctuaryState, BUILDINGS, getUpgradeCost, calcSanctuaryBuffs } from '../engine/sanctuary';
@@ -9,38 +9,40 @@ import { bn } from '../engine/bignum';
 
 interface SanctuaryStoreType {
   state: SanctuaryState;
-  upgrade: (buildingId: string) => void;
+
+  upgrade: (buildingId: string) => boolean;
   getBuffs: () => Record<string, number>;
   tickProduce: (dt: number) => void;
-  getState: () => SanctuaryState;
   loadState: (s: SanctuaryState) => void;
+  getState: () => SanctuaryState;
 }
 
 export const useSanctuaryStore = create<SanctuaryStoreType>((set, get) => ({
   state: createSanctuaryState(),
 
-  upgrade: (buildingId: string) => {
-    const s = get().state;
+  upgrade: (buildingId) => {
+    const st = get().state;
     const def = BUILDINGS.find(b => b.id === buildingId);
-    if (!def) return;
-    const lv = s.levels[buildingId] ?? 0;
-    if (lv >= 10) { useUIStore.getState().addToast('已达最高等级', 'warning'); return; }
+    if (!def) return false;
+    const lv = st.levels[buildingId] ?? 0;
+    if (lv >= 10) { useUIStore.getState().addToast('已满级', 'warn'); return false; }
     const cost = getUpgradeCost(def, lv);
     const player = usePlayerStore.getState().player;
-    if (parseFloat(player.coins) < cost) { useUIStore.getState().addToast('灵石不足', 'warning'); return; }
-    usePlayerStore.getState().addCoins(-cost);
-    set({ state: { ...s, levels: { ...s.levels, [buildingId]: lv + 1 } } });
-    useUIStore.getState().addToast(`${def.name} 升至 ${lv + 1} 级`, 'success');
+    if (Number(player.coins) < cost) { useUIStore.getState().addToast('灵石不足', 'warn'); return false; }
+    usePlayerStore.setState(s => ({ player: { ...s.player, coins: bn(s.player.coins).sub(cost).toString() } }));
+    set({ state: { levels: { ...st.levels, [buildingId]: lv + 1 } } });
+    useUIStore.getState().addToast(`🏗️ ${def.name} 升至 Lv.${lv + 1}`, 'success');
+    return true;
   },
 
   getBuffs: () => calcSanctuaryBuffs(get().state),
 
-  tickProduce: (dt: number) => {
+  tickProduce: (dt) => {
     const buffs = calcSanctuaryBuffs(get().state);
-    if (buffs.lingshi) usePlayerStore.getState().addCoins(buffs.lingshi * dt);
-    if (buffs.xiuwei) usePlayerStore.getState().addXiuwei(buffs.xiuwei * dt);
+    if (buffs.lingshi) usePlayerStore.getState().addCoins(bn(Math.floor(buffs.lingshi * dt)));
+    if (buffs.xiuwei) usePlayerStore.getState().addXiuwei(bn(Math.floor(buffs.xiuwei * dt)));
   },
 
+  loadState: (s) => set({ state: s }),
   getState: () => get().state,
-  loadState: (s: SanctuaryState) => set({ state: s }),
 }));
