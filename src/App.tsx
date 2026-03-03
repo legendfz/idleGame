@@ -17,6 +17,7 @@ import { ForgeView } from './components/views/ForgeView';
 import { GatherView } from './components/views/GatherView';
 import { DungeonView } from './components/views/DungeonView';
 import { StatsView } from './components/views/StatsView';
+import { SettingsView } from './components/views/SettingsView';
 import { QuestView } from './components/views/QuestView';
 import { CultivationView } from './components/views/CultivationView';
 import { ReincarnationPanel } from './components/views/ReincarnationPanel';
@@ -59,6 +60,7 @@ const ALL_NAV_ITEMS = [
   { id: 'event', icon: '🎉', label: '活动', minRealm: 1 },
   { id: 'leaderboard', icon: '🏆', label: '排行', minRealm: 1 },
   { id: 'stats', icon: '📊', label: '统计', minRealm: 1 },
+  { id: 'settings', icon: '⚙️', label: '设置', minRealm: 1 },
 ];
 
 function AppContent() {
@@ -86,6 +88,7 @@ function AppContent() {
     event: <EventPanel />,
     leaderboard: <LeaderboardPanel />,
     stats: <StatsView />,
+    settings: <SettingsView />,
   };
 
   return <>{viewMap[currentView] || <IdleView />}</>;

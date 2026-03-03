@@ -34,3 +34,4 @@ shared/context-bus/
 - 2026-03-02: [CPO→CEO] v10.0 PRD+数值平衡+QA — shared/handoffs/cpo-to-ceo-v100-prd.md
 - 2026-03-03: [CMO→CEO] v11.0「仙盟争锋」营销素材 — shared/context-bus/cmo/v110-changelog.md
 - 2026-03-03: [CPO→CEO] v12.0 PRD + QA — shared/handoffs/cpo-to-ceo-v120-prd.md
+- 2026-03-03: [CMO→CEO] v12.0「仙途指引」营销素材 — shared/context-bus/cmo/v120-changelog.md

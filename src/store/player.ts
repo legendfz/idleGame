@@ -120,6 +120,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
         xiuwei: newXiuwei.toString(),
         totalXiuwei: newTotal.toString(),
         playTime: player.playTime + dt,
+        totalCultivateTime: player.totalCultivateTime + dt,
         lastOnlineAt: Date.now(),
       },
       xpsDisplay: formatBigNum(xps) + '/秒',
@@ -194,6 +195,9 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   switchCharacter: (charId: string) => set(s => ({ player: { ...s.player, activeCharId: charId } })),
   incrementClicks: () => set(s => ({ player: { ...s.player, totalClicks: s.player.totalClicks + 1 } })),
   incrementKills: (count = 1) => set(s => ({ player: { ...s.player, totalKills: s.player.totalKills + count } })),
+  addCultivateTime: (sec: number) => set(s => ({ player: { ...s.player, totalCultivateTime: s.player.totalCultivateTime + sec } })),
+  recordDamage: (dmg: number) => set(s => ({ player: { ...s.player, maxDamage: Math.max(s.player.maxDamage, dmg) } })),
+  incrementEquipDrops: (count = 1) => set(s => ({ player: { ...s.player, totalEquipDrops: s.player.totalEquipDrops + count } })),
   setLastOnline: (t) => set(s => ({ player: { ...s.player, lastOnlineAt: t } })),
 
   resetForPrestige: (startRealmId) => {
