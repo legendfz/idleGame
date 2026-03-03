@@ -120,6 +120,7 @@ export function ForgeView() {
                     usePlayerStore.getState().spendCoins(bn(recipe.coinsCost));
                     const result = doSmelt(recipe);
                     if (result.output) useMaterialStore.getState().addMaterial(result.output.materialId, result.output.count);
+                    useDailyQuestStore.getState().addProgress('smelts', 1);
                     addToast(result.message, 'success');
                   }}
                 >
