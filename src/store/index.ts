@@ -26,3 +26,5 @@ export { useCompanionStore } from './companion';
 export { useReincarnationStore } from './reincarnation';
 export { useShopStore } from './shop';
 export { useEventStore } from './event';
+export { useTowerStore } from './tower';
+export { usePetStore } from './pet';

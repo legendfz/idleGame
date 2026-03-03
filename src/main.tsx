@@ -12,6 +12,8 @@ import './styles/abyss.css';
 import './styles/leaderboard.css';
 import './styles/shop.css';
 import './styles/event.css';
+import './styles/tower.css';
+import './styles/pet.css';
 import App from './App';
 
 createRoot(document.getElementById('root')!).render(
