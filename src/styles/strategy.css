@@ -1,0 +1,153 @@
+/* ══ v9.0 策略选择面板 ══ */
+
+.view-strategy {
+  padding: var(--sp-lg);
+  height: 100%;
+  overflow-y: auto;
+}
+.strategy-title {
+  font-family: var(--font-title);
+  font-size: var(--fs-xl);
+  color: var(--color-accent);
+  margin-bottom: var(--sp-sm);
+}
+.strategy-desc {
+  font-size: var(--fs-sm);
+  color: var(--color-text-dim);
+  margin-bottom: var(--sp-lg);
+}
+
+/* === 3卡片横排 === */
+.strategy-cards {
+  display: flex;
+  gap: var(--sp-sm);
+  margin-bottom: var(--sp-xl);
+}
+
+.strategy-card {
+  flex: 1;
+  background: var(--color-bg-card);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-sm);
+  cursor: pointer;
+  transition: all var(--dur-norm) var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+.strategy-card:active { transform: scale(0.95); }
+
+/* 激活态 */
+.strategy-card.active {
+  border-color: var(--color-accent);
+  background: linear-gradient(180deg, var(--color-bg-card) 0%, rgba(212,168,67,0.08) 100%);
+  box-shadow: 0 0 12px rgba(212,168,67,0.2);
+}
+
+/* 三策略配色 */
+.strategy-card.aggressive.active {
+  border-color: var(--color-primary);
+  background: linear-gradient(180deg, var(--color-bg-card) 0%, rgba(193,59,59,0.08) 100%);
+  box-shadow: 0 0 12px rgba(193,59,59,0.2);
+}
+.strategy-card.balanced.active {
+  border-color: var(--color-accent);
+  background: linear-gradient(180deg, var(--color-bg-card) 0%, rgba(212,168,67,0.08) 100%);
+  box-shadow: 0 0 12px rgba(212,168,67,0.2);
+}
+.strategy-card.defensive.active {
+  border-color: var(--color-info);
+  background: linear-gradient(180deg, var(--color-bg-card) 0%, rgba(43,76,126,0.08) 100%);
+  box-shadow: 0 0 12px rgba(43,76,126,0.2);
+}
+
+/* 图标 */
+.strategy-icon {
+  font-size: 32px;
+  width: 52px; height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-elevated);
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
+  transition: all var(--dur-fast);
+}
+.strategy-card.active .strategy-icon {
+  border-color: inherit;
+}
+.strategy-card.aggressive.active .strategy-icon { border-color: var(--color-primary); background: rgba(193,59,59,0.1); }
+.strategy-card.balanced.active .strategy-icon   { border-color: var(--color-accent);  background: rgba(212,168,67,0.1); }
+.strategy-card.defensive.active .strategy-icon  { border-color: var(--color-info);    background: rgba(43,76,126,0.1); }
+
+/* 名称 */
+.strategy-name {
+  font-family: var(--font-title);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  text-align: center;
+}
+
+/* 描述 */
+.strategy-effect {
+  font-size: 10px;
+  color: var(--color-text-dim);
+  text-align: center;
+  line-height: 1.4;
+}
+.strategy-card.active .strategy-effect { color: var(--color-text); }
+
+/* 激活标签 */
+.strategy-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px var(--sp-sm);
+  border-radius: var(--radius-pill);
+}
+.strategy-card.aggressive.active .strategy-badge { background: rgba(193,59,59,0.15); color: var(--color-primary); }
+.strategy-card.balanced.active .strategy-badge   { background: rgba(212,168,67,0.15); color: var(--color-accent); }
+.strategy-card.defensive.active .strategy-badge  { background: rgba(43,76,126,0.15);  color: var(--color-info); }
+
+/* === 策略效果详情 === */
+.strategy-detail {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-lg);
+}
+.strategy-detail-title {
+  font-family: var(--font-title);
+  font-size: var(--fs-body);
+  font-weight: 700;
+  margin-bottom: var(--sp-md);
+}
+.strategy-detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--sp-xs) 0;
+  font-size: var(--fs-sm);
+}
+.strategy-detail-row + .strategy-detail-row {
+  border-top: 1px solid rgba(58,50,72,0.5);
+}
+.strategy-detail-label { color: var(--color-text-dim); }
+.strategy-detail-value {
+  font-family: var(--font-number);
+  font-weight: 700;
+}
+.strategy-detail-value.buff  { color: var(--color-success); }
+.strategy-detail-value.nerf  { color: var(--color-danger); }
+.strategy-detail-value.neutral { color: var(--color-text); }
+
+/* 切换动画 */
+@keyframes strategySwitch {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+.strategy-card.just-activated {
+  animation: strategySwitch 0.4s var(--ease-pop);
+}
