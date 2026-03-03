@@ -18,6 +18,7 @@ import { GatherView } from './components/views/GatherView';
 import { DungeonView } from './components/views/DungeonView';
 import { StatsView } from './components/views/StatsView';
 import { QuestView } from './components/views/QuestView';
+import { CultivationView } from './components/views/CultivationView';
 import { formatBigNum, bn } from './engine/bignum';
 import { getRealmConfig } from './data/config';
 import { ToastContainer } from './components/shared/ToastContainer';
@@ -30,6 +31,7 @@ const ALL_NAV_ITEMS = [
   { id: 'forge', icon: '🔨', label: '锻造', minRealm: 3 },   // 筑基解锁
   { id: 'gather', icon: '⛏️', label: '采集', minRealm: 2 },   // 练气解锁
   { id: 'dungeon', icon: '🐉', label: '秘境', minRealm: 3 },  // 筑基解锁
+  { id: 'cultivation', icon: '🌟', label: '修行', minRealm: 2 },
   { id: 'character', icon: '🐒', label: '角色', minRealm: 1 },
   { id: 'inventory', icon: '🎒', label: '背包', minRealm: 1 },
   { id: 'journey', icon: '🗺️', label: '取经', minRealm: 1 },
@@ -49,6 +51,7 @@ function AppContent() {
     forge: <ForgeView />,
     gather: <GatherView />,
     dungeon: <DungeonView />,
+    cultivation: <CultivationView />,
     quest: <QuestView />,
     stats: <StatsView />,
   };
