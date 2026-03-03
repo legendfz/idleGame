@@ -1,7 +1,0 @@
-[
-  { "id": "changan",     "name": "长安城",   "icon": "🏯", "xiuweiMult": 1.0, "materials": [],                                                    "unlockRealm": "fanren" },
-  { "id": "wuxingshan",  "name": "五行山",   "icon": "⛰️", "xiuweiMult": 1.2, "materials": [{ "id": "iron_ore", "perHour": 3 }, { "id": "spirit_shard", "perHour": 1 }], "unlockRealm": "lianqi" },
-  { "id": "huaguoshan",  "name": "花果山",   "icon": "🍑", "xiuweiMult": 1.5, "materials": [{ "id": "spirit_wood", "perHour": 2 }, { "id": "fairy_fruit", "perHour": 1 }], "unlockRealm": "zhuji" },
-  { "id": "tiangong",    "name": "天宫",     "icon": "🏛️", "xiuweiMult": 2.0, "materials": [{ "id": "star_iron", "perHour": 1 }, { "id": "heaven_mat", "perHour": 0.5 }], "unlockRealm": "jindan" },
-  { "id": "lingshan",    "name": "灵山",     "icon": "🏔️", "xiuweiMult": 3.0, "materials": [{ "id": "buddha_stone", "perHour": 0.5 }, { "id": "holy_relic", "perHour": 0.2 }], "unlockRealm": "tianxian" }
-]

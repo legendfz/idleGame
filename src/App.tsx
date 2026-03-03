@@ -1,143 +1,208 @@
-/**
- * App.tsx — v2.0 西游记 Idle Game 主入口
- */
-import { ReactNode } from 'react';
-import { GameLayout } from './components/layout';
-import { TopBar } from './components/layout/TopBar/TopBar';
-import { BottomNav } from './components/layout/BottomNav/BottomNav';
-import { useGameLoop } from './hooks/useGameLoop';
-import { usePlayerStore } from './store/player';
-import { useUIStore, ViewId } from './store/ui';
-import { IdleView } from './components/views/IdleView';
-import { BattleView } from './components/views/BattleView';
-import { CharacterView } from './components/views/CharacterView';
-import { InventoryView } from './components/views/InventoryView';
-import { JourneyMap } from './components/views/JourneyMap';
-import { ForgeView } from './components/views/ForgeView';
-import { GatherView } from './components/views/GatherView';
-import { DungeonView } from './components/views/DungeonView';
-import { StatsView } from './components/views/StatsView';
-import { SettingsView } from './components/views/SettingsView';
-import { QuestView } from './components/views/QuestView';
-import { CultivationView } from './components/views/CultivationView';
-import { ReincarnationPanel } from './components/views/ReincarnationPanel';
-import { LeaderboardPanel } from './components/views/LeaderboardPanel';
-import { ShopPanel } from './components/views/ShopPanel';
-import { EventPanel } from './components/views/EventPanel';
-import { TowerPanel } from './components/views/TowerPanel';
-import { PetPanel } from './components/views/PetPanel';
-import { WudaoView } from './components/views/WudaoView';
-import { TutorialOverlay } from './components/shared/TutorialOverlay';
-import { GuildPanel } from './components/views/GuildPanel';
-import { PvpPanel } from './components/views/PvpPanel';
-import { FestivalPanel } from './components/views/FestivalPanel';
-import { SanctuaryPanel } from './components/views/SanctuaryPanel';
-import { ExplorationPanel } from './components/views/ExplorationPanel';
-import { AffinityPanel } from './components/views/AffinityPanel';
-import { formatBigNum, bn } from './engine/bignum';
-import { getRealmConfig } from './data/config';
-import { ToastContainer } from './components/shared/ToastContainer';
-import { OfflineModal } from './components/shared/OfflineModal';
-import { TutorialModal } from './components/shared/TutorialModal';
+import { useEffect, useRef, useState, lazy, Suspense } from 'react';
+import { useGameStore } from './store/gameStore';
+import { useDungeonStore } from './store/dungeonStore';
+import { useAchievementStore } from './store/achievementStore';
+import { useLeaderboardStore } from './store/leaderboardStore';
+import DungeonList from './components/DungeonList';
+import DungeonBattle from './components/DungeonBattle';
+import AchievementList from './components/AchievementList';
+import Leaderboard from './components/Leaderboard';
+import AchievementToast from './components/AchievementToast';
+import { TutorialOverlay } from './components/TutorialOverlay';
 
-const ALL_NAV_ITEMS = [
-  // 导航顺序: 核心→成长→挑战→社交→辅助
-  { id: 'idle', icon: '🧘', label: '修炼', minRealm: 1 },
-  { id: 'battle', icon: '⚔️', label: '战斗', minRealm: 1 },
-  { id: 'character', icon: '🐒', label: '角色', minRealm: 1 },
-  { id: 'inventory', icon: '🎒', label: '背包', minRealm: 1 },
-  { id: 'forge', icon: '🔨', label: '锻造', minRealm: 3 },
-  { id: 'gather', icon: '⛏️', label: '采集', minRealm: 2 },
-  { id: 'cultivation', icon: '🌟', label: '修行', minRealm: 2 },
-  { id: 'wudao', icon: '🌀', label: '悟道', minRealm: 4 },
-  { id: 'pet', icon: '🐾', label: '灵兽', minRealm: 3 },
-  { id: 'dungeon', icon: '🐉', label: '秘境', minRealm: 3 },
-  { id: 'tower', icon: '🗼', label: '通天塔', minRealm: 3 },
-  { id: 'journey', icon: '🗺️', label: '取经', minRealm: 1 },
-  { id: 'quest', icon: '📋', label: '任务', minRealm: 1 },
-  { id: 'sanctuary', icon: '🏔️', label: '洞天', minRealm: 4 },
-  { id: 'exploration', icon: '🗺️', label: '探险', minRealm: 3 },
-  { id: 'affinity', icon: '💕', label: '仙缘', minRealm: 3 },
-  { id: 'reincarnation', icon: '🔄', label: '轮回', minRealm: 5 },
-  { id: 'guild', icon: '🏯', label: '仙盟', minRealm: 3 },
-  { id: 'pvp', icon: '🤺', label: '擂台', minRealm: 3 },
-  { id: 'shop', icon: '🏪', label: '商店', minRealm: 2 },
-  { id: 'festival', icon: '🎊', label: '竞技', minRealm: 2 },
-  { id: 'event', icon: '🎉', label: '活动', minRealm: 1 },
-  { id: 'leaderboard', icon: '🏆', label: '排行', minRealm: 1 },
-  { id: 'stats', icon: '📊', label: '统计', minRealm: 1 },
-  { id: 'settings', icon: '⚙️', label: '设置', minRealm: 1 },
+// Lazy-loaded heavy panels (not needed on first render)
+const StatsView = lazy(() => import('./components/StatsView').then(m => ({ default: m.StatsView })));
+const SanctuaryPanel = lazy(() => import('./components/SanctuaryPanel').then(m => ({ default: m.SanctuaryPanel })));
+const ExplorationPanel = lazy(() => import('./components/ExplorationPanel').then(m => ({ default: m.ExplorationPanel })));
+const AffinityPanel = lazy(() => import('./components/AffinityPanel').then(m => ({ default: m.AffinityPanel })));
+
+import { TopBar, OfflineReportModal, SubPageHeader, SubPage } from './pages/shared';
+import { BattleView } from './pages/BattlePage';
+import { TeamView, CharacterDetailPage } from './pages/TeamPage';
+import { JourneyView, ChapterSelectPage } from './pages/JourneyPage';
+import { EquipDetailPage, RefinePage } from './pages/EquipmentPage';
+import { ShopPage, SaveManagerPage } from './pages/ShopSavePage';
+import { BagView } from './pages/BagPage';
+import { SettingsView } from './pages/SettingsPage';
+
+const LazyFallback = () => <div style={{ padding: 40, textAlign: 'center', color: '#aaa' }}>加载中...</div>;
+
+const ALL_TABS = [
+  { id: 'battle' as const, icon: '⚔️', label: '战斗', unlockLevel: 0 },
+  { id: 'team' as const, icon: '👤', label: '队伍', unlockLevel: 0 },
+  { id: 'journey' as const, icon: '🏔️', label: '旅途', unlockLevel: 0 },
+  { id: 'bag' as const, icon: '🎒', label: '背包', unlockLevel: 5 },
+  { id: 'achievement' as const, icon: '🏆', label: '成就', unlockLevel: 10 },
+  { id: 'stats' as const, icon: '📊', label: '统计', unlockLevel: 15 },
+  { id: 'sanctuary' as const, icon: '🏔️', label: '洞天', unlockLevel: 20 },
+  { id: 'exploration' as const, icon: '🗺️', label: '秘境', unlockLevel: 30 },
+  { id: 'affinity' as const, icon: '💕', label: '仙缘', unlockLevel: 40 },
+  { id: 'settings' as const, icon: '⚙️', label: '更多', unlockLevel: 0 },
 ];
 
-function AppContent() {
-  const currentView = useUIStore(s => s.currentView);
+function useUnlockedTabs() {
+  const level = useGameStore(s => s.player.level);
+  const prevCountRef = useRef(0);
+  const [toast, setToast] = useState<string | null>(null);
+  const tabs = ALL_TABS.filter(t => level >= t.unlockLevel);
 
-  const viewMap: Record<string, ReactNode> = {
-    idle: <IdleView />,
-    battle: <BattleView />,
-    character: <CharacterView />,
-    inventory: <InventoryView />,
-    journey: <JourneyMap />,
-    forge: <ForgeView />,
-    gather: <GatherView />,
-    dungeon: <DungeonView />,
-    cultivation: <CultivationView />,
-    quest: <QuestView />,
-    reincarnation: <ReincarnationPanel />,
-    wudao: <WudaoView />,
-    tower: <TowerPanel />,
-    pet: <PetPanel />,
-    sanctuary: <SanctuaryPanel />,
-    exploration: <ExplorationPanel />,
-    affinity: <AffinityPanel />,
-    guild: <GuildPanel />,
-    pvp: <PvpPanel />,
-    festival: <FestivalPanel />,
-    shop: <ShopPanel />,
-    event: <EventPanel />,
-    leaderboard: <LeaderboardPanel />,
-    stats: <StatsView />,
-    settings: <SettingsView />,
-  };
+  useEffect(() => {
+    if (prevCountRef.current > 0 && tabs.length > prevCountRef.current) {
+      const newTabs = ALL_TABS.filter(t => t.unlockLevel > 0 && level >= t.unlockLevel)
+        .slice(prevCountRef.current - 4); // minus the 4 initial tabs
+      if (newTabs.length > 0) {
+        setToast(`🎉 新功能解锁：${newTabs[newTabs.length - 1].label}`);
+        setTimeout(() => setToast(null), 3000);
+      }
+    }
+    prevCountRef.current = tabs.length;
+  }, [tabs.length, level]);
 
-  return <>{viewMap[currentView] || <IdleView />}</>;
+  return { tabs, toast };
+}
+
+function BottomNav() {
+  const activeTab = useGameStore(s => s.activeTab);
+  const setTab = useGameStore(s => s.setTab);
+  const { tabs, toast } = useUnlockedTabs();
+  return (
+    <>
+      {toast && (
+        <div style={{
+          position: 'fixed', bottom: '70px', left: '50%', transform: 'translateX(-50%)',
+          background: 'linear-gradient(135deg, #667eea, #764ba2)', color: '#fff',
+          padding: '8px 20px', borderRadius: '20px', fontSize: '14px', fontWeight: 600,
+          zIndex: 9999, boxShadow: '0 4px 15px rgba(0,0,0,0.3)', whiteSpace: 'nowrap',
+          animation: 'fadeInUp 0.3s ease'
+        }}>{toast}</div>
+      )}
+      <div className="bottom-nav">
+        {tabs.map(tab => (
+          <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => setTab(tab.id)}>
+            <span className="icon">{tab.icon}</span><span>{tab.label}</span>
+          </button>
+        ))}
+      </div>
+    </>
+  );
 }
 
 export default function App() {
-  useGameLoop();
+  const activeTab = useGameStore(s => s.activeTab);
+  const setTab = useGameStore(s => s.setTab);
+  const tick = useGameStore(s => s.tick);
+  const save = useGameStore(s => s.save);
+  const load = useGameStore(s => s.load);
+  const loaded = useRef(false);
+  const [subPage, setSubPage] = useState<SubPage>({ type: 'none' });
 
-  const player = usePlayerStore(s => s.player);
-  const xpsDisplay = usePlayerStore(s => s.xpsDisplay);
-  const currentView = useUIStore(s => s.currentView);
-  const setView = useUIStore(s => s.setView);
-  const realm = getRealmConfig(player.realmId);
-  const realmOrder = realm?.order ?? 1;
-  const navItems = ALL_NAV_ITEMS.filter(item => realmOrder >= item.minRealm);
+  // Load
+  useEffect(() => {
+    if (!loaded.current) {
+      loaded.current = true;
+      load();
+      useDungeonStore.getState().load();
+      useAchievementStore.getState().load();
+      useLeaderboardStore.getState().load();
+    }
+  }, [load]);
+
+  // Tick (throttle when tab hidden)
+  useEffect(() => {
+    let id: ReturnType<typeof setInterval>;
+    const doTick = () => {
+      tick();
+      const gs = useGameStore.getState();
+      const achStore = useAchievementStore.getState();
+      achStore.updateProgress('monkey_awaken', gs.player.level);
+      achStore.updateProgress('level_100', gs.player.level);
+      achStore.updateProgress('online_24h', gs.totalPlayTime);
+      achStore.checkAchievements();
+    };
+    const startLoop = () => {
+      clearInterval(id);
+      id = setInterval(doTick, document.hidden ? 5000 : 1000);
+    };
+    startLoop();
+    document.addEventListener('visibilitychange', startLoop);
+    return () => { clearInterval(id); document.removeEventListener('visibilitychange', startLoop); };
+  }, [tick]);
+
+  // Auto-save
+  useEffect(() => {
+    const id = setInterval(() => {
+      save();
+      useDungeonStore.getState().save();
+      useAchievementStore.getState().save();
+      useLeaderboardStore.getState().save();
+    }, 30000);
+    return () => clearInterval(id);
+  }, [save]);
+
+  // Reset sub-page on tab change
+  useEffect(() => { setSubPage({ type: 'none' }); }, [activeTab]);
+
+  const goBack = () => setSubPage({ type: 'none' });
+
+  // ─── Sub-page routing ───
+  const renderSubPage = () => {
+    switch (subPage.type) {
+      case 'equipDetail': return <EquipDetailPage item={subPage.item} onBack={goBack} />;
+      case 'refine': return <RefinePage onBack={goBack} />;
+      case 'shop': return <ShopPage onBack={goBack} />;
+      case 'characterDetail': return <CharacterDetailPage onBack={goBack} />;
+      case 'chapterSelect': return <ChapterSelectPage onBack={goBack} />;
+      case 'saveManager': return <SaveManagerPage onBack={goBack} />;
+      case 'dungeonList': return (
+        <div className="main-content fade-in">
+          <SubPageHeader title="取经副本" onBack={goBack} />
+          <DungeonList onStartDungeon={(id) => {
+            const stats = useGameStore.getState().getEffectiveStats();
+            useDungeonStore.getState().startDungeon(id, stats.maxHp);
+            setSubPage({ type: 'dungeonBattle' });
+          }} />
+        </div>
+      );
+      case 'dungeonBattle': return (
+        <div className="main-content fade-in">
+          <DungeonBattle onEnd={() => { useDungeonStore.getState().save(); setSubPage({ type: 'dungeonList' }); }} />
+        </div>
+      );
+      case 'achievements': return (
+        <div className="main-content fade-in"><SubPageHeader title="成就" onBack={goBack} /><AchievementList /></div>
+      );
+      case 'leaderboard': return (
+        <div className="main-content fade-in"><SubPageHeader title="排行榜" onBack={goBack} /><Leaderboard /></div>
+      );
+      default: return null;
+    }
+  };
+
+  // ─── Main tab routing ───
+  const renderTab = () => {
+    switch (activeTab) {
+      case 'battle': return <BattleView />;
+      case 'team': return <TeamView setSubPage={setSubPage} />;
+      case 'journey': return <JourneyView setSubPage={setSubPage} />;
+      case 'bag': return <BagView setSubPage={setSubPage} />;
+      case 'achievement': return <div className="main-content fade-in"><AchievementList /></div>;
+      case 'sanctuary': return <Suspense fallback={<LazyFallback />}><SanctuaryPanel /></Suspense>;
+      case 'exploration': return <Suspense fallback={<LazyFallback />}><ExplorationPanel /></Suspense>;
+      case 'affinity': return <Suspense fallback={<LazyFallback />}><AffinityPanel /></Suspense>;
+      case 'stats': return <Suspense fallback={<LazyFallback />}><StatsView /></Suspense>;
+      case 'settings': return <SettingsView setSubPage={setSubPage} />;
+      default: return <BattleView />;
+    }
+  };
 
   return (
-    <GameLayout
-      topBar={
-        <TopBar
-          name="取经人"
-          level={player.realmLevel}
-          realm={realm?.name ?? '凡人'}
-          xiuwei={formatBigNum(bn(player.xiuwei || '0'))}
-          gold={formatBigNum(bn(player.coins || '0'))}
-        />
-      }
-      bottomNav={
-        <BottomNav
-          items={navItems}
-          activeId={currentView}
-          onChange={(id) => setView(id as ViewId)}
-        />
-      }
-    >
-      <AppContent />
-      <ToastContainer />
-      <OfflineModal />
-      <TutorialModal />
+    <>
+      <TopBar />
+      {subPage.type !== 'none' ? renderSubPage() : renderTab()}
+      <BottomNav />
+      <AchievementToast />
+      <OfflineReportModal />
       <TutorialOverlay />
-    </GameLayout>
+    </>
   );
 }

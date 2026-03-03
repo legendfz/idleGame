@@ -7,7 +7,7 @@ export interface BuildingDef {
   name: string;
   icon: string;
   desc: string;
-  produceType: string;
+  produceType: string; // lingshi/exp/attack/forgeRate/expMul
   baseOutput: number;
   growthPerLevel: number;
   baseCost: number;
@@ -16,14 +16,14 @@ export interface BuildingDef {
 
 export const BUILDINGS: BuildingDef[] = [
   { id: 'field', name: '灵田', icon: '🌾', desc: '每秒产出灵石', produceType: 'lingshi', baseOutput: 5, growthPerLevel: 8, baseCost: 500, costGrowth: 1.8 },
-  { id: 'alchemy', name: '丹房', icon: '🧪', desc: '每秒增加修为', produceType: 'xiuwei', baseOutput: 3, growthPerLevel: 5, baseCost: 800, costGrowth: 2.0 },
-  { id: 'library', name: '藏经阁', icon: '📚', desc: '修为倍率加成%', produceType: 'xiuweiPercent', baseOutput: 2, growthPerLevel: 2, baseCost: 1000, costGrowth: 2.2 },
-  { id: 'forge', name: '锻造炉', icon: '🔥', desc: '锻造成功率加成%', produceType: 'forgeRate', baseOutput: 1, growthPerLevel: 1, baseCost: 1200, costGrowth: 2.0 },
-  { id: 'array', name: '聚灵阵', icon: '🔮', desc: '攻击力加成%', produceType: 'atkPercent', baseOutput: 2, growthPerLevel: 2, baseCost: 600, costGrowth: 1.9 },
+  { id: 'alchemy', name: '丹房', icon: '🧪', desc: '每秒增加经验', produceType: 'exp', baseOutput: 3, growthPerLevel: 5, baseCost: 800, costGrowth: 2.0 },
+  { id: 'library', name: '藏经阁', icon: '📚', desc: '经验倍率加成', produceType: 'expMul', baseOutput: 2, growthPerLevel: 2, baseCost: 1000, costGrowth: 2.2 },
+  { id: 'forge', name: '锻造炉', icon: '🔥', desc: '锻造成功率加成', produceType: 'forgeRate', baseOutput: 1, growthPerLevel: 1, baseCost: 1200, costGrowth: 2.0 },
+  { id: 'array', name: '聚灵阵', icon: '🔮', desc: '攻击力加成', produceType: 'attack', baseOutput: 10, growthPerLevel: 15, baseCost: 600, costGrowth: 1.9 },
 ];
 
 export interface SanctuaryState {
-  levels: Record<string, number>;
+  levels: Record<string, number>; // buildingId -> level (0-10)
 }
 
 export function createSanctuaryState(): SanctuaryState {
@@ -41,7 +41,6 @@ export function getUpgradeCost(def: BuildingDef, currentLevel: number): number {
   return Math.floor(def.baseCost * Math.pow(def.costGrowth, currentLevel));
 }
 
-/** 汇总洞天所有buff */
 export function calcSanctuaryBuffs(state: SanctuaryState): Record<string, number> {
   const buffs: Record<string, number> = {};
   for (const def of BUILDINGS) {

@@ -1,0 +1,1038 @@
+/* ═══════════════════════════════════════════════════
+   西游记 Idle Game — 地下城堡 (Dungeon) 暗黑风格
+   Version: 2.0-dungeon
+   ═══════════════════════════════════════════════════ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  /* ── 核心色板：暗黑地牢 ── */
+  --bg: #0d0d0d;
+  --panel: #1a1710;
+  --card: #201c14;
+  --text: #d4cfc4;
+  --text-dim: #7a7466;
+  --accent: #c9a84c;
+  --accent-dark: #8b6914;
+  --green: #2d6b30;
+  --green-bright: #4caf50;
+  --red: #8b2020;
+  --red-bright: #c0392b;
+  --blue: #4a6fa5;
+  --purple: #6b3a7d;
+  --border: #3d3422;
+  --border-highlight: #6b5a2f;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+
+  /* Event colors */
+  --color-attack: #9a9688;
+  --color-crit: #c0392b;
+  --color-kill: #2d6b30;
+  --color-drop: #4a6fa5;
+  --color-levelup: #c9a84c;
+  --color-boss: #8b2020;
+  --color-info: #7a7466;
+  --color-gold: #c9a84c;
+  --color-pantao: #a04040;
+  --color-exp: #8a7bb5;
+  --color-hp: #c0392b;
+  --color-speed: #3a8a8a;
+  --color-passive: #4a6fa5;
+  --color-set: #6b3a7d;
+  --color-location: #c9a84c;
+  --color-realm: #6b3a7d;
+  --color-level: #8a7bb5;
+  --color-success: #2d6b30;
+  --color-active: #c9a84c;
+  --realm-color: #6b3a7d;
+
+  /* Component-specific */
+  --dungeon-available: #c9a84c;
+  --dungeon-locked-bg: #151210;
+  --skill-warning-color: #c0392b;
+  --dodge-btn: #4a6fa5;
+  --ach-completed-bg: #1a2a1a;
+  --rank-gold: #c9a84c;
+  --rank-silver: #8a8478;
+  --rank-bronze: #8b5e2a;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+}
+
+/* ─── Color utility classes ─── */
+.color-attack { color: var(--color-attack); }
+.color-crit { color: var(--color-crit); }
+.color-kill, .color-success { color: var(--color-kill); }
+.color-drop { color: var(--color-drop); }
+.color-levelup, .color-level { color: var(--color-levelup); }
+.color-boss { color: var(--color-boss); }
+.color-info, .color-dim { color: var(--color-info); }
+.color-gold { color: var(--color-gold); }
+.color-pantao { color: var(--color-pantao); }
+.color-exp { color: var(--color-exp); }
+.color-hp { color: var(--color-hp); }
+.color-speed { color: var(--color-speed); }
+.color-passive { color: var(--color-passive); }
+.color-set { color: var(--color-set); }
+.color-location { color: var(--color-location); }
+.color-realm { color: var(--color-realm); }
+.color-accent { color: var(--accent); }
+.color-active { color: var(--color-active); font-weight: bold; }
+
+/* ═══ Card Component — 地牢纹理风格 ═══ */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: var(--space-md);
+  margin-bottom: var(--space-sm);
+  box-shadow:
+    inset 0 1px 0 rgba(201, 168, 76, 0.04),
+    0 2px 8px rgba(0, 0, 0, 0.5);
+}
+.card-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: var(--space-sm);
+  color: var(--accent);
+  border-left: 2px solid var(--accent);
+  padding-left: var(--space-sm);
+}
+.clickable-card { cursor: pointer; transition: border-color 0.15s ease; }
+.clickable-card:hover { border-color: var(--border-highlight); }
+.clickable-card:active { border-color: var(--accent); }
+
+/* ─── Sub-page header ─── */
+.subpage-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--border);
+}
+.back-btn {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.back-btn:active { opacity: 0.7; }
+.subpage-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* ─── Section title ─── */
+.section-title {
+  text-align: center;
+  color: var(--accent);
+  margin-bottom: var(--space-md);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* ═══ Top Bar ═══ */
+.top-bar {
+  background: var(--panel);
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
+  min-height: 56px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.top-bar .location { font-size: 15px; color: var(--accent); }
+.top-bar .resources { font-size: 13px; margin-top: 2px; color: var(--text-dim); }
+
+/* ─── Main content ─── */
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-md);
+  background: linear-gradient(180deg, var(--bg) 0%, #0a0908 100%);
+}
+.fade-in { animation: fadeIn 150ms ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ═══ Bottom Nav — 地牢风格 ═══ */
+.bottom-nav {
+  display: flex;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
+}
+.bottom-nav button {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  padding: var(--space-sm) 0;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  position: relative;
+  transition: color 0.15s ease;
+}
+.bottom-nav button.active { color: var(--accent); font-weight: bold; }
+.bottom-nav button.active::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+}
+.bottom-nav button .icon { font-size: 16px; }
+@media (max-width: 374px) {
+  .bottom-nav button span:not(.icon) { display: none; }
+  .bottom-nav button .icon { font-size: 20px; }
+}
+
+/* ═══ Battle View — 暗黑氛围 ═══ */
+.enemy-section {
+  position: relative;
+  background: linear-gradient(180deg, rgba(139,32,32,0.08) 0%, transparent 100%);
+  border-radius: 4px;
+  padding: var(--space-sm);
+}
+.enemy-name { font-size: 16px; margin-bottom: var(--space-xs); color: var(--text); }
+.hp-bar-bg {
+  background: #2a2318;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  height: 20px;
+  overflow: hidden;
+  position: relative;
+}
+.hp-bar-fill {
+  background: linear-gradient(180deg, #a02828 0%, #6b1818 100%);
+  height: 100%;
+  transition: width 0.3s ease-out;
+}
+.hp-bar-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 11px;
+  font-family: 'Cascadia Mono', Consolas, monospace;
+  color: var(--text);
+  text-shadow: 0 0 4px #000;
+}
+
+/* ─── Floating damage text ─── */
+.floating-container {
+  position: absolute;
+  top: 10px;
+  right: 16px;
+  pointer-events: none;
+  z-index: 10;
+}
+.floating-text {
+  animation: floatUp 800ms ease-out forwards;
+  font-family: 'Cascadia Mono', Consolas, monospace;
+  font-weight: bold;
+  text-shadow: 0 0 6px rgba(0,0,0,0.9);
+  white-space: nowrap;
+}
+.float-normal { color: var(--text-dim); font-size: 14px; }
+.float-crit { color: var(--accent); font-size: 18px; text-shadow: 0 0 8px rgba(201,168,76,0.5); }
+.float-click { color: var(--blue); font-size: 13px; }
+@keyframes floatUp {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-40px); }
+}
+
+/* ─── Boss toast ─── */
+.boss-toast {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(13,13,13,0.8);
+  z-index: 100;
+  pointer-events: none;
+  animation: bossFlash 2s ease forwards;
+}
+.boss-toast-inner {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--red-bright);
+  text-shadow: 0 0 20px rgba(139,32,32,0.8);
+  animation: bossScale 0.5s ease;
+}
+.boss-toast-name { font-size: 20px; color: var(--accent); margin-top: 8px; }
+@keyframes bossScale {
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes bossFlash {
+  0% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ─── Stats card ─── */
+.stats-card { padding: var(--space-sm) var(--space-md); }
+.stats-row {
+  display: flex;
+  gap: var(--space-md);
+  font-size: 13px;
+  justify-content: center;
+  font-family: 'Cascadia Mono', Consolas, monospace;
+}
+
+/* ─── Idle stats ─── */
+.idle-stats-card { padding: var(--space-xs) var(--space-md); }
+.idle-stats {
+  font-size: 12px;
+  text-align: center;
+  font-family: 'Cascadia Mono', Consolas, monospace;
+  color: var(--text-dim);
+}
+
+/* ─── Battle log ─── */
+.battle-log-card { padding: var(--space-sm) var(--space-md); }
+.battle-log {
+  max-height: 200px;
+  overflow-y: auto;
+  font-family: 'Cascadia Mono', Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.battle-log .log-attack { color: var(--color-attack); }
+.battle-log .log-crit {
+  color: var(--color-crit);
+  font-weight: bold;
+  background: rgba(139, 32, 32, 0.1);
+  border-radius: 2px;
+  padding: 0 2px;
+}
+.battle-log .log-kill { color: var(--color-kill); }
+.battle-log .log-drop { color: var(--color-drop); }
+.battle-log .log-levelup { color: var(--color-levelup); font-weight: bold; }
+.battle-log .log-boss { color: var(--color-boss); font-weight: bold; }
+.battle-log .log-info { color: var(--color-info); }
+
+.click-area {
+  background: var(--card);
+  border-radius: 4px;
+  padding: 20px var(--space-lg);
+  min-height: 80px;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  margin-bottom: var(--space-md);
+  transition: transform 0.1s;
+  border: 1px solid var(--border);
+  box-shadow: inset 0 1px 0 rgba(201, 168, 76, 0.04), 0 2px 8px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.click-area:active { transform: scale(0.97); border-color: var(--border-highlight); }
+
+/* ─── Stat grid ─── */
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm) var(--space-md);
+  font-size: 13px;
+}
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+  background: rgba(26, 23, 16, 0.8);
+  border: 1px solid rgba(61, 52, 34, 0.5);
+  border-radius: 3px;
+}
+.stat-label { color: var(--text-dim); font-size: 12px; }
+.stat-grid-compact {
+  display: flex;
+  gap: var(--space-md);
+  font-size: 13px;
+  font-family: 'Cascadia Mono', Consolas, monospace;
+}
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 0;
+  font-size: 13px;
+}
+.card-footer {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+  font-size: 12px;
+  align-items: center;
+}
+
+/* ─── Realm ─── */
+.breakthrough-btn {
+  background: linear-gradient(180deg, #c9a84c 0%, #8b6914 100%);
+  color: var(--bg);
+  border: 1px solid var(--border-highlight);
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: var(--space-sm);
+  text-shadow: 0 1px 0 rgba(201, 168, 76, 0.3);
+}
+.breakthrough-btn:disabled {
+  background: var(--card);
+  color: var(--text-dim);
+  cursor: default;
+  border-color: var(--border);
+  text-shadow: none;
+}
+
+/* ═══ Chapter / Node Map ═══ */
+.chapter-card {
+  cursor: pointer;
+  position: relative;
+  border-left: 3px solid var(--border);
+  margin-left: 16px;
+  padding-left: var(--space-md);
+}
+.chapter-card::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--card);
+  border: 2px solid var(--border);
+}
+.chapter-card.locked { opacity: 0.4; cursor: default; }
+.chapter-card.locked::before { background: var(--bg); }
+.chapter-card.current { border-left-color: var(--accent); }
+.chapter-card.current::before {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: 0 0 8px rgba(201, 168, 76, 0.4);
+}
+.chapter-card.cleared::before {
+  border-color: var(--green);
+  background: var(--green);
+}
+.chapter-header { font-size: 14px; margin-bottom: 4px; }
+.chapter-progress-bg {
+  background: #2a2318;
+  border-radius: 3px;
+  height: 4px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+.chapter-progress-fill {
+  background: var(--accent);
+  height: 100%;
+  transition: width 0.3s;
+}
+.sub-stages {
+  padding: 4px 16px 8px 24px;
+  font-size: 12px;
+  color: var(--text-dim);
+  font-family: 'Cascadia Mono', Consolas, monospace;
+}
+.sub-stage-item { line-height: 1.8; }
+
+/* ═══ Equipment — 地牢装备面板 ═══ */
+.equip-slot-card {
+  padding: var(--space-sm) var(--space-md);
+  border-left-width: 3px;
+  border-left-style: solid;
+}
+.equip-slot-card.empty {
+  opacity: 0.5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-left-color: var(--border);
+}
+.slot-label { font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+.equip-header { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+.equip-stats { font-size: 12px; margin: 2px 0; display: flex; gap: var(--space-md); flex-wrap: wrap; color: var(--text-dim); }
+.equip-actions { display: flex; gap: var(--space-xs); margin-top: 4px; flex-wrap: wrap; }
+.equip-detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm); }
+.equip-detail-stats { margin-top: var(--space-sm); }
+.enhance-info { margin-bottom: var(--space-sm); }
+
+/* ─── Buttons ─── */
+.small-btn {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+.small-btn:hover { border-color: var(--border-highlight); }
+.small-btn:disabled { opacity: 0.3; cursor: default; }
+.small-btn.accent {
+  background: linear-gradient(180deg, #c9a84c 0%, #8b6914 100%);
+  color: var(--bg);
+  border-color: var(--border-highlight);
+  font-weight: bold;
+}
+.small-btn.danger {
+  background: linear-gradient(180deg, #8b2020 0%, #5a1010 100%);
+  color: var(--text);
+  border-color: #6b2020;
+}
+
+.action-btn {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: var(--space-xs);
+  transition: border-color 0.15s ease;
+}
+.action-btn:hover { border-color: var(--border-highlight); }
+.action-btn:disabled { opacity: 0.3; cursor: default; }
+.action-btn.accent {
+  background: linear-gradient(180deg, #c9a84c 0%, #8b6914 100%);
+  color: var(--bg);
+  border-color: var(--border-highlight);
+  font-weight: bold;
+}
+.action-btn.danger {
+  background: linear-gradient(180deg, #8b2020 0%, #5a1010 100%);
+  color: var(--text);
+  border-color: #6b2020;
+}
+
+/* ─── Set bonuses ─── */
+.set-bonus-section { margin: var(--space-sm) 0; }
+.set-bonus-card, .mythic-card { padding: var(--space-sm) var(--space-md); }
+
+/* ═══ Bag — 地牢背包 ═══ */
+.bag-quick-actions {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+  justify-content: center;
+}
+.bag-quick-actions .small-btn { padding: 6px 16px; font-size: 12px; }
+.resources-card { padding: var(--space-sm) var(--space-md); }
+.resources-row {
+  display: flex;
+  gap: var(--space-md);
+  justify-content: center;
+  font-size: 12px;
+  font-family: 'Cascadia Mono', Consolas, monospace;
+}
+.bag-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-sm);
+  margin: var(--space-md) 0 var(--space-sm);
+}
+.decompose-toolbar {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+.bag-filters {
+  display: flex;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-sm);
+  justify-content: center;
+}
+.filter-btn {
+  background: var(--card);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.filter-btn.active {
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: bold;
+  border-color: var(--border-highlight);
+}
+
+.inv-item-card { padding: var(--space-sm) var(--space-md); border-left-width: 3px; border-left-style: solid; }
+
+/* ─── Settings ─── */
+.settings-actions { display: flex; flex-direction: column; gap: var(--space-xs); }
+
+/* ─── Save manager ─── */
+.save-slot-card { }
+.save-slot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-sm);
+  font-size: 14px;
+}
+.save-slot-info { margin-bottom: var(--space-sm); color: var(--text-dim); }
+.save-slot-actions { display: flex; gap: var(--space-xs); }
+.save-message {
+  background: var(--green);
+  color: var(--text);
+  text-align: center;
+  padding: var(--space-sm);
+  border-radius: 4px;
+  margin-bottom: var(--space-sm);
+  font-size: 13px;
+}
+
+/* ─── Shop ─── */
+.shop-item-card {
+  padding: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-xs);
+}
+.shop-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+/* ─── Refine ─── */
+.refine-targets {
+  display: flex;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+}
+
+/* ─── Scroll toggles ─── */
+.scroll-toggles {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 4px 0;
+  font-size: 11px;
+}
+.scroll-label {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.scroll-label input { width: 14px; height: 14px; }
+
+/* ═══ Modal — 暗色弹窗 ═══ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+.modal-content {
+  background: var(--panel);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  padding: var(--space-lg);
+  max-width: 320px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.8), 0 0 1px rgba(201, 168, 76, 0.2);
+}
+.modal-content h2 { margin-bottom: var(--space-md); color: var(--accent); }
+.modal-content button {
+  background: linear-gradient(180deg, #c9a84c 0%, #8b6914 100%);
+  color: var(--bg);
+  border: 1px solid var(--border-highlight);
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: var(--space-md);
+}
+.offline-detail { text-align: left; }
+
+/* ─── Feedback ─── */
+.feedback-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: var(--space-md);
+  margin-top: var(--space-md);
+}
+.feedback-type-row { display: flex; gap: var(--space-xs); margin-bottom: var(--space-sm); }
+.feedback-textarea {
+  width: 100%;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: var(--space-sm);
+  font-size: 13px;
+  font-family: inherit;
+  resize: vertical;
+  margin-bottom: var(--space-xs);
+}
+.feedback-textarea:focus { outline: none; border-color: var(--accent); }
+.feedback-btn {
+  background: linear-gradient(180deg, #c9a84c 0%, #8b6914 100%);
+  color: var(--bg);
+  border: 1px solid var(--border-highlight);
+  padding: 4px 16px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.feedback-btn:disabled { opacity: 0.3; cursor: default; }
+
+/* ═══ Dungeon — 地牢副本 ═══ */
+.dungeon-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-xs);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+.dungeon-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.dungeon-icon { font-size: 24px; }
+.dungeon-info { flex: 1; }
+.dungeon-name { font-weight: bold; font-size: 14px; color: var(--accent); }
+.dungeon-enemy-card {
+  background: rgba(139,32,32,0.1);
+  border: 1px solid rgba(139,32,32,0.3);
+  border-radius: 4px;
+  padding: var(--space-sm);
+  margin-bottom: var(--space-xs);
+}
+.hp-bar-container {
+  background: #2a2318;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  height: 8px;
+  overflow: hidden;
+}
+.hp-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* ═══ Page Title ═══ */
+.page-title-bar {
+  text-align: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+  padding: var(--space-md) 0 var(--space-sm);
+  letter-spacing: 2px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+
+/* ═══ Tab Bar ═══ */
+.tab-bar {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--space-md);
+}
+.tab-bar-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.tab-bar-scroll::-webkit-scrollbar { display: none; }
+.tab-item {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  padding: 10px 0;
+  font-size: 13px;
+  cursor: pointer;
+  position: relative;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: color 0.15s ease;
+}
+.tab-item.active { color: var(--accent); font-weight: 600; }
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+}
+.tab-bar-scroll .tab-item { flex: 0 0 auto; padding: 10px 16px; }
+
+/* ── Mini Progress Bar ── */
+.mini-progress { display: flex; align-items: center; gap: var(--space-xs); margin-top: 4px; }
+.mini-progress-bg {
+  flex: 1;
+  background: #2a2318;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.mini-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+.mini-progress-text { font-size: 10px; color: var(--text-dim); white-space: nowrap; }
+
+/* ═══ Achievement Panel — 地牢成就 ═══ */
+.achievement-summary {
+  padding: 0 var(--space-md) var(--space-md);
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.achievement-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: 12px var(--space-md);
+  border-bottom: 1px solid var(--border);
+}
+.ach-completed { background: var(--ach-completed-bg); }
+.ach-locked { opacity: 0.4; }
+.ach-in_progress { }
+.ach-status-icon { font-size: 16px; flex-shrink: 0; margin-top: 2px; }
+.ach-info { flex: 1; min-width: 0; }
+.ach-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.ach-desc { font-size: 12px; color: var(--text-dim); }
+.ach-reward { font-size: 11px; color: var(--accent); flex-shrink: 0; white-space: nowrap; max-width: 80px; text-align: right; }
+
+/* ── Achievement Toast ── */
+.achievement-toast {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100%);
+  background: var(--panel);
+  border: 1px solid var(--accent);
+  border-radius: 0 0 4px 4px;
+  padding: 12px var(--space-lg);
+  z-index: 300;
+  text-align: center;
+  min-width: 240px;
+  animation: toast-slide-down 300ms ease-out forwards;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+}
+@keyframes toast-slide-down {
+  to { transform: translateX(-50%) translateY(0); }
+}
+.achievement-toast.dismissing {
+  animation: toast-slide-up 300ms ease-in forwards;
+}
+@keyframes toast-slide-up {
+  to { transform: translateX(-50%) translateY(-100%); }
+}
+
+/* ═══ Leaderboard — 地牢排行 ═══ */
+.lb-category-title {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-dim);
+  padding: var(--space-sm) 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.lb-list { padding: 0 var(--space-md); }
+.lb-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-family: 'Cascadia Mono', Consolas, monospace;
+}
+.lb-row:last-child { border-bottom: none; }
+.lb-rank { width: 32px; text-align: center; font-size: 16px; flex-shrink: 0; }
+.lb-value { flex: 1; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.lb-date { font-size: 11px; color: var(--text-dim); }
+.lb-current {
+  padding: var(--space-md);
+  font-size: 13px;
+  border-top: 1px solid var(--border);
+  margin-top: var(--space-sm);
+  background: rgba(201, 168, 76, 0.05);
+  border: 1px solid var(--border-highlight);
+  border-radius: 4px;
+}
+
+/* ═══ Battle Result ═══ */
+.battle-result { text-align: center; }
+.battle-result.first-clear { border-color: var(--accent); border-width: 2px; }
+.result-title { color: var(--accent); font-size: 18px; margin-bottom: 4px; }
+.result-dungeon { color: var(--text-dim); font-size: 13px; margin-bottom: var(--space-sm); }
+.result-record {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--accent);
+  margin-bottom: var(--space-sm);
+  animation: record-glow 1.5s ease-in-out infinite alternate;
+}
+@keyframes record-glow {
+  from { text-shadow: 0 0 4px rgba(201,168,76,0.2); }
+  to   { text-shadow: 0 0 16px rgba(201,168,76,0.5); }
+}
+.result-divider {
+  color: var(--text-dim);
+  font-size: 12px;
+  margin: var(--space-sm) 0;
+}
+.result-reward-row {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-sm);
+  font-size: 14px;
+  padding: 4px 0;
+  animation: slide-in-right 300ms ease-out both;
+}
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.result-actions {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: center;
+  margin-top: var(--space-md);
+}
+.btn-primary {
+  background: linear-gradient(180deg, #c9a84c 0%, #8b6914 100%);
+  color: var(--bg);
+  border: 1px solid var(--border-highlight);
+  padding: 10px 32px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.btn-secondary {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 10px 24px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* ── Skill Warning ── */
+.skill-warning-enhanced {
+  border: 2px solid var(--skill-warning-color);
+  border-radius: 4px;
+  padding: var(--space-sm) var(--space-md);
+  text-align: center;
+  font-size: 15px;
+  font-weight: bold;
+  color: var(--skill-warning-color);
+  margin: var(--space-sm) 0;
+  animation: warning-blink 600ms ease-in-out infinite;
+}
+@keyframes warning-blink {
+  0%, 100% { border-color: var(--skill-warning-color); }
+  50%      { border-color: transparent; }
+}
+
+/* ── Dodge Button ── */
+.dodge-btn-enhanced {
+  display: block;
+  width: 200px;
+  margin: var(--space-sm) auto;
+  padding: 14px 0;
+  background: var(--dodge-btn);
+  color: var(--text);
+  border: 1px solid rgba(74, 111, 165, 0.5);
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  animation: dodge-pulse 1s ease-in-out infinite;
+}
+@keyframes dodge-pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.05); }
+}
+.dodge-btn-enhanced:disabled { opacity: 0.3; animation: none; }
+
+/* ═══ Scrollbar — 暗色主题 ═══ */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-highlight); }
+
+/* v12.0: animation toggle */
+.no-anim *, .no-anim *::before, .no-anim *::after {
+  animation-duration: 0s !important;
+  transition-duration: 0s !important;
+}

@@ -1,63 +1,105 @@
 /**
- * AffinityEngine — 仙缘系统：6NPC好感度+buff
+ * AffinityEngine — 仙缘系统: 6 NPC好感度
  */
 
-export interface NpcDef {
+export interface AffinityNPC {
   id: string;
   name: string;
   icon: string;
-  desc: string;
-  buffs: { stat: string; perTier: number }[];
-  ultimateSkill: string;
-  ultimateDesc: string;
+  title: string;
+  giftPreference: string; // 喜欢的礼物类型
+  buffs: { threshold: number; type: string; value: number; desc: string }[];
+  ultimateSkill: string; // 100好感解锁
 }
 
-export const NPCS: NpcDef[] = [
-  { id: 'guanyin', name: '观音', icon: '🙏', desc: '慈悲为怀', buffs: [{ stat: 'hpPercent', perTier: 3 }, { stat: 'defPercent', perTier: 2 }], ultimateSkill: '甘露普降', ultimateDesc: '全属性+5%' },
-  { id: 'laojun', name: '太上老君', icon: '👴', desc: '炼丹大师', buffs: [{ stat: 'xiuweiPercent', perTier: 3 }, { stat: 'forgeRate', perTier: 1 }], ultimateSkill: '八卦炉火', ultimateDesc: '锻造成功率+10%' },
-  { id: 'erlang', name: '二郎神', icon: '⚔️', desc: '战神无双', buffs: [{ stat: 'atkPercent', perTier: 4 }, { stat: 'critRate', perTier: 1 }], ultimateSkill: '三尖两刃', ultimateDesc: '暴击伤害+20%' },
-  { id: 'nezha', name: '哪吒', icon: '🔥', desc: '三头六臂', buffs: [{ stat: 'spdPercent', perTier: 3 }, { stat: 'atkPercent', perTier: 2 }], ultimateSkill: '风火轮', ultimateDesc: '攻速+15%' },
-  { id: 'yutu', name: '玉兔', icon: '🐰', desc: '月宫仙子', buffs: [{ stat: 'lingshiPercent', perTier: 3 }, { stat: 'xiuweiPercent', perTier: 2 }], ultimateSkill: '月华清辉', ultimateDesc: '灵石获取+10%' },
-  { id: 'longnv', name: '龙女', icon: '🐲', desc: '龙宫公主', buffs: [{ stat: 'defPercent', perTier: 3 }, { stat: 'hpPercent', perTier: 2 }], ultimateSkill: '龙宫护佑', ultimateDesc: '掉落率+10%' },
+export const AFFINITY_NPCS: AffinityNPC[] = [
+  {
+    id: 'guanyin', name: '观音', icon: '🙏', title: '慈悲仙人', giftPreference: '法器',
+    buffs: [
+      { threshold: 20, type: 'maxHp', value: 10, desc: '生命+10%' },
+      { threshold: 40, type: 'healRate', value: 5, desc: '回复+5%' },
+      { threshold: 60, type: 'maxHp', value: 15, desc: '生命+15%' },
+      { threshold: 80, type: 'defense', value: 10, desc: '防御+10%' },
+    ],
+    ultimateSkill: '甘露普降 — 战斗中每10秒恢复5%生命',
+  },
+  {
+    id: 'laojun', name: '太上老君', icon: '👴', title: '炼丹宗师', giftPreference: '丹药',
+    buffs: [
+      { threshold: 20, type: 'expMul', value: 5, desc: '经验+5%' },
+      { threshold: 40, type: 'forgeRate', value: 3, desc: '锻造+3%' },
+      { threshold: 60, type: 'expMul', value: 10, desc: '经验+10%' },
+      { threshold: 80, type: 'forgeRate', value: 5, desc: '锻造+5%' },
+    ],
+    ultimateSkill: '八卦炉火 — 锻造永不失败',
+  },
+  {
+    id: 'erlang', name: '二郎神', icon: '⚔️', title: '战神', giftPreference: '兵器',
+    buffs: [
+      { threshold: 20, type: 'attack', value: 8, desc: '攻击+8%' },
+      { threshold: 40, type: 'critRate', value: 3, desc: '暴击+3%' },
+      { threshold: 60, type: 'attack', value: 12, desc: '攻击+12%' },
+      { threshold: 80, type: 'critDmg', value: 10, desc: '暴伤+10%' },
+    ],
+    ultimateSkill: '三尖两刃 — 暴击时额外造成50%伤害',
+  },
+  {
+    id: 'nezha', name: '哪吒', icon: '🔥', title: '莲花化身', giftPreference: '灵石',
+    buffs: [
+      { threshold: 20, type: 'speed', value: 5, desc: '速度+5%' },
+      { threshold: 40, type: 'attack', value: 5, desc: '攻击+5%' },
+      { threshold: 60, type: 'speed', value: 10, desc: '速度+10%' },
+      { threshold: 80, type: 'critRate', value: 5, desc: '暴击+5%' },
+    ],
+    ultimateSkill: '风火轮 — 攻击速度翻倍持续10秒',
+  },
+  {
+    id: 'yutu', name: '玉兔', icon: '🐰', title: '月宫仙子', giftPreference: '灵草',
+    buffs: [
+      { threshold: 20, type: 'lingshiMul', value: 5, desc: '灵石+5%' },
+      { threshold: 40, type: 'expMul', value: 3, desc: '经验+3%' },
+      { threshold: 60, type: 'lingshiMul', value: 10, desc: '灵石+10%' },
+      { threshold: 80, type: 'pantaoChance', value: 5, desc: '蟠桃掉率+5%' },
+    ],
+    ultimateSkill: '月华清辉 — 离线收益翻倍',
+  },
+  {
+    id: 'longnv', name: '龙女', icon: '🐲', title: '龙宫公主', giftPreference: '珍珠',
+    buffs: [
+      { threshold: 20, type: 'defense', value: 5, desc: '防御+5%' },
+      { threshold: 40, type: 'maxHp', value: 8, desc: '生命+8%' },
+      { threshold: 60, type: 'defense', value: 10, desc: '防御+10%' },
+      { threshold: 80, type: 'dropRate', value: 5, desc: '掉落+5%' },
+    ],
+    ultimateSkill: '龙宫护佑 — 受到致命伤害时免死一次',
+  },
 ];
 
 export interface AffinityState {
-  levels: Record<string, number>; // npcId -> affinity (0-100)
-  giftCooldowns: Record<string, number>; // npcId -> timestamp
+  levels: Record<string, number>; // npcId -> 0~100
 }
 
 export function createAffinityState(): AffinityState {
   const levels: Record<string, number> = {};
-  NPCS.forEach(n => levels[n.id] = 0);
-  return { levels, giftCooldowns: {} };
+  AFFINITY_NPCS.forEach(n => levels[n.id] = 0);
+  return { levels };
 }
 
-export function getAffinityTier(level: number): number {
-  return Math.floor(level / 20); // 0,1,2,3,4,5 tiers at 0,20,40,60,80,100
-}
-
-export function getGiftCost(): number { return 100; } // 灵石
-
-export function giftNpc(state: AffinityState, npcId: string): { gain: number; newLevel: number } {
-  const gain = 5 + Math.floor(Math.random() * 6); // 5-10
+export function addAffinity(state: AffinityState, npcId: string, amount: number): AffinityState {
   const current = state.levels[npcId] ?? 0;
-  const newLevel = Math.min(100, current + gain);
-  state.levels[npcId] = newLevel;
-  return { gain, newLevel };
+  return { levels: { ...state.levels, [npcId]: Math.min(100, current + amount) } };
 }
 
-/** 汇总所有NPC的buff */
 export function calcAffinityBuffs(state: AffinityState): Record<string, number> {
   const buffs: Record<string, number> = {};
-  for (const npc of NPCS) {
-    const tier = getAffinityTier(state.levels[npc.id] ?? 0);
+  for (const npc of AFFINITY_NPCS) {
+    const lv = state.levels[npc.id] ?? 0;
     for (const b of npc.buffs) {
-      buffs[b.stat] = (buffs[b.stat] ?? 0) + b.perTier * tier;
-    }
-    // Ultimate at level 100
-    if ((state.levels[npc.id] ?? 0) >= 100) {
-      buffs[`ultimate_${npc.id}`] = 1;
+      if (lv >= b.threshold) buffs[b.type] = (buffs[b.type] ?? 0) + b.value;
     }
   }
   return buffs;
 }
+
+export function getGiftCost(): number { return 100; } // lingshi per gift
+export function getGiftAmount(): number { return 5 + Math.floor(Math.random() * 6); } // 5-10 affinity
