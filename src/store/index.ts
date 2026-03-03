@@ -23,3 +23,4 @@ export { useDailyQuestStore } from './dailyQuest';
 export { useMilestoneStore } from './milestone';
 export { useTalentStore } from './talent';
 export { useCompanionStore } from './companion';
+export { useReincarnationStore } from './reincarnation';

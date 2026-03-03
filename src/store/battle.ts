@@ -13,6 +13,7 @@ import { usePlayerStore } from './player';
 import { useMilestoneStore } from './milestone';
 import { useTalentStore } from './talent';
 import { useCompanionStore } from './companion';
+import { useReincarnationStore } from './reincarnation';
 import { useAchievementStore } from './achievement';
 import { useDailyQuestStore } from './dailyQuest';
 

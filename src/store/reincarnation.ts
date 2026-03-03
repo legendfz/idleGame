@@ -53,7 +53,7 @@ export const useReincarnationStore = create<ReincarnationStore>((set, get) => ({
     });
 
     // 重置玩家进度 (保留天赋点+转世次数+功德)
-    usePlayerStore.getState().prestige();
+    usePlayerStore.getState().resetForPrestige('realm_lianqi');
     // 转世获得3天赋点
     useTalentStore.getState().addPoints(3);
 

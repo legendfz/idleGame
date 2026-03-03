@@ -16,6 +16,7 @@ import { useDailyQuestStore } from '../store/dailyQuest';
 import { useMilestoneStore } from '../store/milestone';
 import { useTalentStore } from '../store/talent';
 import { useCompanionStore } from '../store/companion';
+import { useReincarnationStore } from '../store/reincarnation';
 import { SaveManager } from '../data/save';
 import { GameStats } from '../engine/achievement';
 import { calcOfflineReward } from '../engine/idle';
@@ -50,6 +51,7 @@ export function useGameLoop() {
       if (saved.milestone) useMilestoneStore.getState().loadState(saved.milestone);
       if (saved.talent) useTalentStore.getState().loadState(saved.talent.points ?? 0, saved.talent.ranks ?? {});
       if (saved.companion) useCompanionStore.getState().loadState(saved.companion.instances ?? {}, saved.companion.equipped ?? []);
+      if (saved.reincarnation) useReincarnationStore.getState().loadState(saved.reincarnation);
 
       // === 2. 离线收益 ===
       const lastOnline = saved.player?.lastOnlineAt || Date.now();
@@ -181,6 +183,7 @@ export function useGameLoop() {
       milestone: useMilestoneStore.getState().getState(),
       talent: useTalentStore.getState().getState(),
       companion: useCompanionStore.getState().getState(),
+      reincarnation: useReincarnationStore.getState().getState(),
     });
     const stopAutoSave = SaveManager.startAutoSave(getFullState);
 
