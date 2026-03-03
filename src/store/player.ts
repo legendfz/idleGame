@@ -95,7 +95,8 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     const reinBuffs = useReincarnationStore.getState().getBuffs();
     const totalXiuweiBonus = (msBuffs.xiuweiPercent || 0) + (talentBuffs.xiuweiPercent || 0) + (companionBuffs.xiuweiPercent || 0) + (reinBuffs.xiuweiPercent || 0);
     const xps = getXiuweiPerSecond(player.realmId, equipBonus.atkPercent, teamBonus, totalXiuweiBonus);
-    const gain = xps.mul(dt);
+    const eventMul = useEventStore.getState().getMultiplier('cultivationBoost');
+    const gain = xps.mul(dt).mul(eventMul);
     const newXiuwei = bn(player.xiuwei).add(gain);
     const newTotal = bn(player.totalXiuwei).add(gain);
 
