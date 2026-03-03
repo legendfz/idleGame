@@ -11,11 +11,16 @@ import { useMaterialStore } from '../store/material';
 import { useForgeStore } from '../store/forge';
 import { useGatherStore } from '../store/gather';
 import { useDungeonStore } from '../store/dungeon';
+import { useAchievementStore } from '../store/achievement';
+import { useDailyQuestStore } from '../store/dailyQuest';
+import { useMilestoneStore } from '../store/milestone';
 import { SaveManager } from '../data/save';
+import { GameStats } from '../engine/achievement';
 import { calcOfflineReward } from '../engine/idle';
 import { calcOfflineGather, GatherNode } from '../engine/gather';
 import { eventBus } from '../engine/events';
 import { bn } from '../engine/bignum';
+import { getRealmConfig } from '../data/config';
 import gatherNodesData from '../data/configs/gather-nodes.json';
 
 export function useGameLoop() {
@@ -38,6 +43,9 @@ export function useGameLoop() {
       if (saved.forge) useForgeStore.getState().loadState(saved.forge.forgeLevel || 1, saved.forge.forgeExp || 0);
       if (saved.gather) useGatherStore.getState().loadState(saved.gather.activeGather || null, saved.gather.cooldowns || {});
       if (saved.dungeon) useDungeonStore.getState().loadState(saved.dungeon);
+      if (saved.achievement) useAchievementStore.getState().loadState(saved.achievement.progress || {}, saved.achievement.stats || {});
+      if (saved.dailyQuest) useDailyQuestStore.getState().loadState(saved.dailyQuest);
+      if (saved.milestone) useMilestoneStore.getState().loadState(saved.milestone);
 
       // === 2. 离线收益 ===
       const lastOnline = saved.player?.lastOnlineAt || Date.now();
@@ -98,12 +106,40 @@ export function useGameLoop() {
       useUIStore.getState().addToast(`获得 ${e.items.length} 件装备`, 'info');
     });
 
-    // === 4. Idle tick (1Hz) ===
+    // === 4. Idle tick (1Hz) + achievement check (5s) ===
+    let achCheckCounter = 0;
     const idleInterval = setInterval(() => {
       const now = Date.now();
       const dt = (now - lastTickRef.current) / 1000;
       lastTickRef.current = now;
       tick(Math.min(dt, 2));
+
+      // 每5秒检测成就+里程碑
+      achCheckCounter++;
+      if (achCheckCounter % 5 === 0) {
+        const p = usePlayerStore.getState().player;
+        const realm = getRealmConfig(p.realmId);
+        const journey = useJourneyStore.getState().journey;
+        const achStats = useAchievementStore.getState().stats;
+        const stats: GameStats = {
+          totalKills: p.totalKills,
+          totalBreakthroughs: p.totalBreakthroughs,
+          realmOrder: realm?.order ?? 1,
+          highestStage: journey.currentStage - 1,
+          totalXiuwei: p.totalXiuwei,
+          totalClicks: p.totalClicks,
+          forgeLevel: useForgeStore.getState().forgeLevel,
+          forgeCount: (achStats.forgeCount as number) ?? 0,
+          gatherCount: (achStats.gatherCount as number) ?? 0,
+          materialTypes: Object.keys(useMaterialStore.getState().materials).length,
+          equipCount: useEquipStore.getState().items.length,
+          playTime: p.playTime,
+          prestigeCount: p.prestigeCount,
+          dungeonClears: (achStats.dungeonClears as number) ?? 0,
+        };
+        useAchievementStore.getState().checkAll(stats);
+        useMilestoneStore.getState().checkAll(stats);
+      }
     }, 1000);
 
     // === 5. Battle tick (rAF) ===
@@ -131,6 +167,9 @@ export function useGameLoop() {
       forge: { forgeLevel: useForgeStore.getState().forgeLevel, forgeExp: useForgeStore.getState().forgeExp },
       gather: { activeGather: useGatherStore.getState().activeGather, cooldowns: useGatherStore.getState().cooldowns },
       dungeon: useDungeonStore.getState().getState(),
+      achievement: useAchievementStore.getState().getState(),
+      dailyQuest: useDailyQuestStore.getState().getState(),
+      milestone: useMilestoneStore.getState().getState(),
     });
     const stopAutoSave = SaveManager.startAutoSave(getFullState);
 

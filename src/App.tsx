@@ -17,6 +17,7 @@ import { ForgeView } from './components/views/ForgeView';
 import { GatherView } from './components/views/GatherView';
 import { DungeonView } from './components/views/DungeonView';
 import { StatsView } from './components/views/StatsView';
+import { QuestView } from './components/views/QuestView';
 import { formatBigNum, bn } from './engine/bignum';
 import { getRealmConfig } from './data/config';
 import { ToastContainer } from './components/shared/ToastContainer';
@@ -32,6 +33,7 @@ const ALL_NAV_ITEMS = [
   { id: 'character', icon: '🐒', label: '角色', minRealm: 1 },
   { id: 'inventory', icon: '🎒', label: '背包', minRealm: 1 },
   { id: 'journey', icon: '🗺️', label: '取经', minRealm: 1 },
+  { id: 'quest', icon: '📋', label: '任务', minRealm: 1 },
   { id: 'stats', icon: '📊', label: '统计', minRealm: 1 },
 ];
 
@@ -47,6 +49,7 @@ function AppContent() {
     forge: <ForgeView />,
     gather: <GatherView />,
     dungeon: <DungeonView />,
+    quest: <QuestView />,
     stats: <StatsView />,
   };
 
