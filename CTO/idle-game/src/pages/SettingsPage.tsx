@@ -4,6 +4,7 @@ import { REALMS } from '../data/realms';
 import { formatNumber, formatTime, formatDuration } from '../utils/format';
 import FeedbackForm from '../components/FeedbackForm';
 import { Card, SubPage } from './shared';
+import { getSfxEnabled, setSfxEnabled, getSfxVolume, setSfxVolume, sfx } from '../engine/audio';
 
 export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
   const save = useGameStore(s => s.save);
@@ -12,6 +13,8 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
   const player = useGameStore(s => s.player);
   const realm = REALMS[player.realmIndex] ?? REALMS[0];
   const [animEnabled, setAnimEnabled] = useState(() => localStorage.getItem('anim') !== 'off');
+  const [sfxEnabled, setSfxEnabledState] = useState(getSfxEnabled);
+  const [sfxVol, setSfxVol] = useState(getSfxVolume);
   const [importText, setImportText] = useState('');
   const [showImport, setShowImport] = useState(false);
   const [showStats, setShowStats] = useState(false);
@@ -72,6 +75,28 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
             {animEnabled ? '✅ 开启' : '❌ 关闭'}
           </span>
         </div>
+        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => {
+          const next = !sfxEnabled;
+          setSfxEnabledState(next);
+          setSfxEnabled(next);
+          localStorage.setItem('sfx', next ? 'on' : 'off');
+          if (next) sfx.click();
+        }}>
+          <span className="stat-label">音效</span>
+          <span style={{ color: sfxEnabled ? 'var(--accent)' : 'var(--dim)' }}>
+            {sfxEnabled ? '🔊 开启' : '🔇 关闭'}
+          </span>
+        </div>
+        {sfxEnabled && (
+          <div className="stat-row">
+            <span className="stat-label">音量</span>
+            <input type="range" min="0" max="100" value={Math.round(sfxVol * 100)}
+              style={{ flex: 1, accentColor: 'var(--accent)' }}
+              onChange={e => { const v = Number(e.target.value) / 100; setSfxVol(v); setSfxVolume(v); }}
+            />
+            <span style={{ marginLeft: 8, minWidth: 32 }}>{Math.round(sfxVol * 100)}%</span>
+          </div>
+        )}
       </Card>
 
       {/* ── 存档管理 ── */}
@@ -103,7 +128,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
 
       {/* ── 关于 ── */}
       <Card title="ℹ️ 关于">
-        <div className="stat-row"><span className="stat-label">版本</span><span>v12.0「仙途指引」</span></div>
+        <div className="stat-row"><span className="stat-label">版本</span><span>v21.0「音画仙境」</span></div>
         <div className="stat-row"><span className="stat-label">引擎</span><span>React + Zustand + Vite</span></div>
       </Card>
 
