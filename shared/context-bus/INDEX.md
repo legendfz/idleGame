@@ -29,3 +29,4 @@ shared/context-bus/
   - CMO: 预热营销计划 (CMO/PRELAUNCH-PLAN.md)
   - CPO: 装备用户故事 (CPO/EQUIPMENT-STORIES.md) + 平衡表强化成功率更新 (CPO/BALANCE-TABLE.md)
   - CPO: QA 测试清单 100 条 (CPO/QA-CHECKLIST.md) — 发现 3 个代码问题
+- 2026-03-02: [CPO→CEO] v8.0 PRD + QA — shared/handoffs/cpo-to-ceo-v80-prd.md
