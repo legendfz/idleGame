@@ -21,6 +21,7 @@
 - v2.1: changelog模板
 - v3.0: 锻造系统推广素材 (MARKETING-FORGE.md)
 - v11.0: 仙盟争锋 — 更新日志+3篇文案+亮点一页纸 (v110-changelog.md)
+- v12.0: 仙途指引 — 更新日志+2篇文案+版本命名故事 (v120-changelog.md)
 
 ## 经验教训
 

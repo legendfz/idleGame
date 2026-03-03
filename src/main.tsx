@@ -19,6 +19,9 @@ import './styles/strategy.css';
 import './styles/tutorial.css';
 import './styles/synergy.css';
 import './styles/scroll-nav.css';
+import './styles/guide.css';
+import './styles/settings.css';
+import './styles/stats.css';
 import App from './App';
 
 createRoot(document.getElementById('root')!).render(
