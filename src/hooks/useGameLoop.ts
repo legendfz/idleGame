@@ -23,6 +23,7 @@ import { useTowerStore } from '../store/tower';
 import { usePetStore } from '../store/pet';
 import { useSkillStore } from '../store/skill';
 import { useStrategyStore } from '../store/strategy';
+import { useTutorialStore } from '../store/tutorial';
 import { SaveManager } from '../data/save';
 import { GameStats } from '../engine/achievement';
 import { calcOfflineReward } from '../engine/idle';
@@ -64,6 +65,7 @@ export function useGameLoop() {
       if (saved.pet) usePetStore.getState().loadState(saved.pet.instances ?? {}, saved.pet.activePetId ?? null);
       if (saved.skill) useSkillStore.getState().loadState(saved.skill);
       if (saved.strategy) useStrategyStore.getState().loadState(saved.strategy);
+      if (saved.tutorial) useTutorialStore.getState().loadState(saved.tutorial);
 
       // === 2. 离线收益 ===
       const lastOnline = saved.player?.lastOnlineAt || Date.now();
@@ -208,6 +210,7 @@ export function useGameLoop() {
       pet: usePetStore.getState().getState(),
       skill: useSkillStore.getState().getState(),
       strategy: useStrategyStore.getState().getState(),
+      tutorial: useTutorialStore.getState().getState(),
     });
     const stopAutoSave = SaveManager.startAutoSave(getFullState);
 
