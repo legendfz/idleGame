@@ -100,9 +100,16 @@
 - Build: 300KB/92KB gzip ✅
 - 待优化：里程碑buff接入引擎公式
 
+## v5.1 验收修复（2026-03-02 19:03）
+- 修复 reincarnation.ts prestige()→resetForPrestige() TS 编译错误
+- tsc 零错误，vite build 325KB/99KB gzip
+- v5.0 六大模块全部存在
+- v6.0 handoff 文件已预创建（ccf3ce3）
+
 ## 待办事项
-- ✅ v1.2~v4.0 全部完成
-- 下一步：v4.1 buff接入+数值对齐+部署验收
+- ✅ v1.2~v5.0 全部完成
+- ✅ v5.1 验收修复完成
+- 下一步：v6.0「六道轮回」开发（handoff 已就绪）
 
 ## 经验教训
 - CTO 开发范围与 PRD 有 gap — 精炼系统和高阶强化完全未实现

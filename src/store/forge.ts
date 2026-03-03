@@ -14,6 +14,7 @@ import { vibrateSuccess, vibrateFail } from '../utils/feedback';
 import { useMilestoneStore } from './milestone';
 import { useTalentStore } from './talent';
 import { useCompanionStore } from './companion';
+import { useReincarnationStore } from './reincarnation';
 import { useAchievementStore } from './achievement';
 import { useDailyQuestStore } from './dailyQuest';
 
@@ -49,7 +50,8 @@ export const useForgeStore = create<ForgeStore>((set, get) => ({
     // 里程碑+天赋+伙伴buff: 锻造成功率加成
     const msBonus = (useMilestoneStore.getState().getBuffs().forgeSuccessRate || 0)
       + (useTalentStore.getState().getBuffs().forgeRate || 0)
-      + (useCompanionStore.getState().getBuffs().forgeRate || 0);
+      + (useCompanionStore.getState().getBuffs().forgeRate || 0)
+      + (useReincarnationStore.getState().getBuffs().forgeRate || 0);
     const boostedRecipe = msBonus > 0
       ? { ...recipe, successRate: Math.min(0.99, recipe.successRate + msBonus / 100) }
       : recipe;

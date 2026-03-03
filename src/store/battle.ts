@@ -67,11 +67,14 @@ export const useBattleStore = create<BattleStore>((set, get) => ({
 
     const player = usePlayerStore.getState().player;
     const realm = getRealmConfig(player.realmId);
+    const rB2 = useReincarnationStore.getState().getBuffs();
     const totalAtk2 = (useMilestoneStore.getState().getBuffs().atkPercent || 0)
       + (useTalentStore.getState().getBuffs().atkPercent || 0)
-      + (useCompanionStore.getState().getBuffs().atkPercent || 0);
+      + (useCompanionStore.getState().getBuffs().atkPercent || 0)
+      + (rB2.atkPercent || 0);
     const totalCrit2 = 0.05 + ((useTalentStore.getState().getBuffs().critRate || 0)
-      + (useCompanionStore.getState().getBuffs().critRate || 0)) / 100;
+      + (useCompanionStore.getState().getBuffs().critRate || 0)
+      + (rB2.critRate || 0)) / 100;
     const baseAtk = calcAttack(1, realm?.multiplier ?? 1, 0);
     const attack = baseAtk.mul(1 + totalAtk2 / 100);
     const dps = calcAutoDps(attack, 1.0, 0, totalCrit2, 2.0);
@@ -83,6 +86,8 @@ export const useBattleStore = create<BattleStore>((set, get) => ({
       usePlayerStore.getState().incrementKills(newBattle.killCount);
       useDailyQuestStore.getState().addProgress('kills', newBattle.killCount);
       useDailyQuestStore.getState().addProgress('stages', 1);
+      // Boss击杀获得功德 10-50
+      useReincarnationStore.getState().addMerit(10 + Math.floor(Math.random() * 41));
     }
   },
 
