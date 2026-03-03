@@ -1,0 +1,406 @@
+/* ══ v11.0 PvP擂台面板 — PvpPanel ══ */
+
+/* ── 容器 ── */
+.pvp-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+  padding: var(--sp-md);
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* ── 今日次数指示 ── */
+.pvp-attempts {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-sm);
+  padding: var(--sp-sm) var(--sp-md);
+  background: rgba(193,59,59,0.1);
+  border: 1px solid rgba(193,59,59,0.25);
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-sm);
+  color: var(--color-text);
+}
+
+.pvp-attempts-count {
+  font-family: var(--font-number);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.pvp-attempts.exhausted {
+  opacity: 0.5;
+}
+
+.pvp-attempts.exhausted .pvp-attempts-count {
+  color: var(--color-text-dim);
+}
+
+/* ── 自己的排名/积分 ── */
+.pvp-my-rank {
+  display: flex;
+  justify-content: space-around;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--sp-md);
+}
+
+.pvp-my-rank-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.pvp-my-rank-label {
+  font-size: var(--fs-xs);
+  color: var(--color-text-dim);
+}
+
+.pvp-my-rank-value {
+  font-family: var(--font-number);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.pvp-my-rank-value.elo {
+  color: var(--color-accent);
+}
+
+/* ── 对手匹配区 ── */
+.pvp-opponents {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+}
+
+.pvp-opponent-card {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--sp-md);
+  cursor: pointer;
+  transition: all var(--dur-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+.pvp-opponent-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--color-primary);
+}
+
+.pvp-opponent-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 12px rgba(193,59,59,0.2);
+}
+
+.pvp-opponent-card.easy::before   { background: var(--color-success); }
+.pvp-opponent-card.medium::before { background: var(--color-warning); }
+.pvp-opponent-card.hard::before   { background: var(--color-danger); }
+
+.pvp-opponent-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-xl);
+  flex-shrink: 0;
+  border: 2px solid var(--color-border);
+}
+
+.pvp-opponent-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.pvp-opponent-name {
+  font-size: var(--fs-body);
+  color: var(--color-text);
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.pvp-opponent-stats {
+  display: flex;
+  gap: var(--sp-md);
+  font-size: var(--fs-xs);
+  color: var(--color-text-dim);
+}
+
+.pvp-opponent-power {
+  font-family: var(--font-number);
+  color: var(--color-primary);
+}
+
+.pvp-opponent-winrate {
+  font-family: var(--font-number);
+}
+
+.pvp-fight-btn {
+  padding: var(--sp-sm) var(--sp-lg);
+  background: linear-gradient(135deg, #C13B3B, #8B1A1A);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--dur-fast);
+  box-shadow: var(--shadow-btn);
+}
+
+.pvp-fight-btn:hover {
+  box-shadow: 0 0 12px rgba(193,59,59,0.5);
+}
+
+.pvp-fight-btn:active {
+  transform: scale(0.95);
+}
+
+.pvp-fight-btn:disabled {
+  background: #444;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── 战斗结果动画 ── */
+.pvp-result-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.75);
+  z-index: var(--z-modal);
+  animation: pvpFadeIn var(--dur-norm) var(--ease-out);
+}
+
+@keyframes pvpFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.pvp-result-card {
+  text-align: center;
+  padding: var(--sp-xl) 40px;
+  border-radius: var(--radius-xl);
+  animation: pvpPopIn var(--dur-slow) var(--ease-pop);
+}
+
+@keyframes pvpPopIn {
+  from { opacity: 0; transform: scale(0.6); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.pvp-result-card.victory {
+  background: linear-gradient(135deg, #2a1a0a, #1a1420);
+  border: 2px solid var(--color-accent);
+  box-shadow: 0 0 40px rgba(212,168,67,0.3);
+}
+
+.pvp-result-card.defeat {
+  background: linear-gradient(135deg, #2a0a0a, #1a1420);
+  border: 2px solid var(--color-primary);
+  box-shadow: 0 0 40px rgba(193,59,59,0.3);
+}
+
+.pvp-result-card.draw {
+  background: var(--color-bg-card);
+  border: 2px solid var(--color-border);
+}
+
+.pvp-result-icon {
+  font-size: 48px;
+  margin-bottom: var(--sp-md);
+}
+
+.pvp-result-title {
+  font-family: var(--font-title);
+  font-size: var(--fs-2xl);
+  margin-bottom: var(--sp-sm);
+}
+
+.pvp-result-card.victory .pvp-result-title { color: var(--color-accent); }
+.pvp-result-card.defeat .pvp-result-title  { color: var(--color-primary); }
+.pvp-result-card.draw .pvp-result-title    { color: var(--color-text-dim); }
+
+.pvp-result-elo {
+  font-family: var(--font-number);
+  font-size: var(--fs-lg);
+  margin-bottom: var(--sp-lg);
+}
+
+.pvp-result-elo.positive { color: var(--color-success); }
+.pvp-result-elo.negative { color: var(--color-primary); }
+
+.pvp-result-close {
+  padding: var(--sp-sm) var(--sp-xl);
+  background: var(--color-bg-elevated);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-body);
+  cursor: pointer;
+}
+
+/* ── 排名榜 ── */
+.pvp-ranking {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.pvp-rank-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  padding: var(--sp-sm) var(--sp-md);
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--fs-sm);
+}
+
+.pvp-rank-row:last-child { border-bottom: none; }
+
+.pvp-rank-row.self {
+  background: rgba(212,168,67,0.1);
+  border-left: 3px solid var(--color-accent);
+}
+
+.pvp-rank-pos {
+  width: 28px;
+  text-align: center;
+  font-family: var(--font-number);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.pvp-rank-pos.top1 { color: #FFD700; }
+.pvp-rank-pos.top2 { color: #C0C0C0; }
+.pvp-rank-pos.top3 { color: #CD7F32; }
+
+.pvp-rank-name {
+  flex: 1;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pvp-rank-elo {
+  font-family: var(--font-number);
+  color: var(--color-accent);
+  width: 50px;
+  text-align: right;
+}
+
+.pvp-rank-winrate {
+  font-family: var(--font-number);
+  color: var(--color-text-dim);
+  width: 42px;
+  text-align: right;
+}
+
+/* ── 战斗日志 ── */
+.pvp-log-section {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.pvp-log-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-sm) var(--sp-md);
+  cursor: pointer;
+  font-size: var(--fs-sm);
+  color: var(--color-text-dim);
+  background: none;
+  border: none;
+  width: 100%;
+}
+
+.pvp-log-toggle-arrow {
+  transition: transform var(--dur-fast);
+}
+
+.pvp-log-toggle-arrow.open {
+  transform: rotate(180deg);
+}
+
+.pvp-log-entries {
+  padding: 0 var(--sp-md) var(--sp-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-xs);
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.pvp-log-entry {
+  font-size: var(--fs-xs);
+  color: var(--color-text-dim);
+  font-family: var(--font-number);
+  line-height: 1.5;
+  padding: 2px 0;
+  border-bottom: 1px solid rgba(58,50,72,0.5);
+}
+
+.pvp-log-entry .dmg  { color: var(--color-primary); }
+.pvp-log-entry .heal { color: var(--color-success); }
+.pvp-log-entry .crit { color: var(--color-accent); font-weight: 700; }
+
+/* ── Section 标题 ── */
+.pvp-section-title {
+  font-family: var(--font-title);
+  font-size: var(--fs-md);
+  color: var(--color-text);
+  padding-bottom: var(--sp-sm);
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--sp-md);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+}
+
+/* ── 刷新对手按钮 ── */
+.pvp-refresh-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-sm);
+  width: 100%;
+  padding: var(--sp-sm);
+  background: var(--color-bg-elevated);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-dim);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  transition: all var(--dur-fast);
+}
+
+.pvp-refresh-btn:hover {
+  border-color: var(--color-text-dim);
+  color: var(--color-text);
+}

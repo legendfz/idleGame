@@ -14,6 +14,16 @@ export interface PlayerState {
   tianmingScrolls: number;  // 天命符 (refine +5%)
   protectScrolls: number;   // 护级符 (prevent downgrade)
   luckyScrolls: number;     // 幸运符 (enhance +10%)
+  // v12.0 统计
+  totalCultivateTime: number;
+  maxDamage: number;
+  totalEquipDrops: number;
+  totalKills: number;
+  totalBreakthroughs: number;
+  // v12.0 教程
+  tutorialStep: number;      // 0=未开始, 1-5=进行中, 6=完成
+  tutorialDone: boolean;
+  systemTutorials: string[]; // 已看过的系统教程id
 }
 
 export interface Stats {
@@ -145,7 +155,7 @@ export const QUALITY_INFO: Record<Quality, { label: string; symbol: string; mult
 
 export const INVENTORY_MAX = 50;
 
-export type TabId = 'battle' | 'team' | 'journey' | 'bag' | 'achievement' | 'settings';
+export type TabId = 'battle' | 'team' | 'journey' | 'bag' | 'achievement' | 'settings' | 'stats' | 'sanctuary' | 'exploration' | 'affinity';
 
 /** Floating damage text */
 export interface FloatingText {
@@ -184,4 +194,8 @@ export interface GameSave {
     treasure: EquipmentItem | null;
   };
   inventory: EquipmentItem[];
+  // v13
+  sanctuary?: any;
+  exploration?: any;
+  affinity?: any;
 }

@@ -29,3 +29,15 @@ shared/context-bus/
   - CMO: 预热营销计划 (CMO/PRELAUNCH-PLAN.md)
   - CPO: 装备用户故事 (CPO/EQUIPMENT-STORIES.md) + 平衡表强化成功率更新 (CPO/BALANCE-TABLE.md)
   - CPO: QA 测试清单 100 条 (CPO/QA-CHECKLIST.md) — 发现 3 个代码问题
+- 2026-03-02: [CPO→CEO] v8.0 PRD + QA — shared/handoffs/cpo-to-ceo-v80-prd.md
+- 2026-03-02: [CPO→CEO] v9.0 PRD + QA — shared/handoffs/cpo-to-ceo-v90-prd.md
+- 2026-03-02: [CPO→CEO] v10.0 PRD+数值平衡+QA — shared/handoffs/cpo-to-ceo-v100-prd.md
+- 2026-03-03: [CMO→CEO] v11.0「仙盟争锋」营销素材 — shared/context-bus/cmo/v110-changelog.md
+- 2026-03-03: [CPO→CEO] v12.0 PRD + QA — shared/handoffs/cpo-to-ceo-v120-prd.md
+- 2026-03-03: [CMO→CEO] v12.0「仙途指引」营销素材 — shared/context-bus/cmo/v120-changelog.md
+- 2026-03-03: [CMO→CEO] v13.0「洞天福地」营销素材 — shared/context-bus/cmo/v130-changelog.md
+- 2026-03-03: [CMO→CEO] v14.0「质量整合」营销素材 — shared/context-bus/cmo/v140-changelog.md
+- 2026-03-03: [CMO→CEO] v15.0「归真返璞」更新日志 — shared/context-bus/cmo/v150-changelog.md
+- 2026-03-03: [CPO→CEO] v13.0 PRD + QA — shared/handoffs/cpo-to-ceo-v130-prd.md
+- 2026-03-03: [CPO→CEO] v15.0 全面回归测试清单(186条) — shared/handoffs/cpo-to-ceo-v15-qa.md
+- 2026-03-03: [CPO→CEO] v16.0 验收计划(38检查项) — shared/handoffs/cpo-to-ceo-v16-verify.md

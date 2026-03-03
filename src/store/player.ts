@@ -14,6 +14,13 @@ import { useMilestoneStore } from './milestone';
 import { useTalentStore } from './talent';
 import { useCompanionStore } from './companion';
 import { useReincarnationStore } from './reincarnation';
+import { useEventStore } from './event';
+import { usePetStore } from './pet';
+import { useSkillStore } from './skill';
+import { useStrategyStore } from './strategy';
+import { useGuildStore } from './guild';
+import { useSanctuaryStore } from './sanctuary'; // v16.0 fix: Gap 1/11/13
+import { useAffinityStore } from './affinity'; // v16.0 fix: Gap 13
 
 export interface PlayerState {
   xiuwei: string;         // Decimal string
@@ -31,6 +38,9 @@ export interface PlayerState {
   totalKills: number;
   totalBreakthroughs: number;
   prestigeCount: number;
+  totalCultivateTime: number; // 累计修炼秒数
+  maxDamage: number;          // 最高单次伤害
+  totalEquipDrops: number;    // 装备掉落总数
 }
 
 interface PlayerStore {
@@ -70,6 +80,9 @@ function createInitialPlayer(): PlayerState {
     totalKills: 0,
     totalBreakthroughs: 0,
     prestigeCount: 0,
+    totalCultivateTime: 0,
+    maxDamage: 0,
+    totalEquipDrops: 0,
   };
 }
 
@@ -92,9 +105,16 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     const talentBuffs = useTalentStore.getState().getBuffs();
     const companionBuffs = useCompanionStore.getState().getBuffs();
     const reinBuffs = useReincarnationStore.getState().getBuffs();
-    const totalXiuweiBonus = (msBuffs.xiuweiPercent || 0) + (talentBuffs.xiuweiPercent || 0) + (companionBuffs.xiuweiPercent || 0) + (reinBuffs.xiuweiPercent || 0);
+    const petBuffs = usePetStore.getState().getBuffs();
+    const skillBuffs = useSkillStore.getState().getAllBuffs();
+    const stratBuffs = useStrategyStore.getState().getBuffs();
+    const guildBuffs = useGuildStore.getState().getBuffs();
+    const sanctuaryBuffs = useSanctuaryStore.getState().getBuffs(); // v16.0 fix: Gap 13
+    const affinityBuffs = useAffinityStore.getState().getBuffs(); // v16.0 fix: Gap 13
+    const totalXiuweiBonus = (msBuffs.xiuweiPercent || 0) + (talentBuffs.xiuweiPercent || 0) + (companionBuffs.xiuweiPercent || 0) + (reinBuffs.xiuweiPercent || 0) + (petBuffs.xiuweiPercent || 0) + (skillBuffs.xiuweiPercent || 0) + (guildBuffs.xiuweiPercent || 0) + (sanctuaryBuffs.xiuweiPercent || 0) + (affinityBuffs.xiuweiPercent || 0);
     const xps = getXiuweiPerSecond(player.realmId, equipBonus.atkPercent, teamBonus, totalXiuweiBonus);
-    const gain = xps.mul(dt);
+    const eventMul = useEventStore.getState().getMultiplier('cultivationBoost');
+    const gain = xps.mul(dt).mul(eventMul);
     const newXiuwei = bn(player.xiuwei).add(gain);
     const newTotal = bn(player.totalXiuwei).add(gain);
 
@@ -104,6 +124,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
         xiuwei: newXiuwei.toString(),
         totalXiuwei: newTotal.toString(),
         playTime: player.playTime + dt,
+        totalCultivateTime: player.totalCultivateTime + dt,
         lastOnlineAt: Date.now(),
       },
       xpsDisplay: formatBigNum(xps) + '/秒',
@@ -126,7 +147,9 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     const coinBonus = (useMilestoneStore.getState().getBuffs().coinPercent || 0)
       + (useTalentStore.getState().getBuffs().coinPercent || 0)
       + (useCompanionStore.getState().getBuffs().coinPercent || 0)
-      + (useReincarnationStore.getState().getBuffs().coinPercent || 0);
+      + (useReincarnationStore.getState().getBuffs().coinPercent || 0)
+      + (useSkillStore.getState().getAllBuffs().coinPercent || 0)
+      + (useAffinityStore.getState().getBuffs().lingshiPercent || 0); // v16.0 fix: Gap 13
     const boosted = coinBonus > 0 ? amount.mul(1 + coinBonus / 100) : amount;
     set({ player: { ...player, coins: bn(player.coins).add(boosted).toString() } });
   },
@@ -177,6 +200,9 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
   switchCharacter: (charId: string) => set(s => ({ player: { ...s.player, activeCharId: charId } })),
   incrementClicks: () => set(s => ({ player: { ...s.player, totalClicks: s.player.totalClicks + 1 } })),
   incrementKills: (count = 1) => set(s => ({ player: { ...s.player, totalKills: s.player.totalKills + count } })),
+  addCultivateTime: (sec: number) => set(s => ({ player: { ...s.player, totalCultivateTime: s.player.totalCultivateTime + sec } })),
+  recordDamage: (dmg: number) => set(s => ({ player: { ...s.player, maxDamage: Math.max(s.player.maxDamage, dmg) } })),
+  incrementEquipDrops: (count = 1) => set(s => ({ player: { ...s.player, totalEquipDrops: s.player.totalEquipDrops + count } })),
   setLastOnline: (t) => set(s => ({ player: { ...s.player, lastOnlineAt: t } })),
 
   resetForPrestige: (startRealmId) => {

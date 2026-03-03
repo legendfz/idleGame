@@ -17,6 +17,19 @@ import { useMilestoneStore } from '../store/milestone';
 import { useTalentStore } from '../store/talent';
 import { useCompanionStore } from '../store/companion';
 import { useReincarnationStore } from '../store/reincarnation';
+import { useShopStore } from '../store/shop';
+import { useEventStore } from '../store/event';
+import { useTowerStore } from '../store/tower';
+import { usePetStore } from '../store/pet';
+import { useSkillStore } from '../store/skill';
+import { useStrategyStore } from '../store/strategy';
+import { useTutorialStore } from '../store/tutorial';
+import { useSanctuaryStore } from '../store/sanctuary';
+import { useExplorationStore } from '../store/exploration';
+import { useAffinityStore } from '../store/affinity';
+import { useGuildStore } from '../store/guild';
+import { usePvpStore } from '../store/pvp';
+import { useFestivalStore } from '../store/festival';
 import { SaveManager } from '../data/save';
 import { GameStats } from '../engine/achievement';
 import { calcOfflineReward } from '../engine/idle';
@@ -52,6 +65,19 @@ export function useGameLoop() {
       if (saved.talent) useTalentStore.getState().loadState(saved.talent.points ?? 0, saved.talent.ranks ?? {});
       if (saved.companion) useCompanionStore.getState().loadState(saved.companion.instances ?? {}, saved.companion.equipped ?? []);
       if (saved.reincarnation) useReincarnationStore.getState().loadState(saved.reincarnation);
+      if (saved.shop) useShopStore.getState().loadState(saved.shop);
+      if (saved.event) useEventStore.getState().loadState(saved.event);
+      if (saved.tower) useTowerStore.getState().loadState(saved.tower);
+      if (saved.pet) usePetStore.getState().loadState(saved.pet.instances ?? {}, saved.pet.activePetId ?? null);
+      if (saved.skill) useSkillStore.getState().loadState(saved.skill);
+      if (saved.strategy) useStrategyStore.getState().loadState(saved.strategy);
+      if (saved.tutorial) useTutorialStore.getState().loadState(saved.tutorial);
+      if (saved.guild) useGuildStore.getState().loadState(saved.guild);
+      if (saved.pvp) usePvpStore.getState().loadState(saved.pvp);
+      if (saved.festival) useFestivalStore.getState().loadState(saved.festival);
+      if (saved.sanctuary) useSanctuaryStore.getState().loadState(saved.sanctuary);
+      if (saved.exploration) useExplorationStore.getState().loadState(saved.exploration);
+      if (saved.affinity) useAffinityStore.getState().loadState(saved.affinity);
 
       // === 2. 离线收益 ===
       const lastOnline = saved.player?.lastOnlineAt || Date.now();
@@ -125,6 +151,17 @@ export function useGameLoop() {
       lastTickRef.current = now;
       tick(Math.min(dt, 2));
 
+      // 每秒: 商店自动刷新 + 活动tick + 塔每日重置 + 技能buff清理
+      useShopStore.getState().tickRefresh();
+      useEventStore.getState().tick();
+      useTowerStore.getState().tickReset();
+      useSkillStore.getState().cleanExpired();
+      useGuildStore.getState().tickReset();
+      usePvpStore.getState().tickReset();
+      useFestivalStore.getState().tick();
+      useSanctuaryStore.getState().tickProduce(Math.min(dt, 2));
+      useExplorationStore.getState().tickReset();
+
       // 每5秒检测成就+里程碑
       achCheckCounter++;
       if (achCheckCounter % 5 === 0) {
@@ -184,6 +221,19 @@ export function useGameLoop() {
       talent: useTalentStore.getState().getState(),
       companion: useCompanionStore.getState().getState(),
       reincarnation: useReincarnationStore.getState().getState(),
+      shop: useShopStore.getState().getState(),
+      event: useEventStore.getState().getState(),
+      tower: useTowerStore.getState().getState(),
+      pet: usePetStore.getState().getState(),
+      skill: useSkillStore.getState().getState(),
+      strategy: useStrategyStore.getState().getState(),
+      tutorial: useTutorialStore.getState().getState(),
+      guild: useGuildStore.getState().getState(),
+      pvp: usePvpStore.getState().getState(),
+      festival: useFestivalStore.getState().getState(),
+      sanctuary: useSanctuaryStore.getState().getState(),
+      exploration: useExplorationStore.getState().getState(),
+      affinity: useAffinityStore.getState().getState(),
     });
     const stopAutoSave = SaveManager.startAutoSave(getFullState);
 

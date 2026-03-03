@@ -1,0 +1,331 @@
+/* ══ v12.0 设置面板 — SettingsPanel ══ */
+
+/* ── 容器 ── */
+.settings-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+  padding: var(--sp-md);
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  padding-bottom: var(--sp-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.settings-back-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-dim);
+  font-size: var(--fs-md);
+  cursor: pointer;
+}
+
+.settings-title {
+  font-family: var(--font-title);
+  font-size: var(--fs-lg);
+  color: var(--color-text);
+}
+
+/* ── 分组 ── */
+.settings-group {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.settings-group-label {
+  font-size: var(--fs-xs);
+  color: var(--color-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: var(--sp-sm) var(--sp-md) var(--sp-xs);
+}
+
+/* ── 设置行 ── */
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-md);
+  border-bottom: 1px solid var(--color-border);
+  min-height: 48px;
+}
+
+.settings-row:last-child {
+  border-bottom: none;
+}
+
+.settings-row-left {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-row-icon {
+  font-size: var(--fs-lg);
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.settings-row-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-row-label {
+  font-size: var(--fs-body);
+  color: var(--color-text);
+}
+
+.settings-row-desc {
+  font-size: var(--fs-xs);
+  color: var(--color-text-dim);
+  margin-top: 1px;
+}
+
+/* ── Toggle 开关 ── */
+.settings-toggle {
+  position: relative;
+  width: 44px;
+  height: 26px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.settings-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.settings-toggle-track {
+  position: absolute;
+  inset: 0;
+  background: var(--color-border);
+  border-radius: var(--radius-pill);
+  transition: background var(--dur-norm) var(--ease-out);
+}
+
+.settings-toggle input:checked + .settings-toggle-track {
+  background: var(--color-success);
+}
+
+.settings-toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform var(--dur-norm) var(--ease-pop);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.settings-toggle input:checked ~ .settings-toggle-thumb {
+  transform: translateX(18px);
+}
+
+/* ── Select 下拉样式 ── */
+.settings-select {
+  background: var(--color-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-xs) var(--sp-sm);
+  font-size: var(--fs-sm);
+  font-family: var(--font-body);
+  cursor: pointer;
+  appearance: none;
+  padding-right: 24px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239A8E80'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+
+/* ── 导出/导入区域 ── */
+.settings-data-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+  padding: var(--sp-md);
+}
+
+.settings-data-btns {
+  display: flex;
+  gap: var(--sp-sm);
+}
+
+.settings-btn {
+  flex: 1;
+  padding: var(--sp-sm) var(--sp-md);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all var(--dur-fast);
+  text-align: center;
+}
+
+.settings-btn:active {
+  transform: scale(0.96);
+}
+
+.settings-btn-export {
+  background: var(--color-bg-elevated);
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent);
+}
+
+.settings-btn-import {
+  background: var(--color-bg-elevated);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.settings-data-textarea {
+  width: 100%;
+  min-height: 80px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--sp-sm);
+  font-family: var(--font-number);
+  font-size: var(--fs-xs);
+  resize: vertical;
+}
+
+.settings-data-textarea:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+/* ── 危险区域 ── */
+.settings-danger-zone {
+  border-color: rgba(193, 59, 59, 0.3);
+}
+
+.settings-danger-zone .settings-group-label {
+  color: var(--color-danger);
+}
+
+.settings-btn-danger {
+  background: rgba(193, 59, 59, 0.15);
+  color: var(--color-danger);
+  border: 1px solid rgba(193, 59, 59, 0.4);
+}
+
+.settings-btn-danger:hover {
+  background: rgba(193, 59, 59, 0.25);
+}
+
+/* ── 确认弹窗 ── */
+.settings-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: var(--z-modal);
+  animation: settingsFadeIn var(--dur-fast) var(--ease-out);
+}
+
+@keyframes settingsFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.settings-confirm-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-xl);
+  max-width: 300px;
+  text-align: center;
+  box-shadow: var(--shadow-modal);
+  animation: settingsPopIn var(--dur-norm) var(--ease-pop);
+}
+
+@keyframes settingsPopIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.settings-confirm-icon {
+  font-size: 36px;
+  margin-bottom: var(--sp-md);
+}
+
+.settings-confirm-title {
+  font-family: var(--font-title);
+  font-size: var(--fs-md);
+  color: var(--color-danger);
+  margin-bottom: var(--sp-sm);
+}
+
+.settings-confirm-desc {
+  font-size: var(--fs-sm);
+  color: var(--color-text-dim);
+  margin-bottom: var(--sp-lg);
+  line-height: 1.5;
+}
+
+.settings-confirm-btns {
+  display: flex;
+  gap: var(--sp-sm);
+}
+
+.settings-confirm-cancel {
+  flex: 1;
+  padding: var(--sp-sm);
+  background: var(--color-bg-elevated);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+}
+
+.settings-confirm-delete {
+  flex: 1;
+  padding: var(--sp-sm);
+  background: var(--color-danger);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* ── 版本信息 ── */
+.settings-version {
+  text-align: center;
+  padding: var(--sp-lg);
+  font-size: var(--fs-xs);
+  color: var(--color-text-dim);
+}
+
+.settings-version-number {
+  font-family: var(--font-number);
+}

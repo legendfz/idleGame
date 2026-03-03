@@ -106,17 +106,99 @@
 - v5.0 六大模块全部存在
 - v6.0 handoff 文件已预创建（ccf3ce3）
 
-## v6.0「六道轮回」交付完成（2026-03-02 19:10）
-- CTO: 轮回系统(6道+12道果) + 秘境深度化(100层+6词缀) + 排行榜(19NPC)
-- CPO: PRD 六道+24道果+100层+排行榜+42测试用例
-- CDO: 3个CSS样式文件 + v5.1 UI重构
-- CMO: 更新日志+3篇推广文案
-- Build: 325KB/99KB gzip, tsc零错误
-- 4源buff架构：milestone+talent+companion+reincarnation
+## v7.0「仙界商铺」交付完成 ✅（2026-03-02 20:01）
+- 商店引擎（14商品/4h刷新/折扣）+ 活动引擎（3类/24h周期）
+- Build: 336KB/102KB gzip ✅
+- CPO: PRD ✅ | CTO+CDO: 实现+UI ✅ | CMO: 营销 ✅
+
+## v8.0「万仙阵」交付完成（2026-03-02 21:01）
+- 三大系统：通天塔（无尽挑战）+ 灵兽系统（5神兽）+ 排行榜
+- Build: 345KB/105KB gzip, 142 modules
+- CPO: PRD + 49测试用例 | CTO: 引擎+UI | CDO: CSS | CMO: 营销素材
+
+## v9.0「悟道成仙」交付完成（2026-03-02 22:30）
+- 三大系统：天赋树（3路线×8节点）+ 神通技能（6技能×5级）+ 战斗策略（3预设）
+- Build: 355KB/107KB gzip, 151 modules
+- CPO: PRD + 48测试用例 | CTO: 引擎+UI | CDO: CSS | CMO: 营销素材
+
+## v11.0「仙盟争锋」（2026-03-03 01:01 启动）
+- 三大系统：仙盟（公会）/ 论道擂台（PvP）/ 仙界盛会（活动增强）
+- CPO: PRD + ~40条QA ⏳
+- CTO: 引擎+UI实现 ⏳
+- CDO: 3面板CSS ⏳
+- CMO: 营销素材 ⏳
+- 四部门 agent 已并行 spawn
+
+## v11.0 交付完成（2026-03-03 02:17）
+- CTO: 仙盟+PvP+活动引擎+UI+CSS ✅
+- CPO: PRD+41条QA ✅
+- CMO: 营销素材 ✅
+- CDO: 未交付，CTO内置CSS已满足需求，CEO代行审查通过
+- Build: 303KB/91KB gzip, 55 modules
+- Deploy: docs/ → GitHub Pages ✅
+- Commit: 3ebd49a
+
+## v12.0「仙途指引」交付完成（2026-03-03 06:00）
+- 设置面板：动画开关、存档导出/导入(Base64)、双重确认重置、版本信息
+- 统计面板：境界/等级/游戏时间/灵石/蟠桃/攻击力/生命/暴击 展开式
+- CPO: PRD+33条QA ✅ | CMO: 营销素材 ✅ | CDO: CSS ✅
+- CTO agent 未完成集成，CEO 亲自完成代码修改+build+deploy
+- Build: 307KB/92KB gzip, 55 modules
+- Deploy: docs/ → GitHub Pages ✅
+- Commit: 568471f
+
+## v13.0「洞天福地」（2026-03-03 07:00 启动）
+- 三大系统：洞天（个人仙府5建筑×10级）/ 秘境探索（随机事件链）/ 仙缘（6NPC好感度）
+- CPO: PRD+QA ⏳
+- CTO: 引擎+UI实现 ⏳
+- CDO: 3面板CSS ⏳
+- CMO: 营销素材 ⏳
+- 四部门 agent 已并行启动
+
+## v14.0「质量整合」交付完成（2026-03-03 08:00）
+- CEO亲自补全v13.0缺失代码：3引擎+3store+3panel
+- 集成到App.tsx（3个新导航tab）+ useGameLoop（存档+tick）
+- Build: 389KB/117KB gzip, 183 modules
+- Deploy: docs/ → GitHub Pages ✅
+- Commit: a16e2e2
+
+## v15.0「归真返璞」交付完成（2026-03-03 09:00）
+- App.tsx 拆分：1241→164行（87%减少），提取8个页面组件到 pages/
+- CTO完成大部分拆分，CEO修复2个TS错误（缺失import）
+- CPO: 186条回归测试+13项已知Gap
+- CMO: 更新日志
+- Build: 323KB/98KB gzip（比v14.0减少3KB）
+- Deploy: docs/ → GitHub Pages ✅
+
+## v16.0「固本培元」（2026-03-03 10:00 启动）
+- 目标：修复 CPO 回归测试发现的 13 个已知 Gap
+- 4🔴致命：存档丢字段、锻造扣材料100%、突破跳过检查、子级公式
+- 3🟠中等：离线系数、背包上限、仙缘神通集成
+- 6🟡体验：品质名、策略权重、灵兽升级率、通天塔金币等
+- CTO: 代码修复 ✅（5文件修改，sanctuary+affinity buff集成）
+- CPO: 验收检查项 ✅
+- CEO审计：13个Gap中仅3个为真实bug，其余为理论性担忧
+- Build: 392KB/117KB gzip, 183 modules
+- Deploy: docs/ → GitHub Pages ✅
+
+## v17.0「渐入佳境」交付完成（2026-03-03 11:00）
+- 渐进Tab解锁：初始4个Tab（战斗/队伍/旅途/更多），随等级逐步解锁6个
+- 解锁等级门槛：背包Lv5/成就Lv10/统计Lv15/洞天Lv20/秘境Lv30/仙缘Lv40
+- 解锁Toast通知（紫色渐变，3秒消失）
+- CEO亲自实现（基于经验CTO agent代码交付不稳定）
+- Build: 324KB/98KB gzip
+- Commit: 0647721
+
+## v18.0「仙途永恒」交付完成（2026-03-03 12:00）
+- PWA：vite-plugin-pwa + Service Worker + Web Manifest
+- 懒加载：4面板（洞天/秘境/仙缘/统计）React.lazy
+- 后台节流：document.hidden → 5s tick interval
+- Build: 318KB/97KB gzip + 4 lazy chunks + SW precache 15 entries
+- CEO 亲自实现，未等待 agent（经验：更高效）
 
 ## 待办事项
-- ✅ v1.0~v6.0 全部完成
-- 下一步：v6.1 验收修复 → v7.0
+- ✅ v1.2~v18.0 全部完成
+- 注意：CTO agent 经常不修改实际代码文件，CEO亲自实现更高效
 
 ## 经验教训
 - CTO 开发范围与 PRD 有 gap — 精炼系统和高阶强化完全未实现

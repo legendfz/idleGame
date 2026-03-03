@@ -1,0 +1,259 @@
+/* ══ v12.0 新手引导 — GuideOverlay ══ */
+
+/* ── 全屏遮罩 ── */
+.guide-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-modal) + 50);
+  pointer-events: all;
+}
+
+.guide-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  /* 通过 clip-path 或 box-shadow 挖洞高亮目标区域 */
+}
+
+/* ── 高亮目标区域 ── */
+.guide-highlight {
+  position: absolute;
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.72);
+  z-index: 1;
+  transition: all var(--dur-norm) var(--ease-out);
+  pointer-events: none;
+}
+
+.guide-highlight::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border: 2px solid var(--color-accent);
+  border-radius: inherit;
+  animation: guideHighlightPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes guideHighlightPulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(212, 168, 67, 0.4); }
+  50%      { box-shadow: 0 0 20px rgba(212, 168, 67, 0.7); }
+}
+
+/* ── 步骤气泡 ── */
+.guide-bubble {
+  position: absolute;
+  z-index: 2;
+  max-width: 300px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-lg);
+  box-shadow: var(--shadow-modal);
+  animation: guideBubbleIn var(--dur-slow) var(--ease-pop);
+}
+
+@keyframes guideBubbleIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* 箭头 — 上/下/左/右 */
+.guide-bubble-arrow {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-accent);
+  transform: rotate(45deg);
+}
+
+.guide-bubble-arrow.top {
+  top: -7px;
+  left: 50%;
+  margin-left: -6px;
+  border-bottom: none;
+  border-right: none;
+}
+
+.guide-bubble-arrow.bottom {
+  bottom: -7px;
+  left: 50%;
+  margin-left: -6px;
+  border-top: none;
+  border-left: none;
+}
+
+.guide-bubble-arrow.left {
+  left: -7px;
+  top: 50%;
+  margin-top: -6px;
+  border-top: none;
+  border-right: none;
+}
+
+.guide-bubble-arrow.right {
+  right: -7px;
+  top: 50%;
+  margin-top: -6px;
+  border-bottom: none;
+  border-left: none;
+}
+
+/* ── 气泡角色头像+对话 ── */
+.guide-speaker {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-md);
+  margin-bottom: var(--sp-md);
+}
+
+.guide-speaker-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-bg-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+  border: 2px solid var(--color-accent);
+}
+
+.guide-speaker-name {
+  font-family: var(--font-title);
+  font-size: var(--fs-sm);
+  color: var(--color-accent);
+  margin-bottom: 2px;
+}
+
+.guide-speaker-text {
+  font-size: var(--fs-body);
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+/* ── 底部操作栏 ── */
+.guide-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--sp-md);
+}
+
+.guide-progress {
+  font-family: var(--font-number);
+  font-size: var(--fs-xs);
+  color: var(--color-text-dim);
+}
+
+.guide-progress-dots {
+  display: flex;
+  gap: var(--sp-xs);
+}
+
+.guide-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-border);
+  transition: all var(--dur-fast);
+}
+
+.guide-dot.active {
+  background: var(--color-accent);
+  width: 16px;
+  border-radius: var(--radius-pill);
+}
+
+.guide-dot.done {
+  background: var(--color-success);
+}
+
+.guide-next-btn {
+  padding: var(--sp-sm) var(--sp-lg);
+  background: linear-gradient(135deg, var(--color-accent), #c49520);
+  color: var(--color-bg);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--dur-fast);
+  box-shadow: var(--shadow-btn);
+}
+
+.guide-next-btn:active {
+  transform: scale(0.95);
+}
+
+/* ── 跳过按钮 ── */
+.guide-skip {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + var(--sp-md));
+  right: var(--sp-md);
+  z-index: calc(var(--z-modal) + 51);
+  padding: var(--sp-xs) var(--sp-md);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-xs);
+  color: var(--color-text-dim);
+  cursor: pointer;
+  transition: color var(--dur-fast);
+}
+
+.guide-skip:hover {
+  color: var(--color-text);
+}
+
+/* ── 完成庆祝 ── */
+.guide-complete {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-modal) + 50);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.guide-complete-card {
+  text-align: center;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-xl);
+  padding: var(--sp-xl) 32px;
+  box-shadow: var(--shadow-modal);
+  animation: guideBubbleIn var(--dur-slow) var(--ease-pop);
+}
+
+.guide-complete-icon {
+  font-size: 48px;
+  margin-bottom: var(--sp-md);
+}
+
+.guide-complete-title {
+  font-family: var(--font-title);
+  font-size: var(--fs-xl);
+  color: var(--color-accent);
+  margin-bottom: var(--sp-sm);
+}
+
+.guide-complete-desc {
+  font-size: var(--fs-body);
+  color: var(--color-text-dim);
+  margin-bottom: var(--sp-lg);
+}
+
+.guide-complete-btn {
+  padding: var(--sp-sm) var(--sp-xl);
+  background: linear-gradient(135deg, var(--color-accent), #c49520);
+  color: var(--color-bg);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--fs-body);
+  font-weight: 700;
+  cursor: pointer;
+}

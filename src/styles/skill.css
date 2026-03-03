@@ -1,0 +1,263 @@
+/* ══ v9.0 神通技能面板 ══ */
+
+.view-skill {
+  padding: var(--sp-lg);
+  height: 100%;
+  overflow-y: auto;
+}
+
+/* === 顶栏 === */
+.skill-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--sp-lg);
+}
+.skill-title {
+  font-family: var(--font-title);
+  font-size: var(--fs-xl);
+  color: var(--color-accent);
+}
+
+/* 悟道值 */
+.skill-dao {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+.skill-dao-label {
+  font-size: var(--fs-xs);
+  color: var(--color-text-dim);
+}
+.skill-dao-bar {
+  width: 100px;
+  height: 6px;
+  background: var(--color-border);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+.skill-dao-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-dungeon, #7C4DFF), #B388FF);
+  border-radius: var(--radius-pill);
+  transition: width var(--dur-norm) var(--ease-out);
+}
+.skill-dao-text {
+  font-family: var(--font-number);
+  font-size: 9px;
+  color: var(--color-text-dim);
+}
+
+/* === 6宫格 === */
+.skill-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-sm);
+  margin-bottom: var(--sp-lg);
+}
+@media (max-width: 374px) {
+  .skill-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* === 技能卡片 === */
+.skill-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-xs);
+  cursor: pointer;
+  transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+.skill-card:active { transform: scale(0.95); }
+
+/* 未解锁 */
+.skill-card.locked {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* 激活态 */
+.skill-card.active {
+  border-color: var(--color-accent);
+  background: linear-gradient(135deg, var(--color-bg-card) 0%, rgba(212,168,67,0.06) 100%);
+  animation: skillGlow 2.5s infinite;
+}
+@keyframes skillGlow {
+  0%, 100% { box-shadow: 0 0 0 rgba(212,168,67,0); }
+  50% { box-shadow: 0 0 14px rgba(212,168,67,0.25); }
+}
+
+/* 冷却中 */
+.skill-card.cooldown {
+  border-color: var(--color-border);
+}
+.skill-card.cooldown .skill-icon-wrap { opacity: 0.5; }
+
+/* === 图标+冷却环 === */
+.skill-icon-wrap {
+  position: relative;
+  width: 52px;
+  height: 52px;
+}
+.skill-icon-bg {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: var(--color-bg-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+}
+.skill-card.active .skill-icon-bg {
+  background: rgba(212,168,67,0.12);
+}
+
+/* 冷却环（SVG覆盖） */
+.skill-cd-ring {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.skill-cd-ring circle {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  transition: stroke-dashoffset 1s linear;
+}
+/* 冷却时间文字 */
+.skill-cd-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-number);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-danger);
+  pointer-events: none;
+}
+
+/* 名称 */
+.skill-name {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  text-align: center;
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 等级星星 */
+.skill-stars {
+  font-size: 10px;
+  color: var(--color-accent);
+  letter-spacing: 1px;
+}
+.skill-stars .empty { color: var(--color-border); }
+
+/* === 技能详情弹窗 === */
+.skill-detail-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn var(--dur-fast);
+}
+.skill-detail-sheet {
+  background: var(--color-bg-elevated);
+  border-top: 1px solid var(--color-border);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  padding: var(--sp-xl);
+  padding-bottom: calc(var(--sp-xl) + env(safe-area-inset-bottom));
+  width: 100%;
+  max-width: 480px;
+  animation: slideUp var(--dur-norm) var(--ease-pop);
+}
+.skill-detail-header {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  margin-bottom: var(--sp-lg);
+}
+.skill-detail-icon {
+  font-size: 36px;
+  width: 56px; height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-card);
+  border-radius: 50%;
+  border: 2px solid var(--color-accent);
+}
+.skill-detail-meta { flex: 1; }
+.skill-detail-name {
+  font-family: var(--font-title);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+}
+.skill-detail-level {
+  font-family: var(--font-number);
+  font-size: var(--fs-sm);
+  color: var(--color-accent);
+}
+.skill-detail-desc {
+  font-size: var(--fs-sm);
+  color: var(--color-text-dim);
+  line-height: 1.6;
+  margin-bottom: var(--sp-md);
+}
+.skill-detail-effects {
+  background: var(--color-bg-card);
+  border-radius: var(--radius-md);
+  padding: var(--sp-md);
+  margin-bottom: var(--sp-md);
+}
+.skill-effect-row {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--sp-xs) 0;
+  font-size: var(--fs-sm);
+}
+.skill-effect-row + .skill-effect-row {
+  border-top: 1px solid rgba(58,50,72,0.5);
+}
+.skill-effect-label { color: var(--color-text-dim); }
+.skill-effect-value { font-family: var(--font-number); font-weight: 700; color: var(--color-accent); }
+
+.skill-upgrade-btn {
+  display: block;
+  width: 100%;
+  padding: var(--sp-md);
+  background: var(--color-accent);
+  color: var(--color-bg);
+  border: none;
+  border-radius: var(--radius-lg);
+  font-family: var(--font-title);
+  font-size: var(--fs-md);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-btn);
+  transition: transform var(--dur-fast);
+}
+.skill-upgrade-btn:active { transform: scale(0.95); }
+.skill-upgrade-btn:disabled {
+  background: var(--color-bg-card);
+  color: var(--color-text-dim);
+  box-shadow: none;
+  cursor: not-allowed;
+}

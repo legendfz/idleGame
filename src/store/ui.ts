@@ -3,7 +3,7 @@
  */
 import { create } from 'zustand';
 
-export type ViewId = 'idle' | 'battle' | 'character' | 'inventory' | 'journey' | 'forge' | 'gather' | 'dungeon' | 'cultivation' | 'quest' | 'reincarnation' | 'leaderboard' | 'stats';
+export type ViewId = 'idle' | 'battle' | 'character' | 'inventory' | 'journey' | 'forge' | 'gather' | 'dungeon' | 'cultivation' | 'quest' | 'reincarnation' | 'leaderboard' | 'shop' | 'event' | 'wudao' | 'tower' | 'pet' | 'guild' | 'pvp' | 'festival' | 'sanctuary' | 'exploration' | 'affinity' | 'stats' | 'settings';
 
 interface Toast {
   id: number;
