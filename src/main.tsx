@@ -16,6 +16,9 @@ import './styles/tower.css';
 import './styles/pet.css';
 import './styles/skill.css';
 import './styles/strategy.css';
+import './styles/tutorial.css';
+import './styles/synergy.css';
+import './styles/scroll-nav.css';
 import App from './App';
 
 createRoot(document.getElementById('root')!).render(

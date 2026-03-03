@@ -30,3 +30,4 @@ export { useTowerStore } from './tower';
 export { usePetStore } from './pet';
 export { useSkillStore } from './skill';
 export { useStrategyStore } from './strategy';
+export { useTutorialStore } from './tutorial';

@@ -15,6 +15,8 @@ import { useMilestoneStore } from './milestone';
 import { useTalentStore } from './talent';
 import { useCompanionStore } from './companion';
 import { useReincarnationStore } from './reincarnation';
+import { useSkillStore } from './skill';
+import { calcSynergyBuffs } from '../engine/synergy';
 import { useAchievementStore } from './achievement';
 import { useDailyQuestStore } from './dailyQuest';
 
@@ -51,7 +53,13 @@ export const useForgeStore = create<ForgeStore>((set, get) => ({
     const msBonus = (useMilestoneStore.getState().getBuffs().forgeSuccessRate || 0)
       + (useTalentStore.getState().getBuffs().forgeRate || 0)
       + (useCompanionStore.getState().getBuffs().forgeRate || 0)
-      + (useReincarnationStore.getState().getBuffs().forgeRate || 0);
+      + (useReincarnationStore.getState().getBuffs().forgeRate || 0)
+      + (useSkillStore.getState().getAllBuffs().forgeRate || 0)
+      + calcSynergyBuffs({
+          talentUsedPoints: useTalentStore.getState().getUsedPoints(),
+          skillTotalLevels: 0, achievementCount: 0, towerHighestFloor: 0,
+          reincarnationCount: 0, petLevel: 0,
+        }).forgeRate;
     const boostedRecipe = msBonus > 0
       ? { ...recipe, successRate: Math.min(0.99, recipe.successRate + msBonus / 100) }
       : recipe;

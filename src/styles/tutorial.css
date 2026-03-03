@@ -1,0 +1,179 @@
+/* ══ v10.0 新手引导覆层 ══ */
+
+/* === 遮罩 === */
+.tutorial-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-modal) + 10);
+  pointer-events: auto;
+  transition: opacity var(--dur-norm);
+}
+
+/* === 镂空高亮（box-shadow 方案） === */
+.tutorial-spotlight {
+  position: fixed;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.78);
+  z-index: calc(var(--z-modal) + 11);
+  transition: top var(--dur-slow) var(--ease-out),
+              left var(--dur-slow) var(--ease-out),
+              width var(--dur-slow) var(--ease-out),
+              height var(--dur-slow) var(--ease-out);
+  pointer-events: none;
+}
+.tutorial-spotlight.clickable {
+  pointer-events: auto;
+  cursor: pointer;
+}
+/* 高亮脉冲边框 */
+.tutorial-spotlight::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border: 2px solid var(--color-accent);
+  border-radius: inherit;
+  animation: tutorialPulse 1.5s infinite;
+}
+@keyframes tutorialPulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.02); }
+}
+
+/* === 提示气泡 === */
+.tutorial-bubble {
+  position: fixed;
+  z-index: calc(var(--z-modal) + 12);
+  max-width: 280px;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-lg);
+  box-shadow: var(--shadow-modal);
+  animation: slideUp var(--dur-norm) var(--ease-pop);
+}
+/* 箭头（上/下/左/右） */
+.tutorial-bubble.arrow-top::before,
+.tutorial-bubble.arrow-bottom::before,
+.tutorial-bubble.arrow-left::before,
+.tutorial-bubble.arrow-right::before {
+  content: '';
+  position: absolute;
+  width: 12px; height: 12px;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-accent);
+  transform: rotate(45deg);
+}
+.tutorial-bubble.arrow-top::before {
+  top: -7px; left: 50%; margin-left: -6px;
+  border-bottom: none; border-right: none;
+}
+.tutorial-bubble.arrow-bottom::before {
+  bottom: -7px; left: 50%; margin-left: -6px;
+  border-top: none; border-left: none;
+}
+.tutorial-bubble.arrow-left::before {
+  left: -7px; top: 50%; margin-top: -6px;
+  border-top: none; border-right: none;
+}
+.tutorial-bubble.arrow-right::before {
+  right: -7px; top: 50%; margin-top: -6px;
+  border-bottom: none; border-left: none;
+}
+
+.tutorial-bubble-step {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  margin-bottom: var(--sp-sm);
+}
+.tutorial-step-num {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: var(--color-bg);
+  font-family: var(--font-number);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.tutorial-step-of {
+  font-size: var(--fs-xs);
+  color: var(--color-text-dim);
+}
+
+.tutorial-bubble-title {
+  font-family: var(--font-title);
+  font-size: var(--fs-md);
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: var(--sp-xs);
+}
+.tutorial-bubble-body {
+  font-size: var(--fs-sm);
+  color: var(--color-text-dim);
+  line-height: 1.6;
+  margin-bottom: var(--sp-md);
+}
+
+/* 进度点 */
+.tutorial-dots {
+  display: flex;
+  gap: var(--sp-xs);
+  margin-bottom: var(--sp-md);
+}
+.tutorial-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--color-border);
+  transition: all var(--dur-fast);
+}
+.tutorial-dot.active {
+  background: var(--color-accent);
+  width: 16px;
+  border-radius: var(--radius-pill);
+}
+.tutorial-dot.done {
+  background: var(--color-success);
+}
+
+/* 按钮行 */
+.tutorial-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.tutorial-next {
+  padding: var(--sp-sm) var(--sp-lg);
+  background: var(--color-accent);
+  color: var(--color-bg);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform var(--dur-fast);
+}
+.tutorial-next:active { transform: scale(0.92); }
+.tutorial-skip {
+  background: none;
+  border: none;
+  color: var(--color-text-dim);
+  font-size: var(--fs-xs);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* === 底部 sheet 模式（替代气泡，用于竖屏空间不足时） === */
+.tutorial-sheet {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--color-bg-elevated);
+  border-top: 1px solid var(--color-border);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  padding: var(--sp-lg) var(--sp-xl) calc(var(--sp-xl) + env(safe-area-inset-bottom));
+  z-index: calc(var(--z-modal) + 12);
+  animation: slideUp var(--dur-norm) var(--ease-pop);
+}
