@@ -204,10 +204,15 @@
 - 现在根目录和CTO/idle-game/是同一套代码
 - GitHub Actions 自动触发部署
 
+## v20.0「质量打磨」完成（2026-03-03 14:00）
+- 修复 PWA manifest 404（index.html hardcoded /manifest.json → 移除，用 vite-plugin-pwa 自动注入）
+- 添加 public/pwa-192x192.svg + pwa-512x512.svg
+- 统一应用名称为「西游·悟空传」
+- 线上游戏验证通过：战斗/升级/装备掉落/渐进Tab解锁 全部正常
+
 ## 待办事项
-- ✅ v1.2~v19.0 全部完成
-- ⏳ 等待 GitHub Actions 完成部署，验证线上版本是否更新
-- 下一步：v20.0 — 游戏体验验证+打磨（线上版本终于是最新的了）
+- ✅ v1.2~v20.0 全部完成
+- 下一步：可考虑v21.0 — 数据可视化/社交分享/更多内容
 - 注意：CTO agent 经常不修改实际代码文件，CEO亲自实现更高效
 - ⚠️ 重要：根目录src/和CTO/idle-game/src/需保持同步！
 

@@ -3,6 +3,7 @@ import { PlayerState, BattleState, BattleLogEntry, Enemy, TabId, GameSave, Equip
 import { REALMS } from '../data/realms';
 import { CHAPTERS, createEnemy } from '../data/chapters';
 import { expForLevel } from '../utils/format';
+import { sfx } from '../engine/audio';
 import {
   rollEquipDrop, createEquipFromTemplate, getEquipEffectiveStat,
   getEnhanceCost, getMaxEnhanceLevel, getActiveSetBonuses,
@@ -314,6 +315,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           updatedPlayer.totalEquipDrops++;
           const qi = QUALITY_INFO[eqDrop.quality];
           log = addLog(log, `  获得 ${qi.symbol}${eqDrop.name}`, 'drop');
+          sfx.itemDrop();
         }
       }
 
@@ -326,6 +328,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         updatedPlayer.stats.hp = updatedPlayer.stats.maxHp;
         updatedPlayer.clickPower = Math.floor(5 + updatedPlayer.level * 0.8);
         log = addLog(log, `升级 Lv.${updatedPlayer.level}  攻+${Math.floor(3 + updatedPlayer.level * 0.5)}  血+${Math.floor(10 + updatedPlayer.level * 2)}`, 'levelup');
+        sfx.levelUp();
       }
 
       // Next wave / stage
@@ -363,6 +366,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         if (nextWave > updatedBattle.maxWaves) {
           const boss = createEnemy(updatedBattle.chapterId, updatedBattle.stageNum, true)!;
           log = addLog(log, `══ BOSS: ${boss.name} ══`, 'boss');
+          sfx.bossAppear();
           updatedBattle = { ...updatedBattle, wave: nextWave, isBossWave: true, currentEnemy: boss, log };
         } else {
           const newEnemy = createEnemy(updatedBattle.chapterId, updatedBattle.stageNum, false)!;
@@ -406,6 +410,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const enemy = { ...battle.currentEnemy };
     const cp = calcClickPower(player.clickPower, equippedTreasure);
     enemy.hp -= cp;
+    sfx.hit();
     const log = addLog([...battle.log], `点击 > ${enemy.name}  -${cp}`, 'attack');
     const newFloat: FloatingText = {
       id: floatIdCounter++,
