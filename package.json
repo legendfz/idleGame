@@ -1,7 +1,7 @@
 {
-  "name": "xiyou-idle-v2",
+  "name": "xiyou-idle",
   "private": true,
-  "version": "2.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,10 +11,9 @@
   },
   "dependencies": {
     "break_infinity.js": "^2.2.0",
-    "framer-motion": "^11.0.0",
-    "immer": "^10.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "vitest": "^4.0.18",
     "zustand": "^5.0.0"
   },
   "devDependencies": {
@@ -23,6 +22,6 @@
     "@vitejs/plugin-react": "^4.3.0",
     "typescript": "~5.7.0",
     "vite": "^6.0.0",
-    "vitest": "^4.0.0"
+    "vite-plugin-pwa": "^1.2.0"
   }
 }
