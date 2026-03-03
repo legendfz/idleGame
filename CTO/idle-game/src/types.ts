@@ -24,6 +24,11 @@ export interface PlayerState {
   tutorialStep: number;      // 0=未开始, 1-5=进行中, 6=完成
   tutorialDone: boolean;
   systemTutorials: string[]; // 已看过的系统教程id
+  // v22.0 转世系统
+  reincarnations: number;      // 转世次数
+  daoPoints: number;           // 道点（转世货币）
+  totalDaoPoints: number;      // 历史总道点
+  reincPerks: Record<string, number>; // 永久加成 {perkId: level}
 }
 
 export interface Stats {
@@ -155,7 +160,7 @@ export const QUALITY_INFO: Record<Quality, { label: string; symbol: string; mult
 
 export const INVENTORY_MAX = 50;
 
-export type TabId = 'battle' | 'team' | 'journey' | 'bag' | 'achievement' | 'settings' | 'stats' | 'sanctuary' | 'exploration' | 'affinity';
+export type TabId = 'battle' | 'team' | 'journey' | 'bag' | 'achievement' | 'settings' | 'stats' | 'reincarnation' | 'sanctuary' | 'exploration' | 'affinity';
 
 /** Floating damage text */
 export interface FloatingText {
