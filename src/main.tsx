@@ -22,6 +22,9 @@ import './styles/scroll-nav.css';
 import './styles/guide.css';
 import './styles/settings.css';
 import './styles/stats.css';
+import './styles/sanctuary.css';
+import './styles/exploration.css';
+import './styles/affinity.css';
 import App from './App';
 
 createRoot(document.getElementById('root')!).render(
