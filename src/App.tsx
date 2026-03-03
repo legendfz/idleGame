@@ -19,6 +19,8 @@ import { DungeonView } from './components/views/DungeonView';
 import { StatsView } from './components/views/StatsView';
 import { QuestView } from './components/views/QuestView';
 import { CultivationView } from './components/views/CultivationView';
+import { ReincarnationPanel } from './components/views/ReincarnationPanel';
+import { LeaderboardPanel } from './components/views/LeaderboardPanel';
 import { formatBigNum, bn } from './engine/bignum';
 import { getRealmConfig } from './data/config';
 import { ToastContainer } from './components/shared/ToastContainer';
@@ -36,6 +38,8 @@ const ALL_NAV_ITEMS = [
   { id: 'inventory', icon: '🎒', label: '背包', minRealm: 1 },
   { id: 'journey', icon: '🗺️', label: '取经', minRealm: 1 },
   { id: 'quest', icon: '📋', label: '任务', minRealm: 1 },
+  { id: 'reincarnation', icon: '🔄', label: '轮回', minRealm: 5 },
+  { id: 'leaderboard', icon: '🏆', label: '排行', minRealm: 1 },
   { id: 'stats', icon: '📊', label: '统计', minRealm: 1 },
 ];
 
@@ -53,6 +57,8 @@ function AppContent() {
     dungeon: <DungeonView />,
     cultivation: <CultivationView />,
     quest: <QuestView />,
+    reincarnation: <ReincarnationPanel />,
+    leaderboard: <LeaderboardPanel />,
     stats: <StatsView />,
   };
 

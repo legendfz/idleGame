@@ -7,6 +7,9 @@ import './styles/forge.css';
 import './styles/quests.css';
 import './styles/talent.css';
 import './styles/companion.css';
+import './styles/reincarnation.css';
+import './styles/abyss.css';
+import './styles/leaderboard.css';
 import App from './App';
 
 createRoot(document.getElementById('root')!).render(
