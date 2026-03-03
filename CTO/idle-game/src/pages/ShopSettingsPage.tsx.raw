@@ -1,0 +1,112 @@
+function ShopPage({ onBack }: { onBack: () => void }) {
+  const player = useGameStore(s => s.player);
+  const buyScroll = useGameStore(s => s.buyScroll);
+
+  const scrolls = [
+    { type: 'tianming' as const, name: '天命符', desc: '精炼成功率+5%', price: SCROLL_PRICES.tianming, count: player.tianmingScrolls },
+    { type: 'protect' as const, name: '护级符', desc: '高阶强化失败不降级', price: SCROLL_PRICES.protect, count: player.protectScrolls },
+    { type: 'lucky' as const, name: '幸运符', desc: '高阶强化成功率+10%', price: SCROLL_PRICES.lucky, count: player.luckyScrolls },
+  ];
+
+  return (
+    <div className="main-content fade-in">
+      <SubPageHeader title="道具商店" onBack={onBack} />
+      <Card>
+        <div className="color-dim" style={{ fontSize: 12, marginBottom: 8 }}>蟠桃余额：<span className="color-pantao">{player.pantao}</span></div>
+        {scrolls.map(s => (
+          <Card key={s.type} className="shop-item-card">
+            <div className="shop-item-header">
+              <span className="color-accent">{s.name}</span>
+              <span className="color-dim">x{s.count}</span>
+            </div>
+            <div className="color-dim" style={{ fontSize: 11 }}>{s.desc}</div>
+            <button className="small-btn accent" disabled={player.pantao < s.price}
+              onClick={() => buyScroll(s.type)} style={{ marginTop: 4 }}>
+              购买 · {s.price} 蟠桃
+            </button>
+          </Card>
+        ))}
+      </Card>
+    </div>
+  );
+}
+
+// ─── Save Manager Sub-page ───
+function SaveManagerPage({ onBack }: { onBack: () => void }) {
+  const saveToSlot = useGameStore(s => s.saveToSlot);
+  const loadFromSlot = useGameStore(s => s.loadFromSlot);
+  const deleteSlot = useGameStore(s => s.deleteSlot);
+  const getSaveSlots = useGameStore(s => s.getSaveSlots);
+  const [slots, setSlots] = useState(getSaveSlots());
+  const [message, setMessage] = useState('');
+
+  const refresh = () => setSlots(getSaveSlots());
+
+  const handleSave = (slotId: number) => {
+    const slotData = slots.find(s => s.id === slotId);
+    if (slotData?.hasData && !confirm(`槽位 ${slotId} 已有存档，确定覆盖？`)) return;
+    saveToSlot(slotId);
+    refresh();
+    setMessage(`已保存到槽位 ${slotId}`);
+    setTimeout(() => setMessage(''), 2000);
+  };
+
+  const handleLoad = (slotId: number) => {
+    if (!confirm(`确定加载槽位 ${slotId} 的存档？当前进度将丢失！`)) return;
+    loadFromSlot(slotId);
+    refresh();
+    setMessage(`已加载槽位 ${slotId}`);
+    setTimeout(() => setMessage(''), 2000);
+  };
+
+  const handleDelete = (slotId: number) => {
+    if (!confirm(`确定删除槽位 ${slotId} 的存档？`)) return;
+    deleteSlot(slotId);
+    refresh();
+    setMessage(`已删除槽位 ${slotId}`);
+    setTimeout(() => setMessage(''), 2000);
+  };
+
+  return (
+    <div className="main-content fade-in">
+      <SubPageHeader title="存档管理" onBack={onBack} />
+
+      {message && (
+        <div className="save-message">{message}</div>
+      )}
+
+      {slots.map(slot => (
+        <Card key={slot.id} className="save-slot-card">
+          <div className="save-slot-header">
+            <span className="color-accent">存档槽 {slot.id}</span>
+            {slot.hasData ? (
+              <span className="color-success">[有数据]</span>
+            ) : (
+              <span className="color-dim">[空]</span>
+            )}
+          </div>
+          {slot.hasData && slot.summary && (
+            <div className="save-slot-info">
+              <div className="stat-row"><span className="stat-label">角色</span><span>{slot.summary.name} Lv.{slot.summary.level}</span></div>
+              <div className="stat-row"><span className="stat-label">境界</span><span className="color-realm">{slot.summary.realm}</span></div>
+              <div className="stat-row"><span className="stat-label">章节</span><span>第{slot.summary.chapter}章 第{slot.summary.stage}关</span></div>
+              <div className="stat-row"><span className="stat-label">游戏时间</span><span>{formatTime(slot.summary.playTime)}</span></div>
+              <div className="stat-row"><span className="stat-label">保存时间</span><span className="color-dim">{new Date(slot.summary.savedAt).toLocaleString()}</span></div>
+            </div>
+          )}
+          <div className="save-slot-actions">
+            <button className="small-btn accent" onClick={() => handleSave(slot.id)}>保存</button>
+            {slot.hasData && (
+              <>
+                <button className="small-btn" onClick={() => handleLoad(slot.id)}>加载</button>
+                <button className="small-btn danger" onClick={() => handleDelete(slot.id)}>删除</button>
+              </>
+            )}
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+// ─── Bag View ───
