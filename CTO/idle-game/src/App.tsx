@@ -23,30 +23,63 @@ import { ShopPage, SaveManagerPage } from './pages/ShopSavePage';
 import { BagView } from './pages/BagPage';
 import { SettingsView } from './pages/SettingsPage';
 
-const TABS = [
-  { id: 'battle' as const, icon: '⚔️', label: '战斗' },
-  { id: 'team' as const, icon: '👤', label: '队伍' },
-  { id: 'journey' as const, icon: '🏔️', label: '旅途' },
-  { id: 'bag' as const, icon: '🎒', label: '背包' },
-  { id: 'achievement' as const, icon: '🏆', label: '成就' },
-  { id: 'sanctuary' as const, icon: '🏔️', label: '洞天' },
-  { id: 'exploration' as const, icon: '🗺️', label: '秘境' },
-  { id: 'affinity' as const, icon: '💕', label: '仙缘' },
-  { id: 'stats' as const, icon: '📊', label: '统计' },
-  { id: 'settings' as const, icon: '⚙️', label: '更多' },
+const ALL_TABS = [
+  { id: 'battle' as const, icon: '⚔️', label: '战斗', unlockLevel: 0 },
+  { id: 'team' as const, icon: '👤', label: '队伍', unlockLevel: 0 },
+  { id: 'journey' as const, icon: '🏔️', label: '旅途', unlockLevel: 0 },
+  { id: 'bag' as const, icon: '🎒', label: '背包', unlockLevel: 5 },
+  { id: 'achievement' as const, icon: '🏆', label: '成就', unlockLevel: 10 },
+  { id: 'stats' as const, icon: '📊', label: '统计', unlockLevel: 15 },
+  { id: 'sanctuary' as const, icon: '🏔️', label: '洞天', unlockLevel: 20 },
+  { id: 'exploration' as const, icon: '🗺️', label: '秘境', unlockLevel: 30 },
+  { id: 'affinity' as const, icon: '💕', label: '仙缘', unlockLevel: 40 },
+  { id: 'settings' as const, icon: '⚙️', label: '更多', unlockLevel: 0 },
 ];
+
+function useUnlockedTabs() {
+  const level = useGameStore(s => s.player.level);
+  const prevCountRef = useRef(0);
+  const [toast, setToast] = useState<string | null>(null);
+  const tabs = ALL_TABS.filter(t => level >= t.unlockLevel);
+
+  useEffect(() => {
+    if (prevCountRef.current > 0 && tabs.length > prevCountRef.current) {
+      const newTabs = ALL_TABS.filter(t => t.unlockLevel > 0 && level >= t.unlockLevel)
+        .slice(prevCountRef.current - 4); // minus the 4 initial tabs
+      if (newTabs.length > 0) {
+        setToast(`🎉 新功能解锁：${newTabs[newTabs.length - 1].label}`);
+        setTimeout(() => setToast(null), 3000);
+      }
+    }
+    prevCountRef.current = tabs.length;
+  }, [tabs.length, level]);
+
+  return { tabs, toast };
+}
 
 function BottomNav() {
   const activeTab = useGameStore(s => s.activeTab);
   const setTab = useGameStore(s => s.setTab);
+  const { tabs, toast } = useUnlockedTabs();
   return (
-    <div className="bottom-nav">
-      {TABS.map(tab => (
-        <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => setTab(tab.id)}>
-          <span className="icon">{tab.icon}</span><span>{tab.label}</span>
-        </button>
-      ))}
-    </div>
+    <>
+      {toast && (
+        <div style={{
+          position: 'fixed', bottom: '70px', left: '50%', transform: 'translateX(-50%)',
+          background: 'linear-gradient(135deg, #667eea, #764ba2)', color: '#fff',
+          padding: '8px 20px', borderRadius: '20px', fontSize: '14px', fontWeight: 600,
+          zIndex: 9999, boxShadow: '0 4px 15px rgba(0,0,0,0.3)', whiteSpace: 'nowrap',
+          animation: 'fadeInUp 0.3s ease'
+        }}>{toast}</div>
+      )}
+      <div className="bottom-nav">
+        {tabs.map(tab => (
+          <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => setTab(tab.id)}>
+            <span className="icon">{tab.icon}</span><span>{tab.label}</span>
+          </button>
+        ))}
+      </div>
+    </>
   );
 }
 
