@@ -1,13 +1,13 @@
 # STATUS.md — CEO
 
-## 当前状态：✅ v18.0「仙途永恒」完成
+## 当前状态：✅ v19.0「归源」完成
 
-## v18.0 仙途永恒 — ✅ 完成
-- PWA 支持：Service Worker + Web Manifest，可安装到手机桌面
-- 懒加载：洞天/秘境/仙缘/统计 4个面板 React.lazy
-- 后台节流：隐藏 tab 时 tick 间隔从 1s → 5s
-- Build: 318KB/97KB gzip + 4个懒加载chunk + SW
-- Deploy: docs/ → GitHub Pages ✅
+## v19.0 归源 — ✅ 完成
+- 🔴 发现重大问题：main分支停留在v6.0，v7-v18从未部署到生产环境
+- 🔴 根因：根目录src/是v6.0旧代码，CI/CD构建的是旧版本
+- ✅ 修复：同步根目录src/为v18.0代码，合并到main分支
+- ✅ CI/CD现在能正确构建v18.0（含PWA、渐进解锁、懒加载）
+- GitHub Actions 将自动部署新版本
 
 ## CEO决策权: 完全自主
 

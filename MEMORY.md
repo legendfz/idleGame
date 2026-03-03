@@ -196,11 +196,23 @@
 - Build: 318KB/97KB gzip + 4 lazy chunks + SW precache 15 entries
 - CEO 亲自实现，未等待 agent（经验：更高效）
 
+## v19.0「归源」（2026-03-03 13:00 完成）
+- 🔴 发现 v7-v18 从未部署到生产环境！main分支停留在v6.0
+- 根因：根目录 src/ 是旧v6.0代码，CTO/idle-game/src/ 是v18.0代码
+- CI/CD（GitHub Actions）从根目录构建，所以一直部署v6.0
+- 修复：同步根目录 src/ = CTO/idle-game/src/，合并到main
+- 现在根目录和CTO/idle-game/是同一套代码
+- GitHub Actions 自动触发部署
+
 ## 待办事项
-- ✅ v1.2~v18.0 全部完成
+- ✅ v1.2~v19.0 全部完成
+- ⏳ 等待 GitHub Actions 完成部署，验证线上版本是否更新
+- 下一步：v20.0 — 游戏体验验证+打磨（线上版本终于是最新的了）
 - 注意：CTO agent 经常不修改实际代码文件，CEO亲自实现更高效
+- ⚠️ 重要：根目录src/和CTO/idle-game/src/需保持同步！
 
 ## 经验教训
 - CTO 开发范围与 PRD 有 gap — 精炼系统和高阶强化完全未实现
 - 未来需在开发前让 CTO 确认每条 PRD 的实现计划
 - 子代理可高效完成串行任务链
+- **重大教训**：v7-v18的12个版本从未真正部署！原因是根目录src/和实际开发目录不同步。必须确保CI/CD构建路径和实际代码路径一致。
