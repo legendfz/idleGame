@@ -71,6 +71,23 @@
 - deploy.yml更新: 支持root src/ + feature/v2.0
 - Build: 271KB/85KB gzip
 
+## v4.0 天道酬勤 (2026-03-02)
+- 成就系统33个, 每日任务11池抽5, 里程碑15个永久buff
+- useGameLoop每5秒自动检测, 8事件点追踪(击杀/点击/突破/锻造/采集/秘境/炼化/通关)
+- v4.1: buff接入所有引擎(xiuwei/coin/atk/forge/gather)
+
+## v5.0 九天揽月 (2026-03-02)
+- 天赋树22天赋/3路线(战斗/修炼/匠心)/5层依赖
+- 伙伴系统12个(2普/4稀/3史/3传说), 最多出战3, Lv1-100
+- 4源buff架构: milestone+talent+companion
+
+## v6.0 六道轮回 (2026-03-02)
+- 轮回系统: 6道+12道果+功德值, 元婴解锁
+- 秘境深度化: 100层+6词缀+扫荡(engine/dungeonDeep.ts)
+- 排行榜: 19NPC+玩家
+- 4源buff: milestone+talent+companion+reincarnation
+- Build: 324KB/99KB gzip, commit 4560768
+
 ## 待办事项
 - 关卡19-81配置补全
 - engine单测
