@@ -1,0 +1,333 @@
+/* ══ v13.0 仙缘面板 — AffinityPanel ══ */
+
+.affinity-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+  padding: var(--sp-md);
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.affinity-header {
+  font-family: var(--font-title);
+  font-size: var(--fs-lg);
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  padding-bottom: var(--sp-sm);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* ── NPC 列表 ── */
+.affinity-npc-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+}
+
+.affinity-npc-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--sp-md);
+  transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
+}
+
+.affinity-npc-card:hover {
+  border-color: rgba(206, 147, 216, 0.4);
+}
+
+.affinity-npc-card.max-affinity {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 12px rgba(212, 168, 67, 0.2);
+}
+
+.affinity-npc-card.max-affinity::before {
+  content: '';
+  display: block;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
+  margin: calc(-1 * var(--sp-md)) calc(-1 * var(--sp-md)) var(--sp-md);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+/* 顶部行：头像+信息+赠礼 */
+.affinity-npc-top {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  margin-bottom: var(--sp-sm);
+}
+
+.affinity-npc-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+  border: 2px solid var(--color-border);
+  transition: border-color var(--dur-fast);
+}
+
+.affinity-npc-card.max-affinity .affinity-npc-avatar {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 8px rgba(212, 168, 67, 0.3);
+}
+
+.affinity-npc-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.affinity-npc-name {
+  font-size: var(--fs-body);
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.affinity-npc-card.max-affinity .affinity-npc-name {
+  color: var(--color-accent);
+}
+
+.affinity-npc-title {
+  font-size: var(--fs-xs);
+  color: var(--color-text-dim);
+}
+
+.affinity-gift-btn {
+  padding: var(--sp-sm) var(--sp-md);
+  background: rgba(206, 147, 216, 0.15);
+  color: #ce93d8;
+  border: 1px solid rgba(206, 147, 216, 0.3);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--dur-fast);
+  white-space: nowrap;
+}
+
+.affinity-gift-btn:hover {
+  background: rgba(206, 147, 216, 0.25);
+}
+
+.affinity-gift-btn:active { transform: scale(0.95); }
+
+.affinity-gift-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.affinity-npc-card.max-affinity .affinity-gift-btn {
+  background: rgba(212, 168, 67, 0.15);
+  color: var(--color-accent);
+  border-color: rgba(212, 168, 67, 0.3);
+}
+
+/* ── 好感度进度条 ── */
+.affinity-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  margin-bottom: var(--sp-sm);
+}
+
+.affinity-heart-icon {
+  font-size: var(--fs-sm);
+  flex-shrink: 0;
+}
+
+.affinity-progress-track {
+  flex: 1;
+  height: 6px;
+  background: var(--color-bg);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.affinity-progress-fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, #ce93d8, #f48fb1);
+  transition: width var(--dur-slow) var(--ease-out);
+}
+
+.affinity-npc-card.max-affinity .affinity-progress-fill {
+  background: linear-gradient(90deg, var(--color-accent), #f0d080);
+}
+
+.affinity-progress-text {
+  font-family: var(--font-number);
+  font-size: var(--fs-xs);
+  color: var(--color-text-dim);
+  white-space: nowrap;
+  min-width: 36px;
+  text-align: right;
+}
+
+/* ── Buff 解锁状态 ── */
+.affinity-buffs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-xs);
+}
+
+.affinity-buff {
+  font-size: var(--fs-xs);
+  padding: 2px var(--sp-sm);
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.affinity-buff.locked {
+  background: var(--color-bg);
+  color: var(--color-text-dim);
+  border: 1px dashed var(--color-border);
+}
+
+.affinity-buff.unlocked {
+  background: rgba(58, 125, 68, 0.12);
+  color: var(--color-success);
+  border: 1px solid rgba(58, 125, 68, 0.25);
+}
+
+.affinity-buff-level {
+  font-family: var(--font-number);
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+/* ── 专属技能（满好感） ── */
+.affinity-skill {
+  margin-top: var(--sp-sm);
+  padding: var(--sp-sm) var(--sp-md);
+  background: rgba(212, 168, 67, 0.08);
+  border: 1px solid rgba(212, 168, 67, 0.2);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+}
+
+.affinity-skill-icon {
+  font-size: var(--fs-lg);
+}
+
+.affinity-skill-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.affinity-skill-name {
+  font-size: var(--fs-sm);
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.affinity-skill-desc {
+  font-size: var(--fs-xs);
+  color: var(--color-text-dim);
+  line-height: 1.4;
+}
+
+/* ── 赠礼弹窗 ── */
+.affinity-gift-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: var(--z-modal);
+  animation: affinityFadeIn var(--dur-fast) var(--ease-out);
+}
+
+@keyframes affinityFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.affinity-gift-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-lg);
+  max-width: 320px;
+  width: calc(100% - 48px);
+  box-shadow: var(--shadow-modal);
+  animation: affinityPopIn var(--dur-norm) var(--ease-pop);
+}
+
+@keyframes affinityPopIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.affinity-gift-title {
+  font-family: var(--font-title);
+  font-size: var(--fs-md);
+  color: var(--color-text);
+  text-align: center;
+  margin-bottom: var(--sp-md);
+}
+
+.affinity-gift-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-sm);
+  margin-bottom: var(--sp-md);
+}
+
+.affinity-gift-item {
+  aspect-ratio: 1;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  cursor: pointer;
+  transition: all var(--dur-fast);
+}
+
+.affinity-gift-item:hover {
+  border-color: #ce93d8;
+}
+
+.affinity-gift-item.selected {
+  border-color: #ce93d8;
+  background: rgba(206, 147, 216, 0.1);
+  box-shadow: 0 0 8px rgba(206, 147, 216, 0.2);
+}
+
+.affinity-gift-item .item-icon { font-size: var(--fs-lg); }
+.affinity-gift-item .item-count {
+  font-family: var(--font-number);
+  font-size: 10px;
+  color: var(--color-text-dim);
+}
+
+.affinity-gift-confirm {
+  width: 100%;
+  padding: var(--sp-sm);
+  background: linear-gradient(135deg, #ce93d8, #ab47bc);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.affinity-gift-confirm:active { transform: scale(0.96); }
+.affinity-gift-confirm:disabled { opacity: 0.4; cursor: not-allowed; }
