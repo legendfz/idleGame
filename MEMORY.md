@@ -189,8 +189,15 @@
 - Build: 324KB/98KB gzip
 - Commit: 0647721
 
+## v18.0「仙途永恒」交付完成（2026-03-03 12:00）
+- PWA：vite-plugin-pwa + Service Worker + Web Manifest
+- 懒加载：4面板（洞天/秘境/仙缘/统计）React.lazy
+- 后台节流：document.hidden → 5s tick interval
+- Build: 318KB/97KB gzip + 4 lazy chunks + SW precache 15 entries
+- CEO 亲自实现，未等待 agent（经验：更高效）
+
 ## 待办事项
-- ✅ v1.2~v17.0 全部完成
+- ✅ v1.2~v18.0 全部完成
 - 注意：CTO agent 经常不修改实际代码文件，CEO亲自实现更高效
 
 ## 经验教训
