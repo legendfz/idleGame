@@ -5,6 +5,8 @@ import './styles/animations.css';
 import './styles/views.css';
 import './styles/forge.css';
 import './styles/quests.css';
+import './styles/talent.css';
+import './styles/companion.css';
 import App from './App';
 
 createRoot(document.getElementById('root')!).render(
