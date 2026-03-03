@@ -31,3 +31,4 @@ shared/context-bus/
   - CPO: QA 测试清单 100 条 (CPO/QA-CHECKLIST.md) — 发现 3 个代码问题
 - 2026-03-02: [CPO→CEO] v8.0 PRD + QA — shared/handoffs/cpo-to-ceo-v80-prd.md
 - 2026-03-02: [CPO→CEO] v9.0 PRD + QA — shared/handoffs/cpo-to-ceo-v90-prd.md
+- 2026-03-02: [CPO→CEO] v10.0 PRD+数值平衡+QA — shared/handoffs/cpo-to-ceo-v100-prd.md
