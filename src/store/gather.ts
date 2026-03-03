@@ -9,6 +9,8 @@ import { useMaterialStore } from './material';
 import { usePlayerStore } from './player';
 import { useUIStore } from './ui';
 import { useMilestoneStore } from './milestone';
+import { useAchievementStore } from './achievement';
+import { useDailyQuestStore } from './dailyQuest';
 
 interface GatherStore {
   activeGather: ActiveGather | null;
@@ -31,7 +33,12 @@ export const useGatherStore = create<GatherStore>((set, get) => ({
     if ((cooldowns[node.id] ?? 0) > Date.now()) return false;
 
     const charId = usePlayerStore.getState().player.activeCharId || '';
-    set({ activeGather: startGather(node, Date.now(), charId) });
+    // 里程碑采集速度加成：缩短采集时间
+    const msSpeed = useMilestoneStore.getState().getBuffs().gatherSpeed;
+    const boostedNode = msSpeed > 0
+      ? { ...node, gatherTime: Math.max(10, Math.floor(node.gatherTime * (1 - msSpeed / 100))) }
+      : node;
+    set({ activeGather: startGather(boostedNode, Date.now(), charId) });
     return true;
   },
 
@@ -48,6 +55,10 @@ export const useGatherStore = create<GatherStore>((set, get) => ({
       activeGather: null,
       cooldowns: { ...get().cooldowns, [node.id]: Date.now() + node.cooldown * 1000 },
     });
+
+    // 追踪采集
+    useAchievementStore.getState().addStat('gatherCount');
+    useDailyQuestStore.getState().addProgress('gathers', 1);
 
     if (result.materials.length > 0) {
       useUIStore.getState().addToast(

@@ -7,6 +7,8 @@ import { usePlayerStore } from '../../store/player';
 import { useJourneyStore } from '../../store/journey';
 import { useUIStore } from '../../store/ui';
 import { useDungeonStore } from '../../store/dungeon';
+import { useAchievementStore } from '../../store/achievement';
+import { useDailyQuestStore } from '../../store/dailyQuest';
 import { bn, formatBigNum } from '../../engine/bignum';
 import { DungeonConfig, canEnterDungeon, simulateDungeon, dungeonBossHp } from '../../engine/dungeon';
 import dungeonsData from '../../data/configs/dungeons.json';
@@ -89,6 +91,10 @@ export function DungeonView() {
                 onClick={() => {
                   addAttempt(dungeon.id);
                   const result = simulateDungeon(dungeon, playerPower);
+                  if (result.success) {
+                    useAchievementStore.getState().addStat('dungeonClears');
+                    useDailyQuestStore.getState().addProgress('dungeons', 1);
+                  }
                   // Animate 5-8s battle
                   const duration = 5000 + Math.random() * 3000;
                   const dmgLabels = ['💥', '⚔️', '🔥', '✨', '💫'];

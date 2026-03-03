@@ -12,6 +12,8 @@ import { useEquipStore } from './equipment';
 import { useUIStore } from './ui';
 import { vibrateSuccess, vibrateFail } from '../utils/feedback';
 import { useMilestoneStore } from './milestone';
+import { useAchievementStore } from './achievement';
+import { useDailyQuestStore } from './dailyQuest';
 
 const PITY_THRESHOLD = 5;
 
@@ -83,6 +85,10 @@ export const useForgeStore = create<ForgeStore>((set, get) => ({
     if (result.success && result.item) {
       useEquipStore.getState().addItem(result.item);
     }
+
+    // 追踪锻造次数
+    useAchievementStore.getState().addStat('forgeCount');
+    useDailyQuestStore.getState().addProgress('forges', 1);
 
     return result;
   },

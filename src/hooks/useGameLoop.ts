@@ -100,6 +100,7 @@ export function useGameLoop() {
 
     const unsubBreak = eventBus.on('BREAKTHROUGH', (e) => {
       useUIStore.getState().addToast(`突破至 ${e.toRealm}！`, 'success');
+      useDailyQuestStore.getState().addProgress('breakthroughs', 1);
     });
 
     const unsubLoot = eventBus.on('LOOT_DROP', (e) => {

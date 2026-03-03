@@ -3,6 +3,8 @@
  */
 import { create } from 'zustand';
 import { checkDailyReset, DungeonState, createDungeonState } from '../engine/dungeon';
+import { useAchievementStore } from './achievement';
+import { useDailyQuestStore } from './dailyQuest';
 
 interface DungeonStore {
   state: DungeonState;
@@ -22,6 +24,8 @@ export const useDungeonStore = create<DungeonStore>((set, get) => ({
   addAttempt: (dungeonId) => {
     const s = get().state;
     set({ state: { ...s, dailyAttempts: { ...s.dailyAttempts, [dungeonId]: (s.dailyAttempts[dungeonId] ?? 0) + 1 } } });
+    useAchievementStore.getState().addStat('dungeonClears');
+    useDailyQuestStore.getState().addProgress('dungeons', 1);
   },
 
   checkReset: () => {

@@ -9,6 +9,7 @@ import { useUIStore } from '../../store/ui';
 import { bn, formatBigNum } from '../../engine/bignum';
 import { forgeLevelExp, ForgeRecipe } from '../../engine/forge';
 import { canSmelt, doSmelt, SmeltRecipe } from '../../engine/smelt';
+import { useDailyQuestStore } from '../../store/dailyQuest';
 import forgeRecipesData from '../../data/configs/forge-recipes.json';
 import smeltRecipesData from '../../data/configs/smelt-recipes.json';
 import materialsData from '../../data/configs/materials.json';

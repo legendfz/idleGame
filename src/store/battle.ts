@@ -11,6 +11,8 @@ import { calcAttack } from '../engine/formulas';
 import { getRealmConfig } from '../data/config';
 import { usePlayerStore } from './player';
 import { useMilestoneStore } from './milestone';
+import { useAchievementStore } from './achievement';
+import { useDailyQuestStore } from './dailyQuest';
 
 interface BattleStore {
   battle: BattleRuntimeState | null;
@@ -44,6 +46,7 @@ export const useBattleStore = create<BattleStore>((set, get) => ({
     const newBattle = processClick(battle, damage, isCrit, Date.now());
 
     usePlayerStore.getState().incrementClicks();
+    useDailyQuestStore.getState().addProgress('clicks', 1);
     set({ battle: newBattle });
     return { damage: damage.toString(), isCrit };
   },
@@ -64,6 +67,8 @@ export const useBattleStore = create<BattleStore>((set, get) => ({
 
     if (newBattle.status === 'victory') {
       usePlayerStore.getState().incrementKills(newBattle.killCount);
+      useDailyQuestStore.getState().addProgress('kills', newBattle.killCount);
+      useDailyQuestStore.getState().addProgress('stages', 1);
     }
   },
 
