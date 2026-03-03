@@ -1,0 +1,278 @@
+/* ══ v8.0 灵兽面板 ══ */
+
+:root {
+  --pet-azure:  #00BCD4;  /* 青龙 */
+  --pet-white:  #E0E0E0;  /* 白虎 */
+  --pet-vermil: #F44336;  /* 朱雀 */
+  --pet-black:  #607D8B;  /* 玄武 */
+  --pet-golden: #FFD700;  /* 麒麟 */
+}
+
+.view-pet {
+  padding: var(--sp-lg);
+  height: 100%;
+  overflow-y: auto;
+}
+.pet-title {
+  font-family: var(--font-title);
+  font-size: var(--fs-xl);
+  color: var(--color-accent);
+  margin-bottom: var(--sp-md);
+}
+
+/* === 灵兽丹数量 === */
+.pet-resource {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-xs);
+  padding: var(--sp-xs) var(--sp-md);
+  background: rgba(212,168,67,0.1);
+  border: 1px solid rgba(212,168,67,0.25);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-number);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--color-accent);
+  margin-bottom: var(--sp-lg);
+}
+
+/* === 当前携带栏 === */
+.pet-active {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-lg);
+  margin-bottom: var(--sp-lg);
+  position: relative;
+  overflow: hidden;
+}
+.pet-active::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(212,168,67,0.05) 0%, transparent 60%);
+  pointer-events: none;
+}
+.pet-active-label {
+  font-size: var(--fs-xs);
+  color: var(--color-accent);
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: var(--sp-sm);
+  position: relative;
+}
+.pet-active-info {
+  display: flex;
+  gap: var(--sp-md);
+  align-items: center;
+  position: relative;
+}
+.pet-active-icon {
+  font-size: 40px;
+  width: 60px; height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.pet-active-detail { flex: 1; }
+.pet-active-name {
+  font-family: var(--font-title);
+  font-size: var(--fs-md);
+  font-weight: 700;
+}
+.pet-active-buffs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-xs);
+  margin-top: var(--sp-xs);
+}
+.pet-active-buff {
+  padding: 2px var(--sp-sm);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-number);
+  font-size: 10px;
+  font-weight: 700;
+}
+.pet-none-hint {
+  font-size: var(--fs-sm);
+  color: var(--color-text-dim);
+  text-align: center;
+  padding: var(--sp-md) 0;
+  position: relative;
+}
+
+/* === 灵兽卡片列表 === */
+.pet-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+}
+
+.pet-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-md);
+  display: flex;
+  gap: var(--sp-md);
+  align-items: center;
+  transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
+}
+.pet-card:active { transform: scale(0.98); }
+
+/* 五兽配色 */
+.pet-card.azure  { border-left: 4px solid var(--pet-azure); }
+.pet-card.white  { border-left: 4px solid var(--pet-white); }
+.pet-card.vermil { border-left: 4px solid var(--pet-vermil); }
+.pet-card.black  { border-left: 4px solid var(--pet-black); }
+.pet-card.golden { border-left: 4px solid var(--pet-golden); }
+
+/* 携带中 */
+.pet-card.equipped {
+  background: linear-gradient(135deg, var(--color-bg-card) 0%, rgba(212,168,67,0.05) 100%);
+}
+.pet-card.equipped.azure  { border-color: var(--pet-azure);  box-shadow: 0 0 8px rgba(0,188,212,0.15); }
+.pet-card.equipped.white  { border-color: var(--pet-white);  box-shadow: 0 0 8px rgba(224,224,224,0.15); }
+.pet-card.equipped.vermil { border-color: var(--pet-vermil); box-shadow: 0 0 8px rgba(244,67,54,0.15); }
+.pet-card.equipped.black  { border-color: var(--pet-black);  box-shadow: 0 0 8px rgba(96,125,139,0.15); }
+.pet-card.equipped.golden { border-color: var(--pet-golden); box-shadow: 0 0 8px rgba(255,215,0,0.15); }
+
+/* 未解锁 */
+.pet-card.locked {
+  opacity: 0.35;
+  border-left-color: var(--color-border);
+}
+
+/* 图标 */
+.pet-icon {
+  font-size: 32px;
+  width: 48px; height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--color-bg-elevated);
+}
+.pet-card.azure .pet-icon  { background: rgba(0,188,212,0.1); }
+.pet-card.white .pet-icon  { background: rgba(224,224,224,0.08); }
+.pet-card.vermil .pet-icon { background: rgba(244,67,54,0.1); }
+.pet-card.black .pet-icon  { background: rgba(96,125,139,0.1); }
+.pet-card.golden .pet-icon { background: rgba(255,215,0,0.1); }
+.pet-card.locked .pet-icon { filter: grayscale(1); }
+
+/* 信息 */
+.pet-info { flex: 1; min-width: 0; }
+.pet-name {
+  font-family: var(--font-title);
+  font-size: var(--fs-body);
+  font-weight: 700;
+}
+.pet-level {
+  font-family: var(--font-number);
+  font-size: var(--fs-xs);
+  color: var(--color-accent);
+  margin-left: var(--sp-xs);
+}
+.pet-desc {
+  font-size: var(--fs-xs);
+  color: var(--color-text-dim);
+  margin-top: 2px;
+}
+.pet-buffs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-xs);
+  margin-top: var(--sp-xs);
+}
+.pet-buff {
+  font-family: var(--font-number);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px var(--sp-sm);
+  border-radius: var(--radius-pill);
+  background: var(--color-bg-elevated);
+  color: var(--color-text-dim);
+}
+.pet-card.azure .pet-buff  { color: var(--pet-azure); background: rgba(0,188,212,0.1); }
+.pet-card.white .pet-buff  { color: var(--pet-white); background: rgba(224,224,224,0.06); }
+.pet-card.vermil .pet-buff { color: var(--pet-vermil); background: rgba(244,67,54,0.1); }
+.pet-card.black .pet-buff  { color: var(--pet-black); background: rgba(96,125,139,0.1); }
+.pet-card.golden .pet-buff { color: var(--pet-golden); background: rgba(255,215,0,0.1); }
+
+/* 经验条 */
+.pet-exp {
+  margin-top: var(--sp-sm);
+}
+.pet-exp-bar {
+  height: 4px;
+  background: var(--color-border);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+.pet-exp-fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width var(--dur-norm) var(--ease-out);
+}
+.pet-card.azure .pet-exp-fill  { background: var(--pet-azure); }
+.pet-card.white .pet-exp-fill  { background: var(--pet-white); }
+.pet-card.vermil .pet-exp-fill { background: var(--pet-vermil); }
+.pet-card.black .pet-exp-fill  { background: var(--pet-black); }
+.pet-card.golden .pet-exp-fill { background: var(--pet-golden); }
+.pet-exp-text {
+  font-family: var(--font-number);
+  font-size: 9px;
+  color: var(--color-text-dim);
+  text-align: right;
+  margin-top: 1px;
+}
+
+/* 操作区 */
+.pet-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-xs);
+  flex-shrink: 0;
+}
+.pet-btn-equip {
+  padding: var(--sp-xs) var(--sp-sm);
+  background: var(--color-accent);
+  color: var(--color-bg);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform var(--dur-fast);
+}
+.pet-btn-equip:active { transform: scale(0.9); }
+.pet-btn-equip.equipped {
+  background: var(--color-success);
+  color: #fff;
+}
+.pet-btn-upgrade {
+  padding: var(--sp-xs) var(--sp-sm);
+  background: none;
+  border: 1px solid var(--color-accent);
+  color: var(--color-accent);
+  border-radius: var(--radius-md);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.pet-btn-upgrade:disabled {
+  border-color: var(--color-border);
+  color: var(--color-text-dim);
+  cursor: not-allowed;
+}
+
+/* 解锁条件提示 */
+.pet-unlock {
+  font-size: var(--fs-xs);
+  color: var(--color-text-dim);
+  font-style: italic;
+  margin-top: var(--sp-xs);
+}
