@@ -18,6 +18,8 @@ import Leaderboard from './components/Leaderboard';
 import AchievementToast from './components/AchievementToast';
 import { useDungeonStore } from './store/dungeonStore';
 import { useAchievementStore } from './store/achievementStore';
+import { TutorialOverlay } from './components/TutorialOverlay';
+import { StatsView } from './components/StatsView';
 import { useLeaderboardStore } from './store/leaderboardStore';
 
 // ─── Card wrapper component ───
@@ -1066,6 +1068,7 @@ const TABS = [
   { id: 'journey' as const, icon: '🏔️', label: '旅途' },
   { id: 'bag' as const, icon: '🎒', label: '背包' },
   { id: 'achievement' as const, icon: '🏆', label: '成就' },
+  { id: 'stats' as const, icon: '📊', label: '统计' },
   { id: 'settings' as const, icon: '⚙️', label: '更多' },
 ];
 
@@ -1211,6 +1214,7 @@ export default function App() {
       {activeTab === 'achievement' && (
         <div className="main-content fade-in"><AchievementList /></div>
       )}
+      {activeTab === 'stats' && <StatsView />}
       {activeTab === 'settings' && <SettingsView setSubPage={setSubPage} />}
       <div className="bottom-nav">
         {TABS.map(tab => (
@@ -1222,6 +1226,7 @@ export default function App() {
       </div>
       <AchievementToast />
       <OfflineReportModal />
+      <TutorialOverlay />
     </>
   );
 }

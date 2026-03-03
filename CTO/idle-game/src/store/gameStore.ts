@@ -60,6 +60,10 @@ interface GameStore {
   loadFromSlot: (slotId: number) => void;
   deleteSlot: (slotId: number) => void;
   getSaveSlots: () => SaveSlotInfo[];
+  // Tutorial
+  advanceTutorial: () => void;
+  skipTutorial: () => void;
+  dismissSystemTutorial: (id: string) => void;
 }
 
 interface SaveSlotInfo {
@@ -90,6 +94,14 @@ function makeInitialPlayer(): PlayerState {
     tianmingScrolls: 0,
     protectScrolls: 0,
     luckyScrolls: 0,
+    totalCultivateTime: 0,
+    maxDamage: 0,
+    totalEquipDrops: 0,
+    totalKills: 0,
+    totalBreakthroughs: 0,
+    tutorialStep: 1,
+    tutorialDone: false,
+    systemTutorials: [],
   };
 }
 
@@ -270,7 +282,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
       log = addLog(log, `悟空 > ${enemy.name}  -${dmg}`, 'attack');
     }
 
+    // 记录最高伤害
+    updatedPlayer.maxDamage = Math.max(updatedPlayer.maxDamage, dmg);
+
     if (enemy.hp <= 0) {
+      updatedPlayer.totalKills++;
       log = addLog(log, `${enemy.name} 击败！`, 'kill');
 
       const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul);
@@ -292,6 +308,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         if (eqDrop) {
           const newItem = createEquipFromTemplate(eqDrop);
           updatedInventory.push(newItem);
+          updatedPlayer.totalEquipDrops++;
           const qi = QUALITY_INFO[eqDrop.quality];
           log = addLog(log, `  获得 ${qi.symbol}${eqDrop.name}`, 'drop');
         }
@@ -360,6 +377,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const goldPerSec = prevStats.goldPerSec * (1 - alpha) + tickGold * alpha;
     const expPerSec = prevStats.expPerSec * (1 - alpha) + tickExp * alpha;
 
+    updatedPlayer.totalCultivateTime += 1;
+
     set({
       player: updatedPlayer,
       battle: updatedBattle,
@@ -399,6 +418,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         ...player,
         pantao: player.pantao - nextRealm.pantaoReq,
         realmIndex: player.realmIndex + 1,
+        totalBreakthroughs: player.totalBreakthroughs + 1,
         stats: {
           ...player.stats,
           attack: Math.floor(player.stats.attack * 1.5),
@@ -748,6 +768,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
         save.player.tianmingScrolls = save.player.tianmingScrolls ?? 0;
         save.player.protectScrolls = save.player.protectScrolls ?? 0;
         save.player.luckyScrolls = save.player.luckyScrolls ?? 0;
+      save.player.totalCultivateTime = save.player.totalCultivateTime ?? 0;
+      save.player.maxDamage = save.player.maxDamage ?? 0;
+      save.player.totalEquipDrops = save.player.totalEquipDrops ?? 0;
+      save.player.totalKills = save.player.totalKills ?? 0;
+      save.player.totalBreakthroughs = save.player.totalBreakthroughs ?? 0;
+      save.player.tutorialStep = save.player.tutorialStep ?? 1;
+      save.player.tutorialDone = save.player.tutorialDone ?? false;
+      save.player.systemTutorials = save.player.systemTutorials ?? [];
         save.version = 4;
       }
 
@@ -897,5 +925,24 @@ export const useGameStore = create<GameStore>((set, get) => ({
       }
     }
     return slots;
+  },
+
+  advanceTutorial: () => {
+    const { player } = get();
+    if (player.tutorialDone) return;
+    const next = player.tutorialStep + 1;
+    const done = next > 5;
+    set({ player: { ...player, tutorialStep: next, tutorialDone: done } });
+  },
+
+  skipTutorial: () => {
+    const { player } = get();
+    set({ player: { ...player, tutorialStep: 6, tutorialDone: true } });
+  },
+
+  dismissSystemTutorial: (id: string) => {
+    const { player } = get();
+    if (player.systemTutorials.includes(id)) return;
+    set({ player: { ...player, systemTutorials: [...player.systemTutorials, id] } });
   },
 }));
