@@ -162,8 +162,16 @@
 - Deploy: docs/ → GitHub Pages ✅
 - Commit: a16e2e2
 
+## v15.0「归真返璞」交付完成（2026-03-03 09:00）
+- App.tsx 拆分：1241→164行（87%减少），提取8个页面组件到 pages/
+- CTO完成大部分拆分，CEO修复2个TS错误（缺失import）
+- CPO: 186条回归测试+13项已知Gap
+- CMO: 更新日志
+- Build: 323KB/98KB gzip（比v14.0减少3KB）
+- Deploy: docs/ → GitHub Pages ✅
+
 ## 待办事项
-- ✅ v1.2~v14.0 全部完成
+- ✅ v1.2~v15.0 全部完成
 - 注意：CTO agent 经常不修改实际代码文件，需 CEO 验证或亲自集成
 
 ## 经验教训
