@@ -24,9 +24,15 @@ import { usePetStore } from '../store/pet';
 import { useSkillStore } from '../store/skill';
 import { useStrategyStore } from '../store/strategy';
 import { useTutorialStore } from '../store/tutorial';
+import { useSanctuaryStore } from '../store/sanctuary';
+import { useExplorationStore } from '../store/exploration';
+import { useAffinityStore } from '../store/affinity';
 import { useGuildStore } from '../store/guild';
 import { usePvpStore } from '../store/pvp';
 import { useFestivalStore } from '../store/festival';
+import { useSanctuaryStore } from '../store/sanctuary';
+import { useExplorationStore } from '../store/exploration';
+import { useAffinityStore } from '../store/affinity';
 import { SaveManager } from '../data/save';
 import { GameStats } from '../engine/achievement';
 import { calcOfflineReward } from '../engine/idle';
@@ -72,6 +78,12 @@ export function useGameLoop() {
       if (saved.guild) useGuildStore.getState().loadState(saved.guild);
       if (saved.pvp) usePvpStore.getState().loadState(saved.pvp);
       if (saved.festival) useFestivalStore.getState().loadState(saved.festival);
+      if (saved.sanctuary) useSanctuaryStore.getState().loadState(saved.sanctuary);
+      if (saved.exploration) useExplorationStore.getState().loadState(saved.exploration);
+      if (saved.affinity) useAffinityStore.getState().loadState(saved.affinity);
+      if (saved.sanctuary) useSanctuaryStore.getState().loadState(saved.sanctuary);
+      if (saved.exploration) useExplorationStore.getState().loadState(saved.exploration);
+      if (saved.affinity) useAffinityStore.getState().loadState(saved.affinity);
 
       // === 2. 离线收益 ===
       const lastOnline = saved.player?.lastOnlineAt || Date.now();
@@ -153,6 +165,8 @@ export function useGameLoop() {
       useGuildStore.getState().tickReset();
       usePvpStore.getState().tickReset();
       useFestivalStore.getState().tick();
+      useSanctuaryStore.getState().tickProduce(Math.min(dt, 2));
+      useExplorationStore.getState().tickReset();
 
       // 每5秒检测成就+里程碑
       achCheckCounter++;
@@ -223,6 +237,9 @@ export function useGameLoop() {
       guild: useGuildStore.getState().getState(),
       pvp: usePvpStore.getState().getState(),
       festival: useFestivalStore.getState().getState(),
+      sanctuary: useSanctuaryStore.getState().getState(),
+      exploration: useExplorationStore.getState().getState(),
+      affinity: useAffinityStore.getState().getState(),
     });
     const stopAutoSave = SaveManager.startAutoSave(getFullState);
 

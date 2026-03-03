@@ -34,3 +34,6 @@ export { useTutorialStore } from './tutorial';
 export { useGuildStore } from './guild';
 export { usePvpStore } from './pvp';
 export { useFestivalStore } from './festival';
+export { useSanctuaryStore } from './sanctuary';
+export { useExplorationStore } from './exploration';
+export { useAffinityStore } from './affinity';

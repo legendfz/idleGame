@@ -31,6 +31,12 @@ import { TutorialOverlay } from './components/shared/TutorialOverlay';
 import { GuildPanel } from './components/views/GuildPanel';
 import { PvpPanel } from './components/views/PvpPanel';
 import { FestivalPanel } from './components/views/FestivalPanel';
+import { SanctuaryPanel } from './components/views/SanctuaryPanel';
+import { ExplorationPanel } from './components/views/ExplorationPanel';
+import { AffinityPanel } from './components/views/AffinityPanel';
+import { SanctuaryPanel } from './components/views/SanctuaryPanel';
+import { ExplorationPanel } from './components/views/ExplorationPanel';
+import { AffinityPanel } from './components/views/AffinityPanel';
 import { formatBigNum, bn } from './engine/bignum';
 import { getRealmConfig } from './data/config';
 import { ToastContainer } from './components/shared/ToastContainer';
@@ -52,6 +58,9 @@ const ALL_NAV_ITEMS = [
   { id: 'tower', icon: '🗼', label: '通天塔', minRealm: 3 },
   { id: 'journey', icon: '🗺️', label: '取经', minRealm: 1 },
   { id: 'quest', icon: '📋', label: '任务', minRealm: 1 },
+  { id: 'sanctuary', icon: '🏔️', label: '洞天', minRealm: 4 },
+  { id: 'exploration', icon: '🗺️', label: '探险', minRealm: 3 },
+  { id: 'affinity', icon: '💕', label: '仙缘', minRealm: 3 },
   { id: 'reincarnation', icon: '🔄', label: '轮回', minRealm: 5 },
   { id: 'guild', icon: '🏯', label: '仙盟', minRealm: 3 },
   { id: 'pvp', icon: '🤺', label: '擂台', minRealm: 3 },
@@ -59,6 +68,9 @@ const ALL_NAV_ITEMS = [
   { id: 'festival', icon: '🎊', label: '竞技', minRealm: 2 },
   { id: 'event', icon: '🎉', label: '活动', minRealm: 1 },
   { id: 'leaderboard', icon: '🏆', label: '排行', minRealm: 1 },
+  { id: 'sanctuary', icon: '🏔️', label: '洞天', minRealm: 4 },
+  { id: 'exploration', icon: '🧭', label: '探险', minRealm: 3 },
+  { id: 'affinity', icon: '💕', label: '仙缘', minRealm: 3 },
   { id: 'stats', icon: '📊', label: '统计', minRealm: 1 },
   { id: 'settings', icon: '⚙️', label: '设置', minRealm: 1 },
 ];
@@ -81,9 +93,15 @@ function AppContent() {
     wudao: <WudaoView />,
     tower: <TowerPanel />,
     pet: <PetPanel />,
+    sanctuary: <SanctuaryPanel />,
+    exploration: <ExplorationPanel />,
+    affinity: <AffinityPanel />,
     guild: <GuildPanel />,
     pvp: <PvpPanel />,
     festival: <FestivalPanel />,
+    sanctuary: <SanctuaryPanel />,
+    exploration: <ExplorationPanel />,
+    affinity: <AffinityPanel />,
     shop: <ShopPanel />,
     event: <EventPanel />,
     leaderboard: <LeaderboardPanel />,
