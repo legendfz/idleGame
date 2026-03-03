@@ -1,50 +1,170 @@
 [
   {
-    "id": "forge_iron_sword", "name": "铁剑锻造",
-    "resultTemplateId": "iron_sword", "resultSlot": "weapon",
-    "materials": [{ "materialId": "iron_ore", "count": 5 }],
-    "coinsCost": 500, "minQuality": "common", "forgeTime": 0, "successRate": 0.95, "levelRequired": 1
+    "id": "forge_iron_sword",
+    "name": "铁剑锻造",
+    "resultTemplateId": "iron_sword",
+    "resultSlot": "weapon",
+    "materials": [
+      {
+        "materialId": "iron_ore",
+        "count": 5
+      }
+    ],
+    "coinsCost": 500,
+    "minQuality": "common",
+    "forgeTime": 0,
+    "successRate": 1.0,
+    "levelRequired": 1
   },
   {
-    "id": "forge_spirit_blade", "name": "灵刃锻造",
-    "resultTemplateId": "spirit_blade", "resultSlot": "weapon",
-    "materials": [{ "materialId": "iron_ore", "count": 10 }, { "materialId": "spirit_shard", "count": 3 }],
-    "coinsCost": 2000, "minQuality": "spirit", "forgeTime": 0, "successRate": 0.85, "levelRequired": 5
+    "id": "forge_spirit_blade",
+    "name": "灵刃锻造",
+    "resultTemplateId": "spirit_blade",
+    "resultSlot": "weapon",
+    "materials": [
+      {
+        "materialId": "iron_ore",
+        "count": 10
+      },
+      {
+        "materialId": "spirit_shard",
+        "count": 3
+      }
+    ],
+    "coinsCost": 2000,
+    "minQuality": "spirit",
+    "forgeTime": 0,
+    "successRate": 0.85,
+    "levelRequired": 5
   },
   {
-    "id": "forge_star_spear", "name": "星铁长枪",
-    "resultTemplateId": "star_spear", "resultSlot": "weapon",
-    "materials": [{ "materialId": "star_iron", "count": 8 }, { "materialId": "spirit_wood", "count": 5 }],
-    "coinsCost": 10000, "minQuality": "immortal", "forgeTime": 0, "successRate": 0.70, "levelRequired": 15
+    "id": "forge_star_spear",
+    "name": "星铁长枪",
+    "resultTemplateId": "star_spear",
+    "resultSlot": "weapon",
+    "materials": [
+      {
+        "materialId": "star_iron",
+        "count": 8
+      },
+      {
+        "materialId": "spirit_wood",
+        "count": 5
+      }
+    ],
+    "coinsCost": 10000,
+    "minQuality": "immortal",
+    "forgeTime": 0,
+    "successRate": 0.7,
+    "levelRequired": 15
   },
   {
-    "id": "forge_dragon_armor", "name": "龙鳞铠甲",
-    "resultTemplateId": "dragon_armor", "resultSlot": "armor",
-    "materials": [{ "materialId": "dragon_scale", "count": 12 }, { "materialId": "star_iron", "count": 5 }],
-    "coinsCost": 25000, "minQuality": "divine", "forgeTime": 0, "successRate": 0.55, "levelRequired": 25
+    "id": "forge_dragon_armor",
+    "name": "龙鳞铠甲",
+    "resultTemplateId": "dragon_armor",
+    "resultSlot": "armor",
+    "materials": [
+      {
+        "materialId": "dragon_scale",
+        "count": 12
+      },
+      {
+        "materialId": "star_iron",
+        "count": 5
+      }
+    ],
+    "coinsCost": 25000,
+    "minQuality": "divine",
+    "forgeTime": 0,
+    "successRate": 0.55,
+    "levelRequired": 25
   },
   {
-    "id": "forge_chaos_ring", "name": "混沌指环",
-    "resultTemplateId": "chaos_ring", "resultSlot": "accessory",
-    "materials": [{ "materialId": "chaos_essence", "count": 5 }, { "materialId": "buddha_stone", "count": 8 }],
-    "coinsCost": 100000, "minQuality": "chaos", "forgeTime": 0, "successRate": 0.35, "levelRequired": 40
+    "id": "forge_chaos_ring",
+    "name": "混沌指环",
+    "resultTemplateId": "chaos_ring",
+    "resultSlot": "accessory",
+    "materials": [
+      {
+        "materialId": "chaos_essence",
+        "count": 5
+      },
+      {
+        "materialId": "buddha_stone",
+        "count": 8
+      }
+    ],
+    "coinsCost": 100000,
+    "minQuality": "chaos",
+    "forgeTime": 0,
+    "successRate": 0.35,
+    "levelRequired": 40
   },
   {
-    "id": "forge_hongmeng_staff", "name": "鸿蒙法杖",
-    "resultTemplateId": "hongmeng_staff", "resultSlot": "weapon",
-    "materials": [{ "materialId": "hongmeng_core", "count": 3 }, { "materialId": "chaos_essence", "count": 10 }, { "materialId": "holy_relic", "count": 5 }],
-    "coinsCost": 500000, "minQuality": "hongmeng", "forgeTime": 0, "successRate": 0.15, "levelRequired": 50
+    "id": "forge_hongmeng_staff",
+    "name": "鸿蒙法杖",
+    "resultTemplateId": "hongmeng_staff",
+    "resultSlot": "weapon",
+    "materials": [
+      {
+        "materialId": "hongmeng_core",
+        "count": 3
+      },
+      {
+        "materialId": "chaos_essence",
+        "count": 10
+      },
+      {
+        "materialId": "holy_relic",
+        "count": 5
+      }
+    ],
+    "coinsCost": 500000,
+    "minQuality": "hongmeng",
+    "forgeTime": 0,
+    "successRate": 0.15,
+    "levelRequired": 50
   },
   {
-    "id": "forge_spirit_armor", "name": "灵纹轻甲",
-    "resultTemplateId": "spirit_armor", "resultSlot": "armor",
-    "materials": [{ "materialId": "spirit_wood", "count": 8 }, { "materialId": "iron_ore", "count": 5 }],
-    "coinsCost": 3000, "minQuality": "spirit", "forgeTime": 0, "successRate": 0.80, "levelRequired": 8
+    "id": "forge_spirit_armor",
+    "name": "灵纹轻甲",
+    "resultTemplateId": "spirit_armor",
+    "resultSlot": "armor",
+    "materials": [
+      {
+        "materialId": "spirit_wood",
+        "count": 8
+      },
+      {
+        "materialId": "iron_ore",
+        "count": 5
+      }
+    ],
+    "coinsCost": 3000,
+    "minQuality": "spirit",
+    "forgeTime": 0,
+    "successRate": 0.8,
+    "levelRequired": 8
   },
   {
-    "id": "forge_phoenix_helm", "name": "凤羽冠",
-    "resultTemplateId": "phoenix_helm", "resultSlot": "headgear",
-    "materials": [{ "materialId": "phoenix_feather", "count": 6 }, { "materialId": "heaven_mat", "count": 4 }],
-    "coinsCost": 30000, "minQuality": "divine", "forgeTime": 0, "successRate": 0.50, "levelRequired": 30
+    "id": "forge_phoenix_helm",
+    "name": "凤羽冠",
+    "resultTemplateId": "phoenix_helm",
+    "resultSlot": "headgear",
+    "materials": [
+      {
+        "materialId": "phoenix_feather",
+        "count": 6
+      },
+      {
+        "materialId": "heaven_mat",
+        "count": 4
+      }
+    ],
+    "coinsCost": 30000,
+    "minQuality": "divine",
+    "forgeTime": 0,
+    "successRate": 0.5,
+    "levelRequired": 30
   }
 ]
