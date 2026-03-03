@@ -1,7 +1,7 @@
 /**
  * DungeonView — 秘境/副本面板
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useMaterialStore } from '../../store/material';
 import { usePlayerStore } from '../../store/player';
 import { useJourneyStore } from '../../store/journey';
@@ -15,8 +15,20 @@ import materialsData from '../../data/configs/materials.json';
 const dungeons = dungeonsData as DungeonConfig[];
 const materialMap = Object.fromEntries(materialsData.map(m => [m.id, m]));
 
+interface BattleAnim {
+  dungeonName: string;
+  progress: number; // 0-1
+  phase: 'fighting' | 'result';
+  success: boolean;
+  rewards: { materialId: string; count: number }[];
+  message: string;
+  dmgTexts: string[];
+}
+
 export function DungeonView() {
   const [resultModal, setResultModal] = useState<{ dungeon: string; success: boolean; rewards: { materialId: string; count: number }[]; message: string } | null>(null);
+  const [battleAnim, setBattleAnim] = useState<BattleAnim | null>(null);
+  const animRef = useRef<number>(0);
 
   const player = usePlayerStore(s => s.player);
   const journey = useJourneyStore(s => s.journey);
@@ -73,19 +85,28 @@ export function DungeonView() {
 
               <button
                 className="btn-dungeon"
-                disabled={!check.ok}
+                disabled={!check.ok || !!battleAnim}
                 onClick={() => {
-                  const result = simulateDungeon(dungeon, playerPower);
                   addAttempt(dungeon.id);
-                  if (result.success && result.rewards.length > 0) {
-                    addMaterials(result.rewards);
-                  }
-                  setResultModal({
-                    dungeon: dungeon.name,
-                    success: result.success,
-                    rewards: result.rewards,
-                    message: result.message,
-                  });
+                  const result = simulateDungeon(dungeon, playerPower);
+                  // Animate 5-8s battle
+                  const duration = 5000 + Math.random() * 3000;
+                  const dmgLabels = ['💥', '⚔️', '🔥', '✨', '💫'];
+                  setBattleAnim({ dungeonName: dungeon.name, progress: 0, phase: 'fighting', success: result.success, rewards: result.rewards, message: result.message, dmgTexts: [] });
+                  const start = Date.now();
+                  const tick = () => {
+                    const elapsed = Date.now() - start;
+                    const p = Math.min(1, elapsed / duration);
+                    const dmg = p > 0.1 && Math.random() < 0.15 ? [dmgLabels[Math.floor(Math.random() * dmgLabels.length)]] : [];
+                    if (p < 1) {
+                      setBattleAnim(prev => prev ? { ...prev, progress: p, dmgTexts: dmg.length ? dmg : prev.dmgTexts } : null);
+                      animRef.current = requestAnimationFrame(tick);
+                    } else {
+                      if (result.success && result.rewards.length > 0) addMaterials(result.rewards);
+                      setBattleAnim(prev => prev ? { ...prev, progress: 1, phase: 'result' } : null);
+                    }
+                  };
+                  animRef.current = requestAnimationFrame(tick);
                 }}
               >
                 {check.ok ? '⚔️ 挑战' : check.reason}
@@ -95,7 +116,42 @@ export function DungeonView() {
         })}
       </div>
 
-      {/* 结果弹窗 */}
+      {/* 战斗动画 */}
+      {battleAnim && battleAnim.phase === 'fighting' && (
+        <div className="dungeon-modal-overlay">
+          <div className="dungeon-modal" style={{ minWidth: 260 }}>
+            <h3>⚔️ {battleAnim.dungeonName}</h3>
+            <div className="hp-bar" style={{ height: 20, background: 'var(--color-bg-muted, #2a2a3a)', borderRadius: 10, overflow: 'hidden', margin: '12px 0' }}>
+              <div style={{ height: '100%', width: `${battleAnim.progress * 100}%`, background: 'linear-gradient(90deg, #6c5ce7, #e74c3c)', borderRadius: 10, transition: 'width 0.1s' }} />
+            </div>
+            <div style={{ fontSize: 24, minHeight: 36 }}>{battleAnim.dmgTexts.join(' ')}</div>
+            <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>战斗中... {Math.floor(battleAnim.progress * 100)}%</div>
+          </div>
+        </div>
+      )}
+
+      {/* 战斗结果 */}
+      {battleAnim && battleAnim.phase === 'result' && (
+        <div className="dungeon-modal-overlay" onClick={() => setBattleAnim(null)}>
+          <div className="dungeon-modal" onClick={e => e.stopPropagation()}>
+            <h3>{battleAnim.success ? '✅ 通关！' : '❌ 失败'}</h3>
+            <p>{battleAnim.message}</p>
+            {battleAnim.rewards.length > 0 && (
+              <div className="reward-list">
+                <h4>获得材料:</h4>
+                {battleAnim.rewards.map((r, i) => (
+                  <div key={i} className="reward-row">
+                    {materialMap[r.materialId]?.icon ?? '?'} {materialMap[r.materialId]?.name ?? r.materialId} ×{r.count}
+                  </div>
+                ))}
+              </div>
+            )}
+            <button className="btn-primary" onClick={() => setBattleAnim(null)}>确定</button>
+          </div>
+        </div>
+      )}
+
+      {/* 旧结果弹窗(备用) */}
       {resultModal && (
         <div className="dungeon-modal-overlay" onClick={() => setResultModal(null)}>
           <div className="dungeon-modal" onClick={e => e.stopPropagation()}>

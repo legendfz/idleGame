@@ -16,10 +16,12 @@ import { JourneyMap } from './components/views/JourneyMap';
 import { ForgeView } from './components/views/ForgeView';
 import { GatherView } from './components/views/GatherView';
 import { DungeonView } from './components/views/DungeonView';
+import { StatsView } from './components/views/StatsView';
 import { formatBigNum, bn } from './engine/bignum';
 import { getRealmConfig } from './data/config';
 import { ToastContainer } from './components/shared/ToastContainer';
 import { OfflineModal } from './components/shared/OfflineModal';
+import { TutorialModal } from './components/shared/TutorialModal';
 
 const ALL_NAV_ITEMS = [
   { id: 'idle', icon: '🧘', label: '修炼', minRealm: 1 },
@@ -30,6 +32,7 @@ const ALL_NAV_ITEMS = [
   { id: 'character', icon: '🐒', label: '角色', minRealm: 1 },
   { id: 'inventory', icon: '🎒', label: '背包', minRealm: 1 },
   { id: 'journey', icon: '🗺️', label: '取经', minRealm: 1 },
+  { id: 'stats', icon: '📊', label: '统计', minRealm: 1 },
 ];
 
 function AppContent() {
@@ -44,6 +47,7 @@ function AppContent() {
     forge: <ForgeView />,
     gather: <GatherView />,
     dungeon: <DungeonView />,
+    stats: <StatsView />,
   };
 
   return <>{viewMap[currentView] || <IdleView />}</>;
@@ -82,6 +86,7 @@ export default function App() {
       <AppContent />
       <ToastContainer />
       <OfflineModal />
+      <TutorialModal />
     </GameLayout>
   );
 }
