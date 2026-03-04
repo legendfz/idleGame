@@ -3,7 +3,7 @@
  * requestAnimationFrame 驱动的实时战斗
  */
 
-import { DungeonConfig, DungeonWave, BossSkill } from '../data/dungeons';
+import { DungeonConfig, BossSkill } from '../data/dungeons';
 import { Stats } from '../types';
 
 export interface DungeonEnemy {

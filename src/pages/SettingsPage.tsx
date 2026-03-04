@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { REALMS } from '../data/realms';
-import { formatNumber, formatTime, formatDuration } from '../utils/format';
+import { formatNumber, formatTime } from '../utils/format';
 import FeedbackForm from '../components/FeedbackForm';
 import { Card, SubPage } from './shared';
 import { getSfxEnabled, setSfxEnabled, getSfxVolume, setSfxVolume, sfx } from '../engine/audio';
@@ -137,7 +137,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
 
       {/* About */}
       <Card title="关于">
-        <div className="stat-row"><span className="stat-label">版本</span><span>v31.0</span></div>
+        <div className="stat-row"><span className="stat-label">版本</span><span>v36.0</span></div>
         <div className="stat-row"><span className="stat-label">引擎</span><span>React + Zustand + Vite</span></div>
       </Card>
 

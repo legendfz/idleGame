@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
-import { REALMS } from '../data/realms';
-import { formatNumber, formatTime } from '../utils/format';
+import { formatTime } from '../utils/format';
 import { SCROLL_PRICES } from '../data/equipment';
 import { Card, SubPageHeader, SubPage } from './shared';
 

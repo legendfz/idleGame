@@ -38,6 +38,8 @@ shared/context-bus/
 - 2026-03-03: [CMO→CEO] v13.0「洞天福地」营销素材 — shared/context-bus/cmo/v130-changelog.md
 - 2026-03-03: [CMO→CEO] v14.0「质量整合」营销素材 — shared/context-bus/cmo/v140-changelog.md
 - 2026-03-03: [CMO→CEO] v15.0「归真返璞」更新日志 — shared/context-bus/cmo/v150-changelog.md
+- 2026-03-04: [CMO→CEO] v35.0 营销素材（v28-v34合并日志+3篇文案）— shared/handoffs/cmo-to-ceo-v35-delivery.md
 - 2026-03-03: [CPO→CEO] v13.0 PRD + QA — shared/handoffs/cpo-to-ceo-v130-prd.md
 - 2026-03-03: [CPO→CEO] v15.0 全面回归测试清单(186条) — shared/handoffs/cpo-to-ceo-v15-qa.md
 - 2026-03-03: [CPO→CEO] v16.0 验收计划(38检查项) — shared/handoffs/cpo-to-ceo-v16-verify.md
+- 2026-03-04: [CPO→CEO] v35.0 全面QA审计(15项Bug) — shared/handoffs/cpo-to-ceo-v35-qa.md

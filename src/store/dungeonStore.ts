@@ -3,7 +3,7 @@
  */
 
 import { create } from 'zustand';
-import { DungeonConfig, DUNGEONS, getDungeon } from '../data/dungeons';
+import { DungeonConfig, getDungeon } from '../data/dungeons';
 import {
   DungeonBattleState,
   initDungeonBattle,

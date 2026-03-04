@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { formatNumber } from '../utils/format';
-import { EquipmentItem, EquipSlot, QUALITY_INFO, INVENTORY_MAX } from '../types';
+import { EquipmentItem, EquipSlot, QUALITY_INFO } from '../types';
 import {
-  getEquipEffectiveStat, getEnhanceCost, getMaxEnhanceLevel, getActiveSetBonuses,
+  getEquipEffectiveStat, getEnhanceCost, getMaxEnhanceLevel,
   isHighEnhance, getHighEnhanceRate, getHighEnhanceDrop,
   canRefine, getRefineCost, REFINE_MATERIAL_COUNT, REFINE_SHARD_PITY,
-  hasHiddenPassive, hasFullMythic15, SCROLL_PRICES,
+  hasHiddenPassive,
 } from '../data/equipment';
 import { Card, SubPageHeader, SubPage } from './shared';
 

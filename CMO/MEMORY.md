@@ -25,6 +25,7 @@
 - v13.0: 洞天福地 — 更新日志+3篇文案+亮点一句话 (v130-changelog.md)
 - v14.0: 质量整合 — 更新日志+1篇文案 (v140-changelog.md)
 - v15.0: 归真返璞 — 更新日志 (v150-changelog.md)
+- v35.0: v28-v34合并更新日志+3篇文案 (handoffs/cmo-to-ceo-v35-delivery.md) — 游戏正式名「西游·悟空传」
 
 ## 经验教训
 

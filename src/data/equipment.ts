@@ -1,4 +1,4 @@
-import { EquipmentTemplate, EquipSet, EquipmentItem, Quality, QUALITY_INFO } from '../types';
+import { EquipmentTemplate, EquipSet, EquipmentItem, QUALITY_INFO } from '../types';
 
 // === Equipment Templates ===
 

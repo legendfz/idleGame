@@ -91,7 +91,6 @@ function BottomNav() {
 
 export default function App() {
   const activeTab = useGameStore(s => s.activeTab);
-  const setTab = useGameStore(s => s.setTab);
   const tick = useGameStore(s => s.tick);
   const save = useGameStore(s => s.save);
   const load = useGameStore(s => s.load);
@@ -117,8 +116,8 @@ export default function App() {
       for (let i = 0; i < speed; i++) tick();
       const gs = useGameStore.getState();
       const achStore = useAchievementStore.getState();
-      achStore.updateProgress('monkey_awaken', gs.player.level);
-      achStore.updateProgress('level_100', gs.player.level);
+      achStore.updateProgress('ach_level_50', gs.player.level);
+      achStore.updateProgress('ach_level_100', gs.player.level);
       achStore.updateProgress('online_24h', gs.totalPlayTime);
       achStore.checkAchievements();
     };
