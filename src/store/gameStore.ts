@@ -34,7 +34,7 @@ interface GameStore {
   // Floating damage text (P0-3)
   floatingTexts: FloatingText[];
   // Idle stats (P0-5)
-  idleStats: { goldPerSec: number; expPerSec: number; sessionTime: number };
+  idleStats: { goldPerSec: number; expPerSec: number; dps: number; sessionTime: number };
   // UI
   activeTab: TabId;
   totalPlayTime: number;
@@ -63,6 +63,8 @@ interface GameStore {
   buyScroll: (type: 'tianming' | 'protect' | 'lucky') => void;
   clearFloatingText: (id: number) => void;
   getEffectiveStats: () => Stats;
+  autoEquipBest: () => number;
+  quickDecompose: (maxQuality: number) => number;
   // Multi-save
   saveToSlot: (slotId: number) => void;
   loadFromSlot: (slotId: number) => void;
@@ -229,7 +231,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   equippedTreasure: null,
   inventory: [],
   floatingTexts: [],
-  idleStats: { goldPerSec: 0, expPerSec: 0, sessionTime: 0 },
+  idleStats: { goldPerSec: 0, expPerSec: 0, dps: 0, sessionTime: 0 },
   activeTab: 'battle',
   totalPlayTime: 0,
   lastSaveTimestamp: Date.now(),
@@ -265,9 +267,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
     let updatedInventory = [...state.inventory];
     let newFloats = [...state.floatingTexts];
 
-    // Track gold/exp for idle stats
+    // Track gold/exp/dps for idle stats
     let tickGold = 0;
     let tickExp = 0;
+    let tickDmg = 0;
 
     // Auto attack
     const isCrit = Math.random() * 100 < effectiveStats.critRate;
@@ -283,6 +286,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
 
     enemy.hp -= dmg;
+    tickDmg += dmg;
 
     // Floating text
     newFloats.push({
@@ -398,6 +402,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const alpha = 0.2; // smoothing
     const goldPerSec = prevStats.goldPerSec * (1 - alpha) + tickGold * alpha;
     const expPerSec = prevStats.expPerSec * (1 - alpha) + tickExp * alpha;
+    const dps = prevStats.dps * (1 - alpha) + tickDmg * alpha;
 
     updatedPlayer.totalCultivateTime += 1;
 
@@ -414,7 +419,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       battle: updatedBattle,
       inventory: updatedInventory,
       floatingTexts: newFloats.slice(-10), // keep max 10
-      idleStats: { goldPerSec, expPerSec, sessionTime },
+      idleStats: { goldPerSec, expPerSec, dps, sessionTime },
       totalPlayTime: state.totalPlayTime + 1,
     });
   },
@@ -505,7 +510,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       highestChapter: 1,
       highestStage: 1,
       floatingTexts: [],
-      idleStats: { goldPerSec: 0, expPerSec: 0, sessionTime: 0 },
+      idleStats: { goldPerSec: 0, expPerSec: 0, dps: 0, sessionTime: 0 },
     });
 
     sfx.breakthrough();
@@ -828,6 +833,40 @@ export const useGameStore = create<GameStore>((set, get) => ({
     });
   },
 
+  autoEquipBest: () => {
+    const state = get();
+    let equipped = 0;
+    for (const slot of ['weapon', 'armor', 'treasure'] as EquipSlot[]) {
+      const key = slot === 'weapon' ? 'equippedWeapon' : slot === 'armor' ? 'equippedArmor' : 'equippedTreasure';
+      const current = state[key as keyof typeof state] as EquipmentItem | null;
+      const currentStat = current ? getEquipEffectiveStat(current) : 0;
+      const candidates = (get().inventory as EquipmentItem[]).filter(i => i.slot === slot);
+      let best: EquipmentItem | null = null;
+      let bestStat = currentStat;
+      for (const c of candidates) {
+        const s = getEquipEffectiveStat(c);
+        if (s > bestStat) { best = c; bestStat = s; }
+      }
+      if (best) {
+        get().equipItem(best);
+        equipped++;
+      }
+    }
+    if (equipped > 0) {
+      set({ battle: { ...get().battle, log: addLog(get().battle.log, `一键装备：更换了 ${equipped} 件最优装备`, 'info') } });
+    }
+    return equipped;
+  },
+
+  quickDecompose: (maxQuality: number) => {
+    const state = get();
+    const qualityOrder = Object.keys(QUALITY_INFO);
+    const toDecompose = state.inventory.filter(i => qualityOrder.indexOf(i.quality) <= maxQuality);
+    if (toDecompose.length === 0) return 0;
+    get().batchDecompose(toDecompose.map(i => i.uid));
+    return toDecompose.length;
+  },
+
   save: () => {
     const state = get();
     const save: GameSave = {
@@ -972,7 +1011,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       equippedWeapon: null, equippedArmor: null, equippedTreasure: null,
       inventory: [],
       floatingTexts: [],
-      idleStats: { goldPerSec: 0, expPerSec: 0, sessionTime: 0 },
+      idleStats: { goldPerSec: 0, expPerSec: 0, dps: 0, sessionTime: 0 },
       totalPlayTime: 0, lastSaveTimestamp: Date.now(), offlineReport: null,
     });
   },

@@ -46,6 +46,7 @@ export function BattleView() {
         <div className="idle-stats">
           <span className="color-gold">+{formatNumber(Math.floor(idleStats.goldPerSec))}/秒</span>
           {'  '}<span className="color-exp">+{formatNumber(Math.floor(idleStats.expPerSec))}/秒</span>
+          {'  '}<span className="color-crit">DPS {formatNumber(Math.floor(idleStats.dps))}</span>
           {'  '}<span className="color-dim">挂机 {formatTime(idleStats.sessionTime)}</span>
         </div>
       </Card>
