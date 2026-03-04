@@ -53,7 +53,7 @@ export function BattleView() {
 
       {/* Chapter progress bar */}
       <div className="battle-chapter-bar">
-        <span className="color-dim">{isAbyss ? `深渊·${battle.stageNum}层` : `${battle.stageNum}/${chapter?.stages ?? '?'}关`}</span>
+        <span className="color-dim">{isAbyss ? `深渊·${battle.stageNum}层` : `${chapter?.name ?? ''} ${battle.stageNum}/${chapter?.stages ?? '?'}关`}</span>
         {!isAbyss && (
           <div className="battle-chapter-track">
             <div className="battle-chapter-fill" style={{ width: `${chapterProgress}%` }} />

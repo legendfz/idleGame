@@ -195,6 +195,17 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
                   </span>}
                 </>;
               })()}
+              {item.slot === 'treasure' && (() => {
+                const equipped = treasure;
+                const eqStat = equipped ? getEquipEffectiveStat(equipped) : 0;
+                const diff = stat - eqStat;
+                return <>
+                  <span className="color-accent">法+{formatNumber(stat)}</span>
+                  {diff !== 0 && <span style={{ color: diff > 0 ? '#4caf50' : '#f44336', fontSize: 11, marginLeft: 4 }}>
+                    ({diff > 0 ? '↑' : '↓'}{formatNumber(Math.abs(diff))})
+                  </span>}
+                </>;
+              })()}
               {item.passive && <span className="color-passive">{item.passive.description}</span>}
               {item.setId && <span className="color-set" style={{ fontSize: 11 }}>套装</span>}
             </div>
