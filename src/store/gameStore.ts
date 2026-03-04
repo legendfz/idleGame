@@ -283,7 +283,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     // Auto attack
     const isCrit = Math.random() * 100 < effectiveStats.critRate;
-    let dmg = Math.max(1, effectiveStats.attack - enemy.defense);
+    // Percentage-based defense: reduction = def / (def + 100 + level*5)
+    const defReduction = enemy.defense / (enemy.defense + 100 + updatedPlayer.level * 5);
+    let dmg = Math.max(1, Math.floor(effectiveStats.attack * (1 - defReduction)));
     if (isCrit) dmg = Math.floor(dmg * effectiveStats.critDmg);
 
     // v1.2: Weapon +15 hidden passive — 鸿蒙一击 (5% chance 3x damage)
@@ -968,8 +970,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       save.player.totalEquipDrops = save.player.totalEquipDrops ?? 0;
       save.player.totalKills = save.player.totalKills ?? 0;
       save.player.totalBreakthroughs = save.player.totalBreakthroughs ?? 0;
-      save.player.tutorialStep = save.player.tutorialStep ?? 1;
-      save.player.tutorialDone = save.player.tutorialDone ?? false;
+      save.player.tutorialStep = save.player.tutorialStep ?? (save.player.level > 5 ? 6 : 1);
+      save.player.tutorialDone = save.player.tutorialDone ?? (save.player.level > 5);
       save.player.systemTutorials = save.player.systemTutorials ?? [];
         save.version = 4;
       }

@@ -118,7 +118,8 @@ export function createEnemy(chapterId: number, stageNum: number, isBoss: boolean
     ? chapter.boss
     : chapter.mobs[Math.floor(Math.random() * chapter.mobs.length)];
 
-  const scale = Math.pow(1.12, stageNum - 1);
+  // Gentler scaling: linear base + mild exponential
+  const scale = (1 + (stageNum - 1) * 0.15) * Math.pow(1.02, stageNum - 1);
 
   return {
     name: template.name,
