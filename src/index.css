@@ -1060,3 +1060,18 @@ body {
   border-color: var(--accent);
   font-weight: bold;
 }
+
+/* v25.0 EXP Bar */
+.exp-bar-bg {
+  height: 4px;
+  background: #1a1a2e;
+  border-radius: 2px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+.exp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4a9eff, #a855f7);
+  transition: width 0.3s ease-out;
+  border-radius: 2px;
+}

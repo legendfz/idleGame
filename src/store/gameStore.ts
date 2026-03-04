@@ -924,6 +924,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
       save.player.totalBreakthroughs = save.player.totalBreakthroughs ?? 0;
       save.player.tutorialStep = save.player.tutorialStep ?? 1;
       save.player.tutorialDone = save.player.tutorialDone ?? false;
+      // Auto-skip tutorial for experienced players
+      if (save.player.level > 5 && !save.player.tutorialDone) {
+        save.player.tutorialStep = 6;
+        save.player.tutorialDone = true;
+      }
       save.player.systemTutorials = save.player.systemTutorials ?? [];
         save.version = 4;
       }

@@ -43,6 +43,9 @@ export function BattleView() {
           <span className="color-crit">暴 {eStats.critRate.toFixed(0)}%</span>
           <span className="color-exp">经验 {formatNumber(player.exp)}/{formatNumber(expForLevel(player.level))}</span>
         </div>
+        <div className="exp-bar-bg">
+          <div className="exp-bar-fill" style={{ width: `${Math.min(100, (player.exp / expForLevel(player.level)) * 100)}%` }} />
+        </div>
       </Card>
       <Card className="idle-stats-card">
         <div className="idle-stats">
