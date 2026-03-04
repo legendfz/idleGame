@@ -119,6 +119,16 @@ export default function App() {
       achStore.updateProgress('ach_level_50', gs.player.level);
       achStore.updateProgress('ach_level_100', gs.player.level);
       achStore.updateProgress('online_24h', gs.totalPlayTime);
+      // Sync game stats → achievement counters
+      const c = achStore.counters;
+      const p = gs.player;
+      if (p.totalKills > c.totalKills) achStore.incrementCounter('totalKills', p.totalKills - c.totalKills);
+      if (p.totalEquipDrops > c.totalEquipObtained) achStore.incrementCounter('totalEquipObtained', p.totalEquipDrops - c.totalEquipObtained);
+      const pGold = p.totalGoldEarned || 0;
+      if (pGold > c.totalGoldEarned) achStore.incrementCounter('totalGoldEarned', pGold - c.totalGoldEarned);
+      // Track unique equipment names
+      const uniqueNames = new Set(gs.inventory.map((e: any) => e.name));
+      if (uniqueNames.size > c.collectUnique) achStore.incrementCounter('collectUnique', uniqueNames.size - c.collectUnique);
       achStore.checkAchievements();
     };
     const startLoop = () => {

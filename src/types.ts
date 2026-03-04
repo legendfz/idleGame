@@ -19,6 +19,7 @@ export interface PlayerState {
   maxDamage: number;
   totalEquipDrops: number;
   totalKills: number;
+  totalGoldEarned: number;
   totalBreakthroughs: number;
   // v12.0 教程
   tutorialStep: number;      // 0=未开始, 1-5=进行中, 6=完成
