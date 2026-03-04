@@ -4,6 +4,11 @@ export const CHAPTERS: Chapter[] = [
   { id: 1, name: '花果山·石猴出世', stages: 50, levelRange: [1, 30], description: '从石头里蹦出来的猴子，称王花果山' },
   { id: 2, name: '龙宫·夺宝', stages: 60, levelRange: [30, 80], description: '闯入东海龙宫，夺取如意金箍棒' },
   { id: 3, name: '天庭·大闹天宫', stages: 100, levelRange: [80, 200], description: '上天入地，大闹天宫' },
+  { id: 4, name: '五行山·劫难', stages: 80, levelRange: [200, 350], description: '五百年镇压，等待取经人' },
+  { id: 5, name: '西行·降妖伏魔', stages: 120, levelRange: [350, 500], description: '师徒四人，西天取经路' },
+  { id: 6, name: '火焰山·芭蕉扇', stages: 100, levelRange: [500, 800], description: '三借芭蕉扇，火焰山前斗牛魔' },
+  { id: 7, name: '灵山·佛前试炼', stages: 150, levelRange: [800, 1500], description: '灵山脚下，最后的考验' },
+  { id: 8, name: '混沌·证道成仙', stages: 200, levelRange: [1500, 9999], description: '超脱三界，证道成仙' },
 ];
 
 // Enemy templates per chapter
@@ -31,6 +36,46 @@ export const CHAPTER_ENEMIES: Record<number, { mobs: EnemyTemplate[]; boss: Enem
       { name: '巨灵神', emoji: '[力]', baseHp: 1000, baseDefense: 25, baseLingshi: 70, baseExp: 60, pantaoChance: 0 },
     ],
     boss: { name: '二郎神', emoji: '[目]', baseHp: 8000, baseDefense: 50, baseLingshi: 800, baseExp: 500, pantaoChance: 0.2 },
+  },
+  4: {
+    mobs: [
+      { name: '山精', emoji: '[山]', baseHp: 1500, baseDefense: 40, baseLingshi: 90, baseExp: 75, pantaoChance: 0 },
+      { name: '石魔', emoji: '[岩]', baseHp: 2000, baseDefense: 55, baseLingshi: 110, baseExp: 90, pantaoChance: 0 },
+      { name: '地煞鬼', emoji: '[煞]', baseHp: 1800, baseDefense: 45, baseLingshi: 100, baseExp: 80, pantaoChance: 0 },
+    ],
+    boss: { name: '五行大王', emoji: '[王]', baseHp: 15000, baseDefense: 80, baseLingshi: 1500, baseExp: 1000, pantaoChance: 0.2 },
+  },
+  5: {
+    mobs: [
+      { name: '白骨精', emoji: '[骨]', baseHp: 4000, baseDefense: 80, baseLingshi: 200, baseExp: 150, pantaoChance: 0 },
+      { name: '蜘蛛精', emoji: '[蛛]', baseHp: 3500, baseDefense: 70, baseLingshi: 180, baseExp: 140, pantaoChance: 0 },
+      { name: '黄风怪', emoji: '[风]', baseHp: 5000, baseDefense: 90, baseLingshi: 220, baseExp: 170, pantaoChance: 0 },
+    ],
+    boss: { name: '牛魔王', emoji: '[牛]', baseHp: 50000, baseDefense: 150, baseLingshi: 3000, baseExp: 2000, pantaoChance: 0.25 },
+  },
+  6: {
+    mobs: [
+      { name: '火焰兵', emoji: '[火]', baseHp: 8000, baseDefense: 120, baseLingshi: 400, baseExp: 300, pantaoChance: 0 },
+      { name: '铁扇侍卫', emoji: '[扇]', baseHp: 10000, baseDefense: 150, baseLingshi: 450, baseExp: 350, pantaoChance: 0 },
+      { name: '红孩儿', emoji: '[焰]', baseHp: 12000, baseDefense: 130, baseLingshi: 500, baseExp: 400, pantaoChance: 0.05 },
+    ],
+    boss: { name: '铁扇公主', emoji: '[仙]', baseHp: 120000, baseDefense: 250, baseLingshi: 8000, baseExp: 5000, pantaoChance: 0.3 },
+  },
+  7: {
+    mobs: [
+      { name: '金刚护法', emoji: '[金]', baseHp: 25000, baseDefense: 200, baseLingshi: 800, baseExp: 600, pantaoChance: 0.05 },
+      { name: '罗汉', emoji: '[佛]', baseHp: 30000, baseDefense: 250, baseLingshi: 900, baseExp: 700, pantaoChance: 0.05 },
+      { name: '菩萨使者', emoji: '[莲]', baseHp: 35000, baseDefense: 220, baseLingshi: 1000, baseExp: 800, pantaoChance: 0.1 },
+    ],
+    boss: { name: '如来佛祖', emoji: '[卍]', baseHp: 500000, baseDefense: 500, baseLingshi: 20000, baseExp: 12000, pantaoChance: 0.35 },
+  },
+  8: {
+    mobs: [
+      { name: '混沌兽', emoji: '[混]', baseHp: 80000, baseDefense: 400, baseLingshi: 2000, baseExp: 1500, pantaoChance: 0.1 },
+      { name: '天道使者', emoji: '[道]', baseHp: 100000, baseDefense: 500, baseLingshi: 2500, baseExp: 2000, pantaoChance: 0.1 },
+      { name: '劫雷化身', emoji: '[雷]', baseHp: 120000, baseDefense: 450, baseLingshi: 3000, baseExp: 2500, pantaoChance: 0.15 },
+    ],
+    boss: { name: '天道化身', emoji: '[天]', baseHp: 2000000, baseDefense: 1000, baseLingshi: 50000, baseExp: 30000, pantaoChance: 0.4 },
   },
 };
 
