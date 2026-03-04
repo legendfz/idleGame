@@ -1,5 +1,5 @@
 /**
- * v1.3 排行榜页面 — per CDO COMPONENT-GUIDE-V1.3
+ * 排行榜页面
  */
 
 import { useState } from 'react';
@@ -8,7 +8,7 @@ import { LEADERBOARD_CONFIGS } from '../data/leaderboards';
 import { formatNumber } from '../utils/format';
 import TabBar from './shared/TabBar';
 
-const RANK_ICONS = ['', '🥇', '🥈', '🥉'];
+const RANK_ICONS = ['', '1st', '2nd', '3rd'];
 const RANK_COLORS = ['', '#ffd700', '#c0c0c0', '#cd7f32'];
 
 export default function Leaderboard() {
@@ -31,7 +31,7 @@ export default function Leaderboard() {
   return (
     <div className="leaderboard fade-in">
       <div className="page-title-bar">
-        <span>═══ 📊 排行榜 ═══</span>
+        <span>═══ 排行榜 ═══</span>
       </div>
 
       <TabBar
@@ -44,12 +44,12 @@ export default function Leaderboard() {
       <div className="lb-category-title">
         ── {config.icon} {config.name} ──
       </div>
-      <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--text-dim)', marginBottom: 8 }}>
+      <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--text-dim)', marginBottom: 10 }}>
         {config.description}
       </div>
 
       {rankings.length === 0 ? (
-        <div style={{ textAlign: 'center', color: 'var(--text-dim)', padding: 24 }}>
+        <div style={{ textAlign: 'center', color: 'var(--text-dim)', padding: 28 }}>
           暂无记录，继续冒险吧！
         </div>
       ) : (
@@ -78,7 +78,7 @@ export default function Leaderboard() {
 
       {rankings.length > 0 && (
         <div className="lb-current">
-          <div>📊 最佳记录：{isSpeed ? `${rankings[0].score}秒` : formatNumber(rankings[0].score)}</div>
+          <div>最佳记录：{isSpeed ? `${rankings[0].score}秒` : formatNumber(rankings[0].score)}</div>
         </div>
       )}
     </div>

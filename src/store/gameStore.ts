@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { PlayerState, BattleState, BattleLogEntry, Enemy, TabId, GameSave, EquipmentItem, EquipSlot, Stats, QUALITY_INFO, FloatingText, INVENTORY_MAX, OfflineReport } from '../types';
 import { REALMS } from '../data/realms';
-import { CHAPTERS, createEnemy } from '../data/chapters';
+import { CHAPTERS, createEnemy, ABYSS_CHAPTER_ID } from '../data/chapters';
 import { expForLevel } from '../utils/format';
 import { sfx } from '../engine/audio';
 import { calcDaoPoints, REINC_PERKS, REINC_MIN_REALM, REINC_MIN_LEVEL } from '../data/reincarnation';
@@ -40,6 +40,9 @@ interface GameStore {
   totalPlayTime: number;
   lastSaveTimestamp: number;
   offlineReport: OfflineReport | null;
+  // v31.0 settings
+  battleSpeed: number;
+  autoDecomposeQuality: number; // 0=off, 1=common, 2=spirit+below, 3=immortal+below
 
   // Actions
   setTab: (tab: TabId) => void;
@@ -63,6 +66,8 @@ interface GameStore {
   buyScroll: (type: 'tianming' | 'protect' | 'lucky') => void;
   clearFloatingText: (id: number) => void;
   getEffectiveStats: () => Stats;
+  setBattleSpeed: (speed: number) => void;
+  setAutoDecomposeQuality: (quality: number) => void;
   autoEquipBest: () => number;
   quickDecompose: (maxQuality: number) => number;
   // Multi-save
@@ -236,9 +241,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
   totalPlayTime: 0,
   lastSaveTimestamp: Date.now(),
   offlineReport: null,
+  battleSpeed: 1,
+  autoDecomposeQuality: 0,
 
   setTab: (tab) => set({ activeTab: tab }),
   dismissOfflineReport: () => set({ offlineReport: null }),
+  setBattleSpeed: (speed) => set({ battleSpeed: speed }),
+  setAutoDecomposeQuality: (quality) => set({ autoDecomposeQuality: quality }),
   clearFloatingText: (id) => set(s => ({ floatingTexts: s.floatingTexts.filter(f => f.id !== id) })),
 
   getEffectiveStats: () => {
@@ -274,7 +283,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     // Auto attack
     const isCrit = Math.random() * 100 < effectiveStats.critRate;
-    let dmg = Math.max(1, effectiveStats.attack - enemy.defense);
+    // Percentage-based defense: reduction = def / (def + 100 + level*5)
+    const defReduction = enemy.defense / (enemy.defense + 100 + updatedPlayer.level * 5);
+    let dmg = Math.max(1, Math.floor(effectiveStats.attack * (1 - defReduction)));
     if (isCrit) dmg = Math.floor(dmg * effectiveStats.critDmg);
 
     // v1.2: Weapon +15 hidden passive — 鸿蒙一击 (5% chance 3x damage)
@@ -364,8 +375,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
             newStageNum = 1;
             log = addLog(log, `第${chapter.id}章「${chapter.name}」通关！`, 'info');
           } else {
-            newStageNum = chapter.stages;
-            log = addLog(log, `所有章节通关！继续刷最后一关`, 'info');
+            // Enter Abyss mode — infinite scaling
+            newChapterId = ABYSS_CHAPTER_ID;
+            newStageNum = 1;
+            log = addLog(log, `第${chapter.id}章「${chapter.name}」通关！进入无尽深渊！`, 'info');
           }
         }
 
@@ -413,6 +426,43 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     // v13: Exploration daily reset
     useExplorationStore.getState().tickReset();
+
+    // v31.0: Auto-decompose low quality items
+    const adq = state.autoDecomposeQuality;
+    if (adq > 0) {
+      const qualityOrder = ['common', 'spirit', 'immortal', 'divine', 'legendary', 'mythic'];
+      const equipped = [state.equippedWeapon?.uid, state.equippedArmor?.uid, state.equippedTreasure?.uid];
+      const toDecomp = updatedInventory.filter(i => {
+        const qi = qualityOrder.indexOf(i.quality);
+        return qi < adq && !equipped.includes(i.uid);
+      });
+      if (toDecomp.length > 0) {
+        for (const item of toDecomp) {
+          const qm = QUALITY_INFO[item.quality].multiplier;
+          updatedPlayer.hongmengShards += Math.ceil(qm * (1 + item.level * 0.5));
+        }
+        updatedInventory = updatedInventory.filter(i => !toDecomp.some(d => d.uid === i.uid));
+      }
+    }
+
+    // v32.0: Auto-breakthrough when conditions met
+    const autoBreakNext = REALMS[updatedPlayer.realmIndex + 1];
+    if (autoBreakNext && updatedPlayer.level >= autoBreakNext.levelReq && updatedPlayer.pantao >= autoBreakNext.pantaoReq) {
+      updatedPlayer = { ...updatedPlayer,
+        pantao: updatedPlayer.pantao - autoBreakNext.pantaoReq,
+        realmIndex: updatedPlayer.realmIndex + 1,
+        totalBreakthroughs: updatedPlayer.totalBreakthroughs + 1,
+        stats: { ...updatedPlayer.stats,
+          attack: Math.floor(updatedPlayer.stats.attack * 1.5),
+          maxHp: Math.floor(updatedPlayer.stats.maxHp * 1.5),
+          hp: Math.floor(updatedPlayer.stats.maxHp * 1.5),
+        },
+      };
+      updatedBattle = { ...updatedBattle,
+        log: addLog(updatedBattle.log, `境界突破！「${autoBreakNext.name}」— ${autoBreakNext.bonus}`, 'levelup'),
+      };
+      sfx.breakthrough();
+    }
 
     set({
       player: updatedPlayer,
@@ -882,7 +932,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
       sanctuary: useSanctuaryStore.getState().sanctuary,
       exploration: useExplorationStore.getState().exploration,
       affinity: useAffinityStore.getState().affinity,
-    };
+      battleSpeed: state.battleSpeed,
+      autoDecomposeQuality: state.autoDecomposeQuality,
+    } as any;
     localStorage.setItem('xiyou-idle-save', JSON.stringify(save));
     set({ lastSaveTimestamp: Date.now() });
   },
@@ -918,8 +970,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       save.player.totalEquipDrops = save.player.totalEquipDrops ?? 0;
       save.player.totalKills = save.player.totalKills ?? 0;
       save.player.totalBreakthroughs = save.player.totalBreakthroughs ?? 0;
-      save.player.tutorialStep = save.player.tutorialStep ?? 1;
-      save.player.tutorialDone = save.player.tutorialDone ?? false;
+      save.player.tutorialStep = save.player.tutorialStep ?? (save.player.level > 5 ? 6 : 1);
+      save.player.tutorialDone = save.player.tutorialDone ?? (save.player.level > 5);
       save.player.systemTutorials = save.player.systemTutorials ?? [];
         save.version = 4;
       }
@@ -991,6 +1043,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         equippedTreasure: treasure,
         inventory: finalInventory,
         offlineReport: report,
+        battleSpeed: (save as any).battleSpeed ?? 1,
+        autoDecomposeQuality: (save as any).autoDecomposeQuality ?? 0,
       });
 
       // Load v13 stores

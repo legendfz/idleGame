@@ -1,6 +1,5 @@
 /**
- * v1.3 Achievement Toast notification
- * Per CDO COMPONENT-GUIDE-V1.3 spec
+ * Achievement Toast notification
  */
 
 import { useEffect, useState } from 'react';
@@ -43,12 +42,12 @@ export default function AchievementToast() {
         setTimeout(() => setCurrent(null), 300);
       }}
     >
-      <div style={{ fontSize: 11, color: 'var(--accent)', fontWeight: 'bold' }}>🏆 成就达成！</div>
+      <div style={{ fontSize: 11, color: 'var(--accent)', fontWeight: 'bold' }}>★ 成就达成！</div>
       <div style={{ fontSize: 14, marginTop: 2 }}>
         {current.icon} {current.name}
       </div>
       <div style={{ fontSize: 11, color: 'var(--text-dim)', marginTop: 2 }}>
-        🎁 {current.reward.description}
+        奖励: {current.reward.description}
       </div>
     </div>
   );

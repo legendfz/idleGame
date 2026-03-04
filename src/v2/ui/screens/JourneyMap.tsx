@@ -5,7 +5,7 @@ export default function JourneyMap() {
 
   return (
     <div className="v2-screen">
-      <h3>🗺️ 取经地图</h3>
+      <h3>[图] 取经地图</h3>
       <div className="v2-journey-info">
         当前：第 {journey.currentStage} 难 / 81
       </div>

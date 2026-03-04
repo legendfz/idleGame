@@ -33,16 +33,16 @@ const DAILY_FREE = 3;
 const EXTRA_COST = 500; // lingshi
 
 const EVENT_POOL: Omit<ExplorationNode, 'id' | 'resolved'>[] = [
-  { type: 'battle', name: '妖兽袭击', icon: '👹', desc: '击败妖兽获得奖励', reward: { lingshi: 200, exp: 100 } },
-  { type: 'battle', name: '山贼拦路', icon: '🗡️', desc: '击退山贼', reward: { lingshi: 150, exp: 80 } },
-  { type: 'treasure', name: '宝箱', icon: '📦', desc: '发现藏宝', reward: { lingshi: 300, pantao: 1 } },
-  { type: 'treasure', name: '灵泉', icon: '💧', desc: '灵泉恢复', reward: { exp: 200 } },
-  { type: 'fortune', name: '仙人指路', icon: '🧙', desc: '获得仙人赐福', reward: { exp: 300, lingshi: 100 } },
-  { type: 'fortune', name: '灵根觉醒', icon: '🌱', desc: '灵根品质提升', reward: { exp: 500 } },
-  { type: 'trap', name: '毒雾陷阱', icon: '☠️', desc: '中毒受伤', damage: 50, reward: { lingshi: 50 } },
-  { type: 'trap', name: '落石机关', icon: '🪨', desc: '被落石砸中', damage: 80, reward: { lingshi: 30 } },
-  { type: 'merchant', name: '行脚商人', icon: '🧳', desc: '以灵石交换物品', reward: { pantao: 1 } },
-  { type: 'merchant', name: '炼丹师', icon: '⚗️', desc: '获得丹药', reward: { exp: 150, lingshi: 50 } },
+  { type: 'battle', name: '妖兽袭击', icon: '[妖]', desc: '击败妖兽获得奖励', reward: { lingshi: 200, exp: 100 } },
+  { type: 'battle', name: '山贼拦路', icon: '[刃]', desc: '击退山贼', reward: { lingshi: 150, exp: 80 } },
+  { type: 'treasure', name: '宝箱', icon: '[箱]', desc: '发现藏宝', reward: { lingshi: 300, pantao: 1 } },
+  { type: 'treasure', name: '灵泉', icon: '[泉]', desc: '灵泉恢复', reward: { exp: 200 } },
+  { type: 'fortune', name: '仙人指路', icon: '[仙]', desc: '获得仙人赐福', reward: { exp: 300, lingshi: 100 } },
+  { type: 'fortune', name: '灵根觉醒', icon: '[根]', desc: '灵根品质提升', reward: { exp: 500 } },
+  { type: 'trap', name: '毒雾陷阱', icon: '[毒]', desc: '中毒受伤', damage: 50, reward: { lingshi: 50 } },
+  { type: 'trap', name: '落石机关', icon: '[石]', desc: '被落石砸中', damage: 80, reward: { lingshi: 30 } },
+  { type: 'merchant', name: '行脚商人', icon: '[商]', desc: '以灵石交换物品', reward: { pantao: 1 } },
+  { type: 'merchant', name: '炼丹师', icon: '[药]', desc: '获得丹药', reward: { exp: 150, lingshi: 50 } },
 ];
 
 export function createExplorationState(): ExplorationState {

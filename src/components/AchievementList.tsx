@@ -1,5 +1,5 @@
 /**
- * v1.3 成就列表页 — per CDO COMPONENT-GUIDE-V1.3
+ * 成就列表页
  */
 
 import { useState } from 'react';
@@ -25,16 +25,16 @@ export default function AchievementList() {
     <div className="achievement-panel fade-in">
       {/* Title + progress */}
       <div className="page-title-bar">
-        <span>═══ 🏆 成就 ═══</span>
+        <span>═══ 成就 ═══</span>
       </div>
 
       <div className="achievement-summary">
-        <span>📊 完成进度：{completedCount}/{ACHIEVEMENTS.length} ({pct}%)</span>
+        <span>完成进度：{completedCount}/{ACHIEVEMENTS.length} ({pct}%)</span>
         <MiniProgressBar current={completedCount} max={ACHIEVEMENTS.length} color="var(--green)" height={8} />
       </div>
 
       {/* Title selector */}
-      <div style={{ textAlign: 'center', fontSize: 12, marginBottom: 8 }}>
+      <div style={{ textAlign: 'center', fontSize: 12, marginBottom: 12 }}>
         称号：
         <select
           value={selectedTitle}
@@ -48,8 +48,8 @@ export default function AchievementList() {
       {/* Tab */}
       <TabBar
         tabs={[
-          { id: 'milestone', label: '🏅 里程碑' },
-          { id: 'challenge', label: '⚡ 挑战' },
+          { id: 'milestone', label: '里程碑' },
+          { id: 'challenge', label: '挑战' },
         ]}
         activeId={activeTab}
         onChange={setActiveTab}
@@ -66,7 +66,7 @@ export default function AchievementList() {
           return (
             <div key={ach.id} className={`achievement-item ach-${status}`}>
               <span className="ach-status-icon">
-                {status === 'completed' ? '✅' : status === 'in_progress' ? '🔄' : '🔒'}
+                {status === 'completed' ? '◆' : status === 'in_progress' ? '▸' : '·'}
               </span>
               <div className="ach-info">
                 <div className="ach-name">{ach.icon} {ach.name}</div>
@@ -80,7 +80,7 @@ export default function AchievementList() {
                   />
                 )}
               </div>
-              <span className="ach-reward">🎁 {ach.reward.description}</span>
+              <span className="ach-reward">奖励: {ach.reward.description}</span>
             </div>
           );
         })}

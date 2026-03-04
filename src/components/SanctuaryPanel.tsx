@@ -17,8 +17,8 @@ export function SanctuaryPanel() {
 
   return (
     <div className="main-content fade-in">
-      <h3 className="section-title">🏔️ 洞天福地</h3>
-      <div style={{ fontSize: 12, color: 'var(--dim)', marginBottom: 12 }}>建设你的修仙福地，获取持续加成</div>
+      <h3 className="section-title">洞天福地</h3>
+      <div style={{ fontSize: 12, color: 'var(--dim)', marginBottom: 16 }}>建设你的修仙福地，获取持续加成</div>
       {BUILDINGS.map(def => {
         const lv = levels[def.id] ?? 0;
         const output = getBuildingOutput(def, lv);
@@ -26,20 +26,20 @@ export function SanctuaryPanel() {
         const canUp = lv < 10 && lingshi >= cost;
         return (
           <div key={def.id} style={{
-            background: 'var(--bg-card)', borderRadius: 10, padding: 12, marginBottom: 8,
+            background: 'var(--bg-card)', borderRadius: 10, padding: 14, marginBottom: 10,
             border: lv > 0 ? '1px solid var(--accent)' : '1px solid var(--border)',
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 28 }}>{def.icon}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 14, color: 'var(--accent)', fontWeight: 'bold', minWidth: 36, textAlign: 'center' }}>{def.icon}</span>
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 'bold' }}>{def.name} <span style={{ fontSize: 11, color: 'var(--dim)' }}>Lv.{lv}/10</span></div>
-                <div style={{ fontSize: 11, color: 'var(--dim)' }}>{def.desc}</div>
-                {lv > 0 && <div style={{ fontSize: 11, color: 'var(--accent)' }}>产出: +{output}</div>}
+                <div style={{ fontSize: 11, color: 'var(--dim)', marginTop: 2 }}>{def.desc}</div>
+                {lv > 0 && <div style={{ fontSize: 11, color: 'var(--accent)', marginTop: 2 }}>产出: +{output}</div>}
               </div>
               {lv < 10 ? (
                 <button className={`action-btn ${canUp ? 'accent' : ''}`} disabled={!canUp} onClick={() => handleUpgrade(def.id)}
-                  style={{ fontSize: 11, padding: '4px 10px', opacity: canUp ? 1 : 0.4 }}>
-                  升级 ({formatNumber(cost)}💰)
+                  style={{ fontSize: 11, padding: '6px 12px', opacity: canUp ? 1 : 0.4 }}>
+                  升级 ({formatNumber(cost)} 灵石)
                 </button>
               ) : <span style={{ color: 'var(--accent)', fontSize: 11 }}>已满级</span>}
             </div>

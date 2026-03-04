@@ -29,17 +29,17 @@ import { ReincarnationPanel } from './components/ReincarnationPanel';
 const LazyFallback = () => <div style={{ padding: 40, textAlign: 'center', color: '#aaa' }}>加载中...</div>;
 
 const ALL_TABS = [
-  { id: 'battle' as const, icon: '⚔️', label: '战斗', unlockLevel: 0 },
-  { id: 'team' as const, icon: '👤', label: '队伍', unlockLevel: 0 },
-  { id: 'journey' as const, icon: '🏔️', label: '旅途', unlockLevel: 0 },
-  { id: 'bag' as const, icon: '🎒', label: '背包', unlockLevel: 5 },
-  { id: 'achievement' as const, icon: '🏆', label: '成就', unlockLevel: 10 },
-  { id: 'stats' as const, icon: '📊', label: '统计', unlockLevel: 15 },
-  { id: 'reincarnation' as const, icon: '🔄', label: '转世', unlockLevel: 50 },
-  { id: 'sanctuary' as const, icon: '🏔️', label: '洞天', unlockLevel: 20 },
-  { id: 'exploration' as const, icon: '🗺️', label: '秘境', unlockLevel: 30 },
-  { id: 'affinity' as const, icon: '💕', label: '仙缘', unlockLevel: 40 },
-  { id: 'settings' as const, icon: '⚙️', label: '更多', unlockLevel: 0 },
+  { id: 'battle' as const, icon: '战', label: '战斗', unlockLevel: 0 },
+  { id: 'team' as const, icon: '伍', label: '队伍', unlockLevel: 0 },
+  { id: 'journey' as const, icon: '途', label: '旅途', unlockLevel: 0 },
+  { id: 'bag' as const, icon: '包', label: '背包', unlockLevel: 5 },
+  { id: 'achievement' as const, icon: '勋', label: '成就', unlockLevel: 10 },
+  { id: 'stats' as const, icon: '据', label: '统计', unlockLevel: 15 },
+  { id: 'reincarnation' as const, icon: '轮', label: '转世', unlockLevel: 50 },
+  { id: 'sanctuary' as const, icon: '府', label: '洞天', unlockLevel: 20 },
+  { id: 'exploration' as const, icon: '境', label: '秘境', unlockLevel: 30 },
+  { id: 'affinity' as const, icon: '缘', label: '仙缘', unlockLevel: 40 },
+  { id: 'settings' as const, icon: '设', label: '更多', unlockLevel: 0 },
 ];
 
 function useUnlockedTabs() {
@@ -53,7 +53,7 @@ function useUnlockedTabs() {
       const newTabs = ALL_TABS.filter(t => t.unlockLevel > 0 && level >= t.unlockLevel)
         .slice(prevCountRef.current - 4); // minus the 4 initial tabs
       if (newTabs.length > 0) {
-        setToast(`🎉 新功能解锁：${newTabs[newTabs.length - 1].label}`);
+        setToast(`★ 新功能解锁：${newTabs[newTabs.length - 1].label}`);
         setTimeout(() => setToast(null), 3000);
       }
     }
@@ -113,7 +113,8 @@ export default function App() {
   useEffect(() => {
     let id: ReturnType<typeof setInterval>;
     const doTick = () => {
-      tick();
+      const speed = useGameStore.getState().battleSpeed || 1;
+      for (let i = 0; i < speed; i++) tick();
       const gs = useGameStore.getState();
       const achStore = useAchievementStore.getState();
       achStore.updateProgress('monkey_awaken', gs.player.level);

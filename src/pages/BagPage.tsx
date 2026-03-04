@@ -92,7 +92,7 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
         <button className="small-btn accent" onClick={() => {
           const n = autoEquipBest();
           if (n === 0) alert('已是最优装备！');
-        }}>⚡一键最优</button>
+        }}>一键最优</button>
         <button className="small-btn" onClick={() => setSubPage({ type: 'refine' })}>精炼</button>
         <button className="small-btn" onClick={() => setSubPage({ type: 'shop' })}>商店</button>
         <button className="small-btn danger" onClick={() => {
@@ -105,7 +105,7 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
             const n = quickDecompose(maxQ);
             if (n === 0) alert('没有可分解的装备');
           }
-        }}>🗑️速分</button>
+        }}>速分</button>
       </div>
 
       {/* Resources */}
