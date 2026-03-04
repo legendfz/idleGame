@@ -19,6 +19,8 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
   const decomposeEquip = useGameStore(s => s.decomposeEquip);
   const batchDecompose = useGameStore(s => s.batchDecompose);
   const player = useGameStore(s => s.player);
+  const autoEquipBest = useGameStore(s => s.autoEquipBest);
+  const quickDecompose = useGameStore(s => s.quickDecompose);
   const [filter, setFilter] = useState<EquipSlot | 'all'>('all');
   const [decomposeMode, setDecomposeMode] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -87,8 +89,23 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
 
       {/* Quick actions */}
       <div className="bag-quick-actions">
+        <button className="small-btn accent" onClick={() => {
+          const n = autoEquipBest();
+          if (n === 0) alert('已是最优装备！');
+        }}>⚡一键最优</button>
         <button className="small-btn" onClick={() => setSubPage({ type: 'refine' })}>精炼</button>
         <button className="small-btn" onClick={() => setSubPage({ type: 'shop' })}>商店</button>
+        <button className="small-btn danger" onClick={() => {
+          const qualityNames = ['凡品', '灵品', '仙品'];
+          const choice = prompt('快速分解品质以下装备：\n1. 凡品\n2. 凡品+灵品\n3. 凡品+灵品+仙品\n输入数字：');
+          if (!choice) return;
+          const maxQ = parseInt(choice) - 1;
+          if (maxQ < 0 || maxQ > 2) return;
+          if (confirm(`确定分解所有 ${qualityNames.slice(0, maxQ + 1).join('+')} 装备？`)) {
+            const n = quickDecompose(maxQ);
+            if (n === 0) alert('没有可分解的装备');
+          }
+        }}>🗑️速分</button>
       </div>
 
       {/* Resources */}
