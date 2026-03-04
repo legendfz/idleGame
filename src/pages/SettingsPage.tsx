@@ -11,6 +11,8 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
   const reset = useGameStore(s => s.reset);
   const totalPlayTime = useGameStore(s => s.totalPlayTime);
   const player = useGameStore(s => s.player);
+  const autoDecompose = useGameStore(s => s.autoDecompose);
+  const setAutoDecompose = useGameStore(s => s.setAutoDecompose);
   const realm = REALMS[player.realmIndex] ?? REALMS[0];
   const [animEnabled, setAnimEnabled] = useState(() => localStorage.getItem('anim') !== 'off');
   const [sfxEnabled, setSfxEnabledState] = useState(getSfxEnabled);
@@ -99,6 +101,24 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
         )}
       </Card>
 
+      {/* ── 战斗设置 ── */}
+      <Card title="⚔️ 战斗设置">
+        <div className="stat-row">
+          <span className="stat-label">自动分解</span>
+          <select
+            value={autoDecompose}
+            onChange={e => setAutoDecompose(Number(e.target.value))}
+            style={{ background: 'var(--bg-card)', color: 'var(--fg)', border: '1px solid var(--border)', borderRadius: 6, padding: '4px 8px', fontSize: 13 }}
+          >
+            <option value={0}>关闭</option>
+            <option value={1}>凡品自动分解</option>
+            <option value={2}>灵品以下自动分解</option>
+            <option value={3}>仙品以下自动分解</option>
+          </select>
+        </div>
+        <div className="color-dim" style={{ fontSize: 11, marginTop: 4 }}>掉落时自动将低品质装备分解为灵石</div>
+      </Card>
+
       {/* ── 存档管理 ── */}
       <Card title="💾 存档管理">
         <div className="settings-actions">
@@ -128,7 +148,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
 
       {/* ── 关于 ── */}
       <Card title="ℹ️ 关于">
-        <div className="stat-row"><span className="stat-label">版本</span><span>v21.0「音画仙境」</span></div>
+        <div className="stat-row"><span className="stat-label">版本</span><span>v27.0「快意恩仇」</span></div>
         <div className="stat-row"><span className="stat-label">引擎</span><span>React + Zustand + Vite</span></div>
       </Card>
 

@@ -12,6 +12,7 @@ import { Card, SubPageHeader, SubPage } from './shared';
 
 export function EquipDetailPage({ item, onBack }: { item: EquipmentItem; onBack: () => void }) {
   const enhance = useGameStore(s => s.enhanceEquip);
+  const bulkEnhance = useGameStore(s => s.bulkEnhance);
   const player = useGameStore(s => s.player);
   const [useProtect, setUseProtect] = useState(false);
   const [useLucky, setUseLucky] = useState(false);
@@ -87,10 +88,18 @@ export function EquipDetailPage({ item, onBack }: { item: EquipmentItem; onBack:
               </>
             )}
           </div>
-          <button className="action-btn accent" disabled={!canEnhanceNow}
-            onClick={() => enhance(item.uid, useProtect, useLucky)}>
-            {highEnhance ? '高阶强化' : '强化'} · {formatNumber(cost)} 灵石
-          </button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="action-btn accent" style={{ flex: 1 }} disabled={!canEnhanceNow}
+              onClick={() => enhance(item.uid, useProtect, useLucky)}>
+              {highEnhance ? '高阶强化' : '强化'} · {formatNumber(cost)} 灵石
+            </button>
+            {!highEnhance && (
+              <button className="action-btn" style={{ flex: 1 }} disabled={!canEnhanceNow}
+                onClick={() => bulkEnhance(item.uid)}>
+                ⚡ 一键强化
+              </button>
+            )}
+          </div>
         </Card>
       )}
       {atMax && (

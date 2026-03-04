@@ -84,7 +84,12 @@ export function BattleView() {
           {'  '}<span className="color-dim">⏱{formatTime(idleStats.sessionTime)}</span>
         </div>
         <div className="speed-controls">
-          {[1, 2, 3].map(s => (
+          {[1, 2, 3, 5, 10].filter(s => {
+            if (s <= 3) return true;
+            if (s === 5) return player.level >= 100;
+            if (s === 10) return player.level >= 300;
+            return false;
+          }).map(s => (
             <button
               key={s}
               className={`speed-btn ${battleSpeed === s ? 'speed-active' : ''}`}
