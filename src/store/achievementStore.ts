@@ -131,7 +131,8 @@ export const useAchievementStore = create<AchievementStore>((set, get) => ({
         case 'hongmeng_obtain': currentValue = c.hasHongmeng ? 1 : 0; break;
         case 'enhance_max': currentValue = c.maxEnhanceLevel; break;
         case 'no_damage': currentValue = c.noDamageClear ? 1 : 0; break;
-        // level and online_time are checked externally via updateProgress
+        case 'level': continue; // checked externally via updateProgress
+        case 'online_time': continue; // checked externally via updateProgress
         default: continue;
       }
 

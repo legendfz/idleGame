@@ -1,3 +1,4 @@
+let _lastBackpackFullWarn = 0;
 import { create } from 'zustand';
 import { PlayerState, BattleState, BattleLogEntry, TabId, GameSave, EquipmentItem, EquipSlot, Stats, QUALITY_INFO, FloatingText, INVENTORY_MAX, OfflineReport } from '../types';
 import { REALMS } from '../data/realms';
@@ -346,6 +347,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
           const qi = QUALITY_INFO[eqDrop.quality];
           log = addLog(log, `  获得 ${qi.symbol}${eqDrop.name}`, 'drop');
           sfx.itemDrop();
+        }
+      } else {
+        // Backpack full warning (P0 fix: inform player)
+        const now = Date.now();
+        if (now - _lastBackpackFullWarn > 30000) {
+          log = addLog(log, `  ⚠️ 背包已满(${INVENTORY_MAX}/${INVENTORY_MAX})！请分解或开启自动分解`, 'info');
+          _lastBackpackFullWarn = now;
         }
       }
 
@@ -972,6 +980,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
       save.player.totalBreakthroughs = save.player.totalBreakthroughs ?? 0;
       save.player.tutorialStep = save.player.tutorialStep ?? (save.player.level > 5 ? 6 : 1);
       save.player.tutorialDone = save.player.tutorialDone ?? (save.player.level > 5);
+      // Force skip tutorial for high-level players (fix: old saves may have tutorialDone=false with high level)
+      if (save.player.level > 5 && !save.player.tutorialDone) {
+        save.player.tutorialDone = true;
+        save.player.tutorialStep = 6;
+      }
       save.player.systemTutorials = save.player.systemTutorials ?? [];
         save.version = 4;
       }
