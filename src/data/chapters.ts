@@ -80,7 +80,37 @@ export const CHAPTER_ENEMIES: Record<number, { mobs: EnemyTemplate[]; boss: Enem
 };
 
 // Scale enemy stats by stage number within chapter
+// Abyss enemy templates (infinite scaling post-ch8)
+const ABYSS_MOBS: EnemyTemplate[] = [
+  { name: '混沌兽', emoji: '[兽]', baseHp: 800000, baseDefense: 2000, baseLingshi: 5000, baseExp: 4000, pantaoChance: 0.02 },
+  { name: '虚空蚀者', emoji: '[蚀]', baseHp: 1000000, baseDefense: 2500, baseLingshi: 6000, baseExp: 5000, pantaoChance: 0.02 },
+  { name: '天道傀儡', emoji: '[傀]', baseHp: 900000, baseDefense: 2200, baseLingshi: 5500, baseExp: 4500, pantaoChance: 0.02 },
+  { name: '太古残魂', emoji: '[魂]', baseHp: 1100000, baseDefense: 2800, baseLingshi: 7000, baseExp: 5500, pantaoChance: 0.03 },
+];
+const ABYSS_BOSS: EnemyTemplate = { name: '深渊之主', emoji: '[渊]', baseHp: 5000000, baseDefense: 5000, baseLingshi: 50000, baseExp: 30000, pantaoChance: 0.2 };
+
+export const ABYSS_CHAPTER_ID = 9; // virtual chapter id for abyss
+
 export function createEnemy(chapterId: number, stageNum: number, isBoss: boolean) {
+  // Abyss mode: infinite scaling
+  if (chapterId >= ABYSS_CHAPTER_ID) {
+    const abyssFloor = stageNum;
+    const template = isBoss ? ABYSS_BOSS : ABYSS_MOBS[Math.floor(Math.random() * ABYSS_MOBS.length)];
+    const scale = Math.pow(1.08, abyssFloor - 1); // slightly slower scaling for longevity
+
+    return {
+      name: `${template.name}·${abyssFloor}层`,
+      emoji: template.emoji,
+      hp: Math.floor(template.baseHp * scale),
+      maxHp: Math.floor(template.baseHp * scale),
+      defense: Math.floor(template.baseDefense * scale),
+      lingshiDrop: Math.floor(template.baseLingshi * scale),
+      expDrop: Math.floor(template.baseExp * scale),
+      pantaoDrop: template.pantaoChance,
+      isBoss,
+    };
+  }
+
   const chapter = CHAPTER_ENEMIES[chapterId];
   if (!chapter) return null;
 

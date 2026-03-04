@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
-import { CHAPTERS } from '../data/chapters';
+import { CHAPTERS, ABYSS_CHAPTER_ID } from '../data/chapters';
 import { Card, SubPageHeader, SubPage } from './shared';
 
 export function ChapterSelectPage({ onBack }: { onBack: () => void }) {
@@ -69,10 +69,10 @@ export function JourneyView({ setSubPage }: { setSubPage: (p: SubPage) => void }
       <h3 className="section-title">西游之路</h3>
       <Card title="当前进度" className="clickable-card" style={{ cursor: 'pointer' }}
         onClick={() => setSubPage({ type: 'chapterSelect' })}>
-        <div><span className="color-active">第{battle.chapterId}章</span>{' '}{chapter?.name}</div>
-        <div className="color-dim" style={{ fontSize: 12 }}>进度 {battle.stageNum}/{chapter?.stages} · 已解锁 {highestChapter} 章</div>
+        <div><span className="color-active">{battle.chapterId >= ABYSS_CHAPTER_ID ? '无尽深渊' : `第${battle.chapterId}章`}</span>{' '}{battle.chapterId >= ABYSS_CHAPTER_ID ? `第${battle.stageNum}层` : chapter?.name}</div>
+        <div className="color-dim" style={{ fontSize: 12 }}>{battle.chapterId >= ABYSS_CHAPTER_ID ? `深渊层数 ${battle.stageNum} · 无尽挑战` : `进度 ${battle.stageNum}/${chapter?.stages} · 已解锁 ${highestChapter} 章`}</div>
         <div className="chapter-progress-bg" style={{ marginTop: 8 }}>
-          <div className="chapter-progress-fill" style={{ width: `${chapter ? (battle.stageNum / chapter.stages) * 100 : 0}%` }} />
+          <div className="chapter-progress-fill" style={{ width: `${battle.chapterId >= ABYSS_CHAPTER_ID ? 100 : (chapter ? (battle.stageNum / chapter.stages) * 100 : 0)}%` }} />
         </div>
         <div className="color-dim" style={{ fontSize: 11, marginTop: 4, textAlign: 'right' }}>查看全部章节 →</div>
       </Card>

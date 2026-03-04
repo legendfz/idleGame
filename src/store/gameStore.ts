@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { PlayerState, BattleState, BattleLogEntry, Enemy, TabId, GameSave, EquipmentItem, EquipSlot, Stats, QUALITY_INFO, FloatingText, INVENTORY_MAX, OfflineReport } from '../types';
 import { REALMS } from '../data/realms';
-import { CHAPTERS, createEnemy } from '../data/chapters';
+import { CHAPTERS, createEnemy, ABYSS_CHAPTER_ID } from '../data/chapters';
 import { expForLevel } from '../utils/format';
 import { sfx } from '../engine/audio';
 import { calcDaoPoints, REINC_PERKS, REINC_MIN_REALM, REINC_MIN_LEVEL } from '../data/reincarnation';
@@ -373,8 +373,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
             newStageNum = 1;
             log = addLog(log, `第${chapter.id}章「${chapter.name}」通关！`, 'info');
           } else {
-            newStageNum = chapter.stages;
-            log = addLog(log, `所有章节通关！继续刷最后一关`, 'info');
+            // Enter Abyss mode — infinite scaling
+            newChapterId = ABYSS_CHAPTER_ID;
+            newStageNum = 1;
+            log = addLog(log, `第${chapter.id}章「${chapter.name}」通关！进入无尽深渊！`, 'info');
           }
         }
 
@@ -439,6 +441,25 @@ export const useGameStore = create<GameStore>((set, get) => ({
         }
         updatedInventory = updatedInventory.filter(i => !toDecomp.some(d => d.uid === i.uid));
       }
+    }
+
+    // v32.0: Auto-breakthrough when conditions met
+    const autoBreakNext = REALMS[updatedPlayer.realmIndex + 1];
+    if (autoBreakNext && updatedPlayer.level >= autoBreakNext.levelReq && updatedPlayer.pantao >= autoBreakNext.pantaoReq) {
+      updatedPlayer = { ...updatedPlayer,
+        pantao: updatedPlayer.pantao - autoBreakNext.pantaoReq,
+        realmIndex: updatedPlayer.realmIndex + 1,
+        totalBreakthroughs: updatedPlayer.totalBreakthroughs + 1,
+        stats: { ...updatedPlayer.stats,
+          attack: Math.floor(updatedPlayer.stats.attack * 1.5),
+          maxHp: Math.floor(updatedPlayer.stats.maxHp * 1.5),
+          hp: Math.floor(updatedPlayer.stats.maxHp * 1.5),
+        },
+      };
+      updatedBattle = { ...updatedBattle,
+        log: addLog(updatedBattle.log, `境界突破！「${autoBreakNext.name}」— ${autoBreakNext.bonus}`, 'levelup'),
+      };
+      sfx.breakthrough();
     }
 
     set({
