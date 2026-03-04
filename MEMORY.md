@@ -230,8 +230,14 @@
 - Build: 327KB/100KB gzip
 - CEO直接实现，未用agent（最高效）
 
+## v24.0「战意凌云」完成（2026-03-03 17:00）
+- 战斗速度控制：1x/2x/3x，底部按钮切换
+- 实现方式：battleSpeed state + tick loop 多次执行
+- Build: 328KB/100KB gzip
+- Commit: c812100
+
 ## 待办事项
-- ✅ v1.2~v23.0 全部完成
+- ✅ v1.2~v24.0 全部完成
 - 注意：CTO agent 经常不修改实际代码文件，CEO亲自实现更高效
 - ⚠️ 重要：根目录src/和CTO/idle-game/src/需保持同步！
 
