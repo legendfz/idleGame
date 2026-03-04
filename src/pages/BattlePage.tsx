@@ -8,6 +8,8 @@ export function BattleView() {
   const player = useGameStore(s => s.player);
   const getEffectiveStats = useGameStore(s => s.getEffectiveStats);
   const idleStats = useGameStore(s => s.idleStats);
+  const battleSpeed = useGameStore(s => s.battleSpeed);
+  const setBattleSpeed = useGameStore(s => s.setBattleSpeed);
   const eStats = getEffectiveStats();
   const enemy = battle.currentEnemy;
   const hpPct = enemy ? Math.max(0, (enemy.hp / enemy.maxHp) * 100) : 0;
@@ -48,6 +50,17 @@ export function BattleView() {
           {'  '}<span className="color-exp">+{formatNumber(Math.floor(idleStats.expPerSec))}/秒</span>
           {'  '}<span className="color-crit">DPS {formatNumber(Math.floor(idleStats.dps))}</span>
           {'  '}<span className="color-dim">挂机 {formatTime(idleStats.sessionTime)}</span>
+        </div>
+        <div className="speed-controls">
+          {[1, 2, 3].map(s => (
+            <button
+              key={s}
+              className={`speed-btn ${battleSpeed === s ? 'speed-active' : ''}`}
+              onClick={() => setBattleSpeed(s)}
+            >
+              {s}x
+            </button>
+          ))}
         </div>
       </Card>
       <Card className="battle-log-card">

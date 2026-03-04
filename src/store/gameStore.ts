@@ -40,8 +40,10 @@ interface GameStore {
   totalPlayTime: number;
   lastSaveTimestamp: number;
   offlineReport: OfflineReport | null;
-
+  battleSpeed: number; // 1, 2, or 3
+  
   // Actions
+  setBattleSpeed: (speed: number) => void;
   setTab: (tab: TabId) => void;
   tick: () => void;
   clickAttack: () => void;
@@ -236,8 +238,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
   totalPlayTime: 0,
   lastSaveTimestamp: Date.now(),
   offlineReport: null,
+  battleSpeed: 1,
 
   setTab: (tab) => set({ activeTab: tab }),
+  setBattleSpeed: (speed) => set({ battleSpeed: Math.min(3, Math.max(1, speed)) }),
   dismissOfflineReport: () => set({ offlineReport: null }),
   clearFloatingText: (id) => set(s => ({ floatingTexts: s.floatingTexts.filter(f => f.id !== id) })),
 
@@ -1012,7 +1016,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       inventory: [],
       floatingTexts: [],
       idleStats: { goldPerSec: 0, expPerSec: 0, dps: 0, sessionTime: 0 },
-      totalPlayTime: 0, lastSaveTimestamp: Date.now(), offlineReport: null,
+      totalPlayTime: 0, lastSaveTimestamp: Date.now(), offlineReport: null, battleSpeed: 1,
     });
   },
 
