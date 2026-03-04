@@ -291,3 +291,11 @@
 - battleSpeed+autoDecomposeQuality持久化存档
 - Build: 333KB/102KB gzip
 - Commit: 1999a26
+
+## v32.0「仙途无尽」完成（2026-03-03 23:00）
+- 无尽深渊：ch8通关后进入ABYSS_CHAPTER_ID=9，无限层数
+- 4种深渊怪+深渊之主Boss，1.08^层数缩放
+- 自动突破：tick中检测条件自动突破境界
+- Build: 334KB/102KB gzip
+- Commit: b96be38
+- CEO直接实现（10分钟）
