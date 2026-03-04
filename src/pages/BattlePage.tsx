@@ -92,11 +92,21 @@ export function BattleView() {
         <div className="wukong-hint">点击攻击 · 攻击力 {formatNumber(player.clickPower)}</div>
       </div>
 
+      {/* Tribulation timer */}
+      {battle.tribulation?.active && (
+        <div className="tribulation-timer">
+          <span>⚡ 天劫倒计时</span>
+          <span className={`tribulation-countdown${battle.tribulation.timer <= 10 ? ' urgent' : ''}`}>
+            {battle.tribulation.timer}s
+          </span>
+        </div>
+      )}
+
       {/* Breakthrough button */}
-      {canBreakthrough && (
+      {canBreakthrough && !battle.tribulation?.active && (
         <div style={{ padding: '0 12px', marginBottom: 8 }}>
           <button className="breakthrough-btn" onClick={attemptBreakthrough}>
-            ⚡ 突破 → {nextRealm.name} (需蟠桃 {nextRealm.pantaoReq})
+            ⚡ 渡劫突破 → {nextRealm.name} (需蟠桃 {nextRealm.pantaoReq})
           </button>
         </div>
       )}

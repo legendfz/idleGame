@@ -283,6 +283,23 @@ export const useGameStore = create<GameStore>((set, get) => ({
     let newFloats = [...state.floatingTexts];
     const autoEquipState = { equippedWeapon, equippedArmor, equippedTreasure } as Record<string, EquipmentItem | null>;
 
+    // v40.0: Tribulation timer countdown
+    if (updatedBattle.tribulation?.active) {
+      updatedBattle.tribulation = { ...updatedBattle.tribulation, timer: updatedBattle.tribulation.timer - 1 };
+      if (updatedBattle.tribulation.timer <= 0) {
+        // Failed tribulation — refund half pantao, resume normal battle
+        const failedRealmIdx = updatedBattle.tribulation.realmIndex;
+        const failedRealm = REALMS[failedRealmIdx];
+        const refund = Math.floor((failedRealm?.pantaoReq ?? 0) * 0.5);
+        updatedPlayer.pantao += refund;
+        log = addLog(log, `💀 天劫失败！渡劫超时。退还蟠桃 ${refund}`, 'boss');
+        const resumeEnemy = createEnemy(updatedBattle.chapterId, updatedBattle.stageNum, false)!;
+        updatedBattle = { ...updatedBattle, wave: 1, isBossWave: false, currentEnemy: resumeEnemy, log, tribulation: undefined };
+        set({ player: updatedPlayer, battle: updatedBattle });
+        return;
+      }
+    }
+
     // Track gold/exp/dps for idle stats
     let tickGold = 0;
     let tickExp = 0;
@@ -389,6 +406,22 @@ export const useGameStore = create<GameStore>((set, get) => ({
         sfx.levelUp();
       }
 
+      // Check tribulation completion
+      if (updatedBattle.tribulation?.active) {
+        const tri = updatedBattle.tribulation;
+        const nextRealm = REALMS[tri.realmIndex];
+        log = addLog(log, `🎆 天劫已渡！突破「${nextRealm.name}」— ${nextRealm.bonus}`, 'levelup');
+        updatedPlayer.realmIndex = tri.realmIndex;
+        updatedPlayer.totalBreakthroughs = (updatedPlayer.totalBreakthroughs || 0) + 1;
+        updatedPlayer.stats.attack = Math.floor(updatedPlayer.stats.attack * 1.5);
+        updatedPlayer.stats.maxHp = Math.floor(updatedPlayer.stats.maxHp * 1.5);
+        updatedPlayer.stats.hp = updatedPlayer.stats.maxHp;
+        sfx.breakthrough();
+        // Resume normal battle
+        const resumeEnemy = createEnemy(updatedBattle.chapterId, updatedBattle.stageNum, false)!;
+        updatedBattle = { ...updatedBattle, wave: 1, isBossWave: false, currentEnemy: resumeEnemy, log, tribulation: undefined };
+        // skip normal boss→next stage logic
+      } else
       // Next wave / stage
       if (updatedBattle.isBossWave) {
         const nextStage = updatedBattle.stageNum + 1;
@@ -530,25 +563,48 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const nextRealm = REALMS[player.realmIndex + 1];
     if (!nextRealm) return;
     if (player.level < nextRealm.levelReq || player.pantao < nextRealm.pantaoReq) return;
+    // If tribulation already active, don't restart
+    if (battle.tribulation?.active) return;
+
+    // Tribulation boss: scales with realm level
+    const tribNames = ['雷劫', '火劫', '风劫', '心魔', '天劫', '九天雷罚', '混沌劫', '灭世天劫', '鸿蒙劫'];
+    const tribEmojis = ['[雷]', '[火]', '[风]', '[魔]', '[劫]', '[雷]', '[混]', '[灭]', '[鸿]'];
+    const ri = player.realmIndex; // 0-based, breakthrough to ri+1
+    const tribHp = Math.floor(player.stats.maxHp * (3 + ri * 2));
+    const tribDef = Math.floor(player.stats.attack * 0.15 * (1 + ri * 0.3));
+    const tribAtk = Math.floor(player.stats.maxHp * 0.08 * (1 + ri * 0.2));
+    const tribName = tribNames[Math.min(ri, tribNames.length - 1)];
+    const tribEmoji = tribEmojis[Math.min(ri, tribEmojis.length - 1)];
+
+    // Spend pantao, spawn tribulation enemy
     set({
       player: {
         ...player,
         pantao: player.pantao - nextRealm.pantaoReq,
-        realmIndex: player.realmIndex + 1,
-        totalBreakthroughs: player.totalBreakthroughs + 1,
-        stats: {
-          ...player.stats,
-          attack: Math.floor(player.stats.attack * 1.5),
-          maxHp: Math.floor(player.stats.maxHp * 1.5),
-          hp: Math.floor(player.stats.maxHp * 1.5),
-        },
       },
       battle: {
         ...battle,
-        log: addLog(battle.log, `境界突破！「${nextRealm.name}」— ${nextRealm.bonus}`, 'levelup'),
+        currentEnemy: {
+          name: tribName,
+          emoji: tribEmoji,
+          hp: tribHp,
+          maxHp: tribHp,
+          defense: tribDef,
+          lingshiDrop: 0,
+          expDrop: 0,
+          pantaoDrop: Math.floor(nextRealm.pantaoReq * 0.3),
+          isBoss: true,
+        },
+        isBossWave: true,
+        tribulation: {
+          active: true,
+          realmIndex: player.realmIndex + 1,
+          timer: 60 + ri * 10, // 60-150 seconds
+        },
+        log: addLog(battle.log, `⚡ 天劫降临！「${tribName}」— 在 ${60 + ri * 10}秒内击败它！`, 'boss'),
       },
     });
-    sfx.breakthrough();
+    sfx.bossAppear();
   },
 
   reincarnate: () => {
