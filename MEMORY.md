@@ -281,3 +281,13 @@
 - CEO直接实现，10分钟完成
 - Build: 373KB gzip
 - Commit: 4d81933
+
+## v31.0「战速掌控」完成（2026-03-03 22:00）
+- 战斗速度控制：1x/2x/5x/10x（tick loop多次执行）
+- 自动分解：设置面板3档，tick中自动分解低品质装备换碎片
+- 突破按钮：战斗页满足条件时金色脉冲按钮
+- 经验条：蓝紫渐变+百分比
+- 境界名显示
+- battleSpeed+autoDecomposeQuality持久化存档
+- Build: 333KB/102KB gzip
+- Commit: 1999a26
