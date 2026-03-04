@@ -255,6 +255,13 @@
 - Build: 334KB/102KB gzip
 - Commit: 567f847, merged to main: 3581073
 
+## v35.0「仙途至臻」质量冲刺（2026-03-04 02:00 启动）
+- CPO: 全面QA审计（线上游戏+代码级）⏳ session:dawn-wharf
+- CTO: Bug修复+代码清理+教程bug ⏳ session:gentle-zephyr
+- CDO: 战斗页UI视觉优化 ⏳ session:quick-shell
+- CMO: v28-v34合并更新日志+推广文案 ⏳ session:amber-willow
+- 四部门 agent 已并行 spawn（v17以来首次全部启用）
+
 ## 待办事项
 - ✅ v1.2~v27.0 全部完成
 - 注意：CTO agent 经常不修改实际代码文件，CEO亲自实现更高效
