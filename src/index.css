@@ -1295,3 +1295,31 @@ body {
 .pulse-glow {
   animation: pulse 2s infinite;
 }
+
+/* ═══ v40.0 天劫渡厄 ═══ */
+.tribulation-timer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  margin: 0 12px 8px;
+  background: linear-gradient(135deg, #1a0030, #300050);
+  border: 1px solid #9b59b6;
+  border-radius: 8px;
+  color: #e1bee7;
+  font-weight: 600;
+  animation: tribGlow 1s ease-in-out infinite alternate;
+}
+@keyframes tribGlow {
+  from { box-shadow: 0 0 8px rgba(155,89,182,0.4); }
+  to { box-shadow: 0 0 20px rgba(155,89,182,0.8); }
+}
+.tribulation-countdown {
+  font-size: 20px;
+  font-weight: 700;
+  color: #e1bee7;
+}
+.tribulation-countdown.urgent {
+  color: #ff4444;
+  animation: pulse 0.5s infinite;
+}
