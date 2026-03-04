@@ -321,3 +321,10 @@
 - Build: 339KB/104KB gzip
 - Commit: 44eb0bb, merged to main: 3c728f1
 - CEO直接实现（最高效）
+
+## v39.0「精益求精」完成（2026-03-04 08:00）
+- 仙缘三档赠礼：💎100灵石/🧪1K灵石/🏆10K灵石，好感度5-10/15-25/40-60
+- 掉落自动装备：baseStat×(1+level*0.1)比较，自动换更强装备
+- 设置面板：掉落自动装备开关（默认开启）
+- Build: 340KB/104KB gzip
+- Commit: 82a1d41, merged to main: a25d3eb
