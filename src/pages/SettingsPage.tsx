@@ -21,6 +21,8 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
   const [showStats, setShowStats] = useState(false);
   const autoDecomp = useGameStore(s => s.autoDecomposeQuality) ?? 0;
   const setAutoDecomp = useGameStore(s => s.setAutoDecomposeQuality);
+  const autoEquip = useGameStore(s => s.autoEquipOnDrop);
+  const setAutoEquip = useGameStore(s => s.setAutoEquipOnDrop);
   const DECOMP_LABELS = ['关闭', '凡品', '灵品以下', '仙品以下'];
 
   const toggleAnim = () => {
@@ -119,6 +121,12 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
             {DECOMP_LABELS[autoDecomp]}
           </span>
         </div>
+        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoEquip(!autoEquip)}>
+          <span className="stat-label">掉落自动装备</span>
+          <span style={{ color: autoEquip ? 'var(--accent)' : 'var(--dim)' }}>
+            {autoEquip ? '✅ 开启' : '关闭'}
+          </span>
+        </div>
       </Card>
 
       {/* Save management */}
@@ -150,7 +158,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
 
       {/* About */}
       <Card title="关于">
-        <div className="stat-row"><span className="stat-label">版本</span><span>v38.0</span></div>
+        <div className="stat-row"><span className="stat-label">版本</span><span>v39.0</span></div>
         <div className="stat-row"><span className="stat-label">引擎</span><span>React + Zustand + Vite</span></div>
       </Card>
 

@@ -1,15 +1,14 @@
 import { useAffinityStore } from '../store/affinityStore';
 import { useGameStore } from '../store/gameStore';
-import { AFFINITY_NPCS, getGiftCost } from '../engine/affinity';
+import { AFFINITY_NPCS, GIFT_TIERS } from '../engine/affinity';
 
 export function AffinityPanel() {
   const levels = useAffinityStore(s => s.affinity.levels);
   const gift = useAffinityStore(s => s.gift);
   const lingshi = useGameStore(s => s.player.lingshi);
-  const giftCost = getGiftCost();
 
-  const handleGift = (npcId: string) => {
-    const result = gift(npcId, lingshi);
+  const handleGift = (npcId: string, tier: number) => {
+    const result = gift(npcId, lingshi, tier);
     if (result) {
       useGameStore.setState(s => ({ player: { ...s.player, lingshi: s.player.lingshi - result.cost } }));
     }
@@ -22,7 +21,6 @@ export function AffinityPanel() {
       {AFFINITY_NPCS.map(npc => {
         const lv = levels[npc.id] ?? 0;
         const pct = lv / 100;
-        const canGift = lingshi >= giftCost;
         const unlockedBuffs = npc.buffs.filter(b => lv >= b.threshold);
         const nextBuff = npc.buffs.find(b => lv < b.threshold);
         const hasUltimate = lv >= 100;
@@ -55,10 +53,19 @@ export function AffinityPanel() {
                 {nextBuff && <div style={{ fontSize: 10, color: 'var(--dim)', marginTop: 2 }}>下一个: {nextBuff.threshold} 好感 → {nextBuff.desc}</div>}
                 {hasUltimate && <div style={{ fontSize: 10, color: '#e040fb', marginTop: 4 }}>★ {npc.ultimateSkill}</div>}
               </div>
-              <button className={`action-btn ${canGift ? 'accent' : ''}`} disabled={!canGift}
-                onClick={() => handleGift(npc.id)} style={{ fontSize: 10, padding: '6px 10px', opacity: canGift ? 1 : 0.4 }}>
-                赠礼 ({giftCost} 灵石)
-              </button>
+            </div>
+            {/* Gift tier buttons */}
+            <div style={{ display: 'flex', gap: 6, marginTop: 10, justifyContent: 'flex-end' }}>
+              {GIFT_TIERS.map((t, i) => {
+                const canGift = lingshi >= t.cost;
+                return (
+                  <button key={t.id} className={`action-btn ${canGift ? 'accent' : ''}`} disabled={!canGift}
+                    onClick={() => handleGift(npc.id, i)}
+                    style={{ fontSize: 10, padding: '5px 8px', opacity: canGift ? 1 : 0.35 }}>
+                    {t.icon} {t.cost >= 10000 ? `${t.cost/1000}K` : t.cost}
+                  </button>
+                );
+              })}
             </div>
           </div>
         );

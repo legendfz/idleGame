@@ -101,5 +101,15 @@ export function calcAffinityBuffs(state: AffinityState): Record<string, number> 
   return buffs;
 }
 
-export function getGiftCost(): number { return 100; } // lingshi per gift
-export function getGiftAmount(): number { return 5 + Math.floor(Math.random() * 6); } // 5-10 affinity
+// Gift tiers: small / medium / large
+export const GIFT_TIERS = [
+  { id: 'small', name: '灵石', cost: 100, affinity: [5, 10], icon: '💎' },
+  { id: 'medium', name: '仙丹', cost: 1000, affinity: [15, 25], icon: '🧪' },
+  { id: 'large', name: '法宝', cost: 10000, affinity: [40, 60], icon: '🏆' },
+] as const;
+
+export function getGiftCost(tier: number = 0): number { return GIFT_TIERS[tier]?.cost ?? 100; }
+export function getGiftAmount(tier: number = 0): number {
+  const t = GIFT_TIERS[tier] ?? GIFT_TIERS[0];
+  return t.affinity[0] + Math.floor(Math.random() * (t.affinity[1] - t.affinity[0] + 1));
+}
