@@ -27,6 +27,9 @@ import { SettingsView } from './pages/SettingsPage';
 import { ReincarnationPanel } from './components/ReincarnationPanel';
 import { DailyPanel } from './components/DailyPanel';
 import { useDailyStore } from './store/dailyStore';
+import { useSanctuaryStore } from './store/sanctuaryStore';
+import { useExplorationStore } from './store/explorationStore';
+import { BUILDINGS, getUpgradeCost } from './engine/sanctuary';
 
 const LazyFallback = () => <div style={{ padding: 40, textAlign: 'center', color: '#aaa' }}>加载中...</div>;
 
@@ -69,6 +72,19 @@ function BottomNav() {
   const activeTab = useGameStore(s => s.activeTab);
   const setTab = useGameStore(s => s.setTab);
   const dailyCanSignIn = useDailyStore(s => s.canSignIn);
+  const lingshi = useGameStore(s => s.player.lingshi);
+  const sanctuaryLevels = useSanctuaryStore(s => s.sanctuary.levels);
+  const explorationFree = useExplorationStore(s => s.exploration.dailyFree);
+  const explorationRun = useExplorationStore(s => s.exploration.currentRun);
+
+  // Red dot: sanctuary has affordable upgrade
+  const sanctuaryRedDot = BUILDINGS.some(b => {
+    const lv = sanctuaryLevels[b.id] ?? 0;
+    return lv < 10 && lingshi >= getUpgradeCost(b, lv);
+  });
+  // Red dot: exploration has free runs available
+  const explorationRedDot = explorationFree > 0 && (!explorationRun || explorationRun.completed);
+
   const { tabs, toast } = useUnlockedTabs();
   return (
     <>
@@ -87,6 +103,8 @@ function BottomNav() {
             style={{ position: 'relative' }}>
             <span className="icon">{tab.icon}</span><span>{tab.label}</span>
             {tab.id === 'settings' && dailyCanSignIn && <span className="nav-red-dot" />}
+            {tab.id === 'sanctuary' && sanctuaryRedDot && <span className="nav-red-dot" />}
+            {tab.id === 'exploration' && explorationRedDot && <span className="nav-red-dot" />}
           </button>
         ))}
       </div>

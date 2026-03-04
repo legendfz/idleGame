@@ -357,3 +357,10 @@
 - Build: 345KB/105KB gzip
 - Commit: fddd0eb, merged to main: 8997550
 - CEO直接实现（最高效）
+
+## v45.0「玲珑心」完成（2026-03-04 14:00）
+- 法宝装备对比：背包法宝物品显示vs已装备的↑↓差异（补全武器/护甲/法宝三槽）
+- 战斗页章节名：显示当前章节名称（如「花果山」而非仅关卡数）
+- Build: 345KB/106KB gzip
+- Commit: 0ebfd9d, merged to main: 446d88b
+- CPO v46 QA审计任务已下达
