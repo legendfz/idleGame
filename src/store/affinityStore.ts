@@ -3,7 +3,7 @@ import { AffinityState, createAffinityState, addAffinity, calcAffinityBuffs, get
 
 interface AffinityStore {
   affinity: AffinityState;
-  gift: (npcId: string, lingshi: number) => { cost: number; gain: number } | null;
+  gift: (npcId: string, lingshi: number, tier?: number) => { cost: number; gain: number } | null;
   addPoints: (npcId: string, amount: number) => void;
   getBuffs: () => Record<string, number>;
   load: (s: AffinityState) => void;
@@ -12,10 +12,10 @@ interface AffinityStore {
 export const useAffinityStore = create<AffinityStore>((set, get) => ({
   affinity: createAffinityState(),
 
-  gift: (npcId, lingshi) => {
-    const cost = getGiftCost();
+  gift: (npcId, lingshi, tier = 0) => {
+    const cost = getGiftCost(tier);
     if (lingshi < cost) return null;
-    const gain = getGiftAmount();
+    const gain = getGiftAmount(tier);
     set({ affinity: addAffinity(get().affinity, npcId, gain) });
     return { cost, gain };
   },

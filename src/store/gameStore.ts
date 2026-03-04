@@ -44,6 +44,7 @@ interface GameStore {
   // v31.0 settings
   battleSpeed: number;
   autoDecomposeQuality: number; // 0=off, 1=common, 2=spirit+below, 3=immortal+below
+  autoEquipOnDrop: boolean; // v39.0: auto-equip better drops
 
   // Actions
   setTab: (tab: TabId) => void;
@@ -69,6 +70,7 @@ interface GameStore {
   getEffectiveStats: () => Stats;
   setBattleSpeed: (speed: number) => void;
   setAutoDecomposeQuality: (quality: number) => void;
+  setAutoEquipOnDrop: (v: boolean) => void;
   autoEquipBest: () => number;
   quickDecompose: (maxQuality: number) => number;
   // Multi-save
@@ -245,11 +247,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
   offlineReport: null,
   battleSpeed: 1,
   autoDecomposeQuality: 1,
+  autoEquipOnDrop: true,
 
   setTab: (tab) => set({ activeTab: tab }),
   dismissOfflineReport: () => set({ offlineReport: null }),
   setBattleSpeed: (speed) => set({ battleSpeed: speed }),
   setAutoDecomposeQuality: (quality) => set({ autoDecomposeQuality: quality }),
+  setAutoEquipOnDrop: (v) => set({ autoEquipOnDrop: v }),
   clearFloatingText: (id) => set(s => ({ floatingTexts: s.floatingTexts.filter(f => f.id !== id) })),
 
   getEffectiveStats: () => {
@@ -277,6 +281,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     let updatedBattle = { ...battle };
     let updatedInventory = [...state.inventory];
     let newFloats = [...state.floatingTexts];
+    const autoEquipState = { equippedWeapon, equippedArmor, equippedTreasure } as Record<string, EquipmentItem | null>;
 
     // Track gold/exp/dps for idle stats
     let tickGold = 0;
@@ -349,6 +354,19 @@ export const useGameStore = create<GameStore>((set, get) => ({
           const qi = QUALITY_INFO[eqDrop.quality];
           log = addLog(log, `  获得 ${qi.symbol}${eqDrop.name}`, 'drop');
           sfx.itemDrop();
+          // v39.0: Auto-equip if better
+          if (state.autoEquipOnDrop) {
+            const slotKey = newItem.slot === 'weapon' ? 'equippedWeapon' : newItem.slot === 'armor' ? 'equippedArmor' : 'equippedTreasure';
+            const current = autoEquipState[slotKey] as EquipmentItem | null;
+            const newPower = newItem.baseStat * (1 + newItem.level * 0.1);
+            const curPower = current ? current.baseStat * (1 + current.level * 0.1) : 0;
+            if (newPower > curPower) {
+              if (current) updatedInventory.push(current);
+              updatedInventory = updatedInventory.filter(i => i.uid !== newItem.uid);
+              autoEquipState[slotKey] = newItem;
+              log = addLog(log, `  ⚡ 自动装备 ${qi.symbol}${newItem.name}`, 'info');
+            }
+          }
         }
       } else {
         // Backpack full warning (P0 fix: inform player)
@@ -478,6 +496,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
       player: updatedPlayer,
       battle: updatedBattle,
       inventory: updatedInventory,
+      equippedWeapon: autoEquipState.equippedWeapon ?? null,
+      equippedArmor: autoEquipState.equippedArmor ?? null,
+      equippedTreasure: autoEquipState.equippedTreasure ?? null,
       floatingTexts: newFloats.slice(-10), // keep max 10
       idleStats: { goldPerSec, expPerSec, dps, sessionTime },
       totalPlayTime: state.totalPlayTime + 1,
@@ -944,6 +965,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       affinity: useAffinityStore.getState().affinity,
       battleSpeed: state.battleSpeed,
       autoDecomposeQuality: state.autoDecomposeQuality,
+      autoEquipOnDrop: state.autoEquipOnDrop,
     } as any;
     localStorage.setItem('xiyou-idle-save', JSON.stringify(save));
     set({ lastSaveTimestamp: Date.now() });
@@ -1061,6 +1083,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         offlineReport: report,
         battleSpeed: (save as any).battleSpeed ?? 1,
         autoDecomposeQuality: (save as any).autoDecomposeQuality ?? 0,
+        autoEquipOnDrop: (save as any).autoEquipOnDrop ?? true,
       });
 
       // Load v13 stores
