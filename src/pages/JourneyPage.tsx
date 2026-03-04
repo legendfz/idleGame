@@ -76,20 +76,20 @@ export function JourneyView({ setSubPage }: { setSubPage: (p: SubPage) => void }
         </div>
         <div className="color-dim" style={{ fontSize: 11, marginTop: 4, textAlign: 'right' }}>查看全部章节 →</div>
       </Card>
-      <Card title="🗺️ 取经副本" className="clickable-card" style={{ cursor: 'pointer' }}
+      <Card title="取经副本" className="clickable-card" style={{ cursor: 'pointer' }}
         onClick={() => setSubPage({ type: 'dungeonList' })}>
         <div className="color-dim" style={{ fontSize: 12 }}>挑战西游取经路线 Boss 战，获取稀有奖励</div>
-        <div className="color-dim" style={{ fontSize: 11, marginTop: 4, textAlign: 'right' }}>进入副本 →</div>
+        <div className="color-dim" style={{ fontSize: 11, marginTop: 6, textAlign: 'right' }}>进入副本 →</div>
       </Card>
-      <Card title="🏆 成就" className="clickable-card" style={{ cursor: 'pointer' }}
+      <Card title="成就" className="clickable-card" style={{ cursor: 'pointer' }}
         onClick={() => setSubPage({ type: 'achievements' })}>
         <div className="color-dim" style={{ fontSize: 12 }}>里程碑与挑战成就，获取永久属性加成</div>
-        <div className="color-dim" style={{ fontSize: 11, marginTop: 4, textAlign: 'right' }}>查看成就 →</div>
+        <div className="color-dim" style={{ fontSize: 11, marginTop: 6, textAlign: 'right' }}>查看成就 →</div>
       </Card>
-      <Card title="📊 排行榜" className="clickable-card" style={{ cursor: 'pointer' }}
+      <Card title="排行榜" className="clickable-card" style={{ cursor: 'pointer' }}
         onClick={() => setSubPage({ type: 'leaderboard' })}>
         <div className="color-dim" style={{ fontSize: 12 }}>查看你的历史最佳记录</div>
-        <div className="color-dim" style={{ fontSize: 11, marginTop: 4, textAlign: 'right' }}>查看排行 →</div>
+        <div className="color-dim" style={{ fontSize: 11, marginTop: 6, textAlign: 'right' }}>查看排行 →</div>
       </Card>
     </div>
   );

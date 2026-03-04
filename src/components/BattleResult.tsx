@@ -1,5 +1,5 @@
 /**
- * v1.3 战斗结算弹窗 — per CDO COMPONENT-GUIDE-V1.3
+ * 战斗结算弹窗
  */
 
 import { formatNumber } from '../utils/format';
@@ -27,12 +27,12 @@ export default function BattleResult({
   return (
     <div className="modal-overlay">
       <div className={`modal-content battle-result ${isFirstClear ? 'first-clear' : ''}`}>
-        <h2 className="result-title">🎉 副本通关！</h2>
+        <h2 className="result-title">★ 副本通关！</h2>
         <div className="result-dungeon">{dungeonName} · {Math.floor(clearTime)}秒</div>
 
         {isFirstClear && (
           <div className="result-record" style={{ color: 'var(--accent)' }}>
-            🏆 首次通关！额外奖励！
+            ◆ 首次通关！额外奖励！
           </div>
         )}
 
@@ -46,7 +46,7 @@ export default function BattleResult({
             >
               <span>{r.icon}</span>
               <span>{r.name}</span>
-              <span>×{formatNumber(r.amount)}</span>
+              <span>x{formatNumber(r.amount)}</span>
             </div>
           ))}
         </div>

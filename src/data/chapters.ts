@@ -10,27 +10,27 @@ export const CHAPTERS: Chapter[] = [
 export const CHAPTER_ENEMIES: Record<number, { mobs: EnemyTemplate[]; boss: EnemyTemplate }> = {
   1: {
     mobs: [
-      { name: '野狼', emoji: '🐺', baseHp: 50, baseDefense: 2, baseLingshi: 10, baseExp: 8, pantaoChance: 0 },
-      { name: '石头精', emoji: '🪨', baseHp: 80, baseDefense: 5, baseLingshi: 15, baseExp: 12, pantaoChance: 0 },
-      { name: '树妖', emoji: '🌲', baseHp: 60, baseDefense: 3, baseLingshi: 12, baseExp: 10, pantaoChance: 0 },
+      { name: '野狼', emoji: '[狼]', baseHp: 50, baseDefense: 2, baseLingshi: 10, baseExp: 8, pantaoChance: 0 },
+      { name: '石头精', emoji: '[石]', baseHp: 80, baseDefense: 5, baseLingshi: 15, baseExp: 12, pantaoChance: 0 },
+      { name: '树妖', emoji: '[树]', baseHp: 60, baseDefense: 3, baseLingshi: 12, baseExp: 10, pantaoChance: 0 },
     ],
-    boss: { name: '混世魔王', emoji: '👹', baseHp: 500, baseDefense: 10, baseLingshi: 100, baseExp: 80, pantaoChance: 0.1 },
+    boss: { name: '混世魔王', emoji: '[妖]', baseHp: 500, baseDefense: 10, baseLingshi: 100, baseExp: 80, pantaoChance: 0.1 },
   },
   2: {
     mobs: [
-      { name: '虾兵', emoji: '🦐', baseHp: 200, baseDefense: 8, baseLingshi: 25, baseExp: 20, pantaoChance: 0 },
-      { name: '蟹将', emoji: '🦀', baseHp: 280, baseDefense: 15, baseLingshi: 30, baseExp: 25, pantaoChance: 0 },
-      { name: '巡海夜叉', emoji: '👺', baseHp: 350, baseDefense: 12, baseLingshi: 35, baseExp: 30, pantaoChance: 0 },
+      { name: '虾兵', emoji: '[虾]', baseHp: 200, baseDefense: 8, baseLingshi: 25, baseExp: 20, pantaoChance: 0 },
+      { name: '蟹将', emoji: '[蟹]', baseHp: 280, baseDefense: 15, baseLingshi: 30, baseExp: 25, pantaoChance: 0 },
+      { name: '巡海夜叉', emoji: '[鬼]', baseHp: 350, baseDefense: 12, baseLingshi: 35, baseExp: 30, pantaoChance: 0 },
     ],
-    boss: { name: '龙王三太子', emoji: '🐉', baseHp: 2000, baseDefense: 25, baseLingshi: 300, baseExp: 200, pantaoChance: 0.15 },
+    boss: { name: '龙王三太子', emoji: '[龙]', baseHp: 2000, baseDefense: 25, baseLingshi: 300, baseExp: 200, pantaoChance: 0.15 },
   },
   3: {
     mobs: [
-      { name: '天兵', emoji: '⚔️', baseHp: 600, baseDefense: 20, baseLingshi: 50, baseExp: 40, pantaoChance: 0 },
-      { name: '天将', emoji: '🛡️', baseHp: 800, baseDefense: 30, baseLingshi: 60, baseExp: 50, pantaoChance: 0 },
-      { name: '巨灵神', emoji: '💪', baseHp: 1000, baseDefense: 25, baseLingshi: 70, baseExp: 60, pantaoChance: 0 },
+      { name: '天兵', emoji: '[战]', baseHp: 600, baseDefense: 20, baseLingshi: 50, baseExp: 40, pantaoChance: 0 },
+      { name: '天将', emoji: '[盾]', baseHp: 800, baseDefense: 30, baseLingshi: 60, baseExp: 50, pantaoChance: 0 },
+      { name: '巨灵神', emoji: '[力]', baseHp: 1000, baseDefense: 25, baseLingshi: 70, baseExp: 60, pantaoChance: 0 },
     ],
-    boss: { name: '二郎神', emoji: '👁️', baseHp: 8000, baseDefense: 50, baseLingshi: 800, baseExp: 500, pantaoChance: 0.2 },
+    boss: { name: '二郎神', emoji: '[目]', baseHp: 8000, baseDefense: 50, baseLingshi: 800, baseExp: 500, pantaoChance: 0.2 },
   },
 };
 

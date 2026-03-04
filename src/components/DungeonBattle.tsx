@@ -1,5 +1,5 @@
 /**
- * v1.3 副本战斗界面
+ * 副本战斗界面
  */
 
 import { useEffect, useRef, useCallback, useState } from 'react';
@@ -25,7 +25,7 @@ export default function DungeonBattle({ onEnd }: Props) {
   const rafRef = useRef<number>(0);
 
   const loop = useCallback((now: number) => {
-    const dt = Math.min((now - lastTickRef.current) / 1000, 0.1); // cap dt
+    const dt = Math.min((now - lastTickRef.current) / 1000, 0.1);
     lastTickRef.current = now;
     const stats = getEffectiveStats();
     tickBattle(dt, stats);
@@ -43,7 +43,6 @@ export default function DungeonBattle({ onEnd }: Props) {
   const handleEnd = () => {
     const rewards = endBattle();
     if (rewards) {
-      // Apply rewards to main game store
       const state = useGameStore.getState();
       useGameStore.setState({
         player: {
@@ -54,7 +53,6 @@ export default function DungeonBattle({ onEnd }: Props) {
         },
       });
 
-      // BUG-6: Submit leaderboard scores
       const lbStore = useLeaderboardStore.getState();
       const clearTime = battle.elapsed;
       lbStore.submitScore(`dungeon_speed_${battle.dungeonId}`, {
@@ -62,7 +60,6 @@ export default function DungeonBattle({ onEnd }: Props) {
         score: Math.floor(clearTime), timestamp: Date.now(),
       });
 
-      // Track achievement counters
       const achStore = useAchievementStore.getState();
       achStore.incrementCounter('totalDungeonClears');
       if (clearTime < achStore.counters.bestDungeonSpeed) {
@@ -82,10 +79,10 @@ export default function DungeonBattle({ onEnd }: Props) {
   return (
     <div className="dungeon-battle fade-in">
       {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: 8 }}>
+      <div style={{ textAlign: 'center', marginBottom: 12 }}>
         <h3 style={{ color: '#f0c040', margin: 0 }}>{dungeon.icon} {dungeon.name}</h3>
-        <div style={{ fontSize: 12, color: timeLeft < 30 ? '#f44336' : '#8b8b9e' }}>
-          ⏱️ {Math.floor(timeLeft)}秒
+        <div style={{ fontSize: 12, color: timeLeft < 30 ? '#f44336' : '#8b8b9e', marginTop: 4 }}>
+          剩余 {Math.floor(timeLeft)}秒
         </div>
       </div>
 
@@ -95,13 +92,13 @@ export default function DungeonBattle({ onEnd }: Props) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span>
               {battle.enemy.icon} {battle.enemy.name}
-              {battle.enemy.isBoss && ' 👹'}
+              {battle.enemy.isBoss && ' [BOSS]'}
             </span>
             <span style={{ fontSize: 11, color: '#8b8b9e' }}>
               {formatNumber(Math.max(0, battle.enemy.hp))}/{formatNumber(battle.enemy.maxHp)}
             </span>
           </div>
-          <div className="hp-bar-container" style={{ marginTop: 4 }}>
+          <div className="hp-bar-container" style={{ marginTop: 6 }}>
             <div
               className="hp-bar"
               style={{
@@ -114,9 +111,9 @@ export default function DungeonBattle({ onEnd }: Props) {
       )}
 
       {/* Player HP */}
-      <div style={{ margin: '8px 0' }}>
+      <div style={{ margin: '10px 0' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
-          <span>❤️ 你的生命</span>
+          <span>你的生命</span>
           <span>{formatNumber(Math.max(0, battle.playerHp))}/{formatNumber(battle.playerMaxHp)}</span>
         </div>
         <div className="hp-bar-container">
@@ -136,41 +133,42 @@ export default function DungeonBattle({ onEnd }: Props) {
           background: 'rgba(244,67,54,0.15)',
           border: '1px solid #f44336',
           borderRadius: 6,
-          padding: 8,
-          marginBottom: 8,
+          padding: 10,
+          marginBottom: 10,
           textAlign: 'center',
         }}>
           <div style={{ color: '#f44336', fontWeight: 'bold' }}>
-            ⚠️ {battle.activeSkillWarning.skill.warning}
+            [警告] {battle.activeSkillWarning.skill.warning}
           </div>
-          <div style={{ fontSize: 12, color: '#ff8a80' }}>
+          <div style={{ fontSize: 12, color: '#ff8a80', marginTop: 4 }}>
             {battle.activeSkillWarning.skill.name} — {Math.ceil(battle.activeSkillWarning.timeLeft)}秒后释放
           </div>
           {battle.dodgeAvailable && !battle.dodgeActive && (
             <button
               className="small-btn accent"
               onClick={dodge}
-              style={{ marginTop: 4, background: '#2196f3' }}
+              style={{ marginTop: 6, background: '#2196f3' }}
             >
-              🛡️ 闪避（伤害-50%）
+              闪避（伤害-50%）
             </button>
           )}
           {battle.dodgeActive && (
-            <div style={{ fontSize: 11, color: '#4caf50', marginTop: 4 }}>✅ 已准备闪避</div>
+            <div style={{ fontSize: 11, color: '#4caf50', marginTop: 6 }}>已准备闪避</div>
           )}
         </div>
       )}
 
       {/* Battle Stats */}
-      <div style={{ fontSize: 11, color: '#8b8b9e', textAlign: 'center', margin: '4px 0' }}>
+      <div style={{ fontSize: 11, color: '#8b8b9e', textAlign: 'center', margin: '6px 0' }}>
         击杀 {battle.killCount} · 总伤害 {formatNumber(battle.totalDamageDealt)} · 闪避 {battle.dodgeCount}
       </div>
 
       {/* Log */}
-      <div className="battle-log" style={{ maxHeight: 120, overflow: 'auto', fontSize: 11, marginTop: 8 }}>
+      <div className="battle-log" style={{ maxHeight: 120, overflow: 'auto', fontSize: 11, marginTop: 10 }}>
         {battle.log.slice(-8).map(l => (
           <div key={l.id} style={{
             color: l.type === 'crit' ? '#f0c040' : l.type === 'warn' ? '#f44336' : l.type === 'kill' ? '#4caf50' : l.type === 'dodge' ? '#2196f3' : '#8b8b9e',
+            marginBottom: 2,
           }}>
             {l.text}
           </div>
@@ -179,9 +177,9 @@ export default function DungeonBattle({ onEnd }: Props) {
 
       {/* End state - Defeat */}
       {battle.status === 'defeat' && (
-        <div style={{ textAlign: 'center', marginTop: 12 }}>
-          <div style={{ fontSize: 18, fontWeight: 'bold', color: '#f44336', marginBottom: 8 }}>
-            💀 挑战失败
+        <div style={{ textAlign: 'center', marginTop: 16 }}>
+          <div style={{ fontSize: 18, fontWeight: 'bold', color: '#f44336', marginBottom: 10 }}>
+            挑战失败
           </div>
           <button className="small-btn accent" onClick={handleEnd}>返回</button>
         </div>
@@ -194,9 +192,9 @@ export default function DungeonBattle({ onEnd }: Props) {
           clearTime={battle.elapsed}
           isFirstClear={!useDungeonStore.getState().progress[dungeon.id]?.cleared}
           rewards={[
-            { icon: '💰', name: '灵石', amount: dungeon.rewards.lingshi[0] },
-            { icon: '✨', name: '经验', amount: dungeon.rewards.exp[0] },
-            ...(dungeon.rewards.pantao > 0 ? [{ icon: '🍑', name: '蟠桃', amount: dungeon.rewards.pantao }] : []),
+            { icon: '·', name: '灵石', amount: dungeon.rewards.lingshi[0] },
+            { icon: '·', name: '经验', amount: dungeon.rewards.exp[0] },
+            ...(dungeon.rewards.pantao > 0 ? [{ icon: '·', name: '蟠桃', amount: dungeon.rewards.pantao }] : []),
           ]}
           remainAttempts={dungeon.dailyLimit - (useDungeonStore.getState().dailyAttempts[dungeon.id] ?? 0)}
           onConfirm={handleEnd}

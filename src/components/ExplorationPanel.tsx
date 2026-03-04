@@ -46,34 +46,34 @@ export function ExplorationPanel() {
     const node = run.nodes[run.currentIndex];
     return (
       <div className="main-content fade-in">
-        <h3 className="section-title">🗺️ 秘境探索</h3>
-        <div style={{ fontSize: 12, color: 'var(--dim)', marginBottom: 8 }}>
+        <h3 className="section-title">秘境探索</h3>
+        <div style={{ fontSize: 12, color: 'var(--dim)', marginBottom: 12 }}>
           进度: {run.currentIndex + 1}/{run.nodes.length} · 难度 {run.difficulty}
         </div>
-        <div style={{ display: 'flex', gap: 4, marginBottom: 12 }}>
+        <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
           {run.nodes.map((n, i) => (
             <div key={n.id} style={{
               width: 28, height: 28, borderRadius: 6,
               background: n.resolved ? 'var(--accent)' : i === run.currentIndex ? '#fff' : 'var(--bg-card)',
               display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14,
               border: i === run.currentIndex ? '2px solid var(--accent)' : '1px solid var(--border)',
-            }}>{n.resolved ? '✅' : n.icon}</div>
+            }}>{n.resolved ? '◆' : n.icon}</div>
           ))}
         </div>
         {node && (
           <div style={{
-            background: 'var(--bg-card)', borderRadius: 10, padding: 16, textAlign: 'center',
+            background: 'var(--bg-card)', borderRadius: 10, padding: 20, textAlign: 'center',
             border: '1px solid var(--border)',
           }}>
-            <div style={{ fontSize: 36 }}>{node.icon}</div>
-            <div style={{ fontWeight: 'bold', fontSize: 16, margin: '8px 0' }}>{node.name}</div>
-            <div style={{ fontSize: 12, color: 'var(--dim)', marginBottom: 12 }}>{node.desc}</div>
+            <div style={{ fontSize: 20, color: 'var(--accent)' }}>{node.icon}</div>
+            <div style={{ fontWeight: 'bold', fontSize: 16, margin: '10px 0' }}>{node.name}</div>
+            <div style={{ fontSize: 12, color: 'var(--dim)', marginBottom: 14 }}>{node.desc}</div>
             {node.reward && <div style={{ fontSize: 11, color: 'var(--accent)' }}>
-              奖励: {node.reward.lingshi ? `${node.reward.lingshi}💰 ` : ''}{node.reward.exp ? `${node.reward.exp}✨ ` : ''}{node.reward.pantao ? `${node.reward.pantao}🍑` : ''}
+              奖励: {node.reward.lingshi ? `${node.reward.lingshi} 灵石 ` : ''}{node.reward.exp ? `${node.reward.exp} 经验 ` : ''}{node.reward.pantao ? `${node.reward.pantao} 蟠桃` : ''}
             </div>}
-            {node.damage && <div style={{ fontSize: 11, color: '#e74c3c' }}>⚠️ 受到 {node.damage} 伤害</div>}
-            <button className="action-btn accent" onClick={handleResolve} style={{ marginTop: 12, padding: '8px 24px' }}>
-              {node.type === 'battle' ? '⚔️ 战斗' : node.type === 'trap' ? '🛡️ 闯过' : '✨ 探索'}
+            {node.damage && <div style={{ fontSize: 11, color: '#e74c3c', marginTop: 4 }}>[危险] 受到 {node.damage} 伤害</div>}
+            <button className="action-btn accent" onClick={handleResolve} style={{ marginTop: 14, padding: '8px 24px' }}>
+              {node.type === 'battle' ? '▸ 战斗' : node.type === 'trap' ? '▸ 闯过' : '▸ 探索'}
             </button>
           </div>
         )}
@@ -83,27 +83,27 @@ export function ExplorationPanel() {
 
   return (
     <div className="main-content fade-in">
-      <h3 className="section-title">🗺️ 秘境探索</h3>
-      <div style={{ fontSize: 12, color: 'var(--dim)', marginBottom: 12 }}>
+      <h3 className="section-title">秘境探索</h3>
+      <div style={{ fontSize: 12, color: 'var(--dim)', marginBottom: 16 }}>
         免费次数: {exploration.dailyFree}/{DAILY_FREE} · 总探索: {exploration.totalRuns}
-        {!hasFree && <span> · 额外消耗 {EXTRA_COST}💰</span>}
+        {!hasFree && <span> · 额外消耗 {EXTRA_COST} 灵石</span>}
       </div>
       {DIFFICULTIES.map(d => {
         const threshold = getPowerThreshold(d.level);
         const canEnter = attack >= threshold;
         return (
           <div key={d.level} style={{
-            background: 'var(--bg-card)', borderRadius: 10, padding: 12, marginBottom: 8,
-            border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 10,
+            background: 'var(--bg-card)', borderRadius: 10, padding: 14, marginBottom: 10,
+            border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 12,
             opacity: canEnter ? 1 : 0.4,
           }}>
-            <div style={{ fontSize: 24, color: d.color }}>🌀</div>
+            <div style={{ fontSize: 16, color: d.color, fontWeight: 'bold' }}>◇</div>
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 'bold', color: d.color }}>{d.name} (难度{d.level})</div>
-              <div style={{ fontSize: 11, color: 'var(--dim)' }}>战力要求: {formatNumber(threshold)}</div>
+              <div style={{ fontSize: 11, color: 'var(--dim)', marginTop: 2 }}>战力要求: {formatNumber(threshold)}</div>
             </div>
             <button className={`action-btn ${canEnter ? 'accent' : ''}`} disabled={!canEnter}
-              onClick={() => handleStart(d.level)} style={{ fontSize: 11, padding: '4px 12px' }}>
+              onClick={() => handleStart(d.level)} style={{ fontSize: 11, padding: '6px 14px' }}>
               探索
             </button>
           </div>

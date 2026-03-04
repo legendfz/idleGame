@@ -33,61 +33,61 @@ export interface AchievementDef {
 export const ACHIEVEMENTS: AchievementDef[] = [
   // === Milestone ===
   {
-    id: 'ach_first_dungeon', name: '初入江湖', icon: '⚔️',
+    id: 'ach_first_dungeon', name: '初入江湖', icon: '[剑]',
     description: '通关第一个副本', category: 'milestone',
     conditionType: 'dungeon_clear', target: 1, dungeonId: 'wuxingshan',
     reward: { type: 'resource', value: 5000, description: '灵石 ×5,000' },
   },
   {
-    id: 'ach_level_50', name: '修行有成', icon: '📈',
+    id: 'ach_level_50', name: '修行有成', icon: '[升]',
     description: '达到等级 50', category: 'milestone',
     conditionType: 'level', target: 50,
     reward: { type: 'stat_boost', stat: 'all', value: 5, description: '全属性 +5%' },
   },
   {
-    id: 'ach_level_100', name: '登峰造极', icon: '🏔️',
+    id: 'ach_level_100', name: '登峰造极', icon: '[山]',
     description: '达到等级 100', category: 'milestone',
     conditionType: 'level', target: 100,
     reward: { type: 'stat_boost', stat: 'all', value: 10, description: '全属性 +10%' },
   },
   {
-    id: 'ach_kill_1000', name: '千妖斩', icon: '💀',
+    id: 'ach_kill_1000', name: '千妖斩', icon: '[骷]',
     description: '累计击杀 1,000 只妖怪', category: 'milestone',
     conditionType: 'kill_count', target: 1000,
     reward: { type: 'title', value: 0, title: '千妖斩', description: '称号「千妖斩」' },
   },
   {
-    id: 'ach_equip_50', name: '装备收藏家', icon: '🎒',
+    id: 'ach_equip_50', name: '装备收藏家', icon: '[包]',
     description: '累计获得 50 件装备', category: 'milestone',
     conditionType: 'equipment_count', target: 50,
     reward: { type: 'unlock', value: 5, description: '背包上限 +5' },
   },
   {
-    id: 'ach_realm_dacheng', name: '大乘期', icon: '☸️',
+    id: 'ach_realm_dacheng', name: '大乘期', icon: '[轮]',
     description: '达到大乘境界', category: 'milestone',
     conditionType: 'realm_reach', target: 1,
     reward: { type: 'title', value: 0, title: '大乘高僧', description: '称号「大乘高僧」' },
   },
   {
-    id: 'ach_all_dungeons', name: '取经归来', icon: '🏛️',
+    id: 'ach_all_dungeons', name: '取经归来', icon: '[殿]',
     description: '通关全部 10 个副本', category: 'milestone',
     conditionType: 'dungeon_clear', target: 10, hidden: true,
     reward: { type: 'title', value: 0, title: '斗战胜佛', description: '称号「斗战胜佛」' },
   },
   {
-    id: 'ach_collect_20_unique', name: '百宝鉴赏', icon: '💎',
+    id: 'ach_collect_20_unique', name: '百宝鉴赏', icon: '[钻]',
     description: '收集 20 种不同装备', category: 'milestone',
     conditionType: 'collect_unique', target: 20,
     reward: { type: 'resource', value: 10, description: '蟠桃 ×10' },
   },
   {
-    id: 'ach_gold_1m', name: '富甲一方', icon: '💰',
+    id: 'ach_gold_1m', name: '富甲一方', icon: '[金]',
     description: '累计获得 1,000,000 灵石', category: 'milestone',
     conditionType: 'gold_total', target: 1000000,
     reward: { type: 'resource', value: 50000, description: '灵石 ×50,000' },
   },
   {
-    id: 'ach_online_24h', name: '日夜修行', icon: '⏰',
+    id: 'ach_online_24h', name: '日夜修行', icon: '[时]',
     description: '在线总时长达 24 小时', category: 'milestone',
     conditionType: 'online_time', target: 86400,
     reward: { type: 'unlock', value: 1, description: '离线收益增强' },
@@ -95,31 +95,31 @@ export const ACHIEVEMENTS: AchievementDef[] = [
 
   // === Challenge ===
   {
-    id: 'ach_speed_wuxingshan', name: '疾风破山', icon: '⚡',
+    id: 'ach_speed_wuxingshan', name: '疾风破山', icon: '[电]',
     description: '60 秒内通关五行山', category: 'challenge',
     conditionType: 'dungeon_speed', target: 60, dungeonId: 'wuxingshan',
     reward: { type: 'stat_boost', stat: 'speed', value: 10, description: '速度 +10%' },
   },
   {
-    id: 'ach_no_damage_boss', name: '毫发无伤', icon: '🛡️',
+    id: 'ach_no_damage_boss', name: '毫发无伤', icon: '[盾]',
     description: '无伤通关任意 Boss 战', category: 'challenge', hidden: true,
     conditionType: 'no_damage', target: 1,
     reward: { type: 'title', value: 0, title: '无伤大圣', description: '称号「无伤大圣」' },
   },
   {
-    id: 'ach_enhance_15', name: '鸿蒙之力', icon: '✨',
+    id: 'ach_enhance_15', name: '鸿蒙之力', icon: '[星]',
     description: '强化任意装备至 +15', category: 'challenge',
     conditionType: 'enhance_max', target: 15,
     reward: { type: 'stat_boost', stat: 'attack', value: 15, description: '攻击 +15%' },
   },
   {
-    id: 'ach_dodge_10', name: '身法如风', icon: '💨',
+    id: 'ach_dodge_10', name: '身法如风', icon: '[风]',
     description: '连续闪避 Boss 技能 10 次', category: 'challenge', hidden: true,
     conditionType: 'dodge_streak', target: 10,
     reward: { type: 'stat_boost', stat: 'speed', value: 15, description: '速度 +15%' },
   },
   {
-    id: 'ach_solo_lingshan', name: '孤胆英雄', icon: '🦸',
+    id: 'ach_solo_lingshan', name: '孤胆英雄', icon: '[雄]',
     description: '独自通关灵山雷音寺', category: 'challenge', hidden: true,
     conditionType: 'solo_boss', target: 1, dungeonId: 'lingshan',
     reward: { type: 'title', value: 0, title: '齐天大圣', description: '称号「齐天大圣」' },

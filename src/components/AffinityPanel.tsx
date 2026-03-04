@@ -17,8 +17,8 @@ export function AffinityPanel() {
 
   return (
     <div className="main-content fade-in">
-      <h3 className="section-title">💕 仙缘</h3>
-      <div style={{ fontSize: 12, color: 'var(--dim)', marginBottom: 12 }}>与仙人结缘，获取永久加成</div>
+      <h3 className="section-title">仙缘</h3>
+      <div style={{ fontSize: 12, color: 'var(--dim)', marginBottom: 16 }}>与仙人结缘，获取永久加成</div>
       {AFFINITY_NPCS.map(npc => {
         const lv = levels[npc.id] ?? 0;
         const pct = lv / 100;
@@ -29,14 +29,14 @@ export function AffinityPanel() {
 
         return (
           <div key={npc.id} style={{
-            background: 'var(--bg-card)', borderRadius: 10, padding: 12, marginBottom: 8,
+            background: 'var(--bg-card)', borderRadius: 10, padding: 14, marginBottom: 10,
             border: hasUltimate ? '1px solid #e040fb' : '1px solid var(--border)',
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 28 }}>{npc.icon}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 14, color: 'var(--accent)', fontWeight: 'bold', minWidth: 36, textAlign: 'center' }}>{npc.icon}</span>
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 'bold' }}>{npc.name} <span style={{ fontSize: 10, color: 'var(--dim)' }}>{npc.title}</span></div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
                   <div style={{
                     flex: 1, height: 6, borderRadius: 3, background: 'var(--border)',
                   }}>
@@ -48,16 +48,16 @@ export function AffinityPanel() {
                   <span style={{ fontSize: 10, color: 'var(--dim)' }}>{lv}/100</span>
                 </div>
                 {unlockedBuffs.length > 0 && (
-                  <div style={{ fontSize: 10, color: 'var(--accent)', marginTop: 2 }}>
+                  <div style={{ fontSize: 10, color: 'var(--accent)', marginTop: 4 }}>
                     {unlockedBuffs.map(b => b.desc).join(' · ')}
                   </div>
                 )}
-                {nextBuff && <div style={{ fontSize: 10, color: 'var(--dim)', marginTop: 1 }}>下一个: {nextBuff.threshold}♥ → {nextBuff.desc}</div>}
-                {hasUltimate && <div style={{ fontSize: 10, color: '#e040fb', marginTop: 2 }}>🌟 {npc.ultimateSkill}</div>}
+                {nextBuff && <div style={{ fontSize: 10, color: 'var(--dim)', marginTop: 2 }}>下一个: {nextBuff.threshold} 好感 → {nextBuff.desc}</div>}
+                {hasUltimate && <div style={{ fontSize: 10, color: '#e040fb', marginTop: 4 }}>★ {npc.ultimateSkill}</div>}
               </div>
               <button className={`action-btn ${canGift ? 'accent' : ''}`} disabled={!canGift}
-                onClick={() => handleGift(npc.id)} style={{ fontSize: 10, padding: '4px 8px', opacity: canGift ? 1 : 0.4 }}>
-                🎁 赠礼({giftCost}💰)
+                onClick={() => handleGift(npc.id)} style={{ fontSize: 10, padding: '6px 10px', opacity: canGift ? 1 : 0.4 }}>
+                赠礼 ({giftCost} 灵石)
               </button>
             </div>
           </div>

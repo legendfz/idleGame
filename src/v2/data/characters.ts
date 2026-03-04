@@ -8,7 +8,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     id: 'tangseng',
     name: '唐僧',
-    icon: '🧑‍🦲',
+    icon: '[僧]',
     role: 'leader',
     description: '取经团队领袖，诵经增益全队',
     passiveSkill: { name: '诵经祈福', description: '全队修炼速度 +15%', effect: { cultivationRate: 0.15 } },
@@ -18,7 +18,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     id: 'wukong',
     name: '孙悟空',
-    icon: '🐵',
+    icon: '[猴]',
     role: 'dps',
     description: '齐天大圣，七十二变，高爆发',
     passiveSkill: { name: '战斗本能', description: '暴击率 +10%，暴击伤害 +50%', effect: { critRate: 10, critDmg: 0.5 } },
@@ -28,7 +28,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     id: 'bajie',
     name: '猪八戒',
-    icon: '🐷',
+    icon: '[猪]',
     role: 'tank',
     description: '天蓬元帅，食量大，资源采集强',
     passiveSkill: { name: '贪吃鬼', description: '金币掉落 +25%', effect: { goldBonus: 0.25 } },
@@ -38,7 +38,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     id: 'wujing',
     name: '沙悟净',
-    icon: '🧔',
+    icon: '[沙]',
     role: 'support',
     description: '卷帘大将，稳重可靠',
     passiveSkill: { name: '负重前行', description: '背包容量 +50%', effect: { inventoryBonus: 0.5 } },
@@ -48,7 +48,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     id: 'bailongma',
     name: '白龙马',
-    icon: '🐴',
+    icon: '[马]',
     role: 'mount',
     description: '西海龙太子，赶路加速',
     passiveSkill: { name: '龙行千里', description: '取经进度推进速度 +20%', effect: { journeySpeed: 0.2 } },

@@ -14,14 +14,14 @@ export interface AlchemyRecipe {
 
 export const RECIPES: AlchemyRecipe[] = [
   {
-    id: 'basic_pill', name: '回气丹', icon: '💊',
+    id: 'basic_pill', name: '回气丹', icon: '[丹]',
     materials: [{ id: 'herb_basic', count: 3 }],
     successRate: 0.9,
     output: { pillId: 'huiqi_pill', count: 1 },
     description: '恢复少量修为',
   },
   {
-    id: 'break_pill', name: '突破丹', icon: '💎',
+    id: 'break_pill', name: '突破丹', icon: '[钻]',
     materials: [{ id: 'herb_rare', count: 5 }, { id: 'crystal', count: 2 }],
     successRate: 0.6,
     output: { pillId: 'tupo_pill', count: 1 },

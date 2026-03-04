@@ -15,42 +15,42 @@ export interface ReincPerk {
 /** 转世可购买的永久加成 */
 export const REINC_PERKS: ReincPerk[] = [
   {
-    id: 'atk_mult', name: '悟空之力', icon: '💪',
+    id: 'atk_mult', name: '悟空之力', icon: '[力]',
     desc: '攻击力 +20%/级', maxLevel: 10, costPerLevel: 5,
     effect: (lv) => 1 + lv * 0.2,
   },
   {
-    id: 'hp_mult', name: '金刚不坏', icon: '🛡️',
+    id: 'hp_mult', name: '金刚不坏', icon: '[盾]',
     desc: '生命值 +20%/级', maxLevel: 10, costPerLevel: 5,
     effect: (lv) => 1 + lv * 0.2,
   },
   {
-    id: 'exp_mult', name: '悟道加速', icon: '📖',
+    id: 'exp_mult', name: '悟道加速', icon: '[书]',
     desc: '经验获取 +15%/级', maxLevel: 10, costPerLevel: 8,
     effect: (lv) => 1 + lv * 0.15,
   },
   {
-    id: 'gold_mult', name: '点石成金', icon: '💰',
+    id: 'gold_mult', name: '点石成金', icon: '[金]',
     desc: '灵石获取 +15%/级', maxLevel: 10, costPerLevel: 8,
     effect: (lv) => 1 + lv * 0.15,
   },
   {
-    id: 'crit_flat', name: '慧眼金睛', icon: '👁️',
+    id: 'crit_flat', name: '慧眼金睛', icon: '[目]',
     desc: '暴击率 +3%/级', maxLevel: 10, costPerLevel: 6,
     effect: (lv) => lv * 3,
   },
   {
-    id: 'drop_mult', name: '天降宝物', icon: '🎁',
+    id: 'drop_mult', name: '天降宝物', icon: '[礼]',
     desc: '装备掉率 +10%/级', maxLevel: 10, costPerLevel: 10,
     effect: (lv) => 1 + lv * 0.1,
   },
   {
-    id: 'start_level', name: '宿慧觉醒', icon: '⚡',
+    id: 'start_level', name: '宿慧觉醒', icon: '[电]',
     desc: '转世后初始等级 +5/级', maxLevel: 10, costPerLevel: 12,
     effect: (lv) => lv * 5,
   },
   {
-    id: 'pantao_mult', name: '蟠桃盛宴', icon: '🍑',
+    id: 'pantao_mult', name: '蟠桃盛宴', icon: '[桃]',
     desc: '蟠桃掉率 +10%/级', maxLevel: 10, costPerLevel: 8,
     effect: (lv) => 1 + lv * 0.1,
   },

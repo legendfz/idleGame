@@ -14,7 +14,7 @@ export interface AffinityNPC {
 
 export const AFFINITY_NPCS: AffinityNPC[] = [
   {
-    id: 'guanyin', name: '观音', icon: '🙏', title: '慈悲仙人', giftPreference: '法器',
+    id: 'guanyin', name: '观音', icon: '[佛]', title: '慈悲仙人', giftPreference: '法器',
     buffs: [
       { threshold: 20, type: 'maxHp', value: 10, desc: '生命+10%' },
       { threshold: 40, type: 'healRate', value: 5, desc: '回复+5%' },
@@ -24,7 +24,7 @@ export const AFFINITY_NPCS: AffinityNPC[] = [
     ultimateSkill: '甘露普降 — 战斗中每10秒恢复5%生命',
   },
   {
-    id: 'laojun', name: '太上老君', icon: '👴', title: '炼丹宗师', giftPreference: '丹药',
+    id: 'laojun', name: '太上老君', icon: '[仙]', title: '炼丹宗师', giftPreference: '丹药',
     buffs: [
       { threshold: 20, type: 'expMul', value: 5, desc: '经验+5%' },
       { threshold: 40, type: 'forgeRate', value: 3, desc: '锻造+3%' },
@@ -34,7 +34,7 @@ export const AFFINITY_NPCS: AffinityNPC[] = [
     ultimateSkill: '八卦炉火 — 锻造永不失败',
   },
   {
-    id: 'erlang', name: '二郎神', icon: '⚔️', title: '战神', giftPreference: '兵器',
+    id: 'erlang', name: '二郎神', icon: '[剑]', title: '战神', giftPreference: '兵器',
     buffs: [
       { threshold: 20, type: 'attack', value: 8, desc: '攻击+8%' },
       { threshold: 40, type: 'critRate', value: 3, desc: '暴击+3%' },
@@ -44,7 +44,7 @@ export const AFFINITY_NPCS: AffinityNPC[] = [
     ultimateSkill: '三尖两刃 — 暴击时额外造成50%伤害',
   },
   {
-    id: 'nezha', name: '哪吒', icon: '🔥', title: '莲花化身', giftPreference: '灵石',
+    id: 'nezha', name: '哪吒', icon: '[火]', title: '莲花化身', giftPreference: '灵石',
     buffs: [
       { threshold: 20, type: 'speed', value: 5, desc: '速度+5%' },
       { threshold: 40, type: 'attack', value: 5, desc: '攻击+5%' },
@@ -54,7 +54,7 @@ export const AFFINITY_NPCS: AffinityNPC[] = [
     ultimateSkill: '风火轮 — 攻击速度翻倍持续10秒',
   },
   {
-    id: 'yutu', name: '玉兔', icon: '🐰', title: '月宫仙子', giftPreference: '灵草',
+    id: 'yutu', name: '玉兔', icon: '[兔]', title: '月宫仙子', giftPreference: '灵草',
     buffs: [
       { threshold: 20, type: 'lingshiMul', value: 5, desc: '灵石+5%' },
       { threshold: 40, type: 'expMul', value: 3, desc: '经验+3%' },
@@ -64,7 +64,7 @@ export const AFFINITY_NPCS: AffinityNPC[] = [
     ultimateSkill: '月华清辉 — 离线收益翻倍',
   },
   {
-    id: 'longnv', name: '龙女', icon: '🐲', title: '龙宫公主', giftPreference: '珍珠',
+    id: 'longnv', name: '龙女', icon: '[龙]', title: '龙宫公主', giftPreference: '珍珠',
     buffs: [
       { threshold: 20, type: 'defense', value: 5, desc: '防御+5%' },
       { threshold: 40, type: 'maxHp', value: 8, desc: '生命+8%' },

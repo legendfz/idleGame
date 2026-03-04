@@ -3,12 +3,6 @@ import { useGameStore } from '../store/gameStore';
 import { REALMS } from '../data/realms';
 import { formatTime } from '../utils/format';
 
-/**
- * v1.1 Feedback form — sends to Google Apps Script → Google Sheet.
- * If APPS_SCRIPT_URL is not set, falls back to mailto: link.
- */
-
-// TODO: Replace with actual Google Apps Script deployment URL
 const APPS_SCRIPT_URL = '';
 
 type FeedbackType = 'bug' | 'suggestion' | 'experience';
@@ -49,9 +43,8 @@ export default function FeedbackForm() {
         setError(true);
       }
     } else {
-      // GitHub Issues with templates
       const labels: Record<FeedbackType, string> = { bug: 'bug', suggestion: 'enhancement', experience: 'feedback' };
-      const titles: Record<FeedbackType, string> = { bug: '🐛 Bug报告', suggestion: '💡 功能建议', experience: '🎮 体验反馈' };
+      const titles: Record<FeedbackType, string> = { bug: 'Bug报告', suggestion: '功能建议', experience: '体验反馈' };
       const templates: Record<FeedbackType, string> = {
         bug: `### Bug 描述\n${message}\n\n### 复现步骤\n1. \n\n### 游戏信息\n${gameInfo}`,
         suggestion: `### 建议内容\n${message}\n\n### 期望效果\n\n\n### 游戏信息\n${gameInfo}`,
@@ -71,16 +64,16 @@ export default function FeedbackForm() {
   if (sent) {
     return (
       <div className="feedback-section">
-        <h3 style={{ textAlign: 'center', color: '#4caf50' }}>✅ 感谢反馈！</h3>
-        <p style={{ textAlign: 'center', color: '#8b8b9e', fontSize: 12, marginTop: 8 }}>
+        <h3 style={{ textAlign: 'center', color: '#4caf50' }}>感谢反馈！</h3>
+        <p style={{ textAlign: 'center', color: '#8b8b9e', fontSize: 12, marginTop: 10 }}>
           你的意见对我们很重要
         </p>
         <button
           className="feedback-btn"
           onClick={() => setSent(false)}
-          style={{ marginTop: 12 }}
+          style={{ marginTop: 14 }}
         >
-          📝 继续反馈
+          继续反馈
         </button>
       </div>
     );
@@ -88,10 +81,10 @@ export default function FeedbackForm() {
 
   return (
     <div className="feedback-section">
-      <h3 style={{ color: '#f0c040', marginBottom: 8 }}>📝 反馈</h3>
+      <h3 style={{ color: '#f0c040', marginBottom: 10 }}>反馈</h3>
 
       <div className="feedback-type-row">
-        {([['bug', '🐛 Bug'], ['suggestion', '💡 建议'], ['experience', '🎮 体验']] as const).map(([key, label]) => (
+        {([['bug', 'Bug'], ['suggestion', '建议'], ['experience', '体验']] as const).map(([key, label]) => (
           <button
             key={key}
             className={`filter-btn ${type === key ? 'active' : ''}`}
@@ -120,13 +113,13 @@ export default function FeedbackForm() {
           onClick={submit}
           disabled={sending || !message.trim()}
         >
-          {sending ? '⏳ 发送中...' : '📤 发送'}
+          {sending ? '发送中...' : '发送'}
         </button>
       </div>
 
       {error && (
-        <div style={{ color: '#f44336', fontSize: 12, marginTop: 4 }}>
-          ❌ 发送失败，请重试
+        <div style={{ color: '#f44336', fontSize: 12, marginTop: 6 }}>
+          发送失败，请重试
         </div>
       )}
     </div>

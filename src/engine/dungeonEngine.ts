@@ -92,7 +92,7 @@ export function initDungeonBattle(dungeon: DungeonConfig): DungeonBattleState {
     totalDamageTaken: 0,
     killCount: 0,
     dodgeCount: 0,
-    log: [{ id: ++logId, text: `⚔️ 进入副本：${dungeon.name}`, type: 'info', timestamp: Date.now() }],
+    log: [{ id: ++logId, text: `[战] 进入副本：${dungeon.name}`, type: 'info', timestamp: Date.now() }],
   };
 }
 
@@ -162,20 +162,20 @@ export function tickDungeonBattle(
   // Timeout check
   if (s.elapsed >= s.timeLimit) {
     s.status = 'defeat';
-    s.log = addLog(s.log, '⏱️ 时间耗尽，挑战失败！', 'warn');
+    s.log = addLog(s.log, '[时] 时间耗尽，挑战失败！', 'warn');
     return s;
   }
 
   // Player death check
   if (s.playerHp <= 0) {
     s.status = 'defeat';
-    s.log = addLog(s.log, '💀 生命耗尽，挑战失败！', 'warn');
+    s.log = addLog(s.log, '[骷] 生命耗尽，挑战失败！', 'warn');
     return s;
   }
 
   if (!s.enemy) {
     s.status = 'victory';
-    s.log = addLog(s.log, '🎉 副本通关！', 'info');
+    s.log = addLog(s.log, '[胜] 副本通关！', 'info');
     return s;
   }
 
@@ -191,9 +191,9 @@ export function tickDungeonBattle(
       if (s.dodgeActive) {
         dmg = Math.floor(dmg * 0.5);
         s.dodgeCount++;
-        s.log = addLog(s.log, `🛡️ 闪避成功！${skill.name} 伤害减半 → -${dmg}`, 'dodge');
+        s.log = addLog(s.log, `[盾] 闪避成功！${skill.name} 伤害减半 → -${dmg}`, 'dodge');
       } else {
-        s.log = addLog(s.log, `💥 ${skill.name} → -${dmg}`, 'skill');
+        s.log = addLog(s.log, `[击] ${skill.name} → -${dmg}`, 'skill');
       }
       s.playerHp -= dmg;
       s.totalDamageTaken += dmg;
@@ -213,7 +213,7 @@ export function tickDungeonBattle(
         s.activeSkillWarning = { skill, timeLeft: 3 };
         s.dodgeAvailable = true;
         s.dodgeActive = false;
-        s.log = addLog(s.log, `⚠️ ${skill.warning} (${skill.name} 3秒后释放)`, 'warn');
+        s.log = addLog(s.log, `[注意] ${skill.warning} (${skill.name} 3秒后释放)`, 'warn');
         newCooldowns.set(skill.name, skill.cooldown);
         break; // one skill at a time
       } else {
@@ -233,7 +233,7 @@ export function tickDungeonBattle(
             phase: i,
             attack: Math.floor(dungeon.boss.attack * phases[i].attackMultiplier),
           };
-          s.log = addLog(s.log, `🔥 ${phases[i].description}`, 'phase');
+          s.log = addLog(s.log, `[火] ${phases[i].description}`, 'phase');
           break;
         }
       }
@@ -255,12 +255,12 @@ export function tickDungeonBattle(
     s.totalDamageDealt += dmg;
 
     if (isCrit) {
-      s.log = addLog(s.log, `💥 暴击！对 ${s.enemy.icon}${s.enemy.name} 造成 ${dmg} 伤害`, 'crit');
+      s.log = addLog(s.log, `[击] 暴击！对 ${s.enemy.icon}${s.enemy.name} 造成 ${dmg} 伤害`, 'crit');
     }
 
     if (s.enemy.hp <= 0) {
       s.killCount++;
-      s.log = addLog(s.log, `☠️ 击败 ${s.enemy.icon}${s.enemy.name}！`, 'kill');
+      s.log = addLog(s.log, `[亡] 击败 ${s.enemy.icon}${s.enemy.name}！`, 'kill');
 
       // Next enemy — use tracked index, not findIndex (BUG-1: same-name enemies)
       const nextIdx = s.currentEnemyIndex + 1;
@@ -269,13 +269,13 @@ export function tickDungeonBattle(
         s.enemy = { ...next, hp: next.maxHp };
         s.currentEnemyIndex = nextIdx;
         if (next.isBoss) {
-          s.log = addLog(s.log, `👹 Boss 登场：${next.icon}${next.name}！`, 'info');
+          s.log = addLog(s.log, `[妖] Boss 登场：${next.icon}${next.name}！`, 'info');
           s.bossSkillCooldowns = new Map();
         }
       } else {
         s.enemy = null;
         s.status = 'victory';
-        s.log = addLog(s.log, '🎉 副本通关！', 'info');
+        s.log = addLog(s.log, '[胜] 副本通关！', 'info');
       }
       break;
     }

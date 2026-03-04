@@ -1,11 +1,11 @@
 import { useUIStore, TabId } from '../../store/uiStore';
 
 const TABS: { id: TabId; icon: string; label: string }[] = [
-  { id: 'cultivate', icon: '🧘', label: '修炼' },
-  { id: 'battle', icon: '⚔️', label: '取经' },
-  { id: 'character', icon: '👤', label: '角色' },
-  { id: 'inventory', icon: '🎒', label: '背包' },
-  { id: 'journey', icon: '🗺️', label: '地图' },
+  { id: 'cultivate', icon: '[修]', label: '修炼' },
+  { id: 'battle', icon: '[战]', label: '取经' },
+  { id: 'character', icon: '[人]', label: '角色' },
+  { id: 'inventory', icon: '[包]', label: '背包' },
+  { id: 'journey', icon: '[图]', label: '地图' },
 ];
 
 export default function BottomNav() {
