@@ -73,6 +73,8 @@ interface GameStore {
   setAutoEquipOnDrop: (v: boolean) => void;
   autoEquipBest: () => number;
   quickDecompose: (maxQuality: number) => number;
+  goToChapter: (chapterId: number) => void;
+  batchEnhanceEquipped: () => { count: number; cost: number };
   // Multi-save
   saveToSlot: (slotId: number) => void;
   loadFromSlot: (slotId: number) => void;
@@ -1002,6 +1004,42 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (toDecompose.length === 0) return 0;
     get().batchDecompose(toDecompose.map(i => i.uid));
     return toDecompose.length;
+  },
+
+  goToChapter: (chapterId: number) => {
+    const state = get();
+    if (chapterId > state.highestChapter) return;
+    if (chapterId === state.battle.chapterId) return;
+    const ch = CHAPTERS.find(c => c.id === chapterId);
+    if (!ch) return;
+    const enemy = createEnemy(chapterId, 1, false)!;
+    const log = addLog(state.battle.log, `传送至第${chapterId}章「${ch.name}」`, 'info');
+    set({
+      battle: { ...state.battle, chapterId, stageNum: 1, wave: 1, isBossWave: false, maxWaves: 3, currentEnemy: enemy, log, tribulation: undefined },
+    });
+  },
+
+  batchEnhanceEquipped: () => {
+    const state = get();
+    const slots = ['equippedWeapon', 'equippedArmor', 'equippedTreasure'] as const;
+    let totalCount = 0;
+    let totalCost = 0;
+    for (const slot of slots) {
+      const eq = state[slot];
+      if (!eq) continue;
+      // Enhance up to 10 times or until fail/no gold
+      for (let i = 0; i < 10; i++) {
+        const s = get();
+        const currentEq = s[slot];
+        if (!currentEq || currentEq.level >= 10) break;
+        const cost = (currentEq.level + 1) * 100;
+        if (s.player.lingshi < cost) break;
+        get().enhanceEquip(currentEq.uid);
+        totalCount++;
+        totalCost += cost;
+      }
+    }
+    return { count: totalCount, cost: totalCost };
   },
 
   save: () => {
