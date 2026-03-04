@@ -1,7 +1,11 @@
 let _lastBackpackFullWarn = 0;
+// v42.0: Achievement state cache (updated from App.tsx tick)
+let _achStatesCache: Record<string, { completed: boolean }> | null = null;
+export function setAchStatesCache(states: Record<string, { completed: boolean }>) { _achStatesCache = states; }
 import { create } from 'zustand';
 import { PlayerState, BattleState, BattleLogEntry, TabId, GameSave, EquipmentItem, EquipSlot, Stats, QUALITY_INFO, FloatingText, INVENTORY_MAX, OfflineReport } from '../types';
 import { REALMS } from '../data/realms';
+import { ACHIEVEMENTS as ACHIEVEMENTS_DATA } from '../data/achievements';
 import { CHAPTERS, createEnemy, ABYSS_CHAPTER_ID } from '../data/chapters';
 import { expForLevel } from '../utils/format';
 import { sfx } from '../engine/audio';
@@ -181,6 +185,23 @@ function calcEffectiveStats(
     s.maxHp = Math.floor(s.maxHp * 2);
     s.critRate = Math.min(100, s.critRate * 2);
     s.critDmg *= 2;
+  }
+  // v42.0: Achievement stat_boost rewards
+  for (const def of ACHIEVEMENTS_DATA) {
+    if (!_achStatesCache?.[def.id]?.completed) continue;
+    if (def.reward.type !== 'stat_boost') continue;
+    const pct = def.reward.value / 100;
+    switch (def.reward.stat) {
+      case 'attack': s.attack = Math.floor(s.attack * (1 + pct)); break;
+      case 'speed': s.speed += def.reward.value; break;
+      case 'critRate': s.critRate += def.reward.value; break;
+      case 'critDmg': s.critDmg += def.reward.value; break;
+      case 'all':
+        s.attack = Math.floor(s.attack * (1 + pct));
+        s.maxHp = Math.floor(s.maxHp * (1 + pct));
+        s.critRate = Math.min(100, s.critRate + def.reward.value);
+        break;
+    }
   }
   return s;
 }

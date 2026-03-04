@@ -33,12 +33,15 @@ interface AchievementStore {
   };
   // Toast queue
   pendingToasts: AchievementDef[];
+  // v42.0: Pending resource rewards
+  pendingRewards: { type: string; value: number; description: string }[];
 
   // Actions
   updateProgress: (type: string, value: number) => void;
   incrementCounter: (counter: keyof AchievementStore['counters'], amount?: number) => void;
   checkAchievements: () => void;
   consumeToast: () => AchievementDef | null;
+  consumeRewards: () => { type: string; value: number; description: string }[];
   selectTitle: (title: string) => void;
   save: () => void;
   load: () => void;
@@ -72,6 +75,7 @@ export const useAchievementStore = create<AchievementStore>((set, get) => ({
     soloBoss: false,
   },
   pendingToasts: [],
+  pendingRewards: [],
 
   updateProgress: (achievementId, value) => {
     const state = get();
@@ -100,6 +104,10 @@ export const useAchievementStore = create<AchievementStore>((set, get) => ({
       // Handle title rewards
       if (def.reward.type === 'title' && def.reward.title) {
         updates.unlockedTitles = [...state.unlockedTitles, def.reward.title];
+      }
+      // v42.0: Apply resource rewards (via pending queue, consumed by gameStore)
+      if (def.reward.type === 'resource') {
+        updates.pendingRewards = [...(state.pendingRewards ?? []), def.reward];
       }
     }
 
@@ -157,6 +165,14 @@ export const useAchievementStore = create<AchievementStore>((set, get) => ({
     const [toast, ...rest] = state.pendingToasts;
     set({ pendingToasts: rest });
     return toast;
+  },
+
+  consumeRewards: () => {
+    const state = get();
+    if (state.pendingRewards.length === 0) return [];
+    const rewards = [...state.pendingRewards];
+    set({ pendingRewards: [] });
+    return rewards;
   },
 
   selectTitle: (title) => set({ selectedTitle: title }),
