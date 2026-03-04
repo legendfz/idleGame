@@ -124,7 +124,7 @@ export default function App() {
       const achStore = useAchievementStore.getState();
       achStore.updateProgress('ach_level_50', gs.player.level);
       achStore.updateProgress('ach_level_100', gs.player.level);
-      achStore.updateProgress('online_24h', gs.totalPlayTime);
+      achStore.updateProgress('ach_online_24h', gs.totalPlayTime);
       // Sync game stats → achievement counters
       const c = achStore.counters;
       const p = gs.player;

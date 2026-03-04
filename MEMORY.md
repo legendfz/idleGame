@@ -344,3 +344,16 @@
 - Build: 343KB/105KB gzip
 - Commit: cf66c10, merged to main: 355672f
 - CEO直接实现（最高效）
+
+## v42.0「精诚所至」完成（2026-03-04 12:00）
+- 成就奖励生效：stat_boost类加属性，resource类发灵石/蟠桃
+- 通过achStatesCache避免循环依赖
+- Build: 344KB/105KB gzip
+- Commit: 5554b09, merged to main: bdff09e
+
+## v43.0「天工开物」完成（2026-03-04 12:00）
+- 装备对比：背包物品显示vs已装备的↑↓差异
+- 击杀里程碑：100/500/1K/5K/10K/50K杀触发奖励
+- Build: 345KB/105KB gzip
+- Commit: fddd0eb, merged to main: 8997550
+- CEO直接实现（最高效）
