@@ -203,7 +203,4 @@ export interface GameSave {
   sanctuary?: any;
   exploration?: any;
   affinity?: any;
-  // v27
-  battleSpeed?: number;
-  autoDecompose?: number;
 }

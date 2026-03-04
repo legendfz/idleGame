@@ -40,13 +40,8 @@ interface GameStore {
   totalPlayTime: number;
   lastSaveTimestamp: number;
   offlineReport: OfflineReport | null;
-  battleSpeed: number; // 1, 2, 3, 5, or 10
-  autoDecompose: number; // 0=off, 1=凡品, 2=灵品以下, 3=仙品以下
-  
+
   // Actions
-  setBattleSpeed: (speed: number) => void;
-  setAutoDecompose: (level: number) => void;
-  bulkEnhance: (uid: string) => void;
   setTab: (tab: TabId) => void;
   tick: () => void;
   clickAttack: () => void;
@@ -241,43 +236,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   totalPlayTime: 0,
   lastSaveTimestamp: Date.now(),
   offlineReport: null,
-  battleSpeed: 1,
-  autoDecompose: 0,
 
   setTab: (tab) => set({ activeTab: tab }),
-  setBattleSpeed: (speed) => {
-    const validSpeeds = [1, 2, 3, 5, 10];
-    const level = get().player.level;
-    // 5x unlocks at Lv.100, 10x at Lv.300
-    const maxSpeed = level >= 300 ? 10 : level >= 100 ? 5 : 3;
-    const clamped = validSpeeds.filter(s => s <= maxSpeed).reduce((best, s) => s <= speed ? s : best, 1);
-    set({ battleSpeed: clamped });
-  },
-  setAutoDecompose: (level) => set({ autoDecompose: Math.min(3, Math.max(0, level)) }),
-  bulkEnhance: (uid) => {
-    const state = get();
-    const item = state.inventory.find(i => i.uid === uid);
-    if (!item) return;
-    let current = { ...item };
-    let lingshi = state.player.lingshi;
-    let count = 0;
-    const maxLvl = getMaxEnhanceLevel(current);
-    while (current.level < maxLvl) {
-      if (isHighEnhance(current)) break; // stop at high enhance territory
-      const cost = getEnhanceCost(current);
-      if (lingshi < cost) break;
-      lingshi -= cost;
-      current = { ...current, level: current.level + 1 };
-      count++;
-    }
-    if (count === 0) return;
-    const newInv = state.inventory.map(i => i.uid === uid ? current : i);
-    set({
-      inventory: newInv,
-      player: { ...state.player, lingshi },
-      battle: { ...state.battle, log: addLog(state.battle.log, `批量强化 ${current.name} +${count}级 → +${current.level}`, 'info') },
-    });
-  },
   dismissOfflineReport: () => set({ offlineReport: null }),
   clearFloatingText: (id) => set(s => ({ floatingTexts: s.floatingTexts.filter(f => f.id !== id) })),
 
@@ -370,21 +330,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const eqDrop = rollEquipDrop(globalStage, enemy.isBoss);
         if (eqDrop) {
           const newItem = createEquipFromTemplate(eqDrop);
+          updatedInventory.push(newItem);
+          updatedPlayer.totalEquipDrops++;
           const qi = QUALITY_INFO[eqDrop.quality];
-          const autoDecomp = get().autoDecompose;
-          const qualityOrder = ['common', 'spirit', 'immortal', 'divine', 'legendary', 'mythic'];
-          const dropIdx = qualityOrder.indexOf(eqDrop.quality);
-          if (autoDecomp > 0 && dropIdx < autoDecomp) {
-            // Auto-decompose
-            const sellPrice = Math.floor(getEquipEffectiveStat(newItem) * 2 + 50);
-            updatedPlayer.lingshi += Math.floor(sellPrice * 0.6);
-            log = addLog(log, `  自动分解 ${qi.symbol}${eqDrop.name} → 灵石+${Math.floor(sellPrice * 0.6)}`, 'info');
-          } else {
-            updatedInventory.push(newItem);
-            updatedPlayer.totalEquipDrops++;
-            log = addLog(log, `  获得 ${qi.symbol}${eqDrop.name}`, 'drop');
-            sfx.itemDrop();
-          }
+          log = addLog(log, `  获得 ${qi.symbol}${eqDrop.name}`, 'drop');
+          sfx.itemDrop();
         }
       }
 
@@ -932,8 +882,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
       sanctuary: useSanctuaryStore.getState().sanctuary,
       exploration: useExplorationStore.getState().exploration,
       affinity: useAffinityStore.getState().affinity,
-      battleSpeed: state.battleSpeed,
-      autoDecompose: state.autoDecompose,
     };
     localStorage.setItem('xiyou-idle-save', JSON.stringify(save));
     set({ lastSaveTimestamp: Date.now() });
@@ -972,11 +920,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
       save.player.totalBreakthroughs = save.player.totalBreakthroughs ?? 0;
       save.player.tutorialStep = save.player.tutorialStep ?? 1;
       save.player.tutorialDone = save.player.tutorialDone ?? false;
-      // Auto-skip tutorial for experienced players
-      if (save.player.level > 5 && !save.player.tutorialDone) {
-        save.player.tutorialStep = 6;
-        save.player.tutorialDone = true;
-      }
       save.player.systemTutorials = save.player.systemTutorials ?? [];
         save.version = 4;
       }
@@ -1048,8 +991,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
         equippedTreasure: treasure,
         inventory: finalInventory,
         offlineReport: report,
-        battleSpeed: (save as any).battleSpeed || 1,
-        autoDecompose: (save as any).autoDecompose || 0,
       });
 
       // Load v13 stores
@@ -1071,7 +1012,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       inventory: [],
       floatingTexts: [],
       idleStats: { goldPerSec: 0, expPerSec: 0, dps: 0, sessionTime: 0 },
-      totalPlayTime: 0, lastSaveTimestamp: Date.now(), offlineReport: null, battleSpeed: 1,
+      totalPlayTime: 0, lastSaveTimestamp: Date.now(), offlineReport: null,
     });
   },
 
