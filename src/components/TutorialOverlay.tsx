@@ -18,7 +18,9 @@ export function TutorialOverlay() {
   const skip = useGameStore(s => s.skipTutorial);
   const setTab = useGameStore(s => s.setTab);
 
-  if (tutorialDone || tutorialStep > 5) return null;
+  const level = useGameStore(s => s.player.level);
+  // v35.0 fix: 老玩家(Lv>5)跳过教程
+  if (tutorialDone || tutorialStep > 5 || level > 5) return null;
   const step = STEPS.find(s => s.id === tutorialStep);
   if (!step) return null;
 

@@ -91,7 +91,6 @@ function BottomNav() {
 
 export default function App() {
   const activeTab = useGameStore(s => s.activeTab);
-  const setTab = useGameStore(s => s.setTab);
   const tick = useGameStore(s => s.tick);
   const save = useGameStore(s => s.save);
   const load = useGameStore(s => s.load);

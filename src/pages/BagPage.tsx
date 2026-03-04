@@ -4,7 +4,7 @@ import { formatNumber } from '../utils/format';
 import { EquipmentItem, EquipSlot, QUALITY_INFO, INVENTORY_MAX } from '../types';
 import {
   getEquipEffectiveStat, getEnhanceCost, getMaxEnhanceLevel, getActiveSetBonuses,
-  isHighEnhance, getHighEnhanceRate, hasHiddenPassive, hasFullMythic15,
+  hasFullMythic15,
 } from '../data/equipment';
 import { Card, SubPage } from './shared';
 import { EquipSlotDisplay } from './EquipmentPage';
