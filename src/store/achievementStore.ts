@@ -27,6 +27,9 @@ interface AchievementStore {
     hasHongmeng: boolean;
     maxEnhanceLevel: number;
     noDamageClear: boolean;
+    collectUnique: number;
+    realmReached: boolean;
+    soloBoss: boolean;
   };
   // Toast queue
   pendingToasts: AchievementDef[];
@@ -64,6 +67,9 @@ export const useAchievementStore = create<AchievementStore>((set, get) => ({
     hasHongmeng: false,
     maxEnhanceLevel: 0,
     noDamageClear: false,
+    collectUnique: 0,
+    realmReached: false,
+    soloBoss: false,
   },
   pendingToasts: [],
 
@@ -131,6 +137,9 @@ export const useAchievementStore = create<AchievementStore>((set, get) => ({
         case 'hongmeng_obtain': currentValue = c.hasHongmeng ? 1 : 0; break;
         case 'enhance_max': currentValue = c.maxEnhanceLevel; break;
         case 'no_damage': currentValue = c.noDamageClear ? 1 : 0; break;
+        case 'collect_unique': currentValue = c.collectUnique; break;
+        case 'realm_reach': currentValue = c.realmReached ? 1 : 0; break;
+        case 'solo_boss': currentValue = c.soloBoss ? 1 : 0; break;
         case 'level': continue; // checked externally via updateProgress
         case 'online_time': continue; // checked externally via updateProgress
         default: continue;

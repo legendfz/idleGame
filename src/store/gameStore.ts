@@ -114,6 +114,7 @@ function makeInitialPlayer(): PlayerState {
     maxDamage: 0,
     totalEquipDrops: 0,
     totalKills: 0,
+    totalGoldEarned: 0,
     totalBreakthroughs: 0,
     tutorialStep: 1,
     tutorialDone: false,
@@ -243,7 +244,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   lastSaveTimestamp: Date.now(),
   offlineReport: null,
   battleSpeed: 1,
-  autoDecomposeQuality: 0,
+  autoDecomposeQuality: 1,
 
   setTab: (tab) => set({ activeTab: tab }),
   dismissOfflineReport: () => set({ offlineReport: null }),
@@ -326,6 +327,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul);
       const expDrop = Math.floor(enemy.expDrop * expMul);
       updatedPlayer.lingshi += lingshiDrop;
+      updatedPlayer.totalGoldEarned = (updatedPlayer.totalGoldEarned || 0) + lingshiDrop;
       updatedPlayer.exp += expDrop;
       tickGold += lingshiDrop;
       tickExp += expDrop;
@@ -976,6 +978,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       save.player.totalCultivateTime = save.player.totalCultivateTime ?? 0;
       save.player.maxDamage = save.player.maxDamage ?? 0;
       save.player.totalEquipDrops = save.player.totalEquipDrops ?? 0;
+      save.player.totalGoldEarned = save.player.totalGoldEarned ?? save.player.lingshi ?? 0;
       save.player.totalKills = save.player.totalKills ?? 0;
       save.player.totalBreakthroughs = save.player.totalBreakthroughs ?? 0;
       save.player.tutorialStep = save.player.tutorialStep ?? (save.player.level > 5 ? 6 : 1);
