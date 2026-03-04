@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { PlayerState, BattleState, BattleLogEntry, Enemy, TabId, GameSave, EquipmentItem, EquipSlot, Stats, QUALITY_INFO, FloatingText, INVENTORY_MAX, OfflineReport } from '../types';
+import { PlayerState, BattleState, BattleLogEntry, TabId, GameSave, EquipmentItem, EquipSlot, Stats, QUALITY_INFO, FloatingText, INVENTORY_MAX, OfflineReport } from '../types';
 import { REALMS } from '../data/realms';
 import { CHAPTERS, createEnemy, ABYSS_CHAPTER_ID } from '../data/chapters';
 import { expForLevel } from '../utils/format';

@@ -2,7 +2,7 @@
  * 副本战斗界面
  */
 
-import { useEffect, useRef, useCallback, useState } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { useDungeonStore } from '../store/dungeonStore';
 import { useGameStore } from '../store/gameStore';
 import { useLeaderboardStore } from '../store/leaderboardStore';
@@ -73,7 +73,6 @@ export default function DungeonBattle({ onEnd }: Props) {
     onEnd();
   };
 
-  const isOver = battle.status === 'victory' || battle.status === 'defeat';
   const timeLeft = Math.max(0, battle.timeLimit - battle.elapsed);
 
   return (

@@ -156,7 +156,6 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
         const stat = getEquipEffectiveStat(item);
         const maxLvl = getMaxEnhanceLevel(item);
         const cost = item.level < maxLvl ? getEnhanceCost(item) : 0;
-        const canEnhance = item.level < maxLvl && player.lingshi >= cost;
         const sellPrice = Math.floor(stat * 2 + (item.level + 1) * 50);
         const qi = QUALITY_INFO[item.quality];
         const decompLingshi = Math.floor(sellPrice * 0.6);
