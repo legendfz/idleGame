@@ -113,7 +113,8 @@ export default function App() {
   useEffect(() => {
     let id: ReturnType<typeof setInterval>;
     const doTick = () => {
-      tick();
+      const speed = useGameStore.getState().battleSpeed || 1;
+      for (let i = 0; i < speed; i++) tick();
       const gs = useGameStore.getState();
       const achStore = useAchievementStore.getState();
       achStore.updateProgress('monkey_awaken', gs.player.level);

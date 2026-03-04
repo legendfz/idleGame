@@ -40,6 +40,9 @@ interface GameStore {
   totalPlayTime: number;
   lastSaveTimestamp: number;
   offlineReport: OfflineReport | null;
+  // v31.0 settings
+  battleSpeed: number;
+  autoDecomposeQuality: number; // 0=off, 1=common, 2=spirit+below, 3=immortal+below
 
   // Actions
   setTab: (tab: TabId) => void;
@@ -63,6 +66,8 @@ interface GameStore {
   buyScroll: (type: 'tianming' | 'protect' | 'lucky') => void;
   clearFloatingText: (id: number) => void;
   getEffectiveStats: () => Stats;
+  setBattleSpeed: (speed: number) => void;
+  setAutoDecomposeQuality: (quality: number) => void;
   autoEquipBest: () => number;
   quickDecompose: (maxQuality: number) => number;
   // Multi-save
@@ -236,9 +241,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
   totalPlayTime: 0,
   lastSaveTimestamp: Date.now(),
   offlineReport: null,
+  battleSpeed: 1,
+  autoDecomposeQuality: 0,
 
   setTab: (tab) => set({ activeTab: tab }),
   dismissOfflineReport: () => set({ offlineReport: null }),
+  setBattleSpeed: (speed) => set({ battleSpeed: speed }),
+  setAutoDecomposeQuality: (quality) => set({ autoDecomposeQuality: quality }),
   clearFloatingText: (id) => set(s => ({ floatingTexts: s.floatingTexts.filter(f => f.id !== id) })),
 
   getEffectiveStats: () => {
@@ -413,6 +422,24 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     // v13: Exploration daily reset
     useExplorationStore.getState().tickReset();
+
+    // v31.0: Auto-decompose low quality items
+    const adq = state.autoDecomposeQuality;
+    if (adq > 0) {
+      const qualityOrder = ['common', 'spirit', 'immortal', 'divine', 'legendary', 'mythic'];
+      const equipped = [state.equippedWeapon?.uid, state.equippedArmor?.uid, state.equippedTreasure?.uid];
+      const toDecomp = updatedInventory.filter(i => {
+        const qi = qualityOrder.indexOf(i.quality);
+        return qi < adq && !equipped.includes(i.uid);
+      });
+      if (toDecomp.length > 0) {
+        for (const item of toDecomp) {
+          const qm = QUALITY_INFO[item.quality].multiplier;
+          updatedPlayer.hongmengShards += Math.ceil(qm * (1 + item.level * 0.5));
+        }
+        updatedInventory = updatedInventory.filter(i => !toDecomp.some(d => d.uid === i.uid));
+      }
+    }
 
     set({
       player: updatedPlayer,
@@ -882,7 +909,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
       sanctuary: useSanctuaryStore.getState().sanctuary,
       exploration: useExplorationStore.getState().exploration,
       affinity: useAffinityStore.getState().affinity,
-    };
+      battleSpeed: state.battleSpeed,
+      autoDecomposeQuality: state.autoDecomposeQuality,
+    } as any;
     localStorage.setItem('xiyou-idle-save', JSON.stringify(save));
     set({ lastSaveTimestamp: Date.now() });
   },
@@ -991,6 +1020,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         equippedTreasure: treasure,
         inventory: finalInventory,
         offlineReport: report,
+        battleSpeed: (save as any).battleSpeed ?? 1,
+        autoDecomposeQuality: (save as any).autoDecomposeQuality ?? 0,
       });
 
       // Load v13 stores

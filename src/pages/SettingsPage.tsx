@@ -18,6 +18,9 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
   const [importText, setImportText] = useState('');
   const [showImport, setShowImport] = useState(false);
   const [showStats, setShowStats] = useState(false);
+  const autoDecomp = useGameStore(s => s.autoDecomposeQuality) ?? 0;
+  const setAutoDecomp = useGameStore(s => s.setAutoDecomposeQuality);
+  const DECOMP_LABELS = ['关闭', '凡品', '灵品以下', '仙品以下'];
 
   const toggleAnim = () => {
     const next = !animEnabled;
@@ -97,6 +100,12 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
             <span style={{ marginLeft: 8, minWidth: 32 }}>{Math.round(sfxVol * 100)}%</span>
           </div>
         )}
+        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoDecomp((autoDecomp + 1) % 4)}>
+          <span className="stat-label">自动分解</span>
+          <span style={{ color: autoDecomp > 0 ? 'var(--accent)' : 'var(--dim)' }}>
+            {DECOMP_LABELS[autoDecomp]}
+          </span>
+        </div>
       </Card>
 
       {/* Save management */}
@@ -128,7 +137,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
 
       {/* About */}
       <Card title="关于">
-        <div className="stat-row"><span className="stat-label">版本</span><span>v29.0</span></div>
+        <div className="stat-row"><span className="stat-label">版本</span><span>v31.0</span></div>
         <div className="stat-row"><span className="stat-label">引擎</span><span>React + Zustand + Vite</span></div>
       </Card>
 

@@ -160,6 +160,14 @@ export const QUALITY_INFO: Record<Quality, { label: string; symbol: string; mult
 
 export const INVENTORY_MAX = 50;
 
+// v31.0 游戏设置
+export interface GameSettings {
+  battleSpeed: number;          // 1, 2, 5, 10
+  autoDecomposeQuality: number; // 0=关闭, 1=凡品, 2=灵品以下, 3=仙品以下
+  soundEnabled: boolean;
+  soundVolume: number;
+}
+
 export type TabId = 'battle' | 'team' | 'journey' | 'bag' | 'achievement' | 'settings' | 'stats' | 'reincarnation' | 'sanctuary' | 'exploration' | 'affinity';
 
 /** Floating damage text */

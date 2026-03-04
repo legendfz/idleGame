@@ -1036,3 +1036,9 @@ body {
   animation-duration: 0s !important;
   transition-duration: 0s !important;
 }
+
+/* v31.0: pulse animation for breakthrough */
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.02); opacity: 0.9; }
+}
