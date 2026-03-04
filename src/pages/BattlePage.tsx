@@ -1,6 +1,7 @@
 import { useGameStore } from '../store/gameStore';
 import { formatNumber, expForLevel, formatTime } from '../utils/format';
 import { REALMS } from '../data/realms';
+import { CHAPTERS, ABYSS_CHAPTER_ID } from '../data/chapters';
 import { Card, FloatingDamage, BossToast } from './shared';
 
 const SPEED_OPTIONS = [1, 2, 5, 10];
@@ -9,6 +10,8 @@ export function BattleView() {
   const battle = useGameStore(s => s.battle);
   const clickAttack = useGameStore(s => s.clickAttack);
   const player = useGameStore(s => s.player);
+  const highestChapter = useGameStore(s => s.highestChapter);
+  const highestStage = useGameStore(s => s.highestStage);
   const getEffectiveStats = useGameStore(s => s.getEffectiveStats);
   const idleStats = useGameStore(s => s.idleStats);
   const battleSpeed = useGameStore(s => s.battleSpeed) || 1;
@@ -18,6 +21,11 @@ export function BattleView() {
   const enemy = battle.currentEnemy;
   const hpPct = enemy ? Math.max(0, (enemy.hp / enemy.maxHp) * 100) : 0;
   const expPct = Math.min(100, (player.exp / expForLevel(player.level)) * 100);
+
+  // Chapter progress
+  const chapter = CHAPTERS.find(c => c.id === battle.chapterId);
+  const chapterProgress = chapter ? Math.min(100, (battle.stageNum / chapter.stages) * 100) : 0;
+  const isAbyss = battle.chapterId >= ABYSS_CHAPTER_ID;
 
   // Breakthrough check
   const nextRealm = REALMS[player.realmIndex + 1];
@@ -40,23 +48,48 @@ export function BattleView() {
         <span className="color-dim" style={{ fontSize: 11 }}>{Math.floor(expPct)}%</span>
       </div>
 
-      {enemy && (
-        <Card className="enemy-section">
-          <div className="enemy-name">
-            {battle.isBossWave && <span className="color-boss">[BOSS] </span>}
-            <span>{enemy.name}</span>
-            <span style={{ float: 'right', fontSize: 12 }} className="color-dim">
-              [{battle.wave}/{battle.maxWaves + 1}]
-            </span>
+      {/* Chapter progress bar */}
+      <div style={{ padding: '2px 12px 6px', display: 'flex', alignItems: 'center', gap: 6, fontSize: 11 }}>
+        <span className="color-dim">{isAbyss ? `深渊·${battle.stageNum}层` : `${battle.stageNum}/${chapter?.stages ?? '?'}关`}</span>
+        {!isAbyss && (
+          <div style={{ flex: 1, height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 2, overflow: 'hidden' }}>
+            <div style={{ width: `${chapterProgress}%`, height: '100%', background: 'linear-gradient(90deg, #4caf50, #81c784)', borderRadius: 2, transition: 'width 0.3s' }} />
           </div>
-          <div className="hp-bar-bg">
-            <div className="hp-bar-fill" style={{ width: `${hpPct}%` }} />
+        )}
+        <button onClick={cycleSpeed} style={{
+          background: battleSpeed > 1 ? 'rgba(102, 126, 234, 0.3)' : 'rgba(255,255,255,0.08)',
+          border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: '2px 10px',
+          color: battleSpeed > 1 ? '#667eea' : '#666', fontSize: 11, fontWeight: 600, cursor: 'pointer'
+        }}>
+          {battleSpeed}x
+        </button>
+      </div>
+
+      {/* Enemy display with large emoji */}
+      {enemy && (
+        <Card className="enemy-section" style={{ textAlign: 'center', padding: '8px 12px' }}>
+          <div style={{ fontSize: 48, lineHeight: 1.2, margin: '4px 0', filter: battle.isBossWave ? 'drop-shadow(0 0 12px #ff4444)' : 'none' }}>
+            {enemy.emoji || '👾'}
+          </div>
+          <div className="enemy-name" style={{ fontSize: 15, fontWeight: 700 }}>
+            {battle.isBossWave && <span className="color-boss">⚠ </span>}
+            <span>{enemy.name}</span>
+          </div>
+          <div className="hp-bar-bg" style={{ marginTop: 6 }}>
+            <div className="hp-bar-fill" style={{
+              width: `${hpPct}%`,
+              background: battle.isBossWave ? 'linear-gradient(90deg, #d32f2f, #ff6659)' : undefined
+            }} />
             <div className="hp-bar-text">{formatNumber(enemy.hp)} / {formatNumber(enemy.maxHp)}</div>
+          </div>
+          <div style={{ fontSize: 11, color: '#777', marginTop: 4 }}>
+            防御 {formatNumber(enemy.defense)} · 经验 {formatNumber(enemy.expDrop)} · 灵石 {formatNumber(enemy.lingshiDrop)}
           </div>
           <FloatingDamage />
         </Card>
       )}
-      <div className="click-area" onClick={clickAttack}>
+
+      <div className="click-area" onClick={clickAttack} style={{ padding: '12px 0' }}>
         <div style={{ fontSize: 28, color: 'var(--accent)' }}>悟空</div>
         <div style={{ fontSize: 12, marginTop: 4 }} className="color-dim">点击攻击 (攻击力 {player.clickPower})</div>
       </div>
@@ -91,17 +124,6 @@ export function BattleView() {
           {'  '}<span className="color-dim">挂机 {formatTime(idleStats.sessionTime)}</span>
         </div>
       </Card>
-
-      {/* Speed control */}
-      <div style={{ display: 'flex', justifyContent: 'center', padding: '4px 0' }}>
-        <button onClick={cycleSpeed} style={{
-          background: battleSpeed > 1 ? 'rgba(102, 126, 234, 0.3)' : 'rgba(255,255,255,0.08)',
-          border: '1px solid rgba(255,255,255,0.15)', borderRadius: 16, padding: '4px 16px',
-          color: battleSpeed > 1 ? '#667eea' : '#888', fontSize: 13, fontWeight: 600, cursor: 'pointer'
-        }}>
-          {battleSpeed}x 速度
-        </button>
-      </div>
 
       <Card className="battle-log-card">
         <div className="battle-log">
