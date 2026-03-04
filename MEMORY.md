@@ -313,3 +313,11 @@
 - Build: 334KB/102KB gzip
 - Commit: b96be38
 - CEO直接实现（10分钟）
+
+## v38.0「红尘历练」完成（2026-03-04 05:00）
+- 每日签到系统：7日循环奖励（灵石/蟠桃/碎片/天命符/幸运符）
+- 红点通知系统：设置Tab红点 + 签到入口金色边框
+- 新store: dailyStore.ts，新组件: DailyPanel.tsx
+- Build: 339KB/104KB gzip
+- Commit: 44eb0bb, merged to main: 3c728f1
+- CEO直接实现（最高效）
