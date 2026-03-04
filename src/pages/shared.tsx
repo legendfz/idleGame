@@ -20,7 +20,8 @@ export type SubPage =
   | { type: 'dungeonList' }
   | { type: 'dungeonBattle' }
   | { type: 'achievements' }
-  | { type: 'leaderboard' };
+  | { type: 'leaderboard' }
+  | { type: 'daily' };
 
 // ─── Card ───
 export function Card({ title, titleColor, children, className, style, borderColor, onClick }: {

@@ -5,6 +5,7 @@ import { formatNumber, formatTime } from '../utils/format';
 import FeedbackForm from '../components/FeedbackForm';
 import { Card, SubPage } from './shared';
 import { getSfxEnabled, setSfxEnabled, getSfxVolume, setSfxVolume, sfx } from '../engine/audio';
+import { useDailyStore } from '../store/dailyStore';
 
 export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
   const save = useGameStore(s => s.save);
@@ -48,9 +49,21 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
     } catch { alert('导入失败：无效数据'); }
   };
 
+  const dailyCanSignIn = useDailyStore(s => s.canSignIn);
+
   return (
     <div className="main-content fade-in">
       <h3 className="section-title">设置 & 统计</h3>
+
+      {/* Daily Check-in */}
+      <Card className="clickable-card" style={{ cursor: 'pointer', borderColor: dailyCanSignIn ? '#ffd700' : undefined }}
+        onClick={() => setSubPage({ type: 'daily' })}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontWeight: 600 }}>📅 每日签到</span>
+          {dailyCanSignIn && <span className="red-dot-badge">可领取</span>}
+          {!dailyCanSignIn && <span className="color-dim" style={{ fontSize: 12 }}>已签到 ✓</span>}
+        </div>
+      </Card>
 
       {/* Statistics */}
       <Card title="游戏统计" onClick={() => setShowStats(!showStats)}>
@@ -137,7 +150,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
 
       {/* About */}
       <Card title="关于">
-        <div className="stat-row"><span className="stat-label">版本</span><span>v37.0</span></div>
+        <div className="stat-row"><span className="stat-label">版本</span><span>v38.0</span></div>
         <div className="stat-row"><span className="stat-label">引擎</span><span>React + Zustand + Vite</span></div>
       </Card>
 

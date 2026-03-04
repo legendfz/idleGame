@@ -25,6 +25,8 @@ import { ShopPage, SaveManagerPage } from './pages/ShopSavePage';
 import { BagView } from './pages/BagPage';
 import { SettingsView } from './pages/SettingsPage';
 import { ReincarnationPanel } from './components/ReincarnationPanel';
+import { DailyPanel } from './components/DailyPanel';
+import { useDailyStore } from './store/dailyStore';
 
 const LazyFallback = () => <div style={{ padding: 40, textAlign: 'center', color: '#aaa' }}>加载中...</div>;
 
@@ -66,6 +68,7 @@ function useUnlockedTabs() {
 function BottomNav() {
   const activeTab = useGameStore(s => s.activeTab);
   const setTab = useGameStore(s => s.setTab);
+  const dailyCanSignIn = useDailyStore(s => s.canSignIn);
   const { tabs, toast } = useUnlockedTabs();
   return (
     <>
@@ -80,8 +83,10 @@ function BottomNav() {
       )}
       <div className="bottom-nav">
         {tabs.map(tab => (
-          <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => setTab(tab.id)}>
+          <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => setTab(tab.id)}
+            style={{ position: 'relative' }}>
             <span className="icon">{tab.icon}</span><span>{tab.label}</span>
+            {tab.id === 'settings' && dailyCanSignIn && <span className="nav-red-dot" />}
           </button>
         ))}
       </div>
@@ -105,6 +110,7 @@ export default function App() {
       useDungeonStore.getState().load();
       useAchievementStore.getState().load();
       useLeaderboardStore.getState().load();
+      useDailyStore.getState().load();
     }
   }, [load]);
 
@@ -185,6 +191,9 @@ export default function App() {
       );
       case 'leaderboard': return (
         <div className="main-content fade-in"><SubPageHeader title="排行榜" onBack={goBack} /><Leaderboard /></div>
+      );
+      case 'daily': return (
+        <div className="main-content fade-in"><SubPageHeader title="每日签到" onBack={goBack} /><DailyPanel /></div>
       );
       default: return null;
     }
