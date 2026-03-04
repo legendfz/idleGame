@@ -1075,3 +1075,43 @@ body {
   transition: width 0.3s ease-out;
   border-radius: 2px;
 }
+
+/* ─── v26.0 Stage Progress Bar ─── */
+.stage-progress-card { padding: 8px 12px !important; }
+.stage-bar-bg {
+  height: 3px;
+  background: #1a1a1a;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.stage-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-dark), var(--accent));
+  transition: width 0.5s ease-out;
+  border-radius: 2px;
+}
+
+/* ─── v26.0 Enemy Emoji Animation ─── */
+.enemy-emoji-idle {
+  display: inline-block;
+  animation: enemyBob 2s ease-in-out infinite;
+}
+.boss-emoji-pulse {
+  display: inline-block;
+  animation: bossPulse 1s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(200, 50, 50, 0.6));
+}
+@keyframes enemyBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes bossPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+/* ─── v26.0 Boss HP bar ─── */
+.hp-bar-fill.boss-hp {
+  background: linear-gradient(180deg, #c0392b 0%, #8b2020 50%, #a02828 100%);
+  box-shadow: 0 0 6px rgba(200, 50, 50, 0.4);
+}
