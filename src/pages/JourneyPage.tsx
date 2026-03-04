@@ -6,6 +6,7 @@ import { Card, SubPageHeader, SubPage } from './shared';
 export function ChapterSelectPage({ onBack }: { onBack: () => void }) {
   const battle = useGameStore(s => s.battle);
   const highestChapter = useGameStore(s => s.highestChapter);
+  const goToChapter = useGameStore(s => s.goToChapter);
   const [expandedChapter, setExpandedChapter] = useState<number | null>(null);
 
   return (
@@ -16,6 +17,7 @@ export function ChapterSelectPage({ onBack }: { onBack: () => void }) {
         const isCleared = ch.id < highestChapter || (ch.id === highestChapter && battle.stageNum > ch.stages);
         const isLocked = ch.id > highestChapter;
         const isExpanded = expandedChapter === ch.id;
+        const canTeleport = !isCurrent && !isLocked;
         return (
           <div key={ch.id}>
             <Card className={`chapter-card ${isLocked ? 'locked' : ''} ${isCurrent ? 'current' : ''}`}
@@ -35,23 +37,15 @@ export function ChapterSelectPage({ onBack }: { onBack: () => void }) {
                   <div className="chapter-progress-fill" style={{ width: `${isCleared ? 100 : (battle.stageNum / ch.stages) * 100}%` }} />
                 </div>
               )}
+              {canTeleport && isExpanded && (
+                <button
+                  className="breakthrough-btn"
+                  style={{ marginTop: 8, fontSize: 13 }}
+                  onClick={(e) => { e.stopPropagation(); goToChapter(ch.id); onBack(); }}>
+                  🚀 传送至此章节
+                </button>
+              )}
             </Card>
-            {isExpanded && isCurrent && (
-              <div className="sub-stages">
-                {Array.from({ length: Math.min(battle.stageNum + 2, ch.stages) }, (_, i) => {
-                  const stageNum = i + 1;
-                  const cleared = stageNum < battle.stageNum;
-                  const current = stageNum === battle.stageNum;
-                  return (
-                    <div key={stageNum} className="sub-stage-item">
-                      <span className={cleared ? 'color-success' : current ? 'color-active' : 'color-dim'}>
-                        {cleared ? '[通关]' : current ? '[当前]' : '[未至]'}
-                      </span>{' '}第{stageNum}关
-                    </div>
-                  );
-                })}
-              </div>
-            )}
           </div>
         );
       })}

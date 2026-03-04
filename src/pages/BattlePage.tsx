@@ -116,7 +116,7 @@ export function BattleView() {
           <span className="color-attack">⚔ {formatNumber(eStats.attack)}</span>
           <span className="color-hp">❤ {formatNumber(eStats.maxHp)}</span>
           <span className="color-crit">💥 {eStats.critRate.toFixed(0)}%</span>
-          <span className="color-exp">✦ {formatNumber(player.exp)}/{formatNumber(expForLevel(player.level))}</span>
+          <span style={{ color: '#ffcc00', fontWeight: 700 }}>⭐ {formatNumber(Math.floor(eStats.attack * (1 + (eStats.critRate / 100) * ((eStats.critDmg || 150) / 100)) + eStats.maxHp * 0.05))}</span>
         </div>
       </Card>
       <Card className="idle-stats-card">

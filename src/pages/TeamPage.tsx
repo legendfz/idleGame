@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { REALMS } from '../data/realms';
 import { formatNumber } from '../utils/format';
@@ -45,8 +46,23 @@ export function CharacterDetailPage({ onBack }: { onBack: () => void }) {
 export function TeamView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
   const player = useGameStore(s => s.player);
   const getEffectiveStats = useGameStore(s => s.getEffectiveStats);
+  const batchEnhanceEquipped = useGameStore(s => s.batchEnhanceEquipped);
   const eStats = getEffectiveStats();
   const currentRealm = REALMS[player.realmIndex];
+  const [enhanceMsg, setEnhanceMsg] = useState<string | null>(null);
+
+  const handleBatchEnhance = () => {
+    const result = batchEnhanceEquipped();
+    if (result.count === 0) {
+      setEnhanceMsg('没有可强化的装备（已满级或灵石不足）');
+    } else {
+      setEnhanceMsg(`强化 ${result.count} 次`);
+    }
+    setTimeout(() => setEnhanceMsg(null), 2500);
+  };
+
+  // Combat power
+  const combatPower = Math.floor(eStats.attack * (1 + (eStats.critRate / 100) * ((eStats.critDmg || 150) / 100)) + eStats.maxHp * 0.05);
 
   return (
     <div className="main-content fade-in">
@@ -58,6 +74,7 @@ export function TeamView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
           <span className="color-attack">攻 {formatNumber(eStats.attack)}</span>
           <span className="color-hp">血 {formatNumber(eStats.maxHp)}</span>
           <span className="color-crit">暴 {eStats.critRate.toFixed(0)}%</span>
+          <span style={{ color: '#ffcc00', fontWeight: 700 }}>⭐ {formatNumber(combatPower)}</span>
         </div>
         <div className="card-footer">
           <span className="color-realm">{currentRealm.name}</span>
@@ -65,6 +82,10 @@ export function TeamView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
           <span className="color-dim" style={{ marginLeft: 'auto' }}>查看详情 →</span>
         </div>
       </Card>
+      <button className="breakthrough-btn" style={{ margin: '0 12px 12px', fontSize: 13 }} onClick={handleBatchEnhance}>
+        ⚒ 一键强化已装备
+      </button>
+      {enhanceMsg && <div style={{ textAlign: 'center', color: '#ffcc00', fontSize: 13, marginBottom: 8 }}>{enhanceMsg}</div>}
     </div>
   );
 }
