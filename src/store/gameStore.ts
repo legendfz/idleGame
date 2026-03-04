@@ -369,6 +369,23 @@ export const useGameStore = create<GameStore>((set, get) => ({
       updatedPlayer.totalKills++;
       log = addLog(log, `${enemy.name} 击败！`, 'kill');
 
+      // v43.0: Kill milestones
+      const km = updatedPlayer.totalKills;
+      const milestones: Record<number, { label: string; gold: number; pantao: number }> = {
+        100: { label: '百妖斩', gold: 1000, pantao: 0 },
+        500: { label: '五百斩', gold: 5000, pantao: 1 },
+        1000: { label: '千妖斩', gold: 10000, pantao: 3 },
+        5000: { label: '五千斩', gold: 50000, pantao: 10 },
+        10000: { label: '万妖斩', gold: 100000, pantao: 20 },
+        50000: { label: '五万斩', gold: 500000, pantao: 50 },
+      };
+      if (milestones[km]) {
+        const ms = milestones[km];
+        updatedPlayer.lingshi += ms.gold;
+        updatedPlayer.pantao += ms.pantao;
+        log = addLog(log, `🎉 击杀里程碑「${ms.label}」！灵石+${ms.gold}${ms.pantao ? ` 蟠桃+${ms.pantao}` : ''}`, 'levelup');
+      }
+
       const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul);
       const expDrop = Math.floor(enemy.expDrop * expMul);
       updatedPlayer.lingshi += lingshiDrop;
