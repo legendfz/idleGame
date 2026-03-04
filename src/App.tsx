@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, lazy, Suspense } from 'react';
-import { useGameStore } from './store/gameStore';
+import { useGameStore, setAchStatesCache } from './store/gameStore';
 import { useDungeonStore } from './store/dungeonStore';
 import { useAchievementStore } from './store/achievementStore';
 import { useLeaderboardStore } from './store/leaderboardStore';
@@ -136,6 +136,19 @@ export default function App() {
       const uniqueNames = new Set(gs.inventory.map((e: any) => e.name));
       if (uniqueNames.size > c.collectUnique) achStore.incrementCounter('collectUnique', uniqueNames.size - c.collectUnique);
       achStore.checkAchievements();
+      // v42.0: Sync achievement states cache for stat bonuses
+      setAchStatesCache(achStore.states as any);
+      // v42.0: Consume pending resource rewards
+      const rewards = achStore.consumeRewards();
+      if (rewards.length > 0) {
+        const gs2 = useGameStore.getState();
+        const up = { ...gs2.player };
+        for (const r of rewards) {
+          if (r.description.includes('灵石')) up.lingshi += r.value;
+          else if (r.description.includes('蟠桃')) up.pantao += r.value;
+        }
+        useGameStore.setState({ player: up });
+      }
     };
     const startLoop = () => {
       clearInterval(id);
