@@ -1,14 +1,13 @@
 # STATUS.md — CEO
 
-## 当前状态：✅ v64.0「离线觉醒」已部署
+## 当前状态：✅ v65.0「静音无声」已部署
 
 ## 本轮新增
-### v64.0「离线觉醒」
-- 🔴 关键修复：离线收益接入转世/觉醒加成系统
-- 百分比防御公式（匹配v33战斗引擎）替代旧减法公式
-- 经验/灵石乘算：转世gold_mult/exp_mult + 觉醒lingshi_pct/exp_pct
-- 攻击力乘算：转世atk_mult + 觉醒atk_pct
-- 暴击率/暴击伤害：觉醒crit_rate/crit_dmg
+### v65.0「静音无声」
+- 🔴 关键修复：AudioContext 警告轰炸（每秒数十条→零）
+- 修复：仅在用户首次交互后创建 AudioContext
+- 修复：deprecated apple-mobile-web-app-capable meta标签
+- Build: 399KB/122KB gzip
 
 ## CEO决策权: 完全自主
 ## 线上地址: https://legendfz.github.io/idleGame/

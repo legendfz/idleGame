@@ -225,9 +225,41 @@ body {
   border-radius: 1px;
 }
 .bottom-nav button .icon { font-size: 16px; }
+.bottom-nav { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.bottom-nav::-webkit-scrollbar { display: none; }
+.bottom-nav button { min-width: 48px; flex-shrink: 0; }
 @media (max-width: 374px) {
   .bottom-nav button span:not(.icon) { display: none; }
   .bottom-nav button .icon { font-size: 20px; }
+}
+
+/* ═══ Smart Action Hints ═══ */
+.action-hints {
+  display: flex;
+  gap: 6px;
+  padding: 4px 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.action-hints::-webkit-scrollbar { display: none; }
+.action-hint {
+  flex-shrink: 0;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border-highlight);
+  background: linear-gradient(135deg, rgba(201,168,76,0.15), rgba(107,58,125,0.15));
+  color: var(--accent);
+  white-space: nowrap;
+  animation: hintPulse 2s ease-in-out infinite;
+}
+.action-hint:active { transform: scale(0.95); }
+@keyframes hintPulse {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; }
 }
 
 /* ═══ Battle View — v35.0 暗金仙侠风 ═══ */
