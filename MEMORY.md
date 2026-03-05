@@ -404,3 +404,14 @@
 - Build: 350KB/108KB gzip
 - Commit: 4f761d3, merged to main: 7be2a92
 - CEO直接实现（最高效）
+
+## v52.0「神通广大」完成（2026-03-04 21:00）
+- 主动技能系统：3个战斗技能，战斗页技能栏UI
+- 金刚不坏（Lv.20）：8秒无视防御，CD 45s
+- 七十二变（Lv.50）：3倍攻击12秒，CD 60s
+- 筋斗云（Lv.100）：瞬杀当前敌人+双倍奖励，CD 120s
+- 新文件：src/data/skills.ts
+- 冷却/buff存档持久化，转世重置冷却
+- Build: 353KB/108KB gzip
+- Commit: bc91112, merged to main: 3f90e36
+- CEO直接实现（最高效）

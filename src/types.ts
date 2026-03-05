@@ -35,11 +35,37 @@ export interface PlayerState {
   codexEnemyNames: string[];         // 已遭遇敌人名
   // v52.0 主动技能
   activeSkills: ActiveSkillState;
+  // v53.0 消耗品
+  consumableInventory: Record<string, number>;  // buffId → count
+  activeConsumables: ActiveConsumable[];
 }
 
 export interface ActiveSkillState {
   cooldowns: Record<string, number>;  // skillId → remaining seconds
   buffs: Record<string, number>;      // skillId → remaining duration
+}
+
+// v53.0 消耗品临时增益
+export interface ConsumableBuff {
+  id: string;
+  name: string;
+  emoji: string;
+  description: string;
+  durationSec: number;        // 持续时间（秒）
+  effect: ConsumableEffect;
+}
+
+export interface ConsumableEffect {
+  expMult?: number;           // 经验倍率加成 (如 1.0 = +100%)
+  goldMult?: number;          // 灵石倍率加成
+  dropRateMult?: number;      // 掉率倍率加成
+  atkMult?: number;           // 攻击倍率加成
+  critRateAdd?: number;       // 暴击率加成
+}
+
+export interface ActiveConsumable {
+  buffId: string;
+  remainingSec: number;
 }
 
 export interface Stats {

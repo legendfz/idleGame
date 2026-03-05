@@ -3,7 +3,8 @@ let _lastBackpackFullWarn = 0;
 let _achStatesCache: Record<string, { completed: boolean }> | null = null;
 export function setAchStatesCache(states: Record<string, { completed: boolean }>) { _achStatesCache = states; }
 import { create } from 'zustand';
-import { PlayerState, BattleState, BattleLogEntry, TabId, GameSave, EquipmentItem, EquipSlot, Stats, QUALITY_INFO, FloatingText, INVENTORY_MAX, OfflineReport } from '../types';
+import { PlayerState, BattleState, BattleLogEntry, TabId, GameSave, EquipmentItem, EquipSlot, Stats, QUALITY_INFO, FloatingText, INVENTORY_MAX, OfflineReport, ActiveConsumable, ConsumableEffect } from '../types';
+import { getConsumable } from '../data/consumables';
 import { REALMS } from '../data/realms';
 import { ACHIEVEMENTS as ACHIEVEMENTS_DATA } from '../data/achievements';
 import { CHAPTERS, createEnemy, ABYSS_CHAPTER_ID } from '../data/chapters';
@@ -92,6 +93,9 @@ interface GameStore {
   dismissSystemTutorial: (id: string) => void;
   // v52.0 Active Skills
   useSkill: (skillId: string) => boolean;
+  // v53.0 Consumables
+  useConsumable: (buffId: string) => boolean;
+  addConsumable: (buffId: string, count: number) => void;
 }
 
 interface SaveSlotInfo {
@@ -138,6 +142,8 @@ function makeInitialPlayer(): PlayerState {
     codexEquipIds: [],
     codexEnemyNames: [],
     activeSkills: { cooldowns: {}, buffs: {} },
+    consumableInventory: {},
+    activeConsumables: [],
   };
 }
 
@@ -161,6 +167,20 @@ function addLog(log: BattleLogEntry[], text: string, type: BattleLogEntry['type'
 }
 
 /** Calculate effective stats including equipment + set bonuses */
+function getActiveConsumableEffects(actives: ActiveConsumable[]): ConsumableEffect {
+  const result: ConsumableEffect = {};
+  for (const ac of actives) {
+    const def = getConsumable(ac.buffId);
+    if (!def) continue;
+    result.expMult = (result.expMult ?? 0) + (def.effect.expMult ?? 0);
+    result.goldMult = (result.goldMult ?? 0) + (def.effect.goldMult ?? 0);
+    result.dropRateMult = (result.dropRateMult ?? 0) + (def.effect.dropRateMult ?? 0);
+    result.atkMult = (result.atkMult ?? 0) + (def.effect.atkMult ?? 0);
+    result.critRateAdd = (result.critRateAdd ?? 0) + (def.effect.critRateAdd ?? 0);
+  }
+  return result;
+}
+
 function calcEffectiveStats(
   baseStats: Stats,
   weapon: EquipmentItem | null,
@@ -304,7 +324,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const atkMul = REINC_PERKS.find(p => p.id === 'atk_mult')!.effect(player.reincPerks?.['atk_mult'] ?? 0);
     const expMul = REINC_PERKS.find(p => p.id === 'exp_mult')!.effect(player.reincPerks?.['exp_mult'] ?? 0);
     const goldMul = REINC_PERKS.find(p => p.id === 'gold_mult')!.effect(player.reincPerks?.['gold_mult'] ?? 0);
-    effectiveStats.attack = Math.floor(effectiveStats.attack * atkMul);
+    // v53.0 消耗品增益
+    const cEffect = getActiveConsumableEffects(player.activeConsumables ?? []);
+    effectiveStats.attack = Math.floor(effectiveStats.attack * atkMul * (1 + (cEffect.atkMult ?? 0)));
+    effectiveStats.critRate = Math.min(100, effectiveStats.critRate + (cEffect.critRateAdd ?? 0));
 
     const enemy = { ...battle.currentEnemy };
     let log = [...battle.log];
@@ -348,6 +371,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
       if (skillState.buffs[sid] <= 0) delete skillState.buffs[sid];
     }
     updatedPlayer.activeSkills = skillState;
+
+    // v53.0: Tick consumable timers
+    if (updatedPlayer.activeConsumables && updatedPlayer.activeConsumables.length > 0) {
+      updatedPlayer.activeConsumables = updatedPlayer.activeConsumables
+        .map(c => ({ ...c, remainingSec: c.remainingSec - 1 }))
+        .filter(c => c.remainingSec > 0);
+    }
 
     // v52.0: Apply attack buff from 七十二变
     const atkBuffActive = (skillState.buffs['qishier'] ?? 0) > 0;
@@ -428,8 +458,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         log = addLog(log, `🎉 击杀里程碑「${ms.label}」！灵石+${ms.gold}${ms.pantao ? ` 蟠桃+${ms.pantao}` : ''}`, 'levelup');
       }
 
-      const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + streakBonus));
-      const expDrop = Math.floor(enemy.expDrop * expMul * (1 + streakBonus));
+      const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus));
+      const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus));
       updatedPlayer.lingshi += lingshiDrop;
       updatedPlayer.totalGoldEarned = (updatedPlayer.totalGoldEarned || 0) + lingshiDrop;
       updatedPlayer.exp += expDrop;
@@ -440,6 +470,19 @@ export const useGameStore = create<GameStore>((set, get) => ({
       if (enemy.pantaoDrop > 0 && Math.random() < enemy.pantaoDrop) {
         updatedPlayer.pantao += 1;
         log = addLog(log, `  蟠桃+1！`, 'drop');
+      }
+
+      // v53.0: Boss consumable drop (20% chance)
+      if (enemy.isBoss && Math.random() < 0.2) {
+        const pillIds = ['exp_pill', 'gold_pill', 'drop_pill', 'atk_pill', 'crit_pill'];
+        const pillId = pillIds[Math.floor(Math.random() * pillIds.length)];
+        const def = getConsumable(pillId);
+        if (def) {
+          const cInv = { ...(updatedPlayer.consumableInventory ?? {}) };
+          cInv[pillId] = (cInv[pillId] ?? 0) + 1;
+          updatedPlayer.consumableInventory = cInv;
+          log = addLog(log, `  获得 ${def.emoji}${def.name} ×1！`, 'drop');
+        }
       }
 
       // Equipment drop (with inventory limit check — T-100 fix)
@@ -713,6 +756,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     newPlayer.codexEquipIds = [...player.codexEquipIds];
     newPlayer.codexEnemyNames = [...player.codexEnemyNames];
     newPlayer.activeSkills = { cooldowns: {}, buffs: {} }; // Reset cooldowns on reincarnation
+    newPlayer.consumableInventory = { ...player.consumableInventory }; // Keep consumables
+    newPlayer.activeConsumables = []; // Clear active buffs
 
     // Apply start_level perk
     if (startLevel > 0) {
@@ -1239,6 +1284,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       save.player.codexEquipIds = save.player.codexEquipIds ?? [];
       save.player.codexEnemyNames = save.player.codexEnemyNames ?? [];
       save.player.activeSkills = save.player.activeSkills ?? { cooldowns: {}, buffs: {} };
+      save.player.consumableInventory = save.player.consumableInventory ?? {};
+      save.player.activeConsumables = save.player.activeConsumables ?? [];
         save.version = 4;
       }
 
@@ -1460,5 +1507,34 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     set({ player: { ...player, activeSkills: newSkillState } });
     return true;
+  },
+
+  // v53.0 Consumables
+  useConsumable: (buffId: string) => {
+    const state = get();
+    const player = state.player;
+    const inv = player.consumableInventory ?? {};
+    if ((inv[buffId] ?? 0) <= 0) return false;
+    const def = getConsumable(buffId);
+    if (!def) return false;
+    const newInv = { ...inv, [buffId]: inv[buffId] - 1 };
+    if (newInv[buffId] <= 0) delete newInv[buffId];
+    // Stack: if same buff active, extend duration
+    const actives = [...(player.activeConsumables ?? [])];
+    const existing = actives.find(a => a.buffId === buffId);
+    if (existing) {
+      existing.remainingSec += def.durationSec;
+    } else {
+      actives.push({ buffId, remainingSec: def.durationSec });
+    }
+    set({ player: { ...player, consumableInventory: newInv, activeConsumables: actives } });
+    return true;
+  },
+
+  addConsumable: (buffId: string, count: number) => {
+    const player = get().player;
+    const inv = { ...(player.consumableInventory ?? {}) };
+    inv[buffId] = (inv[buffId] ?? 0) + count;
+    set({ player: { ...player, consumableInventory: inv } });
   },
 }));
