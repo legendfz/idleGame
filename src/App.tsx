@@ -33,6 +33,7 @@ import { useDailyStore } from './store/dailyStore';
 import { useSanctuaryStore } from './store/sanctuaryStore';
 import { useExplorationStore } from './store/explorationStore';
 import { BUILDINGS, getUpgradeCost } from './engine/sanctuary';
+import { getCurrentWorldBoss } from './data/worldBoss';
 
 const LazyFallback = () => <div style={{ padding: 40, textAlign: 'center', color: '#aaa' }}>加载中...</div>;
 
@@ -89,6 +90,14 @@ function BottomNav() {
   });
   // Red dot: exploration has free runs available
   const explorationRedDot = explorationFree > 0 && (!explorationRun || explorationRun.completed);
+  // Red dot: world boss is active
+  const [worldBossActive, setWorldBossActive] = useState(false);
+  useEffect(() => {
+    const check = () => setWorldBossActive(!!getCurrentWorldBoss(Date.now()));
+    check();
+    const id = setInterval(check, 10000);
+    return () => clearInterval(id);
+  }, []);
 
   const { tabs, toast } = useUnlockedTabs();
   return (
@@ -110,6 +119,7 @@ function BottomNav() {
             {tab.id === 'settings' && dailyCanSignIn && <span className="nav-red-dot" />}
             {tab.id === 'sanctuary' && sanctuaryRedDot && <span className="nav-red-dot" />}
             {tab.id === 'exploration' && explorationRedDot && <span className="nav-red-dot" />}
+            {tab.id === 'battle' && worldBossActive && <span className="nav-red-dot" style={{ background: '#ff4500' }} />}
           </button>
         ))}
       </div>
@@ -124,6 +134,7 @@ export default function App() {
   const load = useGameStore(s => s.load);
   const loaded = useRef(false);
   const [subPage, setSubPage] = useState<SubPage>({ type: 'none' });
+  const [saveFlash, setSaveFlash] = useState(false);
 
   // Load
   useEffect(() => {
@@ -189,6 +200,8 @@ export default function App() {
       useDungeonStore.getState().save();
       useAchievementStore.getState().save();
       useLeaderboardStore.getState().save();
+      setSaveFlash(true);
+      setTimeout(() => setSaveFlash(false), 1500);
     }, 30000);
     return () => clearInterval(id);
   }, [save]);
@@ -266,6 +279,14 @@ export default function App() {
       <AchievementToast />
       <OfflineReportModal />
       <TutorialOverlay />
+      {saveFlash && (
+        <div style={{
+          position: 'fixed', bottom: 70, left: '50%', transform: 'translateX(-50%)',
+          background: 'rgba(0,0,0,0.7)', color: '#4ade80', padding: '4px 16px',
+          borderRadius: 12, fontSize: 12, zIndex: 9998, pointerEvents: 'none',
+          animation: 'fadeInUp 0.3s ease'
+        }}>✓ 已存档</div>
+      )}
     </>
   );
 }
