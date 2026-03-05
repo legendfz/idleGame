@@ -10,6 +10,7 @@ import { CHAPTERS, createEnemy, ABYSS_CHAPTER_ID } from '../data/chapters';
 import { expForLevel } from '../utils/format';
 import { sfx } from '../engine/audio';
 import { calcDaoPoints, REINC_PERKS, REINC_MIN_REALM, REINC_MIN_LEVEL } from '../data/reincarnation';
+import { ACTIVE_SKILLS } from '../data/skills';
 import {
   rollEquipDrop, createEquipFromTemplate, getEquipEffectiveStat,
   getEnhanceCost, getMaxEnhanceLevel, getActiveSetBonuses,
@@ -89,6 +90,8 @@ interface GameStore {
   advanceTutorial: () => void;
   skipTutorial: () => void;
   dismissSystemTutorial: (id: string) => void;
+  // v52.0 Active Skills
+  useSkill: (skillId: string) => boolean;
 }
 
 interface SaveSlotInfo {
@@ -134,6 +137,7 @@ function makeInitialPlayer(): PlayerState {
     reincPerks: {},
     codexEquipIds: [],
     codexEnemyNames: [],
+    activeSkills: { cooldowns: {}, buffs: {} },
   };
 }
 
@@ -333,10 +337,31 @@ export const useGameStore = create<GameStore>((set, get) => ({
     let tickExp = 0;
     let tickDmg = 0;
 
+    // v52.0: Tick skill cooldowns & buffs
+    const skillState = { ...updatedPlayer.activeSkills, cooldowns: { ...updatedPlayer.activeSkills.cooldowns }, buffs: { ...updatedPlayer.activeSkills.buffs } };
+    for (const sid of Object.keys(skillState.cooldowns)) {
+      skillState.cooldowns[sid] = Math.max(0, skillState.cooldowns[sid] - 1);
+      if (skillState.cooldowns[sid] <= 0) delete skillState.cooldowns[sid];
+    }
+    for (const sid of Object.keys(skillState.buffs)) {
+      skillState.buffs[sid] = Math.max(0, skillState.buffs[sid] - 1);
+      if (skillState.buffs[sid] <= 0) delete skillState.buffs[sid];
+    }
+    updatedPlayer.activeSkills = skillState;
+
+    // v52.0: Apply attack buff from 七十二变
+    const atkBuffActive = (skillState.buffs['qishier'] ?? 0) > 0;
+    if (atkBuffActive) {
+      const skill = ACTIVE_SKILLS.find(s => s.id === 'qishier')!;
+      effectiveStats.attack = Math.floor(effectiveStats.attack * skill.effect.value);
+    }
+
     // Auto attack
     const isCrit = Math.random() * 100 < effectiveStats.critRate;
     // Percentage-based defense: reduction = def / (def + 100 + level*5)
-    const defReduction = enemy.defense / (enemy.defense + 100 + updatedPlayer.level * 5);
+    // v52.0: 金刚不坏 ignores defense
+    const shieldActive = (skillState.buffs['jingang'] ?? 0) > 0;
+    const defReduction = shieldActive ? 0 : enemy.defense / (enemy.defense + 100 + updatedPlayer.level * 5);
     let dmg = Math.max(1, Math.floor(effectiveStats.attack * (1 - defReduction)));
     if (isCrit) dmg = Math.floor(dmg * effectiveStats.critDmg);
 
@@ -687,6 +712,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     newPlayer.systemTutorials = [...player.systemTutorials];
     newPlayer.codexEquipIds = [...player.codexEquipIds];
     newPlayer.codexEnemyNames = [...player.codexEnemyNames];
+    newPlayer.activeSkills = { cooldowns: {}, buffs: {} }; // Reset cooldowns on reincarnation
 
     // Apply start_level perk
     if (startLevel > 0) {
@@ -1212,6 +1238,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       save.player.systemTutorials = save.player.systemTutorials ?? [];
       save.player.codexEquipIds = save.player.codexEquipIds ?? [];
       save.player.codexEnemyNames = save.player.codexEnemyNames ?? [];
+      save.player.activeSkills = save.player.activeSkills ?? { cooldowns: {}, buffs: {} };
         save.version = 4;
       }
 
@@ -1388,5 +1415,50 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const { player } = get();
     if (player.systemTutorials.includes(id)) return;
     set({ player: { ...player, systemTutorials: [...player.systemTutorials, id] } });
+  },
+
+  // v52.0: Active Skills
+  useSkill: (skillId: string) => {
+    const state = get();
+    const { player, battle } = state;
+    const skill = ACTIVE_SKILLS.find(s => s.id === skillId);
+    if (!skill) return false;
+    if (player.level < skill.unlockLevel) return false;
+    const cd = player.activeSkills.cooldowns[skillId] ?? 0;
+    if (cd > 0) return false;
+
+    const newSkillState = {
+      cooldowns: { ...player.activeSkills.cooldowns, [skillId]: skill.cooldown },
+      buffs: { ...player.activeSkills.buffs },
+    };
+
+    if (skill.effect.type === 'shield' || skill.effect.type === 'attackBuff') {
+      newSkillState.buffs[skillId] = skill.duration;
+      sfx.breakthrough();
+    }
+
+    if (skill.effect.type === 'instantKill' && battle.currentEnemy) {
+      // Instant kill current enemy with double rewards
+      const enemy = battle.currentEnemy;
+      const mul = skill.effect.value;
+      const updatedPlayer = { ...player, activeSkills: newSkillState };
+      updatedPlayer.lingshi += Math.floor(enemy.lingshiDrop * mul);
+      updatedPlayer.exp += Math.floor(enemy.expDrop * mul);
+      updatedPlayer.totalKills += 1;
+      updatedPlayer.totalGoldEarned += Math.floor(enemy.lingshiDrop * mul);
+      let log = [...battle.log];
+      log = addLog(log, `☁️ 筋斗云！瞬杀 ${enemy.name}，获得${mul}倍奖励！`, 'boss');
+      // Spawn next enemy
+      const nextEnemy = createEnemy(battle.chapterId, battle.stageNum, false);
+      set({
+        player: updatedPlayer,
+        battle: { ...battle, currentEnemy: nextEnemy, log, wave: battle.wave + 1 },
+      });
+      sfx.kill();
+      return true;
+    }
+
+    set({ player: { ...player, activeSkills: newSkillState } });
+    return true;
   },
 }));

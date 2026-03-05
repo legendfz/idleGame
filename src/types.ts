@@ -33,6 +33,13 @@ export interface PlayerState {
   // v51.0 图鉴
   codexEquipIds: string[];           // 已收集装备模板ID
   codexEnemyNames: string[];         // 已遭遇敌人名
+  // v52.0 主动技能
+  activeSkills: ActiveSkillState;
+}
+
+export interface ActiveSkillState {
+  cooldowns: Record<string, number>;  // skillId → remaining seconds
+  buffs: Record<string, number>;      // skillId → remaining duration
 }
 
 export interface Stats {

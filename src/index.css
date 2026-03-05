@@ -1364,3 +1364,81 @@ body {
   0% { transform: translateX(100%); }
   100% { transform: translateX(-100%); }
 }
+
+/* ═══ v52.0 神通广大 — Active Skills ═══ */
+.skill-bar {
+  display: flex;
+  gap: 8px;
+  padding: 6px 12px;
+  justify-content: center;
+}
+.skill-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2a1a3e, #1a1a2e);
+  border: 2px solid #6c3483;
+  color: #e1bee7;
+  font-size: 12px;
+  cursor: pointer;
+  overflow: hidden;
+  min-width: 70px;
+  transition: all 0.2s;
+}
+.skill-btn:active:not(:disabled) {
+  transform: scale(0.95);
+  border-color: #bb86fc;
+}
+.skill-btn.skill-active {
+  border-color: #ffd700;
+  box-shadow: 0 0 12px rgba(255,215,0,0.5);
+  animation: skillGlow 1s infinite alternate;
+}
+@keyframes skillGlow {
+  from { box-shadow: 0 0 8px rgba(255,215,0,0.3); }
+  to { box-shadow: 0 0 16px rgba(255,215,0,0.7); }
+}
+.skill-btn.skill-cd {
+  opacity: 0.6;
+  border-color: #444;
+  cursor: not-allowed;
+}
+.skill-emoji {
+  font-size: 22px;
+  line-height: 1;
+}
+.skill-name {
+  font-size: 11px;
+  margin-top: 2px;
+  font-weight: 600;
+}
+.skill-cd-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0,0,0,0.6);
+  transition: height 1s linear;
+}
+.skill-cd-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 14px;
+  font-weight: 700;
+  color: #ff8a80;
+  z-index: 1;
+}
+.skill-buff-text {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #ffd700;
+  z-index: 1;
+}
