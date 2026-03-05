@@ -142,6 +142,9 @@ function makeInitialPlayer(): PlayerState {
     totalEquipDrops: 0,
     totalKills: 0,
     totalGoldEarned: 0,
+    totalBossKills: 0,
+    totalCrits: 0,
+    totalEnhances: 0,
     totalBreakthroughs: 0,
     tutorialStep: 1,
     tutorialDone: false,
@@ -291,6 +294,7 @@ function applyEnhanceResult(
   updatedPlayer: PlayerState,
   log: BattleLogEntry[],
 ) {
+  updatedPlayer.totalEnhances = (updatedPlayer.totalEnhances || 0) + 1;
   if (location === 'inventory') {
     const newInv = [...state.inventory];
     newInv[invIdx] = newItem;
@@ -515,8 +519,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     if (isHongmengStrike) {
       log = addLog(log, `悟空 >>> ${enemy.name}  -${dmg} 鸿蒙一击！`, 'crit');
+      updatedPlayer.totalCrits = (updatedPlayer.totalCrits || 0) + 1;
     } else if (isCrit) {
       log = addLog(log, `悟空 >> ${enemy.name}  -${dmg} 暴击！`, 'crit');
+      updatedPlayer.totalCrits = (updatedPlayer.totalCrits || 0) + 1;
     } else {
       log = addLog(log, `悟空 > ${enemy.name}  -${dmg}`, 'attack');
     }
@@ -657,6 +663,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       } else
       // Next wave / stage
       if (updatedBattle.isBossWave) {
+        updatedPlayer.totalBossKills = (updatedPlayer.totalBossKills || 0) + 1;
         const nextStage = updatedBattle.stageNum + 1;
         const chapter = CHAPTERS.find(c => c.id === updatedBattle.chapterId);
         let newChapterId = updatedBattle.chapterId;

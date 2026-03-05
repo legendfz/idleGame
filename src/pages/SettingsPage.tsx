@@ -6,6 +6,7 @@ import FeedbackForm from '../components/FeedbackForm';
 import { Card, SubPage } from './shared';
 import { getSfxEnabled, setSfxEnabled, getSfxVolume, setSfxVolume, sfx } from '../engine/audio';
 import { useDailyStore } from '../store/dailyStore';
+import { DailyChallengePanel } from '../components/DailyChallengePanel';
 
 export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
   const save = useGameStore(s => s.save);
@@ -70,6 +71,9 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
           {!dailyCanSignIn && <span className="color-dim" style={{ fontSize: 12 }}>已签到 ✓</span>}
         </div>
       </Card>
+
+      {/* Daily Challenges */}
+      <Card><DailyChallengePanel /></Card>
 
       <Card className="clickable-card" style={{ cursor: 'pointer' }}
         onClick={() => setSubPage({ type: 'wheel' as any })}>
