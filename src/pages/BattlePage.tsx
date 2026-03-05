@@ -81,6 +81,10 @@ export function BattleView() {
   const activeSkills = useGameStore(s => s.player.activeSkills);
   const [showWorldBoss, setShowWorldBoss] = useState(false);
   const sessionMinutes = Math.floor(idleStats.sessionTime / 60);
+  // v75.0: Track session earnings
+  const sessionStartRef = useRef({ gold: player.totalGoldEarned, kills: player.totalKills });
+  const sessionGold = player.totalGoldEarned - sessionStartRef.current.gold;
+  const sessionKills = player.totalKills - sessionStartRef.current.kills;
   const onlineRewardsClaimed = useGameStore(s => s.onlineRewardsClaimed);
   const claimOnlineReward = useGameStore(s => s.claimOnlineReward);
   const [rewardToast, setRewardToast] = useState<string | null>(null);
@@ -224,6 +228,17 @@ export function BattleView() {
         </div>
         <span className="battle-exp-pct">{Math.floor(expPct)}%</span>
       </div>
+      {/* v75.0: Realm breakthrough progress */}
+      {nextRealm && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 12px', fontSize: 10, color: '#aaa' }}>
+          <span>→{nextRealm.name}</span>
+          <span style={{ color: player.level >= nextRealm.levelReq ? '#4ade80' : '#888' }}>Lv.{player.level}/{nextRealm.levelReq}</span>
+          <span style={{ color: player.pantao >= nextRealm.pantaoReq ? '#4ade80' : '#f59e0b' }}>🍑{formatNumber(player.pantao)}/{formatNumber(nextRealm.pantaoReq)}</span>
+          <div style={{ flex: 1, height: 3, background: 'rgba(100,100,100,0.3)', borderRadius: 2, overflow: 'hidden' }}>
+            <div style={{ width: `${Math.min(100, (player.pantao / nextRealm.pantaoReq) * 100)}%`, height: '100%', background: 'linear-gradient(90deg, #f59e0b, #ef4444)', borderRadius: 2 }} />
+          </div>
+        </div>
+      )}
 
       {/* Chapter progress bar */}
       <div className="battle-chapter-bar">
@@ -313,6 +328,14 @@ export function BattleView() {
             {'  '}<span style={{color:'#a78bfa',fontSize:10}}>💎{formatNumber(Math.floor(idleStats.goldPerSec * 60))}/m</span>
           </>}
         </div>
+        {/* v75.0: Session earnings summary */}
+        {sessionKills > 0 && (
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'center', fontSize: 10, color: '#888', marginTop: 2 }}>
+            <span>本次：</span>
+            <span style={{ color: '#fbbf24' }}>💰{formatNumber(sessionGold)}</span>
+            <span style={{ color: '#f87171' }}>💀{formatNumber(sessionKills)}</span>
+          </div>
+        )}
       </Card>
 
       {/* v73.0: Fate Blessing */}
