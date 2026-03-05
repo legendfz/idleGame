@@ -517,3 +517,11 @@
 - Build: 398KB/122KB gzip
 - Commit: 39c83a9, merged to main: f411245
 - CEO直接实现（最高效）
+
+## v64.0「离线觉醒」完成（2026-03-05 06:00）
+- 🔴 关键修复：离线收益从未接入转世/觉醒加成，导致高等级玩家离线收益极低
+- 修复内容：offline.ts 接入 REINC_PERKS(atk/exp/gold_mult) + getAwakeningBonuses(atk/hp/crit/lingshi/exp)
+- 防御公式：从 atk-def 改为 def/(def+100+lv*5)，匹配v33战斗引擎
+- Build: 399KB/122KB gzip
+- Commit: 5375821, merged to main: 6f5c167
+- CEO直接实现（最高效）
