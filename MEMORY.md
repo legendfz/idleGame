@@ -394,3 +394,13 @@
 - Build: 348KB/107KB gzip
 - Commit: 116aaa2, merged to main: 26bda8c
 - CEO直接实现（最高效）
+
+## v51.0「神兵图鉴」完成（2026-03-04 20:00）
+- 装备图鉴：追踪已获得装备模板ID，按武器/护甲/法宝分类，品质色边框
+- 妖怪图鉴：追踪已遭遇敌人名，按章节分组
+- 收集进度条（紫色渐变/粉色渐变）
+- 转世保留图鉴数据
+- 统计页内嵌CodexPanel，双Tab切换
+- Build: 350KB/108KB gzip
+- Commit: 4f761d3, merged to main: 7be2a92
+- CEO直接实现（最高效）
