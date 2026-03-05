@@ -96,6 +96,8 @@ interface GameStore {
   // v53.0 Consumables
   useConsumable: (buffId: string) => boolean;
   addConsumable: (buffId: string, count: number) => void;
+  // v55.0 Generic player update
+  updatePlayer: (partial: Partial<PlayerState>) => void;
 }
 
 interface SaveSlotInfo {
@@ -144,6 +146,9 @@ function makeInitialPlayer(): PlayerState {
     activeSkills: { cooldowns: {}, buffs: {} },
     consumableInventory: {},
     activeConsumables: [],
+    trialTokens: 0,
+    trialBestFloor: 0,
+    trialShopPurchases: {},
   };
 }
 
@@ -1536,5 +1541,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const inv = { ...(player.consumableInventory ?? {}) };
     inv[buffId] = (inv[buffId] ?? 0) + count;
     set({ player: { ...player, consumableInventory: inv } });
+  },
+  updatePlayer: (partial: Partial<PlayerState>) => {
+    set({ player: { ...get().player, ...partial } });
   },
 }));
