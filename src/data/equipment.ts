@@ -46,6 +46,62 @@ export const EQUIPMENT_TEMPLATES: EquipmentTemplate[] = [
   { id: 'jingu_needle', name: '定海神针', emoji: '[针]', slot: 'treasure', quality: 'divine', baseStat: 0, dropFromStage: 180, dropWeight: 2,
     passive: { type: 'critDmg', value: 1.0, description: '暴伤+100%' } },
 
+  // ─── Chapter 4: 五行山 Weapons ───
+  { id: 'earth_hammer', name: '地煞锤', emoji: '[锤]', slot: 'weapon', quality: 'immortal', baseStat: 280, dropFromStage: 211, dropWeight: 10,
+    passive: { type: 'critRate', value: 6, description: '暴击+6%' } },
+  { id: 'chain_whip', name: '镇山鞭', emoji: '[鞭]', slot: 'weapon', quality: 'divine', baseStat: 450, dropFromStage: 250, dropWeight: 4,
+    setId: 'wuxing', passive: { type: 'critDmg', value: 0.6, description: '暴伤+60%' } },
+  { id: 'rock_shield', name: '玄石甲', emoji: '[盾]', slot: 'armor', quality: 'immortal', baseStat: 600, dropFromStage: 220, dropWeight: 10,
+    passive: { type: 'critRate', value: 4, description: '暴击+4%' } },
+  { id: 'wuxing_armor', name: '五行铠', emoji: '[五]', slot: 'armor', quality: 'divine', baseStat: 1000, dropFromStage: 260, dropWeight: 4,
+    setId: 'wuxing', passive: { type: 'speed', value: 0.2, description: '攻速+20%' } },
+  { id: 'earth_core', name: '地心石', emoji: '[核]', slot: 'treasure', quality: 'immortal', baseStat: 0, dropFromStage: 230, dropWeight: 6,
+    passive: { type: 'critDmg', value: 0.4, description: '暴伤+40%' } },
+  { id: 'wuxing_seal', name: '五行印', emoji: '[印]', slot: 'treasure', quality: 'divine', baseStat: 0, dropFromStage: 280, dropWeight: 3,
+    setId: 'wuxing', passive: { type: 'critRate', value: 12, description: '暴击+12%' } },
+
+  // ─── Chapter 5: 西行 Weapons ───
+  { id: 'bone_staff', name: '白骨杖', emoji: '[杖]', slot: 'weapon', quality: 'divine', baseStat: 600, dropFromStage: 301, dropWeight: 6,
+    passive: { type: 'critDmg', value: 0.7, description: '暴伤+70%' } },
+  { id: 'demon_slayer', name: '降魔刀', emoji: '[魔]', slot: 'weapon', quality: 'legendary', baseStat: 900, dropFromStage: 380, dropWeight: 2,
+    setId: 'xixing', passive: { type: 'critRate', value: 15, description: '暴击+15%' } },
+  { id: 'spider_silk', name: '蛛丝软甲', emoji: '[蛛]', slot: 'armor', quality: 'divine', baseStat: 1400, dropFromStage: 320, dropWeight: 5 },
+  { id: 'pilgrim_robe', name: '取经袈裟', emoji: '[袈]', slot: 'armor', quality: 'legendary', baseStat: 2000, dropFromStage: 400, dropWeight: 2,
+    setId: 'xixing', passive: { type: 'speed', value: 0.3, description: '攻速+30%' } },
+  { id: 'wind_bead', name: '黄风珠', emoji: '[珠]', slot: 'treasure', quality: 'divine', baseStat: 0, dropFromStage: 340, dropWeight: 4,
+    passive: { type: 'speed', value: 0.25, description: '攻速+25%' } },
+  { id: 'sutra_scroll', name: '真经残卷', emoji: '[经]', slot: 'treasure', quality: 'legendary', baseStat: 0, dropFromStage: 410, dropWeight: 2,
+    setId: 'xixing', passive: { type: 'critDmg', value: 1.0, description: '暴伤+100%' } },
+
+  // ─── Chapter 6: 火焰山 Weapons ───
+  { id: 'flame_blade', name: '焰灵刀', emoji: '[炎]', slot: 'weapon', quality: 'legendary', baseStat: 1200, dropFromStage: 431, dropWeight: 3,
+    setId: 'huoyan', passive: { type: 'critDmg', value: 0.9, description: '暴伤+90%' } },
+  { id: 'lava_armor', name: '熔岩战甲', emoji: '[熔]', slot: 'armor', quality: 'legendary', baseStat: 2800, dropFromStage: 460, dropWeight: 3,
+    setId: 'huoyan', passive: { type: 'critRate', value: 12, description: '暴击+12%' } },
+  { id: 'flame_fan', name: '真·芭蕉扇', emoji: '[焰]', slot: 'treasure', quality: 'legendary', baseStat: 0, dropFromStage: 500, dropWeight: 2,
+    setId: 'huoyan', passive: { type: 'lingshiBonus', value: 0.8, description: '灵石+80%' } },
+
+  // ─── Chapter 7: 灵山 Weapons ───
+  { id: 'buddha_staff', name: '伏魔禅杖', emoji: '[禅]', slot: 'weapon', quality: 'legendary', baseStat: 1800, dropFromStage: 531, dropWeight: 3,
+    passive: { type: 'critRate', value: 18, description: '暴击+18%' } },
+  { id: 'vajra_blade', name: '金刚降魔杵', emoji: '[金]', slot: 'weapon', quality: 'mythic', baseStat: 2500, dropFromStage: 620, dropWeight: 0.8,
+    setId: 'lingshan', passive: { type: 'critDmg', value: 2.0, description: '暴伤+200%' } },
+  { id: 'bodhi_robe', name: '菩提圣衣', emoji: '[菩]', slot: 'armor', quality: 'legendary', baseStat: 4000, dropFromStage: 560, dropWeight: 3 },
+  { id: 'buddha_armor', name: '金身佛甲', emoji: '[佛]', slot: 'armor', quality: 'mythic', baseStat: 6000, dropFromStage: 650, dropWeight: 0.8,
+    setId: 'lingshan', passive: { type: 'speed', value: 0.35, description: '攻速+35%' } },
+  { id: 'lotus_lamp', name: '莲花宝灯', emoji: '[莲]', slot: 'treasure', quality: 'legendary', baseStat: 0, dropFromStage: 580, dropWeight: 2,
+    passive: { type: 'critDmg', value: 1.2, description: '暴伤+120%' } },
+  { id: 'sarira', name: '舍利子', emoji: '[舍]', slot: 'treasure', quality: 'mythic', baseStat: 0, dropFromStage: 670, dropWeight: 0.5,
+    setId: 'lingshan', passive: { type: 'offlineEfficiency', value: 0.6, description: '离线效率+60%' } },
+
+  // ─── Chapter 8: 混沌 Weapons ───
+  { id: 'chaos_sword', name: '混沌剑', emoji: '[混]', slot: 'weapon', quality: 'mythic', baseStat: 4000, dropFromStage: 731, dropWeight: 0.6,
+    setId: 'hundun', passive: { type: 'critDmg', value: 2.5, description: '暴伤+250%' } },
+  { id: 'void_armor', name: '虚空神铠', emoji: '[虚]', slot: 'armor', quality: 'mythic', baseStat: 10000, dropFromStage: 780, dropWeight: 0.6,
+    setId: 'hundun', passive: { type: 'critRate', value: 30, description: '暴击+30%' } },
+  { id: 'dao_origin', name: '道源', emoji: '[道]', slot: 'treasure', quality: 'mythic', baseStat: 0, dropFromStage: 850, dropWeight: 0.3,
+    setId: 'hundun', passive: { type: 'lingshiBonus', value: 1.0, description: '灵石+100%' } },
+
   // ─── v1.1: Legendary (仙品) ───
   { id: 'pangu_axe', name: '盘古斧', emoji: '[斧]', slot: 'weapon', quality: 'legendary', baseStat: 500, dropFromStage: 200, dropWeight: 1,
     setId: 'primordial', passive: { type: 'critRate', value: 20, description: '暴击+20%' } },
@@ -118,6 +174,51 @@ export const EQUIP_SETS: EquipSet[] = [
     pieces: ['heavenly_rod', 'hongmeng_armor'],
     bonuses: [
       { count: 2, description: '全属性+150%, 暴伤+100%', effect: { attack: 1.5, maxHp: 1.5, critDmg: 1.0 } },
+    ],
+  },
+  {
+    id: 'wuxing',
+    name: '五行套装',
+    pieces: ['chain_whip', 'wuxing_armor', 'wuxing_seal'],
+    bonuses: [
+      { count: 2, description: '攻击+40%, 暴击+8%', effect: { attack: 0.4, critRate: 8 } },
+      { count: 3, description: '全属性+70%, 暴伤+50%', effect: { attack: 0.7, maxHp: 0.7, critRate: 10, critDmg: 0.5 } },
+    ],
+  },
+  {
+    id: 'xixing',
+    name: '西行套装',
+    pieces: ['demon_slayer', 'pilgrim_robe', 'sutra_scroll'],
+    bonuses: [
+      { count: 2, description: '攻击+60%, 暴伤+40%', effect: { attack: 0.6, critDmg: 0.4 } },
+      { count: 3, description: '全属性+100%, 暴击+20%', effect: { attack: 1.0, maxHp: 1.0, critRate: 20, critDmg: 0.8 } },
+    ],
+  },
+  {
+    id: 'huoyan',
+    name: '火焰山套装',
+    pieces: ['flame_blade', 'lava_armor', 'flame_fan'],
+    bonuses: [
+      { count: 2, description: '攻击+80%, 灵石+50%', effect: { attack: 0.8, critRate: 12 } },
+      { count: 3, description: '全属性+120%, 暴伤+80%', effect: { attack: 1.2, maxHp: 1.2, critDmg: 0.8 } },
+    ],
+  },
+  {
+    id: 'lingshan',
+    name: '灵山套装',
+    pieces: ['vajra_blade', 'buddha_armor', 'sarira'],
+    bonuses: [
+      { count: 2, description: '全属性+120%, 暴击+20%', effect: { attack: 1.2, maxHp: 1.2, critRate: 20 } },
+      { count: 3, description: '全属性+200%, 暴伤+150%', effect: { attack: 2.0, maxHp: 2.0, critRate: 25, critDmg: 1.5 } },
+    ],
+  },
+  {
+    id: 'hundun',
+    name: '混沌套装',
+    pieces: ['chaos_sword', 'void_armor', 'dao_origin'],
+    bonuses: [
+      { count: 2, description: '全属性+200%, 暴击+30%', effect: { attack: 2.0, maxHp: 2.0, critRate: 30 } },
+      { count: 3, description: '全属性+350%, 暴伤+200%', effect: { attack: 3.5, maxHp: 3.5, critRate: 35, critDmg: 2.0 } },
     ],
   },
 ];
