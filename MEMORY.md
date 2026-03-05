@@ -579,3 +579,19 @@
 - Build: 397KB/122KB gzip
 - Commit: dfd57f3, merged to main: a24a40f
 - CEO直接实现（最高效）
+
+## v73.0「天命加持」完成（2026-03-05 12:00）
+- 天命符双倍收益：消耗1天命符激活2小时全收益×2（灵石+经验）
+- 战斗页指示器：激活时金色倒计时，未激活时显示激活按钮
+- fateMul接入tick战斗奖励计算
+- Build: 398KB/122KB gzip
+- Commit: 8defac0, merged to main: c7bb3d8
+- CEO直接实现（最高效）
+
+## v74.0「一键扫荡」完成（2026-03-05 12:00）
+- 一键扫荡所有已通关章节：旅途页按钮，每章×10次扫荡
+- sweepAll store方法：遍历所有已通关章节调用sweepChapter
+- 扫荡结果汇总展示（灵石/经验/装备数）
+- Build: 484KB precache
+- Commit: 516d6b6, merged to main: 4c0a60b
+- CEO直接实现（最高效）
