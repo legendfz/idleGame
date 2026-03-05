@@ -88,6 +88,7 @@ export interface BattleState {
   log: BattleLogEntry[];
   isAutoBattle: boolean;
   isBossWave: boolean;
+  killStreak: number;
   tribulation?: {
     active: boolean;
     realmIndex: number; // which realm we're breaking through to

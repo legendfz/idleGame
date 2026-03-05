@@ -31,6 +31,7 @@ export function BattleView() {
   const idleStats = useGameStore(s => s.idleStats);
   const battleSpeed = useGameStore(s => s.battleSpeed) || 1;
   const setBattleSpeed = useGameStore(s => s.setBattleSpeed);
+  const killStreak = useGameStore(s => s.battle.killStreak) || 0;
   const attemptBreakthrough = useGameStore(s => s.attemptBreakthrough);
   const eStats = getEffectiveStats();
   const enemy = battle.currentEnemy;
@@ -147,6 +148,11 @@ export function BattleView() {
           <span className="color-hp">❤ {formatNumber(eStats.maxHp)}</span>
           <span className="color-crit">💥 {eStats.critRate.toFixed(0)}%</span>
           <span style={{ color: '#ffcc00', fontWeight: 700 }}>⭐ {formatNumber(Math.floor(eStats.attack * (1 + (eStats.critRate / 100) * ((eStats.critDmg || 150) / 100)) + eStats.maxHp * 0.05))}</span>
+          {killStreak >= 10 && (
+            <span style={{ color: killStreak >= 100 ? '#ff4444' : killStreak >= 50 ? '#ff8800' : '#ffaa00', fontWeight: 700 }}>
+              🔥{killStreak}
+            </span>
+          )}
         </div>
       </Card>
       <Card className="idle-stats-card">
