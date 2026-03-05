@@ -262,6 +262,50 @@ body {
   50% { opacity: 1; }
 }
 
+/* ═══ Random Event Modal (v66.0) ═══ */
+.event-modal-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.75);
+  display: flex; align-items: center; justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+.event-modal {
+  background: linear-gradient(135deg, #1a1710 0%, #201c14 100%);
+  border: 1px solid var(--border-highlight);
+  border-radius: 16px;
+  padding: 24px 20px;
+  max-width: 340px; width: 90%;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 20px rgba(201,168,76,0.1);
+}
+.event-emoji { font-size: 48px; margin-bottom: 8px; }
+.event-title { font-size: 18px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+.event-desc { font-size: 13px; color: var(--text-dim); margin-bottom: 16px; line-height: 1.5; }
+.event-choices { display: flex; flex-direction: column; gap: 8px; }
+.event-choice-btn {
+  background: rgba(201,168,76,0.08); border: 1px solid var(--border);
+  border-radius: 10px; padding: 10px 14px; cursor: pointer;
+  text-align: left; transition: all 0.15s;
+}
+.event-choice-btn:active { transform: scale(0.97); background: rgba(201,168,76,0.18); }
+.event-choice-label { display: block; font-size: 14px; font-weight: 600; color: var(--accent); }
+.event-choice-desc { display: block; font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+.event-result { margin-top: 12px; }
+.event-result-msg { font-size: 14px; line-height: 1.6; padding: 8px; border-radius: 8px; margin-bottom: 10px; }
+.event-result-msg.success { background: rgba(45,107,48,0.2); color: var(--green-bright); }
+.event-result-msg.fail { background: rgba(139,32,32,0.2); color: var(--red-bright); }
+.event-rewards { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 12px; }
+.event-reward-tag { font-size: 12px; padding: 3px 8px; border-radius: 8px; font-weight: 600; }
+.event-reward-tag.gain { background: rgba(45,107,48,0.2); color: var(--green-bright); }
+.event-reward-tag.loss { background: rgba(139,32,32,0.2); color: var(--red-bright); }
+.event-dismiss-btn {
+  background: linear-gradient(135deg, var(--accent-dark), var(--accent));
+  border: none; border-radius: 10px; padding: 10px 24px;
+  color: #000; font-weight: 700; font-size: 14px; cursor: pointer;
+}
+.event-dismiss-btn:active { transform: scale(0.97); }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
 /* ═══ Battle View — v35.0 暗金仙侠风 ═══ */
 
 /* ── 境界&经验条 ── */
