@@ -602,3 +602,10 @@
 - Build: 485KB precache
 - Commit: 8f1a7f9, merged to main: 059ae31
 - CEO直接实现（最高效）
+
+## v76.0「正道沧桑」完成（2026-03-05 14:00）
+- 🔴 关键修复：自动突破走天劫流程（之前跳过天劫直接突破=作弊）
+- 道点商店买满按钮：批量购买至满级（紫色渐变按钮）
+- Build: 401KB/124KB gzip
+- Commit: f109d1e, merged to main: ad0da51
+- CEO直接实现（最高效）
