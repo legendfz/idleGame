@@ -107,14 +107,25 @@ export function ReincarnationPanel() {
               </div>
               <div style={{ fontSize: 12, color: 'var(--text-dim)', marginTop: 2 }}>{perk.desc}</div>
             </div>
-            <button
-              className={`action-btn ${canBuy ? 'accent' : ''}`}
-              disabled={!canBuy}
-              onClick={() => buyReincPerk(perk.id)}
-              style={{ minWidth: 60, opacity: canBuy ? 1 : 0.4 }}
-            >
-              {maxed ? '满级' : `${perk.costPerLevel} 道点`}
-            </button>
+            <div style={{ display: 'flex', gap: 4, flexDirection: 'column', alignItems: 'flex-end' }}>
+              <button
+                className={`action-btn ${canBuy ? 'accent' : ''}`}
+                disabled={!canBuy}
+                onClick={() => buyReincPerk(perk.id)}
+                style={{ minWidth: 60, opacity: canBuy ? 1 : 0.4, fontSize: 12 }}
+              >
+                {maxed ? '满级' : `${perk.costPerLevel} 道点`}
+              </button>
+              {canBuy && !maxed && Math.floor(player.daoPoints / perk.costPerLevel) > 1 && (
+                <button
+                  className="action-btn"
+                  onClick={() => buyReincPerk(perk.id, true)}
+                  style={{ minWidth: 60, fontSize: 11, background: 'linear-gradient(135deg, #a855f7, #6366f1)', color: '#fff', border: 'none', padding: '2px 8px', borderRadius: 6 }}
+                >
+                  买满 ×{Math.min(Math.floor(player.daoPoints / perk.costPerLevel), perk.maxLevel - lv)}
+                </button>
+              )}
+            </div>
           </div>
         );
       })}
