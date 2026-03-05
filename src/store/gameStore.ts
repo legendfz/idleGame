@@ -95,6 +95,7 @@ interface GameStore {
   quickDecompose: (maxQuality: number) => number;
   goToChapter: (chapterId: number) => void;
   sweepChapter: (chapterId: number, count: number) => { gold: number; exp: number; items: string[] };
+  sweepAll: () => { gold: number; exp: number; items: string[]; chapters: number };
   batchEnhanceEquipped: () => { count: number; cost: number };
   // Multi-save
   saveToSlot: (slotId: number) => void;
@@ -1340,6 +1341,22 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const log = addLog(state.battle.log, `⚡ 扫荡「${ch.name}」×${sweepCount}：+${totalGold}灵石 +${totalExp}经验${droppedItems.length ? ' +' + droppedItems.length + '件装备' : ''}`, 'drop');
     set({ player: updatedPlayer, inventory: [...state.inventory], battle: { ...state.battle, log } });
     return { gold: totalGold, exp: totalExp, items: droppedItems };
+  },
+
+  sweepAll: () => {
+    const state = get();
+    let totalGold = 0, totalExp = 0;
+    const allItems: string[] = [];
+    let chapCount = 0;
+    for (const ch of CHAPTERS) {
+      if (ch.id >= state.highestChapter) continue;
+      const r = get().sweepChapter(ch.id, 10);
+      totalGold += r.gold;
+      totalExp += r.exp;
+      allItems.push(...r.items);
+      chapCount++;
+    }
+    return { gold: totalGold, exp: totalExp, items: allItems, chapters: chapCount };
   },
 
   batchEnhanceEquipped: () => {
