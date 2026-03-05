@@ -7,6 +7,8 @@ import { PlayerState, Stats, EquipmentItem, QUALITY_INFO, INVENTORY_MAX } from '
 import { createEnemy } from '../data/chapters';
 import { rollEquipDrop, createEquipFromTemplate, getEquipEffectiveStat, getActiveSetBonuses, EQUIPMENT_TEMPLATES } from '../data/equipment';
 import { expForLevel } from '../utils/format';
+import { REINC_PERKS } from '../data/reincarnation';
+import { getAwakeningBonuses } from '../components/AwakeningPanel';
 
 export interface OfflineResult {
   duration: number;       // capped seconds
@@ -103,6 +105,18 @@ export function calculateOfflineEarnings(
   const lingshiMul = getLingshiBonusMul(weapon, armor, treasure);
   const efficiency = getOfflineEfficiency(weapon, armor, treasure);
 
+  // v64.0: Apply reincarnation bonuses
+  const atkMul = REINC_PERKS.find(p => p.id === 'atk_mult')!.effect(player.reincPerks?.['atk_mult'] ?? 0);
+  const expMul = REINC_PERKS.find(p => p.id === 'exp_mult')!.effect(player.reincPerks?.['exp_mult'] ?? 0);
+  const goldMul = REINC_PERKS.find(p => p.id === 'gold_mult')!.effect(player.reincPerks?.['gold_mult'] ?? 0);
+
+  // v64.0: Apply awakening bonuses
+  const awk = getAwakeningBonuses(player);
+  eStats.attack = Math.floor(eStats.attack * atkMul * (1 + (awk.atk_pct ?? 0) / 100));
+  eStats.maxHp = Math.floor(eStats.maxHp * (1 + (awk.hp_pct ?? 0) / 100));
+  eStats.critRate = Math.min(100, eStats.critRate + (awk.crit_rate ?? 0));
+  eStats.critDmg += (awk.crit_dmg ?? 0) / 100;
+
   // Average DPS including crit expectation
   const avgCritMul = 1 + (eStats.critRate / 100) * (eStats.critDmg - 1);
 
@@ -110,9 +124,11 @@ export function calculateOfflineEarnings(
   const minion = createEnemy(chapterId, stageNum, false)!;
   const boss = createEnemy(chapterId, stageNum, true)!;
 
-  // Effective damage per second (accounting for defense)
-  const minionDmgPerHit = Math.max(1, eStats.attack - minion.defense) * avgCritMul;
-  const bossDmgPerHit = Math.max(1, eStats.attack - boss.defense) * avgCritMul;
+  // v64.0: Percentage-based defense (matching v33 battle formula)
+  const minionDefReduction = minion.defense / (minion.defense + 100 + player.level * 5);
+  const bossDefReduction = boss.defense / (boss.defense + 100 + player.level * 5);
+  const minionDmgPerHit = Math.max(1, eStats.attack * (1 - minionDefReduction)) * avgCritMul;
+  const bossDmgPerHit = Math.max(1, eStats.attack * (1 - bossDefReduction)) * avgCritMul;
 
   // Kill times in seconds (1 hit per second base)
   const minionKillTime = Math.max(1, Math.ceil(minion.hp / minionDmgPerHit));
@@ -133,11 +149,13 @@ export function calculateOfflineEarnings(
   const totalBosses = stagesCleared;
   const totalKills = totalMinions + totalBosses;
 
-  // Resource rewards
+  // Resource rewards (v64.0: apply reincarnation + awakening multipliers)
+  const lingshiAwkMul = 1 + (awk.lingshi_pct ?? 0) / 100;
+  const expAwkMul = 1 + (awk.exp_pct ?? 0) / 100;
   const lingshi = Math.floor(
-    (totalMinions * minion.lingshiDrop + totalBosses * boss.lingshiDrop) * lingshiMul
+    (totalMinions * minion.lingshiDrop + totalBosses * boss.lingshiDrop) * lingshiMul * goldMul * lingshiAwkMul
   );
-  const exp = totalMinions * minion.expDrop + totalBosses * boss.expDrop;
+  const exp = Math.floor((totalMinions * minion.expDrop + totalBosses * boss.expDrop) * expMul * expAwkMul);
 
   // Pantao: use expected value (boss pantao chance × boss kills)
   const pantao = Math.floor(totalBosses * (boss.pantaoDrop || 0));

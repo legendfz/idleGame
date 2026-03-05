@@ -501,3 +501,19 @@
 - Build: 396KB/121KB gzip
 - Commit: 0be9e43, merged to main: 51e4405
 - CEO直接实现（最高效）
+
+## v62.0「仙缘天赐」完成（2026-03-05 05:00）
+- 仙缘加成生效：攻击/生命/暴击率/暴伤/速度/防御(→生命)接入calcEffectiveStats
+- 经验/灵石乘算接入战斗引擎（affinityBuffs.expMul/lingshiMul）
+- 加成总览面板显示仙缘来源（💕仙缘 section）
+- Build: 397KB/122KB gzip
+- Commit: d7dbbb9, merged to main: 6f62858
+
+## v63.0「丹药自如」完成（2026-03-05 05:00）
+- 自动使用丹药：设置开关，tick中自动施放未激活的丹药
+- 优先级：混元仙丹>悟道丹>聚宝丹>天运丹>狂暴丹>破军丹
+- 每tick最多使用1个，避免爆发消耗
+- autoConsume持久化存档
+- Build: 398KB/122KB gzip
+- Commit: 39c83a9, merged to main: f411245
+- CEO直接实现（最高效）
