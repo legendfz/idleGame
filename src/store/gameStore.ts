@@ -590,7 +590,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       // Equipment drop (with inventory limit check — T-100 fix)
       if (updatedInventory.length < INVENTORY_MAX) {
         const globalStage = getGlobalStage(updatedBattle.chapterId, updatedBattle.stageNum);
-        const eqDrop = rollEquipDrop(globalStage, enemy.isBoss);
+        const dropMul = REINC_PERKS.find(p => p.id === 'drop_mult')!.effect(updatedPlayer.reincPerks?.['drop_mult'] ?? 0) - 1 + rmb.drop;
+        const eqDrop = rollEquipDrop(globalStage, enemy.isBoss, dropMul);
         if (eqDrop) {
           const newItem = createEquipFromTemplate(eqDrop);
           updatedInventory.push(newItem);

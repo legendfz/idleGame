@@ -6,7 +6,7 @@ import { useMemo, useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { useSanctuaryStore } from '../store/sanctuaryStore';
 import { getActiveSetBonuses, getEquipEffectiveStat } from '../data/equipment';
-import { REINC_PERKS } from '../data/reincarnation';
+import { REINC_PERKS, REINC_MILESTONES, getReincMilestoneBonus } from '../data/reincarnation';
 import { BUILDINGS, getBuildingOutput } from '../engine/sanctuary';
 import { getAwakeningBonuses } from './AwakeningPanel';
 import { CONSUMABLE_BUFFS } from '../data/consumables';
@@ -61,6 +61,15 @@ export function BuffOverview() {
         }
       }
     }
+    // v67.0 转世里程碑
+    const rmbBonus = getReincMilestoneBonus(player.reincarnations);
+    if (rmbBonus.atk > 0) reincBuffs.push({ label: '里程碑·攻击', value: `+${Math.round(rmbBonus.atk * 100)}%` });
+    if (rmbBonus.hp > 0) reincBuffs.push({ label: '里程碑·生命', value: `+${Math.round(rmbBonus.hp * 100)}%` });
+    if (rmbBonus.exp > 0) reincBuffs.push({ label: '里程碑·经验', value: `+${Math.round(rmbBonus.exp * 100)}%` });
+    if (rmbBonus.gold > 0) reincBuffs.push({ label: '里程碑·灵石', value: `+${Math.round(rmbBonus.gold * 100)}%` });
+    if (rmbBonus.crit > 0) reincBuffs.push({ label: '里程碑·暴击', value: `+${rmbBonus.crit}%` });
+    if (rmbBonus.critDmg > 0) reincBuffs.push({ label: '里程碑·暴伤', value: `+${Math.round(rmbBonus.critDmg * 100)}%` });
+    if (rmbBonus.drop > 0) reincBuffs.push({ label: '里程碑·掉率', value: `+${Math.round(rmbBonus.drop * 100)}%` });
     if (reincBuffs.length > 0) result.push({ system: '转世', icon: '🔄', color: '#ff7043', buffs: reincBuffs });
 
     // 4. Awakening
