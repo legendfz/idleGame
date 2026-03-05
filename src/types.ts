@@ -215,7 +215,7 @@ export interface GameSettings {
   soundVolume: number;
 }
 
-export type TabId = 'battle' | 'team' | 'journey' | 'bag' | 'achievement' | 'settings' | 'stats' | 'reincarnation' | 'sanctuary' | 'exploration' | 'affinity' | 'trial';
+export type TabId = 'battle' | 'team' | 'journey' | 'bag' | 'achievement' | 'settings' | 'stats' | 'reincarnation' | 'sanctuary' | 'exploration' | 'affinity' | 'trial' | 'awakening';
 
 /** Floating damage text */
 export interface FloatingText {
