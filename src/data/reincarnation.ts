@@ -67,3 +67,30 @@ export function calcDaoPoints(level: number, realmIndex: number, reincCount: num
 /** 转世最低要求 */
 export const REINC_MIN_REALM = 7;  // 大乘 (index 7)
 export const REINC_MIN_LEVEL = 500;
+
+/** v67.0 转世里程碑 — 达到N次转世后永久加成 */
+export interface ReincMilestone {
+  reincCount: number;
+  title: string;
+  icon: string;
+  bonuses: { type: 'atk' | 'hp' | 'exp' | 'gold' | 'crit' | 'critDmg' | 'drop'; value: number }[];
+  desc: string;
+}
+export const REINC_MILESTONES: ReincMilestone[] = [
+  { reincCount: 1, title: '初入轮回', icon: '🔄', bonuses: [{ type: 'atk', value: 0.1 }, { type: 'hp', value: 0.1 }], desc: '攻击+10% 生命+10%' },
+  { reincCount: 3, title: '三生三世', icon: '🌀', bonuses: [{ type: 'exp', value: 0.2 }, { type: 'gold', value: 0.2 }], desc: '经验+20% 灵石+20%' },
+  { reincCount: 5, title: '五蕴皆空', icon: '☯️', bonuses: [{ type: 'crit', value: 5 }, { type: 'critDmg', value: 0.3 }], desc: '暴击率+5% 暴伤+30%' },
+  { reincCount: 10, title: '十世修行', icon: '🏮', bonuses: [{ type: 'atk', value: 0.25 }, { type: 'hp', value: 0.25 }, { type: 'drop', value: 0.15 }], desc: '攻击+25% 生命+25% 掉率+15%' },
+  { reincCount: 20, title: '万劫不灭', icon: '👑', bonuses: [{ type: 'atk', value: 0.5 }, { type: 'exp', value: 0.5 }, { type: 'gold', value: 0.5 }], desc: '攻击+50% 经验+50% 灵石+50%' },
+];
+
+/** 获取已达成的转世里程碑加成 */
+export function getReincMilestoneBonus(reincCount: number) {
+  const bonuses = { atk: 0, hp: 0, exp: 0, gold: 0, crit: 0, critDmg: 0, drop: 0 };
+  for (const m of REINC_MILESTONES) {
+    if (reincCount >= m.reincCount) {
+      for (const b of m.bonuses) bonuses[b.type] += b.value;
+    }
+  }
+  return bonuses;
+}

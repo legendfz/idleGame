@@ -450,8 +450,17 @@ body {
 .hp-bar-fill {
   background: linear-gradient(180deg, #a02828 0%, #6b1818 100%);
   height: 100%;
-  transition: width 0.35s ease-out;
+  transition: width 0.35s ease-out, background 0.5s ease;
   position: relative;
+}
+.hp-bar-fill.hp-high {
+  background: linear-gradient(180deg, #2e7d32 0%, #1b5e20 100%);
+}
+.hp-bar-fill.hp-mid {
+  background: linear-gradient(180deg, #f9a825 0%, #c17900 100%);
+}
+.hp-bar-fill.hp-low {
+  background: linear-gradient(180deg, #c62828 0%, #8b1a1a 100%);
 }
 .hp-bar-fill::after {
   content: '';

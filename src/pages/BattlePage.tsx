@@ -245,7 +245,7 @@ export function BattleView() {
             <span>{enemy.name}</span>
           </div>
           <div className="hp-bar-bg" style={{ marginTop: 6 }}>
-            <div className={`hp-bar-fill${battle.isBossWave ? ' boss' : ''}${hpPct < 25 ? ' low' : ''}`} style={{ width: `${hpPct}%` }} />
+            <div className={`hp-bar-fill${battle.isBossWave ? ' boss' : ''} ${hpPct > 60 ? 'hp-high' : hpPct > 25 ? 'hp-mid' : 'hp-low'}${hpPct < 25 ? ' low' : ''}`} style={{ width: `${hpPct}%` }} />
             <div className="hp-bar-text">{formatNumber(enemy.hp)} / {formatNumber(enemy.maxHp)}</div>
           </div>
           <div className="enemy-sub-stats">
