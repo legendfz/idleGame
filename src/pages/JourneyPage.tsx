@@ -116,6 +116,8 @@ export function JourneyView({ setSubPage }: { setSubPage: (p: SubPage) => void }
   const battle = useGameStore(s => s.battle);
   const highestChapter = useGameStore(s => s.highestChapter);
   const chapter = CHAPTERS.find(c => c.id === battle.chapterId);
+  const sweepAll = useGameStore(s => s.sweepAll);
+  const [sweepAllResult, setSweepAllResult] = useState<{ gold: number; exp: number; items: string[]; chapters: number } | null>(null);
 
   return (
     <div className="main-content fade-in">
@@ -129,6 +131,28 @@ export function JourneyView({ setSubPage }: { setSubPage: (p: SubPage) => void }
         </div>
         <div className="color-dim" style={{ fontSize: 11, marginTop: 4, textAlign: 'right' }}>查看全部章节 →</div>
       </Card>
+      {highestChapter > 1 && (
+        <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+          <button
+            style={{ flex: 1, padding: '8px 0', background: 'linear-gradient(135deg, #6366f1, #a855f7)', border: 'none', borderRadius: 8, color: '#fff', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}
+            onClick={() => {
+              const r = sweepAll();
+              if (r.chapters > 0) {
+                setSweepAllResult(r);
+                setTimeout(() => setSweepAllResult(null), 4000);
+              }
+            }}
+          >
+            ⚡ 一键扫荡所有已通关章节
+          </button>
+        </div>
+      )}
+      {sweepAllResult && (
+        <Card style={{ background: 'rgba(99,102,241,0.15)', marginBottom: 8 }}>
+          <div style={{ color: '#a5b4fc', fontSize: 13, fontWeight: 600 }}>⚡ 扫荡 {sweepAllResult.chapters} 章完成！</div>
+          <div style={{ fontSize: 12, color: '#e0e7ff' }}>💎+{sweepAllResult.gold} ✨+{sweepAllResult.exp} {sweepAllResult.items.length > 0 ? `🎁${sweepAllResult.items.length}件装备` : ''}</div>
+        </Card>
+      )}
       <Card title="取经副本" className="clickable-card" style={{ cursor: 'pointer' }}
         onClick={() => setSubPage({ type: 'dungeonList' })}>
         <div className="color-dim" style={{ fontSize: 12 }}>挑战西游取经路线 Boss 战，获取稀有奖励</div>
