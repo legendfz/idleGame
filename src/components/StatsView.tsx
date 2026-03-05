@@ -1,10 +1,12 @@
 /**
  * StatsView — 数据统计面板
  */
+import { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { REALMS } from '../data/realms';
 import { formatNumber, formatTime } from '../utils/format';
 import { CodexPanel } from './CodexPanel';
+import { BuffOverview } from './BuffOverview';
 
 export function StatsView() {
   const player = useGameStore(s => s.player);
@@ -33,8 +35,25 @@ export function StatsView() {
     { icon: '▸', label: '暴击伤害', value: `${player.stats.critDmg}x` },
   ];
 
+  const [tab, setTab] = useState<'stats' | 'buffs' | 'codex'>('stats');
+
   return (
     <div className="main-content fade-in">
+      <div style={{ display: 'flex', gap: 0, marginBottom: 12 }}>
+        {(['stats', 'buffs', 'codex'] as const).map(t => (
+          <button key={t} onClick={() => setTab(t)} style={{
+            flex: 1, padding: '8px 0', fontSize: 13, fontWeight: tab === t ? 700 : 400,
+            background: tab === t ? 'var(--accent)' : 'var(--bg-card, #1e1e2e)',
+            color: tab === t ? '#fff' : '#888', border: 'none', cursor: 'pointer',
+            borderRadius: t === 'stats' ? '8px 0 0 8px' : t === 'codex' ? '0 8px 8px 0' : '0',
+          }}>
+            {t === 'stats' ? '📊 统计' : t === 'buffs' ? '✨ 加成' : '📖 图鉴'}
+          </button>
+        ))}
+      </div>
+      {tab === 'buffs' && <BuffOverview />}
+      {tab === 'codex' && <CodexPanel />}
+      {tab === 'stats' && <>
       <h3 className="section-title">数据统计</h3>
       <div style={{
         display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 16,
@@ -51,9 +70,7 @@ export function StatsView() {
           </div>
         ))}
       </div>
-      <div style={{ marginTop: 20 }}>
-        <CodexPanel />
-      </div>
+      </>}
     </div>
   );
 }
