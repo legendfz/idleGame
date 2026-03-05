@@ -85,6 +85,8 @@ export function BattleView() {
   const claimOnlineReward = useGameStore(s => s.claimOnlineReward);
   const [rewardToast, setRewardToast] = useState<string | null>(null);
   const highestPower = useGameStore(s => s.highestPower);
+  const fateBlessing = useGameStore(s => s.fateBlessing);
+  const activateFateBlessing = useGameStore(s => s.activateFateBlessing);
   const dailyCanSignIn = useDailyStore(s => s.canSignIn);
   const dailySignIn = useDailyStore(s => s.signIn);
   const dailyCheckCanSignIn = useDailyStore(s => s.checkCanSignIn);
@@ -312,6 +314,24 @@ export function BattleView() {
           </>}
         </div>
       </Card>
+
+      {/* v73.0: Fate Blessing */}
+      <div style={{ display: 'flex', gap: 6, alignItems: 'center', justifyContent: 'center', padding: '2px 0' }}>
+        {fateBlessing.active && fateBlessing.expiresAt > Date.now() ? (
+          <span style={{ color: '#ffd700', fontSize: 12, fontWeight: 700, background: 'rgba(255,215,0,0.1)', padding: '2px 8px', borderRadius: 8, border: '1px solid rgba(255,215,0,0.3)' }}>
+            ✨ 天命加持 ×2 — {formatTime(Math.max(0, Math.floor((fateBlessing.expiresAt - Date.now()) / 1000)))}
+          </span>
+        ) : (
+          player.tianmingScrolls > 0 && (
+            <button
+              onClick={() => { if (activateFateBlessing()) { setRewardToast('✨ 天命加持已激活！全收益×2 持续2小时'); setTimeout(() => setRewardToast(null), 3000); } }}
+              style={{ fontSize: 11, padding: '2px 10px', background: 'linear-gradient(135deg, #7c3aed, #f59e0b)', border: 'none', borderRadius: 8, color: '#fff', fontWeight: 600, cursor: 'pointer' }}
+            >
+              ✨ 天命加持 ×2（天命符×{player.tianmingScrolls}）
+            </button>
+          )
+        )}
+      </div>
 
       <Card className="battle-log-card">
         <div className="log-filter-tabs">

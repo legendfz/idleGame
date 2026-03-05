@@ -572,3 +572,10 @@
 - Build: 480KB precache
 - Commit: a576e27, merged to main: a5c5785
 - CEO直接实现（最高效）
+
+## v72.0「万仙归心」完成（2026-03-05 11:00）
+- 自动挑战世界Boss：设置开关，Boss出现自动攻击(500ms)+自动领取奖励
+- 章节掉落预览：旅途页展开章节显示可掉落装备列表（品质色边框）
+- Build: 397KB/122KB gzip
+- Commit: dfd57f3, merged to main: a24a40f
+- CEO直接实现（最高效）
