@@ -435,3 +435,15 @@
 - 新文件：src/components/LuckyWheel.tsx
 - Build: 同上+4KB
 - Commit: 9deb663, merged to main: d7af801
+
+## v55.0「万劫轮回」完成（2026-03-04 23:00）
+- Roguelike试炼系统：每层选祝福/诅咒，12种修饰器随机3选1
+- 试炼战斗：自动战斗+血量持续+层间30%回血
+- 试炼商店：6种永久加成，试炼令牌购买
+- 奖励按层数×等级缩放（灵石/经验/蟠桃/碎片/令牌）
+- 新Tab「劫」Lv.60解锁
+- 新文件：src/data/roguelikeTrial.ts, src/components/TrialPanel.tsx
+- 新增updatePlayer通用方法到gameStore
+- Build: 429KB precache
+- Commit: d5d5bb1, merged to main: 745862c
+- CEO直接实现（最高效）
