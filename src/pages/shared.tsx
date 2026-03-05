@@ -21,7 +21,8 @@ export type SubPage =
   | { type: 'dungeonBattle' }
   | { type: 'achievements' }
   | { type: 'leaderboard' }
-  | { type: 'daily' };
+  | { type: 'daily' }
+  | { type: 'wheel' };
 
 // ─── Card ───
 export function Card({ title, titleColor, children, className, style, borderColor, onClick }: {

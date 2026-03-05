@@ -26,6 +26,7 @@ import { BagView } from './pages/BagPage';
 import { SettingsView } from './pages/SettingsPage';
 import { ReincarnationPanel } from './components/ReincarnationPanel';
 import { DailyPanel } from './components/DailyPanel';
+import { LuckyWheel } from './components/LuckyWheel';
 import { useDailyStore } from './store/dailyStore';
 import { useSanctuaryStore } from './store/sanctuaryStore';
 import { useExplorationStore } from './store/explorationStore';
@@ -225,6 +226,9 @@ export default function App() {
       );
       case 'daily': return (
         <div className="main-content fade-in"><SubPageHeader title="每日签到" onBack={goBack} /><DailyPanel /></div>
+      );
+      case 'wheel': return (
+        <div className="main-content fade-in"><SubPageHeader title="天道轮盘" onBack={goBack} /><LuckyWheel /></div>
       );
       default: return null;
     }
