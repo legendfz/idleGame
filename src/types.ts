@@ -30,6 +30,9 @@ export interface PlayerState {
   daoPoints: number;           // 道点（转世货币）
   totalDaoPoints: number;      // 历史总道点
   reincPerks: Record<string, number>; // 永久加成 {perkId: level}
+  // v51.0 图鉴
+  codexEquipIds: string[];           // 已收集装备模板ID
+  codexEnemyNames: string[];         // 已遭遇敌人名
 }
 
 export interface Stats {

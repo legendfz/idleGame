@@ -132,6 +132,8 @@ function makeInitialPlayer(): PlayerState {
     daoPoints: 0,
     totalDaoPoints: 0,
     reincPerks: {},
+    codexEquipIds: [],
+    codexEnemyNames: [],
   };
 }
 
@@ -370,6 +372,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     if (enemy.hp <= 0) {
       updatedPlayer.totalKills++;
+      // v51.0: Codex tracking - enemy
+      if (!updatedPlayer.codexEnemyNames.includes(enemy.name)) {
+        updatedPlayer.codexEnemyNames = [...updatedPlayer.codexEnemyNames, enemy.name];
+      }
       // v49.0: Kill streak
       updatedBattle.killStreak = (updatedBattle.killStreak || 0) + 1;
       const streak = updatedBattle.killStreak;
@@ -419,6 +425,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
           const newItem = createEquipFromTemplate(eqDrop);
           updatedInventory.push(newItem);
           updatedPlayer.totalEquipDrops++;
+          // v51.0: Codex tracking - equip
+          if (!updatedPlayer.codexEquipIds.includes(eqDrop.id)) {
+            updatedPlayer.codexEquipIds = [...updatedPlayer.codexEquipIds, eqDrop.id];
+          }
           const qi = QUALITY_INFO[eqDrop.quality];
           log = addLog(log, `  获得 ${qi.symbol}${eqDrop.name}`, 'drop');
           sfx.itemDrop();
@@ -675,6 +685,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     newPlayer.tutorialDone = true;
     newPlayer.tutorialStep = 6;
     newPlayer.systemTutorials = [...player.systemTutorials];
+    newPlayer.codexEquipIds = [...player.codexEquipIds];
+    newPlayer.codexEnemyNames = [...player.codexEnemyNames];
 
     // Apply start_level perk
     if (startLevel > 0) {
@@ -1092,6 +1104,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
         if (drop) {
           const item = createEquipFromTemplate(drop);
           state.inventory.push(item);
+          // v51.0: Codex tracking
+          if (!state.player.codexEquipIds.includes(drop.id)) {
+            state.player.codexEquipIds = [...state.player.codexEquipIds, drop.id];
+          }
           droppedItems.push(`${QUALITY_INFO[item.quality].label}${item.name}`);
         }
       }
@@ -1194,6 +1210,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         save.player.tutorialStep = 6;
       }
       save.player.systemTutorials = save.player.systemTutorials ?? [];
+      save.player.codexEquipIds = save.player.codexEquipIds ?? [];
+      save.player.codexEnemyNames = save.player.codexEnemyNames ?? [];
         save.version = 4;
       }
 
