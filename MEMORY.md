@@ -371,3 +371,11 @@
 - Build: 346KB/106KB gzip
 - Commit: d5817f1, merged to main: 0e3a35d
 - CEO直接实现（最高效）
+
+## v47.0「问道苍穹」完成（2026-03-04 16:01）
+- 战斗速度分色：2x蓝/5x紫/10x金色脉冲动画
+- 战斗日志过滤：全部/掉落/升级/暴击/Boss 五标签
+- Build: 346KB/106KB gzip
+- Commit: 129624c, merged to main: 67c3bae
+- CEO直接实现（最高效）
+- v35 QA审计复查：大部分bug已在v36-v46修复，剩余为PRD命名差异（以代码为准）
