@@ -1,8 +1,9 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { useDailyStore } from '../store/dailyStore';
 import { formatNumber, expForLevel, formatTime } from '../utils/format';
 import { REALMS } from '../data/realms';
+import { getRandomEvent, resolveChoice, type RandomEvent, type EventChoice } from '../data/randomEvents';
 import { CHAPTERS, ABYSS_CHAPTER_ID } from '../data/chapters';
 import { ACTIVE_SKILLS } from '../data/skills';
 import { CONSUMABLE_BUFFS } from '../data/consumables';
@@ -126,11 +127,85 @@ export function BattleView() {
     return unclaimedMilestones || dailyCanSignIn;
   }, [sessionMinutes, onlineRewardsClaimed, dailyCanSignIn]);
 
+  // v66.0: Random events every ~80 kills
+  const [activeEvent, setActiveEvent] = useState<RandomEvent | null>(null);
+  const [eventResult, setEventResult] = useState<{ success: boolean; rewards: Record<string, number>; message: string } | null>(null);
+  const lastEventKills = useRef(0);
+  const totalKills = player.totalKills;
+
+  useEffect(() => {
+    if (totalKills > 0 && totalKills - lastEventKills.current >= 80 && !activeEvent) {
+      const evt = getRandomEvent(player.level);
+      if (evt) {
+        setActiveEvent(evt);
+        lastEventKills.current = totalKills;
+      }
+    }
+  }, [totalKills, player.level, activeEvent]);
+
+  const handleEventChoice = useCallback((choice: EventChoice) => {
+    const result = resolveChoice(choice, player.level);
+    setEventResult(result);
+    // Apply rewards
+    const state = useGameStore.getState();
+    const p = { ...state.player };
+    if (result.rewards.lingshi) p.lingshi = Math.max(0, p.lingshi + result.rewards.lingshi);
+    if (result.rewards.exp) p.exp += result.rewards.exp;
+    if (result.rewards.pantao) p.pantao = Math.max(0, p.pantao + result.rewards.pantao);
+    if (result.rewards.shards) p.hongmengShards += result.rewards.shards;
+    if (result.rewards.scrolls) p.tianmingScrolls += result.rewards.scrolls;
+    useGameStore.setState({ player: p });
+  }, [player.level]);
+
+  const dismissEvent = useCallback(() => {
+    setActiveEvent(null);
+    setEventResult(null);
+  }, []);
+
   return (
     <div className="main-content fade-in">
       {/* World Boss Banner */}
       <WorldBossBanner onOpen={() => setShowWorldBoss(true)} />
       {showWorldBoss && <WorldBossModal onClose={() => setShowWorldBoss(false)} />}
+
+      {/* v66.0: Random Event Modal */}
+      {activeEvent && (
+        <div className="event-modal-overlay" onClick={eventResult ? dismissEvent : undefined}>
+          <div className="event-modal" onClick={e => e.stopPropagation()}>
+            <div className="event-emoji">{activeEvent.emoji}</div>
+            <div className="event-title">{activeEvent.name}</div>
+            <div className="event-desc">{activeEvent.description}</div>
+            {!eventResult ? (
+              <div className="event-choices">
+                {activeEvent.choices.map((c, i) => (
+                  <button key={i} className="event-choice-btn" onClick={() => handleEventChoice(c)}>
+                    <span className="event-choice-label">{c.label}</span>
+                    <span className="event-choice-desc">{c.description}</span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="event-result">
+                <div className={`event-result-msg ${eventResult.success ? 'success' : 'fail'}`}>
+                  {eventResult.success ? '✅' : '❌'} {eventResult.message}
+                </div>
+                {Object.entries(eventResult.rewards).filter(([,v]) => v !== 0).length > 0 && (
+                  <div className="event-rewards">
+                    {Object.entries(eventResult.rewards).filter(([,v]) => v !== 0).map(([k, v]) => (
+                      <span key={k} className={`event-reward-tag ${v > 0 ? 'gain' : 'loss'}`}>
+                        {k === 'lingshi' ? '💰' : k === 'exp' ? '📖' : k === 'pantao' ? '🍑' : k === 'shards' ? '💎' : k === 'scrolls' ? '📜' : '🎁'}
+                        {v > 0 ? '+' : ''}{formatNumber(v)}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <button className="event-dismiss-btn" onClick={dismissEvent}>继续冒险</button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Smart Action Hints */}
       <SmartHints />
       {/* Scrolling tip */}
