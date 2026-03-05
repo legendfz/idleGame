@@ -595,3 +595,10 @@
 - Build: 484KB precache
 - Commit: 516d6b6, merged to main: 4c0a60b
 - CEO直接实现（最高效）
+
+## v75.0「仙途总览」完成（2026-03-05 13:00）
+- 境界突破进度条：下一境界蟠桃/等级双进度条（橙红渐变）
+- 本次在线收益汇总：战斗页显示session灵石和击杀总数
+- Build: 485KB precache
+- Commit: 8f1a7f9, merged to main: 059ae31
+- CEO直接实现（最高效）
