@@ -246,6 +246,7 @@ export interface GameSave {
   };
   highestChapter: number;
   highestStage: number;
+  highestPower?: number; // v58.0: all-time best combat power
   lastSaveTimestamp: number;
   totalPlayTime: number;
   equipment: {

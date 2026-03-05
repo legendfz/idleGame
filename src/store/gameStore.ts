@@ -32,6 +32,7 @@ interface GameStore {
   player: PlayerState;
   battle: BattleState;
   highestChapter: number;
+  highestPower: number;
   highestStage: number;
   // Equipment
   equippedWeapon: EquipmentItem | null;
@@ -295,6 +296,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   battle: makeInitialBattle(),
   highestChapter: 1,
   highestStage: 1,
+  highestPower: 0,
   equippedWeapon: null,
   equippedArmor: null,
   equippedTreasure: null,
@@ -1275,12 +1277,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   save: () => {
     const state = get();
+    // v58.0: update highest power before save
+    const _es58 = calcEffectiveStats(state.player.stats, state.equippedWeapon, state.equippedArmor, state.equippedTreasure);
+    const _cp58 = Math.floor(_es58.attack * (1 + (_es58.critRate / 100) * ((_es58.critDmg || 150) / 100)) + _es58.maxHp * 0.05);
+    const _hp58 = Math.max(state.highestPower, _cp58);
+    if (_hp58 > state.highestPower) set({ highestPower: _hp58 });
     const save: GameSave = {
       version: 4,
       player: state.player,
       battle: { chapterId: state.battle.chapterId, stageNum: state.battle.stageNum, wave: state.battle.wave },
       highestChapter: state.highestChapter,
       highestStage: state.highestStage,
+      highestPower: _hp58,
       lastSaveTimestamp: Date.now(),
       totalPlayTime: state.totalPlayTime,
       equipment: { weapon: state.equippedWeapon, armor: state.equippedArmor, treasure: state.equippedTreasure },
@@ -1406,6 +1414,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         },
         highestChapter: save.highestChapter,
         highestStage: save.highestStage,
+        highestPower: (save as any).highestPower ?? 0,
         totalPlayTime: save.totalPlayTime,
         lastSaveTimestamp: Date.now(),
         equippedWeapon: weapon,
@@ -1452,6 +1461,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       battle: { chapterId: state.battle.chapterId, stageNum: state.battle.stageNum, wave: state.battle.wave },
       highestChapter: state.highestChapter,
       highestStage: state.highestStage,
+      highestPower: state.highestPower,
       lastSaveTimestamp: Date.now(),
       totalPlayTime: state.totalPlayTime,
       equipment: { weapon: state.equippedWeapon, armor: state.equippedArmor, treasure: state.equippedTreasure },
