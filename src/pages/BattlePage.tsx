@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { formatNumber, expForLevel, formatTime } from '../utils/format';
 import { REALMS } from '../data/realms';
@@ -73,6 +73,10 @@ export function BattleView() {
   const useSkill = useGameStore(s => s.useSkill);
   const activeSkills = useGameStore(s => s.player.activeSkills);
   const [showWorldBoss, setShowWorldBoss] = useState(false);
+  const sessionMinutes = Math.floor(idleStats.sessionTime / 60);
+  const onlineRewardsClaimed = useGameStore(s => s.onlineRewardsClaimed);
+  const claimOnlineReward = useGameStore(s => s.claimOnlineReward);
+  const [rewardToast, setRewardToast] = useState<string | null>(null);
 
   return (
     <div className="main-content fade-in">
@@ -190,6 +194,26 @@ export function BattleView() {
           ))}
         </div>
       </Card>
+      <OnlineRewardsBar
+        sessionMinutes={sessionMinutes}
+        claimed={onlineRewardsClaimed}
+        onClaim={(min) => {
+          const r = claimOnlineReward(min);
+          if (r) {
+            setRewardToast(`🎁 ${r.desc}：+${r.gold}💰 +${r.exp}📖${r.pantao > 0 ? ` +${r.pantao}🍑` : ''}`);
+            setTimeout(() => setRewardToast(null), 3000);
+          }
+        }}
+      />
+      {rewardToast && (
+        <div style={{
+          position: 'fixed', top: 60, left: '50%', transform: 'translateX(-50%)',
+          background: 'linear-gradient(135deg, #4a1a8a, #7c3aed)', color: '#fff',
+          padding: '10px 20px', borderRadius: 12, fontSize: 13, fontWeight: 600,
+          zIndex: 999, boxShadow: '0 4px 20px rgba(124,58,237,0.5)',
+          animation: 'dropIn 0.3s ease-out',
+        }}>{rewardToast}</div>
+      )}
       <BossToast />
     </div>
   );
@@ -228,6 +252,41 @@ function SkillBar() {
               </>
             )}
             {buffActive && <span className="skill-buff-text">{buffTime}s</span>}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+const ONLINE_MILESTONES = [10, 30, 60, 120, 240];
+const MILESTONE_LABELS: Record<number, string> = { 10: '10分', 30: '30分', 60: '1时', 120: '2时', 240: '4时' };
+
+function OnlineRewardsBar({ sessionMinutes, claimed, onClaim }: {
+  sessionMinutes: number;
+  claimed: number[];
+  onClaim: (min: number) => void;
+}) {
+  const unclaimed = ONLINE_MILESTONES.filter(m => sessionMinutes >= m && !claimed.includes(m));
+  if (unclaimed.length === 0 && !ONLINE_MILESTONES.some(m => !claimed.includes(m))) return null;
+
+  return (
+    <div style={{ display: 'flex', gap: 4, justifyContent: 'center', margin: '6px 0', flexWrap: 'wrap' }}>
+      {ONLINE_MILESTONES.map(m => {
+        const canClaim = sessionMinutes >= m && !claimed.includes(m);
+        const done = claimed.includes(m);
+        const locked = sessionMinutes < m;
+        return (
+          <button key={m} onClick={() => canClaim && onClaim(m)} disabled={!canClaim}
+            style={{
+              fontSize: 11, padding: '3px 8px', borderRadius: 8, cursor: canClaim ? 'pointer' : 'default',
+              background: canClaim ? 'linear-gradient(135deg, #f59e0b, #ef4444)' : done ? 'rgba(34,197,94,0.2)' : 'rgba(100,100,100,0.2)',
+              border: canClaim ? '1px solid #f59e0b' : '1px solid rgba(100,100,100,0.3)',
+              color: canClaim ? '#fff' : done ? '#4ade80' : '#666',
+              animation: canClaim ? 'levelUpGlow 1.5s ease-in-out infinite' : 'none',
+              fontWeight: canClaim ? 700 : 400,
+            }}>
+            {done ? '✅' : canClaim ? '🎁' : '🔒'} {MILESTONE_LABELS[m]}
           </button>
         );
       })}

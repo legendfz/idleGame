@@ -51,6 +51,8 @@ interface GameStore {
   battleSpeed: number;
   autoDecomposeQuality: number; // 0=off, 1=common, 2=spirit+below, 3=immortal+below
   autoEquipOnDrop: boolean; // v39.0: auto-equip better drops
+  autoSkill: boolean; // v57.0: auto-cast skills when off cooldown
+  onlineRewardsClaimed: number[]; // v57.0: claimed milestone minutes
 
   // Actions
   setTab: (tab: TabId) => void;
@@ -77,6 +79,8 @@ interface GameStore {
   setBattleSpeed: (speed: number) => void;
   setAutoDecomposeQuality: (quality: number) => void;
   setAutoEquipOnDrop: (v: boolean) => void;
+  setAutoSkill: (v: boolean) => void;
+  claimOnlineReward: (minutes: number) => { gold: number; exp: number; pantao: number; desc: string } | null;
   autoEquipBest: () => number;
   quickDecompose: (maxQuality: number) => number;
   goToChapter: (chapterId: number) => void;
@@ -304,12 +308,34 @@ export const useGameStore = create<GameStore>((set, get) => ({
   battleSpeed: 1,
   autoDecomposeQuality: 1,
   autoEquipOnDrop: true,
+  autoSkill: false,
+  onlineRewardsClaimed: [],
 
   setTab: (tab) => set({ activeTab: tab }),
   dismissOfflineReport: () => set({ offlineReport: null }),
   setBattleSpeed: (speed) => set({ battleSpeed: speed }),
   setAutoDecomposeQuality: (quality) => set({ autoDecomposeQuality: quality }),
   setAutoEquipOnDrop: (v) => set({ autoEquipOnDrop: v }),
+  setAutoSkill: (v) => set({ autoSkill: v }),
+  claimOnlineReward: (minutes: number) => {
+    const state = get();
+    if (state.onlineRewardsClaimed.includes(minutes)) return null;
+    const level = state.player.level;
+    const rewards: Record<number, { gold: number; exp: number; pantao: number; desc: string }> = {
+      10:  { gold: Math.max(5000, level * 200), exp: Math.max(3000, level * 150), pantao: 0, desc: '在线10分钟奖励' },
+      30:  { gold: Math.max(20000, level * 500), exp: Math.max(10000, level * 400), pantao: Math.max(5, Math.floor(level / 20)), desc: '在线30分钟奖励' },
+      60:  { gold: Math.max(50000, level * 1000), exp: Math.max(30000, level * 800), pantao: Math.max(15, Math.floor(level / 10)), desc: '在线1小时奖励' },
+      120: { gold: Math.max(150000, level * 3000), exp: Math.max(80000, level * 2000), pantao: Math.max(30, Math.floor(level / 5)), desc: '在线2小时奖励' },
+      240: { gold: Math.max(500000, level * 8000), exp: Math.max(200000, level * 5000), pantao: Math.max(80, Math.floor(level / 3)), desc: '在线4小时奖励' },
+    };
+    const r = rewards[minutes];
+    if (!r) return null;
+    set({
+      player: { ...state.player, lingshi: state.player.lingshi + r.gold, exp: state.player.exp + r.exp, pantao: state.player.pantao + r.pantao },
+      onlineRewardsClaimed: [...state.onlineRewardsClaimed, minutes],
+    });
+    return r;
+  },
   clearFloatingText: (id) => set(s => ({ floatingTexts: s.floatingTexts.filter(f => f.id !== id) })),
 
   getEffectiveStats: () => {
@@ -376,6 +402,30 @@ export const useGameStore = create<GameStore>((set, get) => ({
       if (skillState.buffs[sid] <= 0) delete skillState.buffs[sid];
     }
     updatedPlayer.activeSkills = skillState;
+
+    // v57.0: Auto-cast skills when off cooldown
+    if (state.autoSkill) {
+      for (const skill of ACTIVE_SKILLS) {
+        if (updatedPlayer.level >= skill.unlockLevel && !(skillState.cooldowns[skill.id])) {
+          // Auto-activate: set cooldown and buff
+          skillState.cooldowns[skill.id] = skill.cooldown;
+          if (skill.duration > 0) {
+            skillState.buffs[skill.id] = skill.duration;
+          }
+          // instant kill for jindouyun
+          if (skill.id === 'jindouyun' && updatedBattle.currentEnemy) {
+            const enemy = updatedBattle.currentEnemy;
+            const goldReward = enemy.lingshiDrop * 2;
+            const expReward = enemy.expDrop * 2;
+            updatedPlayer.lingshi += goldReward;
+            updatedPlayer.exp += expReward;
+            updatedBattle.log = addLog(updatedBattle.log, `🌀 筋斗云·瞬杀 ${enemy.name}！双倍奖励`, 'boss');
+            updatedBattle.currentEnemy = { ...enemy, hp: 0 };
+          }
+        }
+      }
+      updatedPlayer.activeSkills = skillState;
+    }
 
     // v53.0: Tick consumable timers
     if (updatedPlayer.activeConsumables && updatedPlayer.activeConsumables.length > 0) {
@@ -1241,6 +1291,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       battleSpeed: state.battleSpeed,
       autoDecomposeQuality: state.autoDecomposeQuality,
       autoEquipOnDrop: state.autoEquipOnDrop,
+      autoSkill: state.autoSkill,
+      onlineRewardsClaimed: state.onlineRewardsClaimed,
     } as any;
     localStorage.setItem('xiyou-idle-save', JSON.stringify(save));
     set({ lastSaveTimestamp: Date.now() });
@@ -1364,6 +1416,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         battleSpeed: (save as any).battleSpeed ?? 1,
         autoDecomposeQuality: (save as any).autoDecomposeQuality ?? 0,
         autoEquipOnDrop: (save as any).autoEquipOnDrop ?? true,
+        autoSkill: (save as any).autoSkill ?? false,
+        onlineRewardsClaimed: [], // reset per session
       });
 
       // Load v13 stores
