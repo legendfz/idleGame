@@ -12,6 +12,7 @@ import { expForLevel } from '../utils/format';
 import { sfx } from '../engine/audio';
 import { calcDaoPoints, REINC_PERKS, REINC_MIN_REALM, REINC_MIN_LEVEL } from '../data/reincarnation';
 import { ACTIVE_SKILLS } from '../data/skills';
+import { getAwakeningBonuses } from '../components/AwakeningPanel';
 import {
   rollEquipDrop, createEquipFromTemplate, getEquipEffectiveStat,
   getEnhanceCost, getMaxEnhanceLevel, getActiveSetBonuses,
@@ -359,8 +360,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const goldMul = REINC_PERKS.find(p => p.id === 'gold_mult')!.effect(player.reincPerks?.['gold_mult'] ?? 0);
     // v53.0 消耗品增益
     const cEffect = getActiveConsumableEffects(player.activeConsumables ?? []);
-    effectiveStats.attack = Math.floor(effectiveStats.attack * atkMul * (1 + (cEffect.atkMult ?? 0)));
-    effectiveStats.critRate = Math.min(100, effectiveStats.critRate + (cEffect.critRateAdd ?? 0));
+    // v59.0 觉醒加成
+    const awk = getAwakeningBonuses(player);
+    effectiveStats.attack = Math.floor(effectiveStats.attack * atkMul * (1 + (cEffect.atkMult ?? 0)) * (1 + (awk.atk_pct ?? 0) / 100));
+    effectiveStats.maxHp = Math.floor(effectiveStats.maxHp * (1 + (awk.hp_pct ?? 0) / 100));
+    effectiveStats.critRate = Math.min(100, effectiveStats.critRate + (cEffect.critRateAdd ?? 0) + (awk.crit_rate ?? 0));
+    effectiveStats.critDmg = (effectiveStats.critDmg ?? 150) + (awk.crit_dmg ?? 0);
 
     const enemy = { ...battle.currentEnemy };
     let log = [...battle.log];
@@ -515,8 +520,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         log = addLog(log, `🎉 击杀里程碑「${ms.label}」！灵石+${ms.gold}${ms.pantao ? ` 蟠桃+${ms.pantao}` : ''}`, 'levelup');
       }
 
-      const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus));
-      const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus));
+      const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus) * (1 + (awk.gold_pct ?? 0) / 100));
+      const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100));
       updatedPlayer.lingshi += lingshiDrop;
       updatedPlayer.totalGoldEarned = (updatedPlayer.totalGoldEarned || 0) + lingshiDrop;
       updatedPlayer.exp += expDrop;
