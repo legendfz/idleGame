@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { formatNumber, expForLevel, formatTime } from '../utils/format';
 import { REALMS } from '../data/realms';
@@ -7,6 +7,19 @@ import { Card, FloatingDamage, BossToast } from './shared';
 
 const SPEED_OPTIONS = [1, 2, 5, 10];
 type LogFilter = 'all' | 'drop' | 'levelup' | 'boss' | 'crit';
+
+const TIPS = [
+  '💡 装备可强化至+15，+11以上有失败风险',
+  '💡 混沌品质装备可精炼为鸿蒙装备',
+  '💡 转世可获得道点，兑换永久加成',
+  '💡 洞天建筑提供持续增益，记得升级',
+  '💡 秘境探索可获得稀有材料和装备',
+  '💡 每日签到可领取丰厚奖励',
+  '💡 战斗速度可通过底部按钮切换',
+  '💡 套装效果需要收集同系列装备激活',
+  '💡 仙缘赠礼可获得神通技能加成',
+  '💡 背包满时可快速分解低品质装备',
+];
 
 export function BattleView() {
   const battle = useGameStore(s => s.battle);
@@ -51,8 +64,14 @@ export function BattleView() {
     setBattleSpeed(SPEED_OPTIONS[(idx + 1) % SPEED_OPTIONS.length]);
   };
 
+  const tip = useMemo(() => TIPS[Math.floor(Math.random() * TIPS.length)], []);
+
   return (
     <div className="main-content fade-in">
+      {/* Scrolling tip */}
+      <div className="battle-tip-marquee">
+        <span className="battle-tip-text">{tip}</span>
+      </div>
       {/* Realm & Level bar */}
       <div className="battle-realm-bar">
         <span className="battle-realm-name">{currentRealm?.name ?? '练气'} Lv.{player.level}</span>
