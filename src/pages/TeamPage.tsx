@@ -3,6 +3,7 @@ import { useGameStore } from '../store/gameStore';
 import { REALMS } from '../data/realms';
 import { formatNumber } from '../utils/format';
 import { Card, SubPageHeader, SubPage } from './shared';
+import { getResonanceBonus } from '../data/resonance';
 
 export function CharacterDetailPage({ onBack }: { onBack: () => void }) {
   const player = useGameStore(s => s.player);
@@ -63,6 +64,10 @@ export function TeamView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
 
   // Combat power
   const combatPower = Math.floor(eStats.attack * (1 + (eStats.critRate / 100) * ((eStats.critDmg || 150) / 100)) + eStats.maxHp * 0.05);
+  const weapon = useGameStore(s => s.equippedWeapon);
+  const armor = useGameStore(s => s.equippedArmor);
+  const treasure = useGameStore(s => s.equippedTreasure);
+  const resonance = getResonanceBonus(weapon, armor, treasure);
 
   return (
     <div className="main-content fade-in">
@@ -82,6 +87,16 @@ export function TeamView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
           <span className="color-dim" style={{ marginLeft: 'auto' }}>查看详情 →</span>
         </div>
       </Card>
+      {resonance && (
+        <Card style={{ borderColor: '#e2c97e', background: 'rgba(226,201,126,0.08)' }}>
+          <div style={{ textAlign: 'center', fontSize: 13, color: '#e2c97e', fontWeight: 700 }}>
+            🔮 {resonance.name}
+          </div>
+          <div style={{ textAlign: 'center', fontSize: 11, color: '#ccc', marginTop: 4 }}>
+            {resonance.description}
+          </div>
+        </Card>
+      )}
       <button className="breakthrough-btn" style={{ margin: '0 12px 12px', fontSize: 13 }} onClick={handleBatchEnhance}>
         ⚒ 一键强化已装备
       </button>
