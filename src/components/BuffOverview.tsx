@@ -12,6 +12,7 @@ import { getAwakeningBonuses } from './AwakeningPanel';
 import { CONSUMABLE_BUFFS } from '../data/consumables';
 import { formatNumber } from '../utils/format';
 import { useAffinityStore } from '../store/affinityStore';
+import { getResonanceBonus } from '../data/resonance';
 import { AFFINITY_NPCS } from '../engine/affinity';
 
 interface BuffSource {
@@ -117,7 +118,13 @@ export function BuffOverview() {
     }
     if (afBuffs.length > 0) result.push({ system: '仙缘', icon: '💕', color: '#f48fb1', buffs: afBuffs });
 
-    // 8. Reincarnation count
+    // 8. Equipment resonance (v71.0)
+    const resonance = getResonanceBonus(weapon, armor, treasure);
+    if (resonance) {
+      result.push({ system: '共鸣', icon: '🔮', color: '#e2c97e', buffs: [{ label: resonance.name, value: resonance.description }] });
+    }
+
+    // 9. Reincarnation count
     const reincCount = player.reincarnations ?? 0;
     if (reincCount > 0) {
       result.push({ system: '轮回', icon: '♾️', color: '#ce93d8', buffs: [{ label: `转世 ${reincCount} 次`, value: `道点可用` }] });

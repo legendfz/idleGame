@@ -23,6 +23,7 @@ import {
 } from '../data/equipment';
 import { calculateOfflineEarnings } from '../engine/offline';
 import { useSanctuaryStore } from './sanctuaryStore';
+import { getResonanceBonus } from '../data/resonance';
 import { useAffinityStore } from './affinityStore';
 import { useExplorationStore } from './explorationStore';
 
@@ -257,6 +258,14 @@ function calcEffectiveStats(
   if (affinityBuffs.speed) s.speed += affinityBuffs.speed / 100;
   // defense buff stored but not on Stats type — applied as maxHp proxy
   if (affinityBuffs.defense) s.maxHp = Math.floor(s.maxHp * (1 + affinityBuffs.defense / 100));
+  // v71.0: Equipment resonance (三件同品质)
+  const resonance = getResonanceBonus(weapon, armor, treasure);
+  if (resonance) {
+    s.attack = Math.floor(s.attack * (1 + resonance.atkPct / 100));
+    s.maxHp = Math.floor(s.maxHp * (1 + resonance.hpPct / 100));
+    s.critRate = Math.min(100, s.critRate + resonance.critRate);
+    s.critDmg += resonance.critDmg;
+  }
   return s;
 }
 

@@ -6,6 +6,7 @@
 import { PlayerState, Stats, EquipmentItem, QUALITY_INFO, INVENTORY_MAX } from '../types';
 import { createEnemy } from '../data/chapters';
 import { rollEquipDrop, createEquipFromTemplate, getEquipEffectiveStat, getActiveSetBonuses, EQUIPMENT_TEMPLATES } from '../data/equipment';
+import { getResonanceBonus } from '../data/resonance';
 import { expForLevel } from '../utils/format';
 import { REINC_PERKS } from '../data/reincarnation';
 import { getAwakeningBonuses } from '../components/AwakeningPanel';
@@ -48,6 +49,14 @@ function calcEffectiveStats(
       if (bonus.effect.critRate) s.critRate += bonus.effect.critRate;
       if (bonus.effect.critDmg) s.critDmg += bonus.effect.critDmg;
     }
+  }
+  // v71.0: Equipment resonance
+  const resonance = getResonanceBonus(weapon, armor, treasure);
+  if (resonance) {
+    s.attack = Math.floor(s.attack * (1 + resonance.atkPct / 100));
+    s.maxHp = Math.floor(s.maxHp * (1 + resonance.hpPct / 100));
+    s.critRate = Math.min(100, s.critRate + resonance.critRate);
+    s.critDmg += resonance.critDmg;
   }
   return s;
 }
