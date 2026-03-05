@@ -415,3 +415,23 @@
 - Build: 353KB/108KB gzip
 - Commit: bc91112, merged to main: 3f90e36
 - CEO直接实现（最高效）
+
+## v53.0「倍速丹」完成（2026-03-04 22:00）
+- 消耗品临时增益系统：6种丹药（悟道丹/聚宝丹/天运丹/狂暴丹/破军丹/混元仙丹）
+- 战斗页消耗品栏：可用丹药按钮+活跃buff计时器（金色标签）
+- Boss击杀20%掉落随机丹药
+- 每日签到含丹药奖励（7天各不同）
+- 转世保留丹药库存，清除活跃buff
+- 新文件：src/data/consumables.ts, 修改types/gameStore/BattlePage/DailyPanel
+- Build: 357KB/110KB gzip
+- Commit: 036ff8e, merged to main: aaba7c3
+
+## v54.0「天道轮盘」完成（2026-03-04 22:00）
+- 幸运转盘：9格奖池（灵石/蟠桃/碎片/丹药/天命符/大奖）
+- 加权随机：大奖2%，混元仙丹3%，天命符5%...灵石25%
+- 消耗5000灵石/次，1小时冷却
+- 奖励按等级缩放（goldBase = max(1000, level*500)）
+- 设置页入口卡片
+- 新文件：src/components/LuckyWheel.tsx
+- Build: 同上+4KB
+- Commit: 9deb663, merged to main: d7af801
