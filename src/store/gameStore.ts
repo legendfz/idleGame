@@ -145,6 +145,7 @@ function makeInitialBattle(): BattleState {
     log: [{ id: logIdCounter++, text: `${enemy.name} 出现了！`, type: 'info', timestamp: Date.now() }],
     isAutoBattle: true,
     isBossWave: false,
+    killStreak: 0,
   };
 }
 
@@ -316,8 +317,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const refund = Math.floor((failedRealm?.pantaoReq ?? 0) * 0.5);
         updatedPlayer.pantao += refund;
         log = addLog(log, `💀 天劫失败！渡劫超时。退还蟠桃 ${refund}`, 'boss');
+        if (updatedBattle.killStreak >= 10) log = addLog(log, `🔥 连杀×${updatedBattle.killStreak} 中断！`, 'info');
         const resumeEnemy = createEnemy(updatedBattle.chapterId, updatedBattle.stageNum, false)!;
-        updatedBattle = { ...updatedBattle, wave: 1, isBossWave: false, currentEnemy: resumeEnemy, log, tribulation: undefined };
+        updatedBattle = { ...updatedBattle, wave: 1, isBossWave: false, currentEnemy: resumeEnemy, log, tribulation: undefined, killStreak: 0 };
         set({ player: updatedPlayer, battle: updatedBattle });
         return;
       }
@@ -367,7 +369,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     if (enemy.hp <= 0) {
       updatedPlayer.totalKills++;
-      log = addLog(log, `${enemy.name} 击败！`, 'kill');
+      // v49.0: Kill streak
+      updatedBattle.killStreak = (updatedBattle.killStreak || 0) + 1;
+      const streak = updatedBattle.killStreak;
+      const streakBonus = streak >= 100 ? 0.5 : streak >= 50 ? 0.3 : streak >= 20 ? 0.2 : streak >= 10 ? 0.1 : 0;
+      log = addLog(log, `${enemy.name} 击败！${streak >= 10 ? ` 🔥连杀×${streak} (+${Math.round(streakBonus*100)}%奖励)` : ''}`, 'kill');
+      // Streak milestone notifications
+      if ([10,20,50,100,200,500,1000].includes(streak)) {
+        log = addLog(log, `🔥🔥 连杀${streak}！额外奖励+${Math.round(streakBonus*100)}%`, 'levelup');
+      }
 
       // v43.0: Kill milestones
       const km = updatedPlayer.totalKills;
@@ -386,8 +396,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         log = addLog(log, `🎉 击杀里程碑「${ms.label}」！灵石+${ms.gold}${ms.pantao ? ` 蟠桃+${ms.pantao}` : ''}`, 'levelup');
       }
 
-      const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul);
-      const expDrop = Math.floor(enemy.expDrop * expMul);
+      const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + streakBonus));
+      const expDrop = Math.floor(enemy.expDrop * expMul * (1 + streakBonus));
       updatedPlayer.lingshi += lingshiDrop;
       updatedPlayer.totalGoldEarned = (updatedPlayer.totalGoldEarned || 0) + lingshiDrop;
       updatedPlayer.exp += expDrop;
@@ -1202,7 +1212,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           chapterId: save.battle.chapterId, stageNum: save.battle.stageNum,
           wave: save.battle.wave, maxWaves: 10, currentEnemy: enemy,
           log: [{ id: logIdCounter++, text: '存档已加载', type: 'info', timestamp: Date.now() }],
-          isAutoBattle: true, isBossWave: false,
+          isAutoBattle: true, isBossWave: false, killStreak: 0,
         },
         highestChapter: save.highestChapter,
         highestStage: save.highestStage,
