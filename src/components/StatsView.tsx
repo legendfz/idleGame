@@ -4,6 +4,7 @@
 import { useGameStore } from '../store/gameStore';
 import { REALMS } from '../data/realms';
 import { formatNumber, formatTime } from '../utils/format';
+import { CodexPanel } from './CodexPanel';
 
 export function StatsView() {
   const player = useGameStore(s => s.player);
@@ -49,6 +50,9 @@ export function StatsView() {
             <span style={{ fontSize: 14, fontWeight: 'bold', color: 'var(--fg, #eee)' }}>{s.value}</span>
           </div>
         ))}
+      </div>
+      <div style={{ marginTop: 20 }}>
+        <CodexPanel />
       </div>
     </div>
   );
