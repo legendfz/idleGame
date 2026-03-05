@@ -8,6 +8,9 @@ import { ACTIVE_SKILLS } from '../data/skills';
 import { CONSUMABLE_BUFFS } from '../data/consumables';
 import { Card, FloatingDamage, BossToast } from './shared';
 import { WorldBossBanner, WorldBossModal } from '../components/WorldBossPanel';
+import { BUILDINGS, getUpgradeCost } from '../engine/sanctuary';
+import { useSanctuaryStore } from '../store/sanctuaryStore';
+import { useExplorationStore } from '../store/explorationStore';
 
 const SPEED_OPTIONS = [1, 2, 5, 10];
 type LogFilter = 'all' | 'drop' | 'levelup' | 'boss' | 'crit';
@@ -128,6 +131,8 @@ export function BattleView() {
       {/* World Boss Banner */}
       <WorldBossBanner onOpen={() => setShowWorldBoss(true)} />
       {showWorldBoss && <WorldBossModal onClose={() => setShowWorldBoss(false)} />}
+      {/* Smart Action Hints */}
+      <SmartHints />
       {/* Scrolling tip */}
       <div className="battle-tip-marquee">
         <span className="battle-tip-text">{tip}</span>
@@ -277,6 +282,59 @@ export function BattleView() {
         }}>{rewardToast}</div>
       )}
       <BossToast />
+    </div>
+  );
+}
+
+function SmartHints() {
+  const player = useGameStore(s => s.player);
+  const setTab = useGameStore(s => s.setTab);
+  const dailyCanSignIn = useDailyStore(s => s.canSignIn);
+  const sanctuaryLevels = useSanctuaryStore(s => s.sanctuary.levels);
+  const explorationFreeRuns = useExplorationStore(s => s.exploration.dailyFree);
+
+  const hints = useMemo(() => {
+    const h: { label: string; tab: string }[] = [];
+    // Breakthrough available?
+    const nextRealm = REALMS[player.realmIndex + 1];
+    if (nextRealm && player.level >= nextRealm.levelReq && player.pantao >= nextRealm.pantaoReq) {
+      h.push({ label: '⚡ 可突破境界', tab: 'battle' });
+    }
+    // Reincarnation available? (level >= 500, reincarnation tab)
+    if (player.level >= 500) {
+      h.push({ label: '🔄 可转世', tab: 'reincarnation' });
+    }
+    // Daily sign-in
+    if (dailyCanSignIn) {
+      h.push({ label: '📅 签到可领', tab: 'settings' });
+    }
+    // Sanctuary upgradeable
+    if (sanctuaryLevels && BUILDINGS.some(b => {
+      const lv = sanctuaryLevels[b.id] ?? 0;
+      return lv < 10 && player.lingshi >= getUpgradeCost(b, lv);
+    })) {
+      h.push({ label: '🏠 洞天可升级', tab: 'sanctuary' });
+    }
+    // Free exploration
+    if (explorationFreeRuns > 0) {
+      h.push({ label: '🗺️ 免费秘境', tab: 'exploration' });
+    }
+    // Awakening available (3+ reincarnations)
+    if (player.reincarnations >= 3 && player.level >= 80) {
+      h.push({ label: '✨ 觉醒可点', tab: 'awakening' });
+    }
+    return h.slice(0, 4); // max 4 hints
+  }, [player.level, player.realmIndex, player.pantao, player.lingshi, player.reincarnations, dailyCanSignIn, sanctuaryLevels, explorationFreeRuns]);
+
+  if (hints.length === 0) return null;
+
+  return (
+    <div className="action-hints">
+      {hints.map((h, i) => (
+        <span key={i} className="action-hint" onClick={() => setTab(h.tab as any)}>
+          {h.label}
+        </span>
+      ))}
     </div>
   );
 }
