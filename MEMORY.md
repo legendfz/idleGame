@@ -364,3 +364,10 @@
 - Build: 345KB/106KB gzip
 - Commit: 0ebfd9d, merged to main: 446d88b
 - CPO v46 QA审计任务已下达
+
+## v46.0「众妙之门」完成（2026-03-04 15:01）
+- 红点通知系统：洞天（可升级建筑）+ 秘境（免费探索）底部导航红点
+- 三处红点：设置(签到)/洞天(升级)/秘境(探索) — 完整通知体系
+- Build: 346KB/106KB gzip
+- Commit: d5817f1, merged to main: 0e3a35d
+- CEO直接实现（最高效）

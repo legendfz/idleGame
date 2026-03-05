@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { formatNumber, expForLevel, formatTime } from '../utils/format';
 import { REALMS } from '../data/realms';
@@ -5,6 +6,7 @@ import { CHAPTERS, ABYSS_CHAPTER_ID } from '../data/chapters';
 import { Card, FloatingDamage, BossToast } from './shared';
 
 const SPEED_OPTIONS = [1, 2, 5, 10];
+type LogFilter = 'all' | 'drop' | 'levelup' | 'boss' | 'crit';
 
 export function BattleView() {
   const battle = useGameStore(s => s.battle);
@@ -32,8 +34,17 @@ export function BattleView() {
   const canBreakthrough = nextRealm && player.level >= nextRealm.levelReq && player.pantao >= nextRealm.pantaoReq;
   const currentRealm = REALMS[player.realmIndex];
 
-  // Battle log: show latest 10 entries only
-  const visibleLog = battle.log.slice(-10);
+  // Log filter
+  const [logFilter, setLogFilter] = useState<LogFilter>('all');
+  const filteredLog = battle.log.filter(e => {
+    if (logFilter === 'all') return true;
+    if (logFilter === 'drop') return e.type === 'drop';
+    if (logFilter === 'levelup') return e.type === 'levelup';
+    if (logFilter === 'boss') return e.type === 'boss';
+    if (logFilter === 'crit') return e.type === 'crit';
+    return true;
+  });
+  const visibleLog = filteredLog.slice(-10);
 
   const cycleSpeed = () => {
     const idx = SPEED_OPTIONS.indexOf(battleSpeed);
@@ -59,7 +70,7 @@ export function BattleView() {
             <div className="battle-chapter-fill" style={{ width: `${chapterProgress}%` }} />
           </div>
         )}
-        <button className={`battle-speed-btn${battleSpeed > 1 ? ' active' : ''}`} onClick={cycleSpeed}>
+        <button className={`battle-speed-btn${battleSpeed === 2 ? ' active' : battleSpeed === 5 ? ' speed-5' : battleSpeed === 10 ? ' speed-10' : ''}`} onClick={cycleSpeed}>
           {battleSpeed}x
         </button>
       </div>
@@ -129,6 +140,11 @@ export function BattleView() {
       </Card>
 
       <Card className="battle-log-card">
+        <div className="log-filter-tabs">
+          {([['all','全部'],['drop','掉落'],['levelup','升级'],['crit','暴击'],['boss','Boss']] as const).map(([k,l]) => (
+            <button key={k} className={`log-filter-btn${logFilter===k?' active':''}`} onClick={()=>setLogFilter(k as LogFilter)}>{l}</button>
+          ))}
+        </div>
         <div className="battle-log">
           {visibleLog.map(entry => (
             <div key={entry.id} className={`log-${entry.type}`}>{entry.text}</div>
