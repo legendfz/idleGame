@@ -56,6 +56,7 @@ interface GameStore {
   autoEquipOnDrop: boolean; // v39.0: auto-equip better drops
   autoSkill: boolean; // v57.0: auto-cast skills when off cooldown
   autoConsume: boolean; // v63.0: auto-use potions
+  autoWorldBoss: boolean; // v72.0: auto-attack world boss
   onlineRewardsClaimed: number[]; // v57.0: claimed milestone minutes
 
   // Actions
@@ -86,6 +87,7 @@ interface GameStore {
   setAutoEquipOnDrop: (v: boolean) => void;
   setAutoSkill: (v: boolean) => void;
   setAutoConsume: (v: boolean) => void;
+  setAutoWorldBoss: (v: boolean) => void;
   claimOnlineReward: (minutes: number) => { gold: number; exp: number; pantao: number; desc: string } | null;
   autoEquipBest: () => number;
   quickDecompose: (maxQuality: number) => number;
@@ -338,6 +340,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   autoEquipOnDrop: true,
   autoSkill: false,
   autoConsume: false,
+  autoWorldBoss: false,
   onlineRewardsClaimed: [],
 
   setTab: (tab) => set({ activeTab: tab }),
@@ -347,6 +350,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setAutoEquipOnDrop: (v) => set({ autoEquipOnDrop: v }),
   setAutoSkill: (v) => set({ autoSkill: v }),
   setAutoConsume: (v: boolean) => set({ autoConsume: v }),
+  setAutoWorldBoss: (v: boolean) => set({ autoWorldBoss: v }),
   claimOnlineReward: (minutes: number) => {
     const state = get();
     if (state.onlineRewardsClaimed.includes(minutes)) return null;
@@ -1369,6 +1373,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       autoEquipOnDrop: state.autoEquipOnDrop,
       autoSkill: state.autoSkill,
       autoConsume: state.autoConsume,
+      autoWorldBoss: state.autoWorldBoss,
       onlineRewardsClaimed: state.onlineRewardsClaimed,
     } as any;
     localStorage.setItem('xiyou-idle-save', JSON.stringify(save));
@@ -1496,6 +1501,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         autoEquipOnDrop: (save as any).autoEquipOnDrop ?? true,
         autoSkill: (save as any).autoSkill ?? false,
         autoConsume: (save as any).autoConsume ?? false,
+        autoWorldBoss: (save as any).autoWorldBoss ?? false,
         onlineRewardsClaimed: [], // reset per session
       });
 

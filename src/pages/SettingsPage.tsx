@@ -28,6 +28,8 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
   const setAutoSkill = useGameStore(s => s.setAutoSkill);
   const autoConsume = useGameStore(s => s.autoConsume);
   const setAutoConsume = useGameStore(s => s.setAutoConsume);
+  const autoWorldBoss = useGameStore(s => (s as any).autoWorldBoss) as boolean;
+  const setAutoWorldBoss = useGameStore(s => (s as any).setAutoWorldBoss) as (v: boolean) => void;
   const DECOMP_LABELS = ['关闭', '凡品', '灵品以下', '仙品以下'];
 
   const toggleAnim = () => {
@@ -153,6 +155,12 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
           <span className="stat-label">自动使用丹药</span>
           <span style={{ color: autoConsume ? 'var(--accent)' : 'var(--dim)' }}>
             {autoConsume ? '✅ 开启' : '关闭'}
+          </span>
+        </div>
+        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoWorldBoss(!autoWorldBoss)}>
+          <span className="stat-label">自动挑战世界Boss</span>
+          <span style={{ color: autoWorldBoss ? 'var(--accent)' : 'var(--dim)' }}>
+            {autoWorldBoss ? '✅ 开启' : '关闭'}
           </span>
         </div>
       </Card>

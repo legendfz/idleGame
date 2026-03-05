@@ -8,6 +8,7 @@ import { CHAPTERS, ABYSS_CHAPTER_ID } from '../data/chapters';
 import { ACTIVE_SKILLS } from '../data/skills';
 import { CONSUMABLE_BUFFS } from '../data/consumables';
 import { Card, FloatingDamage, BossToast } from './shared';
+import { useAutoWorldBoss } from '../components/WorldBossPanel';
 import { WorldBossBanner, WorldBossModal } from '../components/WorldBossPanel';
 import { BUILDINGS, getUpgradeCost } from '../engine/sanctuary';
 import { useSanctuaryStore } from '../store/sanctuaryStore';
@@ -30,6 +31,7 @@ const TIPS = [
 ];
 
 export function BattleView() {
+  useAutoWorldBoss();
   const battle = useGameStore(s => s.battle);
   const clickAttack = useGameStore(s => s.clickAttack);
   const player = useGameStore(s => s.player);

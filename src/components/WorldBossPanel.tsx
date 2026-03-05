@@ -69,6 +69,53 @@ function saveWorldBoss(data: WorldBossSave) {
   localStorage.setItem('worldBoss', JSON.stringify(data));
 }
 
+// v72.0: Auto world boss - runs in background via BattlePage
+export function useAutoWorldBoss() {
+  const player = useGameStore(s => s.player);
+  const autoWorldBoss = useGameStore(s => (s as any).autoWorldBoss);
+  const updatePlayer = useGameStore(s => s.updatePlayer);
+
+  useEffect(() => {
+    if (!autoWorldBoss) return;
+    const iv = setInterval(() => {
+      const now = Date.now();
+      const active = getCurrentWorldBoss(now);
+      if (!active) return;
+      const cycleId = getCycleId(now);
+      const saved = loadWorldBossSave();
+
+      // Auto claim if defeated
+      if (saved && saved.cycleId === cycleId && saved.defeated && !saved.rewardClaimed) {
+        const r = active.boss.rewards;
+        const scale = Math.max(1, player.level / 100);
+        updatePlayer({
+          lingshi: player.lingshi + Math.floor(r.lingshi * scale),
+          pantao: player.pantao + Math.floor(r.pantao * scale),
+          hongmengShards: player.hongmengShards + Math.floor(r.hongmengShards * scale),
+          daoPoints: player.daoPoints + r.daoPoints,
+          trialTokens: player.trialTokens + r.trialTokens,
+        });
+        saveWorldBoss({ ...saved, rewardClaimed: true });
+        return;
+      }
+
+      // Auto attack if not defeated
+      if (saved && saved.cycleId === cycleId && saved.defeated) return;
+      const maxHp = Math.floor(active.boss.baseHp * active.hpScale);
+      const prevDmg = (saved && saved.cycleId === cycleId) ? saved.totalDamage : 0;
+      if (prevDmg >= maxHp) return;
+
+      const atk = player.stats.attack;
+      const isCrit = Math.random() * 100 < player.stats.critRate;
+      const dmg = Math.floor(atk * (isCrit ? player.stats.critDmg : 1));
+      const newTotal = prevDmg + dmg;
+      const defeated = newTotal >= maxHp;
+      saveWorldBoss({ cycleId, totalDamage: newTotal, defeated, rewardClaimed: false });
+    }, 500);
+    return () => clearInterval(iv);
+  }, [autoWorldBoss, player, updatePlayer]);
+}
+
 export function WorldBossBanner({ onOpen }: { onOpen: () => void }) {
   const [state, setState] = useState(getWorldBossState);
   
