@@ -67,6 +67,14 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
         </div>
       </Card>
 
+      <Card className="clickable-card" style={{ cursor: 'pointer' }}
+        onClick={() => setSubPage({ type: 'wheel' as any })}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontWeight: 600 }}>🎡 天道轮盘</span>
+          <span className="color-dim" style={{ fontSize: 12 }}>消耗灵石抽奖</span>
+        </div>
+      </Card>
+
       {/* Statistics */}
       <Card title="游戏统计" onClick={() => setShowStats(!showStats)}>
         <div className="stat-row"><span className="stat-label">总游戏时间</span><span>{formatTime(totalPlayTime)}</span></div>
