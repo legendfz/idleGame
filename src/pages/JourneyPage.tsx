@@ -7,7 +7,16 @@ export function ChapterSelectPage({ onBack }: { onBack: () => void }) {
   const battle = useGameStore(s => s.battle);
   const highestChapter = useGameStore(s => s.highestChapter);
   const goToChapter = useGameStore(s => s.goToChapter);
+  const sweepChapter = useGameStore(s => s.sweepChapter);
   const [expandedChapter, setExpandedChapter] = useState<number | null>(null);
+  const [sweepResult, setSweepResult] = useState<{ chId: number; gold: number; exp: number; items: string[] } | null>(null);
+
+  const handleSweep = (e: React.MouseEvent, chId: number) => {
+    e.stopPropagation();
+    const result = sweepChapter(chId, 10);
+    setSweepResult({ chId, ...result });
+    setTimeout(() => setSweepResult(null), 3000);
+  };
 
   return (
     <div className="main-content fade-in">
@@ -18,6 +27,7 @@ export function ChapterSelectPage({ onBack }: { onBack: () => void }) {
         const isLocked = ch.id > highestChapter;
         const isExpanded = expandedChapter === ch.id;
         const canTeleport = !isCurrent && !isLocked;
+        const canSweep = isCleared && !isLocked;
         return (
           <div key={ch.id}>
             <Card className={`chapter-card ${isLocked ? 'locked' : ''} ${isCurrent ? 'current' : ''}`}
@@ -37,13 +47,29 @@ export function ChapterSelectPage({ onBack }: { onBack: () => void }) {
                   <div className="chapter-progress-fill" style={{ width: `${isCleared ? 100 : (battle.stageNum / ch.stages) * 100}%` }} />
                 </div>
               )}
-              {canTeleport && isExpanded && (
-                <button
-                  className="breakthrough-btn"
-                  style={{ marginTop: 8, fontSize: 13 }}
-                  onClick={(e) => { e.stopPropagation(); goToChapter(ch.id); onBack(); }}>
-                  🚀 传送至此章节
-                </button>
+              {isExpanded && (
+                <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                  {canTeleport && (
+                    <button className="breakthrough-btn" style={{ fontSize: 13, flex: 1 }}
+                      onClick={(e) => { e.stopPropagation(); goToChapter(ch.id); onBack(); }}>
+                      🚀 传送
+                    </button>
+                  )}
+                  {canSweep && (
+                    <button className="breakthrough-btn" style={{ fontSize: 13, flex: 1, background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
+                      onClick={(e) => handleSweep(e, ch.id)}>
+                      ⚡ 扫荡×10
+                    </button>
+                  )}
+                </div>
+              )}
+              {sweepResult && sweepResult.chId === ch.id && (
+                <div style={{ marginTop: 6, padding: '6px 8px', background: 'rgba(99,102,241,0.15)', borderRadius: 6, fontSize: 12 }}>
+                  <div style={{ color: '#a5b4fc' }}>⚡ 扫荡完成！+{sweepResult.gold}💎 +{sweepResult.exp}✨</div>
+                  {sweepResult.items.length > 0 && (
+                    <div style={{ color: '#86efac', marginTop: 2 }}>🎁 获得：{sweepResult.items.join('、')}</div>
+                  )}
+                </div>
               )}
             </Card>
           </div>

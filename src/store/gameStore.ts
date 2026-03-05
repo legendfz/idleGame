@@ -78,6 +78,7 @@ interface GameStore {
   autoEquipBest: () => number;
   quickDecompose: (maxQuality: number) => number;
   goToChapter: (chapterId: number) => void;
+  sweepChapter: (chapterId: number, count: number) => { gold: number; exp: number; items: string[] };
   batchEnhanceEquipped: () => { count: number; cost: number };
   // Multi-save
   saveToSlot: (slotId: number) => void;
@@ -1065,6 +1066,46 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set({
       battle: { ...state.battle, chapterId, stageNum: 1, wave: 1, isBossWave: false, maxWaves: 3, currentEnemy: enemy, log, tribulation: undefined },
     });
+  },
+
+  sweepChapter: (chapterId: number, count: number) => {
+    const state = get();
+    if (chapterId >= state.highestChapter) return { gold: 0, exp: 0, items: [] as string[] };
+    const ch = CHAPTERS.find(c => c.id === chapterId);
+    if (!ch) return { gold: 0, exp: 0, items: [] as string[] };
+    const avgLv = Math.floor((ch.levelRange[0] + ch.levelRange[1]) / 2);
+    const sweepCount = Math.min(count, 10);
+    let totalGold = 0, totalExp = 0;
+    const droppedItems: string[] = [];
+    const reincMults = {
+      gold: state.player.reincPerks?.gold_mult ? (1 + state.player.reincPerks.gold_mult * 0.1) : 1,
+      exp: state.player.reincPerks?.exp_mult ? (1 + state.player.reincPerks.exp_mult * 0.1) : 1,
+    };
+    for (let i = 0; i < sweepCount; i++) {
+      const gold = Math.floor((avgLv * 5 + 10) * (1 + Math.random() * 0.5) * reincMults.gold);
+      const exp = Math.floor((avgLv * 3 + 5) * (1 + Math.random() * 0.5) * reincMults.exp);
+      totalGold += gold;
+      totalExp += exp;
+      if (Math.random() < 0.25 && state.inventory.length < INVENTORY_MAX) {
+        const midStage = Math.floor((ch.stages || 50) / 2) + (chapterId - 1) * 50;
+        const drop = rollEquipDrop(midStage, false);
+        if (drop) {
+          const item = createEquipFromTemplate(drop);
+          state.inventory.push(item);
+          droppedItems.push(`${QUALITY_INFO[item.quality].label}${item.name}`);
+        }
+      }
+    }
+    const updatedPlayer = { ...state.player };
+    updatedPlayer.lingshi += totalGold;
+    updatedPlayer.exp += totalExp;
+    while (updatedPlayer.exp >= expForLevel(updatedPlayer.level)) {
+      updatedPlayer.exp -= expForLevel(updatedPlayer.level);
+      updatedPlayer.level++;
+    }
+    const log = addLog(state.battle.log, `⚡ 扫荡「${ch.name}」×${sweepCount}：+${totalGold}灵石 +${totalExp}经验${droppedItems.length ? ' +' + droppedItems.length + '件装备' : ''}`, 'drop');
+    set({ player: updatedPlayer, inventory: [...state.inventory], battle: { ...state.battle, log } });
+    return { gold: totalGold, exp: totalExp, items: droppedItems };
   },
 
   batchEnhanceEquipped: () => {
