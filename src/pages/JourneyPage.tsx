@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { CHAPTERS, ABYSS_CHAPTER_ID } from '../data/chapters';
+import { EQUIPMENT_TEMPLATES } from '../data/equipment';
+import { QUALITY_INFO } from '../types';
 import { Card, SubPageHeader, SubPage } from './shared';
 
 export function ChapterSelectPage({ onBack }: { onBack: () => void }) {
@@ -10,6 +12,17 @@ export function ChapterSelectPage({ onBack }: { onBack: () => void }) {
   const sweepChapter = useGameStore(s => s.sweepChapter);
   const [expandedChapter, setExpandedChapter] = useState<number | null>(null);
   const [sweepResult, setSweepResult] = useState<{ chId: number; gold: number; exp: number; items: string[] } | null>(null);
+
+  // v72.0: chapter drop preview
+  const chapterDrops = useMemo(() => {
+    const map: Record<number, typeof EQUIPMENT_TEMPLATES> = {};
+    for (const ch of CHAPTERS) {
+      const stageMin = ch.id === 1 ? 1 : CHAPTERS.slice(0, ch.id - 1).reduce((s, c) => s + c.stages, 0) + 1;
+      const stageMax = stageMin + ch.stages - 1;
+      map[ch.id] = EQUIPMENT_TEMPLATES.filter(t => t.dropFromStage >= stageMin && t.dropFromStage <= stageMax);
+    }
+    return map;
+  }, []);
 
   const handleSweep = (e: React.MouseEvent, chId: number) => {
     e.stopPropagation();
@@ -48,20 +61,40 @@ export function ChapterSelectPage({ onBack }: { onBack: () => void }) {
                 </div>
               )}
               {isExpanded && (
-                <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-                  {canTeleport && (
-                    <button className="breakthrough-btn" style={{ fontSize: 13, flex: 1 }}
-                      onClick={(e) => { e.stopPropagation(); goToChapter(ch.id); onBack(); }}>
-                      🚀 传送
-                    </button>
+                <>
+                  <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                    {canTeleport && (
+                      <button className="breakthrough-btn" style={{ fontSize: 13, flex: 1 }}
+                        onClick={(e) => { e.stopPropagation(); goToChapter(ch.id); onBack(); }}>
+                        🚀 传送
+                      </button>
+                    )}
+                    {canSweep && (
+                      <button className="breakthrough-btn" style={{ fontSize: 13, flex: 1, background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
+                        onClick={(e) => handleSweep(e, ch.id)}>
+                        ⚡ 扫荡×10
+                      </button>
+                    )}
+                  </div>
+                  {/* v72.0 掉落预览 */}
+                  {(chapterDrops[ch.id] ?? []).length > 0 && (
+                    <div style={{ marginTop: 8, padding: '6px 8px', background: 'rgba(255,255,255,0.03)', borderRadius: 6 }}>
+                      <div style={{ fontSize: 11, color: '#888', marginBottom: 4 }}>📦 可掉落装备</div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                        {(chapterDrops[ch.id] ?? []).map(t => (
+                          <span key={t.id} style={{
+                            fontSize: 11, padding: '2px 6px', borderRadius: 4,
+                            background: 'rgba(0,0,0,0.3)',
+                            border: `1px solid ${QUALITY_INFO[t.quality]?.color ?? '#555'}`,
+                            color: QUALITY_INFO[t.quality]?.color ?? '#aaa',
+                          }}>
+                            {t.emoji}{t.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
                   )}
-                  {canSweep && (
-                    <button className="breakthrough-btn" style={{ fontSize: 13, flex: 1, background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
-                      onClick={(e) => handleSweep(e, ch.id)}>
-                      ⚡ 扫荡×10
-                    </button>
-                  )}
-                </div>
+                </>
               )}
               {sweepResult && sweepResult.chId === ch.id && (
                 <div style={{ marginTop: 6, padding: '6px 8px', background: 'rgba(99,102,241,0.15)', borderRadius: 6, fontSize: 12 }}>

@@ -552,3 +552,23 @@
 - Build: 408KB/125KB gzip
 - Commit: 756e133, merged to main: cfb9c45
 - CEO直接实现（最高效）
+
+## v70.0「每日挑战」完成（2026-03-05 10:00）
+- 每日挑战系统：13种挑战池每日随机3个
+- 6种追踪维度：击杀/灵石/装备/强化/Boss/暴击
+- 奖励按等级缩放（灵石/蟠桃/碎片/令牌）
+- 新store: dailyChallengeStore.ts
+- 设置页嵌入DailyChallengePanel
+- Build: 478KB precache
+- Commit: 1b0136c, merged to main: 7e75f13
+
+## v71.0「灵脉共鸣」完成（2026-03-05 10:00）
+- 装备共鸣系统：三件同品质装备触发额外加成
+- 6品质阶梯：凡品+5%→鸿蒙+60%攻击/生命 + 暴击/暴伤
+- 队伍页共鸣指示器（金色卡片）
+- 加成总览面板显示共鸣来源
+- 离线收益集成共鸣加成
+- 新文件：src/data/resonance.ts
+- Build: 480KB precache
+- Commit: a576e27, merged to main: a5c5785
+- CEO直接实现（最高效）
