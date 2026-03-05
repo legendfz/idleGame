@@ -23,6 +23,8 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
   const setAutoDecomp = useGameStore(s => s.setAutoDecomposeQuality);
   const autoEquip = useGameStore(s => s.autoEquipOnDrop);
   const setAutoEquip = useGameStore(s => s.setAutoEquipOnDrop);
+  const autoSkill = useGameStore(s => s.autoSkill);
+  const setAutoSkill = useGameStore(s => s.setAutoSkill);
   const DECOMP_LABELS = ['关闭', '凡品', '灵品以下', '仙品以下'];
 
   const toggleAnim = () => {
@@ -133,6 +135,12 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
           <span className="stat-label">掉落自动装备</span>
           <span style={{ color: autoEquip ? 'var(--accent)' : 'var(--dim)' }}>
             {autoEquip ? '✅ 开启' : '关闭'}
+          </span>
+        </div>
+        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoSkill(!autoSkill)}>
+          <span className="stat-label">自动释放技能</span>
+          <span style={{ color: autoSkill ? 'var(--accent)' : 'var(--dim)' }}>
+            {autoSkill ? '✅ 开启' : '关闭'}
           </span>
         </div>
       </Card>
