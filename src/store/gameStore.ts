@@ -75,6 +75,7 @@ interface GameStore {
   sellEquip: (uid: string) => void;
   decomposeEquip: (uid: string) => void;
   batchDecompose: (uids: string[]) => void;
+  toggleLock: (uid: string) => void;
   refineItem: (targetUid: string, materialUids: string[], useTianming?: boolean, usePity?: boolean) => void;
   buyScroll: (type: 'tianming' | 'protect' | 'lucky') => void;
   clearFloatingText: (id: number) => void;
@@ -727,7 +728,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const equipped = [state.equippedWeapon?.uid, state.equippedArmor?.uid, state.equippedTreasure?.uid];
       const toDecomp = updatedInventory.filter(i => {
         const qi = qualityOrder.indexOf(i.quality);
-        return qi < adq && !equipped.includes(i.uid);
+        return qi < adq && !equipped.includes(i.uid) && !i.locked;
       });
       if (toDecomp.length > 0) {
         for (const item of toDecomp) {
@@ -1159,11 +1160,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
     });
   },
 
+  toggleLock: (uid) => {
+    const state = get();
+    set({ inventory: state.inventory.map(i => i.uid === uid ? { ...i, locked: !i.locked } : i) });
+  },
   decomposeEquip: (uid) => {
     const state = get();
     const idx = state.inventory.findIndex(i => i.uid === uid);
     if (idx === -1) return;
     const eq = state.inventory[idx];
+    if (eq.locked) return; // Cannot decompose locked items
     // 分解得灵石 = sellPrice * 0.6，legendary/mythic 额外得鸿蒙碎片
     const sellPrice = Math.floor(getEquipEffectiveStat(eq) * 2 + (eq.level + 1) * 50);
     const decompLingshi = Math.floor(sellPrice * 0.6);
@@ -1188,7 +1194,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const uidSet = new Set(uids);
     const remaining: EquipmentItem[] = [];
     for (const item of state.inventory) {
-      if (uidSet.has(item.uid)) {
+      if (uidSet.has(item.uid) && !item.locked) {
         const sellPrice = Math.floor(getEquipEffectiveStat(item) * 2 + (item.level + 1) * 50);
         totalLingshi += Math.floor(sellPrice * 0.6);
         if (item.quality === 'legendary' || item.quality === 'mythic') totalShards++;

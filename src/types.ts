@@ -186,6 +186,7 @@ export interface EquipmentItem {
   level: number;
   passive?: EquipPassive;
   setId?: string;
+  locked?: boolean;
 }
 
 export interface EquipSet {
