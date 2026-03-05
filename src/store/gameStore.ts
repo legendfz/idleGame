@@ -54,6 +54,7 @@ interface GameStore {
   autoDecomposeQuality: number; // 0=off, 1=common, 2=spirit+below, 3=immortal+below
   autoEquipOnDrop: boolean; // v39.0: auto-equip better drops
   autoSkill: boolean; // v57.0: auto-cast skills when off cooldown
+  autoConsume: boolean; // v63.0: auto-use potions
   onlineRewardsClaimed: number[]; // v57.0: claimed milestone minutes
 
   // Actions
@@ -82,6 +83,7 @@ interface GameStore {
   setAutoDecomposeQuality: (quality: number) => void;
   setAutoEquipOnDrop: (v: boolean) => void;
   setAutoSkill: (v: boolean) => void;
+  setAutoConsume: (v: boolean) => void;
   claimOnlineReward: (minutes: number) => { gold: number; exp: number; pantao: number; desc: string } | null;
   autoEquipBest: () => number;
   quickDecompose: (maxQuality: number) => number;
@@ -321,6 +323,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   autoDecomposeQuality: 1,
   autoEquipOnDrop: true,
   autoSkill: false,
+  autoConsume: false,
   onlineRewardsClaimed: [],
 
   setTab: (tab) => set({ activeTab: tab }),
@@ -329,6 +332,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setAutoDecomposeQuality: (quality) => set({ autoDecomposeQuality: quality }),
   setAutoEquipOnDrop: (v) => set({ autoEquipOnDrop: v }),
   setAutoSkill: (v) => set({ autoSkill: v }),
+  setAutoConsume: (v: boolean) => set({ autoConsume: v }),
   claimOnlineReward: (minutes: number) => {
     const state = get();
     if (state.onlineRewardsClaimed.includes(minutes)) return null;
@@ -448,6 +452,27 @@ export const useGameStore = create<GameStore>((set, get) => ({
       updatedPlayer.activeConsumables = updatedPlayer.activeConsumables
         .map(c => ({ ...c, remainingSec: c.remainingSec - 1 }))
         .filter(c => c.remainingSec > 0);
+    }
+
+    // v63.0: Auto-consume potions when available and no active buff of same type
+    if (state.autoConsume) {
+      const actives = updatedPlayer.activeConsumables ?? [];
+      const activeIds = new Set(actives.map(a => a.buffId));
+      const inv = updatedPlayer.consumableInventory ?? {};
+      const CONSUME_ORDER = ['mega_pill', 'exp_pill', 'gold_pill', 'atk_pill', 'crit_pill', 'drop_pill'];
+      for (const buffId of CONSUME_ORDER) {
+        if ((inv[buffId] ?? 0) > 0 && !activeIds.has(buffId)) {
+          const def = getConsumable(buffId);
+          if (def) {
+            const newInv = { ...inv };
+            newInv[buffId]--;
+            if (newInv[buffId] <= 0) delete newInv[buffId];
+            updatedPlayer.consumableInventory = newInv;
+            updatedPlayer.activeConsumables = [...actives, { buffId, remainingSec: def.durationSec }];
+            break; // one per tick
+          }
+        }
+      }
     }
 
     // v52.0: Apply attack buff from 七十二变
@@ -1318,6 +1343,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       autoDecomposeQuality: state.autoDecomposeQuality,
       autoEquipOnDrop: state.autoEquipOnDrop,
       autoSkill: state.autoSkill,
+      autoConsume: state.autoConsume,
       onlineRewardsClaimed: state.onlineRewardsClaimed,
     } as any;
     localStorage.setItem('xiyou-idle-save', JSON.stringify(save));
@@ -1444,6 +1470,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         autoDecomposeQuality: (save as any).autoDecomposeQuality ?? 0,
         autoEquipOnDrop: (save as any).autoEquipOnDrop ?? true,
         autoSkill: (save as any).autoSkill ?? false,
+        autoConsume: (save as any).autoConsume ?? false,
         onlineRewardsClaimed: [], // reset per session
       });
 
