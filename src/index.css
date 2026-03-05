@@ -4,6 +4,7 @@
    ═══════════════════════════════════════════════════ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
+html { padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
 
 :root {
   /* ── 核心色板：暗黑地牢 ── */
