@@ -6,6 +6,7 @@ import { CHAPTERS, ABYSS_CHAPTER_ID } from '../data/chapters';
 import { ACTIVE_SKILLS } from '../data/skills';
 import { CONSUMABLE_BUFFS } from '../data/consumables';
 import { Card, FloatingDamage, BossToast } from './shared';
+import { WorldBossBanner, WorldBossModal } from '../components/WorldBossPanel';
 
 const SPEED_OPTIONS = [1, 2, 5, 10];
 type LogFilter = 'all' | 'drop' | 'levelup' | 'boss' | 'crit';
@@ -71,9 +72,13 @@ export function BattleView() {
 
   const useSkill = useGameStore(s => s.useSkill);
   const activeSkills = useGameStore(s => s.player.activeSkills);
+  const [showWorldBoss, setShowWorldBoss] = useState(false);
 
   return (
     <div className="main-content fade-in">
+      {/* World Boss Banner */}
+      <WorldBossBanner onOpen={() => setShowWorldBoss(true)} />
+      {showWorldBoss && <WorldBossModal onClose={() => setShowWorldBoss(false)} />}
       {/* Scrolling tip */}
       <div className="battle-tip-marquee">
         <span className="battle-tip-text">{tip}</span>
