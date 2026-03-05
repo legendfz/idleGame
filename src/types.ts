@@ -38,6 +38,10 @@ export interface PlayerState {
   // v53.0 消耗品
   consumableInventory: Record<string, number>;  // buffId → count
   activeConsumables: ActiveConsumable[];
+  // v55.0 轮回试炼
+  trialTokens: number;
+  trialBestFloor: number;
+  trialShopPurchases: Record<string, number>; // shopItemId → count
 }
 
 export interface ActiveSkillState {
@@ -211,7 +215,7 @@ export interface GameSettings {
   soundVolume: number;
 }
 
-export type TabId = 'battle' | 'team' | 'journey' | 'bag' | 'achievement' | 'settings' | 'stats' | 'reincarnation' | 'sanctuary' | 'exploration' | 'affinity';
+export type TabId = 'battle' | 'team' | 'journey' | 'bag' | 'achievement' | 'settings' | 'stats' | 'reincarnation' | 'sanctuary' | 'exploration' | 'affinity' | 'trial';
 
 /** Floating damage text */
 export interface FloatingText {

@@ -27,6 +27,7 @@ import { SettingsView } from './pages/SettingsPage';
 import { ReincarnationPanel } from './components/ReincarnationPanel';
 import { DailyPanel } from './components/DailyPanel';
 import { LuckyWheel } from './components/LuckyWheel';
+import { TrialPanel } from './components/TrialPanel';
 import { useDailyStore } from './store/dailyStore';
 import { useSanctuaryStore } from './store/sanctuaryStore';
 import { useExplorationStore } from './store/explorationStore';
@@ -45,6 +46,7 @@ const ALL_TABS = [
   { id: 'sanctuary' as const, icon: '府', label: '洞天', unlockLevel: 20 },
   { id: 'exploration' as const, icon: '境', label: '秘境', unlockLevel: 30 },
   { id: 'affinity' as const, icon: '缘', label: '仙缘', unlockLevel: 40 },
+  { id: 'trial' as const, icon: '劫', label: '试炼', unlockLevel: 60 },
   { id: 'settings' as const, icon: '设', label: '更多', unlockLevel: 0 },
 ];
 
@@ -247,6 +249,7 @@ export default function App() {
       case 'exploration': return <Suspense fallback={<LazyFallback />}><ExplorationPanel /></Suspense>;
       case 'affinity': return <Suspense fallback={<LazyFallback />}><AffinityPanel /></Suspense>;
       case 'stats': return <Suspense fallback={<LazyFallback />}><StatsView /></Suspense>;
+      case 'trial': return <TrialPanel />;
       case 'settings': return <SettingsView setSubPage={setSubPage} />;
       default: return <BattleView />;
     }
