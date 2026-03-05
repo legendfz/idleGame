@@ -18,6 +18,7 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
   const sellEquip = useGameStore(s => s.sellEquip);
   const decomposeEquip = useGameStore(s => s.decomposeEquip);
   const batchDecompose = useGameStore(s => s.batchDecompose);
+  const toggleLock = useGameStore(s => s.toggleLock);
   const player = useGameStore(s => s.player);
   const autoEquipBest = useGameStore(s => s.autoEquipBest);
   const quickDecompose = useGameStore(s => s.quickDecompose);
@@ -31,7 +32,7 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
 
   const smartRecommend = () => {
     const qualityOrder = Object.keys(QUALITY_INFO);
-    const sorted = [...inventory].sort((a, b) => {
+    const sorted = [...inventory].filter(i => !i.locked).sort((a, b) => {
       const qa = qualityOrder.indexOf(a.quality), qb = qualityOrder.indexOf(b.quality);
       if (qa !== qb) return qa - qb;
       return a.level - b.level;
@@ -164,11 +165,11 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
         return (
           <Card key={item.uid} className="inv-item-card" borderColor={qi.color}
             style={{ background: decomposeMode && isSelected ? 'rgba(244,67,54,0.1)' : undefined, cursor: decomposeMode ? 'pointer' : undefined }}
-            onClick={decomposeMode ? () => toggleSelect(item.uid) : undefined}>
+            onClick={decomposeMode ? () => { if (!item.locked) toggleSelect(item.uid); } : undefined}>
             <div className="equip-header">
               <span style={{ color: qi.color }}>
                 {decomposeMode && <span style={{ marginRight: 4 }}>{isSelected ? '[x]' : '[ ]'}</span>}
-                {qi.symbol} {item.name} {item.level > 0 ? `+${item.level}` : ''}
+                {item.locked ? '🔒' : ''}{qi.symbol} {item.name} {item.level > 0 ? `+${item.level}` : ''}
               </span>
               <span style={{ color: qi.color, fontSize: 11 }}>{qi.label}</span>
             </div>
@@ -212,8 +213,10 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
             {!decomposeMode && (
               <div className="equip-actions">
                 <button className="small-btn accent" onClick={() => equipItem(item)}>装备</button>
+                <button className="small-btn" onClick={() => toggleLock(item.uid)}>{item.locked ? '🔓解锁' : '🔒锁定'}</button>
                 <button className="small-btn" onClick={() => setSubPage({ type: 'equipDetail', item, location: 'inventory' })}>详情</button>
                 <button className="small-btn" onClick={() => {
+                  if (item.locked) { alert('装备已锁定，无法分解'); return; }
                   if (confirm(`确定分解 ${qi.symbol}${item.name}？获得 ${decompLingshi} 灵石`)) decomposeEquip(item.uid);
                 }}>分解</button>
                 <button className="small-btn danger" onClick={() => {
