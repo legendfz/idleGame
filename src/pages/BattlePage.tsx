@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useGameStore } from '../store/gameStore';
+import { useDailyStore } from '../store/dailyStore';
 import { formatNumber, expForLevel, formatTime } from '../utils/format';
 import { REALMS } from '../data/realms';
 import { CHAPTERS, ABYSS_CHAPTER_ID } from '../data/chapters';
@@ -77,6 +78,50 @@ export function BattleView() {
   const onlineRewardsClaimed = useGameStore(s => s.onlineRewardsClaimed);
   const claimOnlineReward = useGameStore(s => s.claimOnlineReward);
   const [rewardToast, setRewardToast] = useState<string | null>(null);
+  const highestPower = useGameStore(s => s.highestPower);
+  const dailyCanSignIn = useDailyStore(s => s.canSignIn);
+  const dailySignIn = useDailyStore(s => s.signIn);
+  const dailyCheckCanSignIn = useDailyStore(s => s.checkCanSignIn);
+
+  // v58.0: one-click collect all pending rewards
+  const collectAll = useCallback(() => {
+    const msgs: string[] = [];
+    // 1) Daily sign-in
+    dailyCheckCanSignIn();
+    const dailyResult = dailySignIn();
+    if (dailyResult) {
+      const r = dailyResult.reward;
+      // Apply daily rewards to game store
+      const state = useGameStore.getState();
+      const updates: any = {};
+      if (r.lingshi) updates.lingshi = state.player.lingshi + r.lingshi;
+      if (r.pantao) updates.pantao = state.player.pantao + r.pantao;
+      if (r.shards) updates.hongmengShards = state.player.hongmengShards + r.shards;
+      if (Object.keys(updates).length > 0) {
+        useGameStore.setState({ player: { ...state.player, ...updates } });
+      }
+      msgs.push(`📅签到: ${r.desc}`);
+    }
+    // 2) Online milestones
+    const milestones = [10, 30, 60, 120, 240];
+    for (const m of milestones) {
+      const r = claimOnlineReward(m);
+      if (r) msgs.push(`⏱${r.desc}`);
+    }
+    if (msgs.length > 0) {
+      setRewardToast(`🎁 一键收取 ${msgs.length} 项奖励！\n${msgs.join(' | ')}`);
+      setTimeout(() => setRewardToast(null), 4000);
+    } else {
+      setRewardToast('暂无可领取的奖励');
+      setTimeout(() => setRewardToast(null), 2000);
+    }
+  }, [claimOnlineReward, dailySignIn, dailyCheckCanSignIn]);
+
+  // Check if there are unclaimed rewards
+  const hasUnclaimedRewards = useMemo(() => {
+    const unclaimedMilestones = [10, 30, 60, 120, 240].some(m => sessionMinutes >= m && !onlineRewardsClaimed.includes(m));
+    return unclaimedMilestones || dailyCanSignIn;
+  }, [sessionMinutes, onlineRewardsClaimed, dailyCanSignIn]);
 
   return (
     <div className="main-content fade-in">
@@ -166,6 +211,7 @@ export function BattleView() {
           <span className="color-hp">❤ {formatNumber(eStats.maxHp)}</span>
           <span className="color-crit">💥 {eStats.critRate.toFixed(0)}%</span>
           <span style={{ color: '#ffcc00', fontWeight: 700 }}>⭐ {formatNumber(Math.floor(eStats.attack * (1 + (eStats.critRate / 100) * ((eStats.critDmg || 150) / 100)) + eStats.maxHp * 0.05))}</span>
+          {highestPower > 0 && <span style={{ color: '#888', fontSize: 10 }}>🏆{formatNumber(highestPower)}</span>}
           {killStreak >= 10 && (
             <span style={{ color: killStreak >= 100 ? '#ff4444' : killStreak >= 50 ? '#ff8800' : '#ffaa00', fontWeight: 700 }}>
               🔥{killStreak}
@@ -179,6 +225,9 @@ export function BattleView() {
           {'  '}<span className="color-exp">📖+{formatNumber(Math.floor(idleStats.expPerSec))}/s</span>
           {'  '}<span className="color-crit">⚔DPS {formatNumber(Math.floor(idleStats.dps))}</span>
           {'  '}<span className="color-dim">⏱{formatTime(idleStats.sessionTime)}</span>
+          {idleStats.sessionTime > 60 && <>
+            {'  '}<span style={{color:'#a78bfa',fontSize:10}}>💎{formatNumber(Math.floor(idleStats.goldPerSec * 60))}/m</span>
+          </>}
         </div>
       </Card>
 
@@ -194,6 +243,19 @@ export function BattleView() {
           ))}
         </div>
       </Card>
+      {/* v58.0: One-click collect all */}
+      {hasUnclaimedRewards && (
+        <div style={{ textAlign: 'center', margin: '6px 0' }}>
+          <button onClick={collectAll} style={{
+            fontSize: 13, padding: '6px 20px', borderRadius: 12, cursor: 'pointer',
+            background: 'linear-gradient(135deg, #f59e0b, #ef4444)', border: 'none',
+            color: '#fff', fontWeight: 700, animation: 'levelUpGlow 1.5s ease-in-out infinite',
+            boxShadow: '0 2px 12px rgba(245,158,11,0.4)',
+          }}>
+            🎁 一键收取所有奖励
+          </button>
+        </div>
+      )}
       <OnlineRewardsBar
         sessionMinutes={sessionMinutes}
         claimed={onlineRewardsClaimed}
