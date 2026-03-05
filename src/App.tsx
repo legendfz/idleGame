@@ -24,11 +24,11 @@ import { EquipDetailPage, RefinePage } from './pages/EquipmentPage';
 import { ShopPage, SaveManagerPage } from './pages/ShopSavePage';
 import { BagView } from './pages/BagPage';
 import { SettingsView } from './pages/SettingsPage';
-import { ReincarnationPanel } from './components/ReincarnationPanel';
-import { DailyPanel } from './components/DailyPanel';
-import { LuckyWheel } from './components/LuckyWheel';
-import { TrialPanel } from './components/TrialPanel';
-import { AwakeningPanel } from './components/AwakeningPanel';
+const ReincarnationPanel = lazy(() => import('./components/ReincarnationPanel').then(m => ({ default: m.ReincarnationPanel })));
+const DailyPanel = lazy(() => import('./components/DailyPanel').then(m => ({ default: m.DailyPanel })));
+const LuckyWheel = lazy(() => import('./components/LuckyWheel').then(m => ({ default: m.LuckyWheel })));
+const TrialPanel = lazy(() => import('./components/TrialPanel').then(m => ({ default: m.TrialPanel })));
+const AwakeningPanel = lazy(() => import('./components/AwakeningPanel').then(m => ({ default: m.AwakeningPanel })));
 import { useDailyStore } from './store/dailyStore';
 import { useSanctuaryStore } from './store/sanctuaryStore';
 import { useExplorationStore } from './store/explorationStore';
@@ -242,10 +242,10 @@ export default function App() {
         <div className="main-content fade-in"><SubPageHeader title="排行榜" onBack={goBack} /><Leaderboard /></div>
       );
       case 'daily': return (
-        <div className="main-content fade-in"><SubPageHeader title="每日签到" onBack={goBack} /><DailyPanel /></div>
+        <div className="main-content fade-in"><SubPageHeader title="每日签到" onBack={goBack} /><Suspense fallback={<LazyFallback />}><DailyPanel /></Suspense></div>
       );
       case 'wheel': return (
-        <div className="main-content fade-in"><SubPageHeader title="天道轮盘" onBack={goBack} /><LuckyWheel /></div>
+        <div className="main-content fade-in"><SubPageHeader title="天道轮盘" onBack={goBack} /><Suspense fallback={<LazyFallback />}><LuckyWheel /></Suspense></div>
       );
       default: return null;
     }
@@ -259,13 +259,13 @@ export default function App() {
       case 'journey': return <JourneyView setSubPage={setSubPage} />;
       case 'bag': return <BagView setSubPage={setSubPage} />;
       case 'achievement': return <div className="main-content fade-in"><AchievementList /></div>;
-      case 'reincarnation': return <ReincarnationPanel />;
+      case 'reincarnation': return <Suspense fallback={<LazyFallback />}><ReincarnationPanel /></Suspense>;
       case 'sanctuary': return <Suspense fallback={<LazyFallback />}><SanctuaryPanel /></Suspense>;
       case 'exploration': return <Suspense fallback={<LazyFallback />}><ExplorationPanel /></Suspense>;
       case 'affinity': return <Suspense fallback={<LazyFallback />}><AffinityPanel /></Suspense>;
       case 'stats': return <Suspense fallback={<LazyFallback />}><StatsView /></Suspense>;
-      case 'trial': return <TrialPanel />;
-      case 'awakening': return <AwakeningPanel />;
+      case 'trial': return <Suspense fallback={<LazyFallback />}><TrialPanel /></Suspense>;
+      case 'awakening': return <Suspense fallback={<LazyFallback />}><AwakeningPanel /></Suspense>;
       case 'settings': return <SettingsView setSubPage={setSubPage} />;
       default: return <BattleView />;
     }
