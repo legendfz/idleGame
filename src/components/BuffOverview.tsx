@@ -11,6 +11,8 @@ import { BUILDINGS, getBuildingOutput } from '../engine/sanctuary';
 import { getAwakeningBonuses } from './AwakeningPanel';
 import { CONSUMABLE_BUFFS } from '../data/consumables';
 import { formatNumber } from '../utils/format';
+import { useAffinityStore } from '../store/affinityStore';
+import { AFFINITY_NPCS } from '../engine/affinity';
 
 interface BuffSource {
   system: string;
@@ -95,7 +97,18 @@ export function BuffOverview() {
     }
     if (sancBuffs.length > 0) result.push({ system: '洞天', icon: '🏠', color: '#8d6e63', buffs: sancBuffs });
 
-    // 7. Reincarnation count
+    // 7. Affinity (仙缘)
+    const afState = useAffinityStore.getState().affinity;
+    const afBuffs: { label: string; value: string }[] = [];
+    for (const npc of AFFINITY_NPCS) {
+      const lv = afState.levels[npc.id] ?? 0;
+      for (const b of npc.buffs) {
+        if (lv >= b.threshold) afBuffs.push({ label: `${npc.name} (${lv})`, value: b.desc });
+      }
+    }
+    if (afBuffs.length > 0) result.push({ system: '仙缘', icon: '💕', color: '#f48fb1', buffs: afBuffs });
+
+    // 8. Reincarnation count
     const reincCount = player.reincarnations ?? 0;
     if (reincCount > 0) {
       result.push({ system: '轮回', icon: '♾️', color: '#ce93d8', buffs: [{ label: `转世 ${reincCount} 次`, value: `道点可用` }] });

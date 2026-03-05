@@ -23,8 +23,8 @@ import {
 } from '../data/equipment';
 import { calculateOfflineEarnings } from '../engine/offline';
 import { useSanctuaryStore } from './sanctuaryStore';
-import { useExplorationStore } from './explorationStore';
 import { useAffinityStore } from './affinityStore';
+import { useExplorationStore } from './explorationStore';
 
 let logIdCounter = 0;
 let floatIdCounter = 0;
@@ -242,6 +242,15 @@ function calcEffectiveStats(
         break;
     }
   }
+  // v62.0: Affinity buffs (仙缘加成)
+  const affinityBuffs = useAffinityStore.getState().getBuffs();
+  if (affinityBuffs.attack) s.attack = Math.floor(s.attack * (1 + affinityBuffs.attack / 100));
+  if (affinityBuffs.maxHp) s.maxHp = Math.floor(s.maxHp * (1 + affinityBuffs.maxHp / 100));
+  if (affinityBuffs.critRate) s.critRate = Math.min(100, s.critRate + affinityBuffs.critRate);
+  if (affinityBuffs.critDmg) s.critDmg += affinityBuffs.critDmg / 100;
+  if (affinityBuffs.speed) s.speed += affinityBuffs.speed / 100;
+  // defense buff stored but not on Stats type — applied as maxHp proxy
+  if (affinityBuffs.defense) s.maxHp = Math.floor(s.maxHp * (1 + affinityBuffs.defense / 100));
   return s;
 }
 
@@ -520,8 +529,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
         log = addLog(log, `🎉 击杀里程碑「${ms.label}」！灵石+${ms.gold}${ms.pantao ? ` 蟠桃+${ms.pantao}` : ''}`, 'levelup');
       }
 
-      const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus) * (1 + (awk.gold_pct ?? 0) / 100));
-      const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100));
+      // v62.0: Affinity lingshi/exp multipliers
+      const afBuf = useAffinityStore.getState().getBuffs();
+      const afLingshi = 1 + (afBuf.lingshiMul ?? 0) / 100;
+      const afExp = 1 + (afBuf.expMul ?? 0) / 100;
+      const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus) * (1 + (awk.gold_pct ?? 0) / 100) * afLingshi);
+      const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100) * afExp);
       updatedPlayer.lingshi += lingshiDrop;
       updatedPlayer.totalGoldEarned = (updatedPlayer.totalGoldEarned || 0) + lingshiDrop;
       updatedPlayer.exp += expDrop;
