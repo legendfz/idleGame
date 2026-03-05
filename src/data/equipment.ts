@@ -256,11 +256,11 @@ export const SCROLL_PRICES = {
 };
 
 /** Roll equipment drop from a boss kill at given stage */
-export function rollEquipDrop(stageIndex: number, isBoss: boolean): EquipmentTemplate | null {
+export function rollEquipDrop(stageIndex: number, isBoss: boolean, dropBonus = 0): EquipmentTemplate | null {
   // Only bosses drop equipment (with a base chance)
   if (!isBoss) {
-    // Small chance for mobs
-    if (Math.random() > 0.02) return null;
+    // Small chance for mobs, boosted by dropBonus
+    if (Math.random() > 0.02 * (1 + dropBonus)) return null;
   }
 
   const pool = EQUIPMENT_TEMPLATES.filter(e => stageIndex >= e.dropFromStage);

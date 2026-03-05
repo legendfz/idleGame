@@ -525,3 +525,21 @@
 - Build: 399KB/122KB gzip
 - Commit: 5375821, merged to main: 6f5c167
 - CEO直接实现（最高效）
+
+## v65.0「天机妙算」完成（2026-03-05 07:00）
+- 智能行动提示：战斗页最多4个提示（突破/转世/签到/洞天/秘境/觉醒）
+- 安全区适配：env(safe-area-inset) for notch phones
+- 底部导航横滑：overflow-x: auto, min-width: 48px per tab
+- Build: 460KB precache
+- Commit: eec76b0, merged to main: c31f4ae
+- CEO直接实现（最高效）
+
+## v66.0「天命抉择」完成（2026-03-05 07:00）
+- 随机事件系统：6种事件×2-3选择分支，每80杀触发
+- 事件类型：云游商人/宝箱/灵泉/仙人/伏击/遗迹
+- 风险/安全策略选择，奖励按level/10缩放
+- 新文件：src/data/randomEvents.ts
+- 全屏Modal弹窗+暗金仙侠风格CSS
+- Build: 468KB precache
+- Commit: 1a5212f, merged to main: f508f4f
+- CEO直接实现（最高效）

@@ -1,5 +1,5 @@
 import { useGameStore } from '../store/gameStore';
-import { REINC_PERKS, REINC_MIN_REALM, REINC_MIN_LEVEL, calcDaoPoints } from '../data/reincarnation';
+import { REINC_PERKS, REINC_MIN_REALM, REINC_MIN_LEVEL, calcDaoPoints, REINC_MILESTONES } from '../data/reincarnation';
 import { REALMS } from '../data/realms';
 
 export function ReincarnationPanel() {
@@ -61,6 +61,32 @@ export function ReincarnationPanel() {
             </div>
           </div>
         )}
+      </div>
+
+      {/* v67.0 Milestones */}
+      <h3 className="section-title" style={{ marginTop: 20 }}>转世里程碑</h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
+        {REINC_MILESTONES.map(m => {
+          const achieved = player.reincarnations >= m.reincCount;
+          return (
+            <div key={m.reincCount} className="card" style={{
+              display: 'flex', alignItems: 'center', gap: 12,
+              opacity: achieved ? 1 : 0.45,
+              border: achieved ? '1px solid var(--accent)' : undefined,
+            }}>
+              <div style={{ fontSize: 22, minWidth: 36, textAlign: 'center' }}>{m.icon}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 'bold', color: achieved ? 'var(--accent)' : 'var(--text-dim)' }}>
+                  {m.title}
+                  <span style={{ fontSize: 11, marginLeft: 6, color: 'var(--text-dim)' }}>({m.reincCount}次转世)</span>
+                </div>
+                <div style={{ fontSize: 12, color: achieved ? '#4ade80' : 'var(--text-dim)', marginTop: 2 }}>
+                  {achieved ? '✓ ' : ''}{m.desc}
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Perks */}

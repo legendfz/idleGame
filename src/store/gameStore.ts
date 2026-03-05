@@ -10,7 +10,7 @@ import { ACHIEVEMENTS as ACHIEVEMENTS_DATA } from '../data/achievements';
 import { CHAPTERS, createEnemy, ABYSS_CHAPTER_ID } from '../data/chapters';
 import { expForLevel } from '../utils/format';
 import { sfx } from '../engine/audio';
-import { calcDaoPoints, REINC_PERKS, REINC_MIN_REALM, REINC_MIN_LEVEL } from '../data/reincarnation';
+import { calcDaoPoints, REINC_PERKS, REINC_MIN_REALM, REINC_MIN_LEVEL, getReincMilestoneBonus } from '../data/reincarnation';
 import { ACTIVE_SKILLS } from '../data/skills';
 import { getAwakeningBonuses } from '../components/AwakeningPanel';
 import {
@@ -375,10 +375,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const cEffect = getActiveConsumableEffects(player.activeConsumables ?? []);
     // v59.0 觉醒加成
     const awk = getAwakeningBonuses(player);
-    effectiveStats.attack = Math.floor(effectiveStats.attack * atkMul * (1 + (cEffect.atkMult ?? 0)) * (1 + (awk.atk_pct ?? 0) / 100));
-    effectiveStats.maxHp = Math.floor(effectiveStats.maxHp * (1 + (awk.hp_pct ?? 0) / 100));
-    effectiveStats.critRate = Math.min(100, effectiveStats.critRate + (cEffect.critRateAdd ?? 0) + (awk.crit_rate ?? 0));
-    effectiveStats.critDmg = (effectiveStats.critDmg ?? 150) + (awk.crit_dmg ?? 0);
+    // v67.0 转世里程碑加成
+    const rmb = getReincMilestoneBonus(player.reincarnations);
+    effectiveStats.attack = Math.floor(effectiveStats.attack * atkMul * (1 + (cEffect.atkMult ?? 0)) * (1 + (awk.atk_pct ?? 0) / 100) * (1 + rmb.atk));
+    effectiveStats.maxHp = Math.floor(effectiveStats.maxHp * (1 + (awk.hp_pct ?? 0) / 100) * (1 + rmb.hp));
+    effectiveStats.critRate = Math.min(100, effectiveStats.critRate + (cEffect.critRateAdd ?? 0) + (awk.crit_rate ?? 0) + rmb.crit);
+    effectiveStats.critDmg = (effectiveStats.critDmg ?? 150) + (awk.crit_dmg ?? 0) + rmb.critDmg * 100;
 
     const enemy = { ...battle.currentEnemy };
     let log = [...battle.log];
@@ -558,8 +560,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const afBuf = useAffinityStore.getState().getBuffs();
       const afLingshi = 1 + (afBuf.lingshiMul ?? 0) / 100;
       const afExp = 1 + (afBuf.expMul ?? 0) / 100;
-      const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus) * (1 + (awk.gold_pct ?? 0) / 100) * afLingshi);
-      const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100) * afExp);
+      const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus) * (1 + (awk.gold_pct ?? 0) / 100) * afLingshi * (1 + rmb.gold));
+      const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100) * afExp * (1 + rmb.exp));
       updatedPlayer.lingshi += lingshiDrop;
       updatedPlayer.totalGoldEarned = (updatedPlayer.totalGoldEarned || 0) + lingshiDrop;
       updatedPlayer.exp += expDrop;
@@ -588,7 +590,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       // Equipment drop (with inventory limit check — T-100 fix)
       if (updatedInventory.length < INVENTORY_MAX) {
         const globalStage = getGlobalStage(updatedBattle.chapterId, updatedBattle.stageNum);
-        const eqDrop = rollEquipDrop(globalStage, enemy.isBoss);
+        const dropMul = REINC_PERKS.find(p => p.id === 'drop_mult')!.effect(updatedPlayer.reincPerks?.['drop_mult'] ?? 0) - 1 + rmb.drop;
+        const eqDrop = rollEquipDrop(globalStage, enemy.isBoss, dropMul);
         if (eqDrop) {
           const newItem = createEquipFromTemplate(eqDrop);
           updatedInventory.push(newItem);
