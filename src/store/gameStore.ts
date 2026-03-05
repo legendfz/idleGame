@@ -58,6 +58,7 @@ interface GameStore {
   autoConsume: boolean; // v63.0: auto-use potions
   autoWorldBoss: boolean; // v72.0: auto-attack world boss
   onlineRewardsClaimed: number[]; // v57.0: claimed milestone minutes
+  fateBlessing: { active: boolean; expiresAt: number }; // v73.0: double gains buff
 
   // Actions
   setTab: (tab: TabId) => void;
@@ -88,6 +89,7 @@ interface GameStore {
   setAutoSkill: (v: boolean) => void;
   setAutoConsume: (v: boolean) => void;
   setAutoWorldBoss: (v: boolean) => void;
+  activateFateBlessing: () => boolean;
   claimOnlineReward: (minutes: number) => { gold: number; exp: number; pantao: number; desc: string } | null;
   autoEquipBest: () => number;
   quickDecompose: (maxQuality: number) => number;
@@ -342,6 +344,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   autoConsume: false,
   autoWorldBoss: false,
   onlineRewardsClaimed: [],
+  fateBlessing: { active: false, expiresAt: 0 },
 
   setTab: (tab) => set({ activeTab: tab }),
   dismissOfflineReport: () => set({ offlineReport: null }),
@@ -351,6 +354,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setAutoSkill: (v) => set({ autoSkill: v }),
   setAutoConsume: (v: boolean) => set({ autoConsume: v }),
   setAutoWorldBoss: (v: boolean) => set({ autoWorldBoss: v }),
+  activateFateBlessing: () => {
+    const state = get();
+    if (state.player.tianmingScrolls <= 0) return false;
+    const now = Date.now();
+    if (state.fateBlessing.active && state.fateBlessing.expiresAt > now) return false; // already active
+    const updatedPlayer = { ...state.player, tianmingScrolls: state.player.tianmingScrolls - 1 };
+    set({ player: updatedPlayer, fateBlessing: { active: true, expiresAt: now + 2 * 60 * 60 * 1000 } });
+    return true;
+  },
   claimOnlineReward: (minutes: number) => {
     const state = get();
     if (state.onlineRewardsClaimed.includes(minutes)) return null;
@@ -442,6 +454,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
       if (skillState.buffs[sid] <= 0) delete skillState.buffs[sid];
     }
     updatedPlayer.activeSkills = skillState;
+
+    // v73.0: Expire fate blessing
+    if (state.fateBlessing.active && state.fateBlessing.expiresAt <= Date.now()) {
+      set({ fateBlessing: { active: false, expiresAt: 0 } });
+    }
 
     // v57.0: Auto-cast skills when off cooldown
     if (state.autoSkill) {
@@ -580,8 +597,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const afBuf = useAffinityStore.getState().getBuffs();
       const afLingshi = 1 + (afBuf.lingshiMul ?? 0) / 100;
       const afExp = 1 + (afBuf.expMul ?? 0) / 100;
-      const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus) * (1 + (awk.gold_pct ?? 0) / 100) * afLingshi * (1 + rmb.gold));
-      const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100) * afExp * (1 + rmb.exp));
+      const fateMul = (state.fateBlessing.active && state.fateBlessing.expiresAt > Date.now()) ? 2 : 1;
+      const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus) * (1 + (awk.gold_pct ?? 0) / 100) * afLingshi * (1 + rmb.gold) * fateMul);
+      const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100) * afExp * (1 + rmb.exp) * fateMul);
       updatedPlayer.lingshi += lingshiDrop;
       updatedPlayer.totalGoldEarned = (updatedPlayer.totalGoldEarned || 0) + lingshiDrop;
       updatedPlayer.exp += expDrop;
@@ -1374,6 +1392,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       autoSkill: state.autoSkill,
       autoConsume: state.autoConsume,
       autoWorldBoss: state.autoWorldBoss,
+      fateBlessing: state.fateBlessing,
       onlineRewardsClaimed: state.onlineRewardsClaimed,
     } as any;
     localStorage.setItem('xiyou-idle-save', JSON.stringify(save));
@@ -1502,6 +1521,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         autoSkill: (save as any).autoSkill ?? false,
         autoConsume: (save as any).autoConsume ?? false,
         autoWorldBoss: (save as any).autoWorldBoss ?? false,
+        fateBlessing: (save as any).fateBlessing ?? { active: false, expiresAt: 0 },
         onlineRewardsClaimed: [], // reset per session
       });
 
