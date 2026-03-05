@@ -66,7 +66,7 @@ interface GameStore {
   clickAttack: () => void;
   attemptBreakthrough: () => void;
   reincarnate: () => void;
-  buyReincPerk: (perkId: string) => void;
+  buyReincPerk: (perkId: string, maxBuy?: boolean) => void;
   getReincMultiplier: (perkId: string) => number;
   dismissOfflineReport: () => void;
   save: () => void;
@@ -778,23 +778,27 @@ export const useGameStore = create<GameStore>((set, get) => ({
       }
     }
 
-    // v32.0: Auto-breakthrough when conditions met
+    // v76.0: Auto-breakthrough triggers tribulation (no longer bypasses 天劫)
     const autoBreakNext = REALMS[updatedPlayer.realmIndex + 1];
-    if (autoBreakNext && updatedPlayer.level >= autoBreakNext.levelReq && updatedPlayer.pantao >= autoBreakNext.pantaoReq) {
-      updatedPlayer = { ...updatedPlayer,
-        pantao: updatedPlayer.pantao - autoBreakNext.pantaoReq,
-        realmIndex: updatedPlayer.realmIndex + 1,
-        totalBreakthroughs: updatedPlayer.totalBreakthroughs + 1,
-        stats: { ...updatedPlayer.stats,
-          attack: Math.floor(updatedPlayer.stats.attack * 1.5),
-          maxHp: Math.floor(updatedPlayer.stats.maxHp * 1.5),
-          hp: Math.floor(updatedPlayer.stats.maxHp * 1.5),
-        },
-      };
+    if (autoBreakNext && updatedPlayer.level >= autoBreakNext.levelReq && updatedPlayer.pantao >= autoBreakNext.pantaoReq && !updatedBattle.tribulation?.active) {
+      const tribNames = ['雷劫', '火劫', '风劫', '心魔', '天劫', '九天雷罚', '混沌劫', '灭世天劫', '鸿蒙劫'];
+      const tribEmojis = ['[雷]', '[火]', '[风]', '[魔]', '[劫]', '[雷]', '[混]', '[灭]', '[鸿]'];
+      const ri = updatedPlayer.realmIndex;
+      const tribHp = Math.floor(updatedPlayer.stats.maxHp * (3 + ri * 2));
+      const tribDef = Math.floor(updatedPlayer.stats.attack * 0.15 * (1 + ri * 0.3));
+      const tribName = tribNames[Math.min(ri, tribNames.length - 1)];
+      const tribEmoji = tribEmojis[Math.min(ri, tribEmojis.length - 1)];
+      updatedPlayer = { ...updatedPlayer, pantao: updatedPlayer.pantao - autoBreakNext.pantaoReq };
       updatedBattle = { ...updatedBattle,
-        log: addLog(updatedBattle.log, `境界突破！「${autoBreakNext.name}」— ${autoBreakNext.bonus}`, 'levelup'),
+        currentEnemy: {
+          name: tribName, emoji: tribEmoji, hp: tribHp, maxHp: tribHp, defense: tribDef,
+          lingshiDrop: 0, expDrop: 0, pantaoDrop: Math.floor(autoBreakNext.pantaoReq * 0.3), isBoss: true,
+        },
+        isBossWave: true,
+        tribulation: { active: true, realmIndex: updatedPlayer.realmIndex + 1, timer: 60 + ri * 10 },
+        log: addLog(updatedBattle.log, `⚡ 自动渡劫！「${tribName}」降临 — ${60 + ri * 10}秒限时！`, 'boss'),
       };
-      sfx.breakthrough();
+      sfx.bossAppear();
     }
 
     set({
@@ -930,7 +934,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     sfx.breakthrough();
   },
 
-  buyReincPerk: (perkId: string) => {
+  buyReincPerk: (perkId: string, maxBuy?: boolean) => {
     const { player } = get();
     const perk = REINC_PERKS.find(p => p.id === perkId);
     if (!perk) return;
@@ -938,11 +942,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (currentLv >= perk.maxLevel) return;
     if (player.daoPoints < perk.costPerLevel) return;
 
+    const affordable = Math.floor(player.daoPoints / perk.costPerLevel);
+    const remaining = perk.maxLevel - currentLv;
+    const count = maxBuy ? Math.min(affordable, remaining) : 1;
+    if (count <= 0) return;
+
     set({
       player: {
         ...player,
-        daoPoints: player.daoPoints - perk.costPerLevel,
-        reincPerks: { ...player.reincPerks, [perkId]: currentLv + 1 },
+        daoPoints: player.daoPoints - perk.costPerLevel * count,
+        reincPerks: { ...player.reincPerks, [perkId]: currentLv + count },
       },
     });
     sfx.click();
