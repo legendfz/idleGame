@@ -19,6 +19,12 @@ export function DailyPanel() {
       if (r.shards) p.hongmengShards += r.shards;
       if (r.scrollType === 'tianming') p.tianmingScrolls += 1;
       if (r.scrollType === 'lucky') p.luckyScrolls += 1;
+      // v53.0: Consumable rewards
+      if (r.consumable) {
+        const inv = { ...(p.consumableInventory ?? {}) };
+        inv[r.consumable.id] = (inv[r.consumable.id] ?? 0) + r.consumable.count;
+        p.consumableInventory = inv;
+      }
       return { player: p };
     });
     useGameStore.getState().save();
