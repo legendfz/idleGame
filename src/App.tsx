@@ -40,6 +40,20 @@ import { getCurrentWorldBoss } from './data/worldBoss';
 
 const LazyFallback = () => <div style={{ padding: 40, textAlign: 'center', color: '#aaa' }}>加载中...</div>;
 
+function TitleToast() {
+  const titleToast = useGameStore(s => s.titleToast);
+  if (!titleToast) return null;
+  return (
+    <div style={{
+      position: 'fixed', top: '20%', left: '50%', transform: 'translateX(-50%)',
+      background: 'linear-gradient(135deg, #f0c040, #ff6b35)', color: '#fff',
+      padding: '12px 28px', borderRadius: '24px', fontSize: '16px', fontWeight: 700,
+      zIndex: 10000, boxShadow: '0 6px 20px rgba(240,192,64,0.4)', whiteSpace: 'nowrap',
+      animation: 'fadeInUp 0.4s ease', textShadow: '0 1px 2px rgba(0,0,0,0.3)',
+    }}>{titleToast}</div>
+  );
+}
+
 const ALL_TABS = [
   { id: 'battle' as const, icon: '战', label: '战斗', unlockLevel: 0 },
   { id: 'team' as const, icon: '伍', label: '队伍', unlockLevel: 0 },
@@ -301,6 +315,7 @@ export default function App() {
       <AchievementToast />
       <OfflineReportModal />
       <TutorialOverlay />
+      <TitleToast />
       {saveFlash && (
         <div style={{
           position: 'fixed', bottom: 70, left: '50%', transform: 'translateX(-50%)',

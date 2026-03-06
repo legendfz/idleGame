@@ -77,6 +77,7 @@ interface GameStore {
   fateBlessing: { active: boolean; expiresAt: number }; // v73.0: double gains buff
   completedChallenges: string[]; // v87.0: completed ascension challenge ids today
   completedChallengesDate: string; // v87.0: date string for daily reset
+  titleToast: string | null; // v89.0: title unlock toast
 
   // Actions
   setTab: (tab: TabId) => void;
@@ -386,6 +387,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   equippedTitle: null,
   completedChallenges: [],
   completedChallengesDate: '',
+  titleToast: null,
   unlockedTitles: [],
   onlineRewardsClaimed: [],
   fateBlessing: { active: false, expiresAt: 0 },
@@ -945,7 +947,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const current = state.unlockedTitles;
       const newUnlocked = TITLES.filter(t => t.condition(titleStats)).map(t => t.id);
       if (newUnlocked.length > current.length) {
-        set({ unlockedTitles: newUnlocked });
+        const newlyEarned = newUnlocked.filter(id => !current.includes(id));
+        const newTitle = newlyEarned.length > 0 ? TITLES.find(t => t.id === newlyEarned[0]) : null;
+        set({ unlockedTitles: newUnlocked, titleToast: newTitle ? `🏅 称号解锁：${newTitle.name}` : null });
+        if (newTitle) setTimeout(() => set({ titleToast: null }), 4000);
       }
     }
 

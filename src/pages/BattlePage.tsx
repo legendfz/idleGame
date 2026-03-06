@@ -341,6 +341,7 @@ export function BattleView() {
             <span>本次：</span>
             <span style={{ color: '#fbbf24' }}>💰{formatNumber(sessionGold)}</span>
             <span style={{ color: '#f87171' }}>💀{formatNumber(sessionKills)}</span>
+            {sessionMinutes > 0 && <span style={{ color: '#60a5fa' }}>⚡{formatNumber(Math.floor(sessionKills / sessionMinutes))}/m</span>}
           </div>
         )}
       </Card>
