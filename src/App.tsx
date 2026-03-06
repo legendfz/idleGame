@@ -27,6 +27,7 @@ import { SettingsView } from './pages/SettingsPage';
 const ReincarnationPanel = lazy(() => import('./components/ReincarnationPanel').then(m => ({ default: m.ReincarnationPanel })));
 const DailyPanel = lazy(() => import('./components/DailyPanel').then(m => ({ default: m.DailyPanel })));
 const LuckyWheel = lazy(() => import('./components/LuckyWheel').then(m => ({ default: m.LuckyWheel })));
+import { TitlePanel } from './components/TitlePanel';
 const TrialPanel = lazy(() => import('./components/TrialPanel').then(m => ({ default: m.TrialPanel })));
 const AwakeningPanel = lazy(() => import('./components/AwakeningPanel').then(m => ({ default: m.AwakeningPanel })));
 import { useDailyStore } from './store/dailyStore';
@@ -260,6 +261,9 @@ export default function App() {
       );
       case 'wheel': return (
         <div className="main-content fade-in"><SubPageHeader title="天道轮盘" onBack={goBack} /><Suspense fallback={<LazyFallback />}><LuckyWheel /></Suspense></div>
+      );
+      case 'titles': return (
+        <div className="main-content fade-in"><SubPageHeader title="封神榜·称号" onBack={goBack} /><TitlePanel /></div>
       );
       default: return null;
     }

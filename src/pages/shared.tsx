@@ -22,7 +22,8 @@ export type SubPage =
   | { type: 'achievements' }
   | { type: 'leaderboard' }
   | { type: 'daily' }
-  | { type: 'wheel' };
+  | { type: 'wheel' }
+  | { type: 'titles' };
 
 // ─── Card ───
 export function Card({ title, titleColor, children, className, style, borderColor, onClick }: {
