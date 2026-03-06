@@ -251,6 +251,8 @@ export interface GameSave {
   highestChapter: number;
   highestStage: number;
   highestPower?: number; // v58.0: all-time best combat power
+  highestAbyssFloor?: number; // v85.0: highest abyss floor
+  allTimeKills?: number; // v85.0: total kills across reincarnations
   lastSaveTimestamp: number;
   totalPlayTime: number;
   equipment: {

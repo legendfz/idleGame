@@ -39,6 +39,8 @@ interface GameStore {
   highestChapter: number;
   highestPower: number;
   highestStage: number;
+  highestAbyssFloor: number; // v85.0: highest abyss floor reached
+  allTimeKills: number; // v85.0: total kills across all reincarnations
   // Equipment
   equippedWeapon: EquipmentItem | null;
   equippedArmor: EquipmentItem | null;
@@ -342,6 +344,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   highestChapter: 1,
   highestStage: 1,
   highestPower: 0,
+  highestAbyssFloor: 0,
+  allTimeKills: 0,
   equippedWeapon: null,
   equippedArmor: null,
   equippedTreasure: null,
@@ -596,6 +600,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     if (enemy.hp <= 0) {
       updatedPlayer.totalKills++;
+      // v85.0: all-time kills (persists across reincarnations)
+      set({ allTimeKills: state.allTimeKills + 1 });
       // v51.0: Codex tracking - enemy
       if (!updatedPlayer.codexEnemyNames.includes(enemy.name)) {
         updatedPlayer.codexEnemyNames = [...updatedPlayer.codexEnemyNames, enemy.name];
@@ -758,7 +764,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const hc = newChapterId > state.highestChapter ? newChapterId : state.highestChapter;
         const hs = newChapterId > state.highestChapter ? newStageNum :
           (newChapterId === state.highestChapter && newStageNum > state.highestStage ? newStageNum : state.highestStage);
-        set({ highestChapter: hc, highestStage: hs });
+        // v85.0: track highest abyss floor
+        const haf = newChapterId === ABYSS_CHAPTER_ID && newStageNum > state.highestAbyssFloor
+          ? newStageNum : state.highestAbyssFloor;
+        set({ highestChapter: hc, highestStage: hs, highestAbyssFloor: haf });
       } else {
         const nextWave = updatedBattle.wave + 1;
         if (nextWave > updatedBattle.maxWaves) {
@@ -1544,6 +1553,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       highestChapter: state.highestChapter,
       highestStage: state.highestStage,
       highestPower: _hp58,
+      highestAbyssFloor: state.highestAbyssFloor,
+      allTimeKills: state.allTimeKills,
       lastSaveTimestamp: Date.now(),
       totalPlayTime: state.totalPlayTime,
       equipment: { weapon: state.equippedWeapon, armor: state.equippedArmor, treasure: state.equippedTreasure },
@@ -1682,6 +1693,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         highestChapter: save.highestChapter,
         highestStage: save.highestStage,
         highestPower: (save as any).highestPower ?? 0,
+        highestAbyssFloor: (save as any).highestAbyssFloor ?? 0,
+        allTimeKills: (save as any).allTimeKills ?? 0,
         totalPlayTime: save.totalPlayTime,
         lastSaveTimestamp: Date.now(),
         equippedWeapon: weapon,
@@ -1723,6 +1736,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       player: makeInitialPlayer(),
       battle: makeInitialBattle(),
       highestChapter: 1, highestStage: 1,
+      highestAbyssFloor: 0, allTimeKills: 0,
       equippedWeapon: null, equippedArmor: null, equippedTreasure: null,
       inventory: [],
       floatingTexts: [],
@@ -1741,6 +1755,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       highestChapter: state.highestChapter,
       highestStage: state.highestStage,
       highestPower: state.highestPower,
+      highestAbyssFloor: state.highestAbyssFloor,
+      allTimeKills: state.allTimeKills,
       lastSaveTimestamp: Date.now(),
       totalPlayTime: state.totalPlayTime,
       equipment: { weapon: state.equippedWeapon, armor: state.equippedArmor, treasure: state.equippedTreasure },
