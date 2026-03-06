@@ -75,6 +75,8 @@ interface GameStore {
   unlockedTitles: string[]; // v81.0: unlocked title ids
   onlineRewardsClaimed: number[]; // v57.0: claimed milestone minutes
   fateBlessing: { active: boolean; expiresAt: number }; // v73.0: double gains buff
+  completedChallenges: string[]; // v87.0: completed ascension challenge ids today
+  completedChallengesDate: string; // v87.0: date string for daily reset
 
   // Actions
   setTab: (tab: TabId) => void;
@@ -112,6 +114,7 @@ interface GameStore {
   setAutoFate: (v: boolean) => void;
   setAutoWheel: (v: boolean) => void;
   setEquippedTitle: (id: string | null) => void;
+  setCompletedChallenges: (ids: string[]) => void;
   activateFateBlessing: () => boolean;
   claimOnlineReward: (minutes: number) => { gold: number; exp: number; pantao: number; desc: string } | null;
   claimAbyssMilestone: (floor: number) => boolean; // v86.0
@@ -381,6 +384,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   autoWheel: false,
   lastWheelSpin: 0,
   equippedTitle: null,
+  completedChallenges: [],
+  completedChallengesDate: '',
   unlockedTitles: [],
   onlineRewardsClaimed: [],
   fateBlessing: { active: false, expiresAt: 0 },
@@ -400,6 +405,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setAutoFate: (v: boolean) => set({ autoFate: v }),
   setAutoWheel: (v: boolean) => set({ autoWheel: v }),
   setEquippedTitle: (id: string | null) => set({ equippedTitle: id }),
+  setCompletedChallenges: (ids: string[]) => {
+    const today = new Date().toISOString().slice(0, 10);
+    set({ completedChallenges: ids, completedChallengesDate: today });
+  },
   activateFateBlessing: () => {
     const state = get();
     if (state.player.tianmingScrolls <= 0) return false;
@@ -454,6 +463,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   tick: () => {
     const state = get();
+    // v87.0: daily challenge reset
+    const today = new Date().toISOString().slice(0, 10);
+    if (state.completedChallengesDate !== today) {
+      set({ completedChallenges: [], completedChallengesDate: today });
+    }
     const { player, battle, equippedWeapon, equippedArmor, equippedTreasure } = state;
     if (!battle.currentEnemy) return;
 
@@ -1607,6 +1621,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       unlockedTitles: state.unlockedTitles,
       fateBlessing: state.fateBlessing,
       onlineRewardsClaimed: state.onlineRewardsClaimed,
+      completedChallenges: state.completedChallenges,
+      completedChallengesDate: state.completedChallengesDate,
     } as any;
     localStorage.setItem('xiyou-idle-save', JSON.stringify(save));
     set({ lastSaveTimestamp: Date.now() });
@@ -1748,6 +1764,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         unlockedTitles: (save as any).unlockedTitles ?? [],
         fateBlessing: (save as any).fateBlessing ?? { active: false, expiresAt: 0 },
         onlineRewardsClaimed: [], // reset per session
+        completedChallenges: (save as any).completedChallenges ?? [],
+        completedChallengesDate: (save as any).completedChallengesDate ?? '',
       });
 
       // Load v13 stores
