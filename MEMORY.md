@@ -621,3 +621,11 @@
 - Build: 407KB/125KB gzip
 - Commit: f5c0b6f, merged to main: 85e33f3
 - CEO直接实现（最高效）
+
+## v78.0「自动仙途」完成（2026-03-05 16:00）
+- 自动秘境探索：tick中自动开始免费秘境+自动推进节点+收取奖励
+- 难度自适应：等级/50+1（最高4=圣境）
+- 设置页开关（默认关闭）
+- Build: 408KB/125KB gzip
+- Commit: 9d8ad1d, merged to main: 8749c8c
+- CEO直接实现（最高效）
