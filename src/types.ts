@@ -41,6 +41,9 @@ export interface PlayerState {
   // v53.0 消耗品
   consumableInventory: Record<string, number>;  // buffId → count
   activeConsumables: ActiveConsumable[];
+  // v59.0 觉醒
+  awakening: { unlockedNodes: string[]; selectedPath: string | null };
+  awakeningPoints: number;
   // v55.0 轮回试炼
   trialTokens: number;
   trialBestFloor: number;
@@ -253,6 +256,7 @@ export interface GameSave {
   highestPower?: number; // v58.0: all-time best combat power
   highestAbyssFloor?: number; // v85.0: highest abyss floor
   allTimeKills?: number; // v85.0: total kills across reincarnations
+  claimedAbyssMilestones?: number[]; // v86.0: claimed abyss milestones
   lastSaveTimestamp: number;
   totalPlayTime: number;
   equipment: {

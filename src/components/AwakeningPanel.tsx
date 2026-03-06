@@ -8,7 +8,7 @@ export function AwakeningPanel() {
   const unlocked = reincCount >= AWAKENING_UNLOCK_REINC;
 
   // Awakening state stored in player
-  const awakeningState = (player as any).awakening ?? { unlockedNodes: [] as string[], selectedPath: null as string | null };
+  const awakeningState = player.awakening ?? { unlockedNodes: [] as string[], selectedPath: null as string | null };
   const unlockedNodes: string[] = awakeningState.unlockedNodes ?? [];
   const totalPts = totalAwakeningPoints(reincCount);
   const spentPts = unlockedNodes.reduce((sum, nid) => {

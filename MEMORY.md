@@ -661,3 +661,12 @@
 - Build: 505KB precache
 - Commit: a9c3de2, merged to main: 07602b4
 - CEO直接实现（最高效）
+
+## v85.0「深渊永记」完成（2026-03-05 22:00）
+- 深渊最高层记录：highestAbyssFloor跨转世持久化+存档
+- 累计击杀统计：allTimeKills跨转世不重置+存档
+- 战斗页深渊显示当前层+最高层
+- 统计页新增累计击杀+深渊最高层
+- Build: 420KB/128KB gzip
+- Commit: 5a524ff, merged to main: 9470782
+- CEO直接实现（最高效）
