@@ -292,6 +292,23 @@ export function TrialPanel() {
         <button onClick={startTrial} style={{ width: '100%', padding: 12, marginBottom: 8, background: 'linear-gradient(135deg, #6b21a8, #9333ea)', border: 'none', borderRadius: 8, color: '#fff', fontWeight: 'bold', fontSize: 16 }}>
           ⚡ 进入试炼
         </button>
+        {trialBestFloor >= 3 && (
+          <button onClick={() => {
+            // Quick trial: auto-complete at 70% of best floor, instant rewards
+            const quickFloor = Math.max(1, Math.floor(trialBestFloor * 0.7));
+            const rewards = calcTrialRewards(quickFloor, player.level);
+            updatePlayer({
+              lingshi: player.lingshi + rewards.lingshi,
+              exp: player.exp + rewards.exp,
+              pantao: player.pantao + rewards.pantao,
+              trialTokens: (player.trialTokens || 0) + rewards.trialTokens,
+            });
+            setFightLog([`⚡ 快速试炼完成！通过${quickFloor}层`, `💰 +${formatNumber(rewards.lingshi)}灵石 +${formatNumber(rewards.exp)}经验`, `🍑 +${rewards.pantao}蟠桃 🪙 +${rewards.trialTokens}令牌`]);
+            setPhase('rewards');
+          }} style={{ width: '100%', padding: 10, marginBottom: 8, background: 'linear-gradient(135deg, #b45309, #d97706)', border: 'none', borderRadius: 8, color: '#fff', fontWeight: 'bold', fontSize: 14 }}>
+            ⚡ 快速试炼（通过{Math.floor(trialBestFloor * 0.7)}层，70%最高纪录）
+          </button>
+        )}
         <button onClick={() => setShowShop(true)} style={{ width: '100%', padding: 10, background: 'var(--card-bg)', border: '1px solid var(--border)', borderRadius: 8 }}>
           🏪 试炼商店
         </button>
