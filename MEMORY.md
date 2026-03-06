@@ -707,3 +707,17 @@
 - Build: 529KB precache
 - Commit: b362d0d
 - CEO直接实现（最高效）
+
+## v90.0「轻功」完成（2026-03-06 02:00）
+- 深度代码分割：主包433KB→393KB（减10%）
+- 17个懒加载chunk（新增BagPage/SettingsPage/ShopSavePage/TitlePanel/DungeonList/DungeonBattle/AchievementList/Leaderboard）
+- Build: 393KB/122KB gzip
+- Commit: a55358f
+- CEO直接实现（最高效）
+
+## v91.0「时光流转」完成（2026-03-06 02:00）
+- 升级倒计时：战斗页idle stats显示预估升级时间（⏳ Nm/Nh）
+- 基于实时expPerSec计算，<24h才显示
+- Build: 394KB/122KB gzip
+- Commit: 21e935a
+- CEO直接实现（最高效）
