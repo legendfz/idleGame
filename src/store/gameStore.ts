@@ -57,6 +57,7 @@ interface GameStore {
   autoSkill: boolean; // v57.0: auto-cast skills when off cooldown
   autoConsume: boolean; // v63.0: auto-use potions
   autoWorldBoss: boolean; // v72.0: auto-attack world boss
+  autoExplore: boolean; // v78.0: auto-explore dungeons
   onlineRewardsClaimed: number[]; // v57.0: claimed milestone minutes
   fateBlessing: { active: boolean; expiresAt: number }; // v73.0: double gains buff
 
@@ -89,6 +90,7 @@ interface GameStore {
   setAutoSkill: (v: boolean) => void;
   setAutoConsume: (v: boolean) => void;
   setAutoWorldBoss: (v: boolean) => void;
+  setAutoExplore: (v: boolean) => void;
   activateFateBlessing: () => boolean;
   claimOnlineReward: (minutes: number) => { gold: number; exp: number; pantao: number; desc: string } | null;
   autoEquipBest: () => number;
@@ -344,6 +346,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   autoSkill: false,
   autoConsume: false,
   autoWorldBoss: false,
+  autoExplore: false,
   onlineRewardsClaimed: [],
   fateBlessing: { active: false, expiresAt: 0 },
 
@@ -355,6 +358,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setAutoSkill: (v) => set({ autoSkill: v }),
   setAutoConsume: (v: boolean) => set({ autoConsume: v }),
   setAutoWorldBoss: (v: boolean) => set({ autoWorldBoss: v }),
+  setAutoExplore: (v: boolean) => set({ autoExplore: v }),
   activateFateBlessing: () => {
     const state = get();
     if (state.player.tianmingScrolls <= 0) return false;
@@ -759,6 +763,27 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     // v13: Exploration daily reset
     useExplorationStore.getState().tickReset();
+
+    // v78.0: Auto-explore dungeons
+    if (state.autoExplore) {
+      const explStore = useExplorationStore.getState();
+      const expl = explStore.exploration;
+      if (expl.currentRun && !expl.currentRun.completed) {
+        // Auto-resolve next node
+        const result = explStore.resolveNode();
+        if (result?.reward) {
+          if (result.reward.lingshi) updatedPlayer.lingshi += result.reward.lingshi;
+          if (result.reward.exp) updatedPlayer.exp += result.reward.exp;
+          if (result.reward.pantao) updatedPlayer.pantao += result.reward.pantao;
+        }
+      } else if (!expl.currentRun || expl.currentRun.completed) {
+        // Auto-start new run if free runs available
+        if (expl.dailyFree > 0) {
+          const diff = Math.min(4, Math.max(1, Math.floor(updatedPlayer.level / 50) + 1));
+          explStore.startRun(diff, updatedPlayer.lingshi);
+        }
+      }
+    }
 
     // v31.0: Auto-decompose low quality items
     const adq = state.autoDecomposeQuality;
@@ -1418,6 +1443,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       autoSkill: state.autoSkill,
       autoConsume: state.autoConsume,
       autoWorldBoss: state.autoWorldBoss,
+      autoExplore: state.autoExplore,
       fateBlessing: state.fateBlessing,
       onlineRewardsClaimed: state.onlineRewardsClaimed,
     } as any;
@@ -1547,6 +1573,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         autoSkill: (save as any).autoSkill ?? false,
         autoConsume: (save as any).autoConsume ?? false,
         autoWorldBoss: (save as any).autoWorldBoss ?? false,
+        autoExplore: (save as any).autoExplore ?? false,
         fateBlessing: (save as any).fateBlessing ?? { active: false, expiresAt: 0 },
         onlineRewardsClaimed: [], // reset per session
       });

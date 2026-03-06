@@ -29,7 +29,9 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
   const autoConsume = useGameStore(s => s.autoConsume);
   const setAutoConsume = useGameStore(s => s.setAutoConsume);
   const autoWorldBoss = useGameStore(s => (s as any).autoWorldBoss) as boolean;
+  const autoExplore = useGameStore(s => (s as any).autoExplore) as boolean;
   const setAutoWorldBoss = useGameStore(s => (s as any).setAutoWorldBoss) as (v: boolean) => void;
+  const setAutoExplore = useGameStore(s => (s as any).setAutoExplore) as (v: boolean) => void;
   const DECOMP_LABELS = ['关闭', '凡品', '灵品以下', '仙品以下'];
 
   const toggleAnim = () => {
@@ -161,6 +163,12 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
           <span className="stat-label">自动挑战世界Boss</span>
           <span style={{ color: autoWorldBoss ? 'var(--accent)' : 'var(--dim)' }}>
             {autoWorldBoss ? '✅ 开启' : '关闭'}
+          </span>
+        </div>
+        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoExplore(!autoExplore)}>
+          <span className="stat-label">自动秘境探索</span>
+          <span style={{ color: autoExplore ? 'var(--accent)' : 'var(--dim)' }}>
+            {autoExplore ? '✅ 开启' : '关闭'}
           </span>
         </div>
       </Card>
