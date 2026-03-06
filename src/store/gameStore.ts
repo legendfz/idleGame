@@ -63,6 +63,10 @@ interface GameStore {
   autoExplore: boolean; // v78.0: auto-explore dungeons
   autoSanctuary: boolean; // v79.0: auto-upgrade sanctuary buildings
   autoAffinity: boolean; // v80.0: auto-gift affinity NPCs
+  autoSweep: boolean; // v83.0: auto-sweep cleared chapters
+  autoFate: boolean; // v83.0: auto-activate fate blessing
+  autoWheel: boolean; // v83.0: auto-spin lucky wheel
+  lastWheelSpin: number; // v83.0: last wheel spin timestamp
   equippedTitle: string | null; // v81.0: equipped title id
   unlockedTitles: string[]; // v81.0: unlocked title ids
   onlineRewardsClaimed: number[]; // v57.0: claimed milestone minutes
@@ -98,6 +102,7 @@ interface GameStore {
   setAutoConsume: (v: boolean) => void;
   setAutoWorldBoss: (v: boolean) => void;
   setAutoExplore: (v: boolean) => void;
+  setEquippedTitle: (id: string | null) => void;
   activateFateBlessing: () => boolean;
   claimOnlineReward: (minutes: number) => { gold: number; exp: number; pantao: number; desc: string } | null;
   autoEquipBest: () => number;
@@ -356,6 +361,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
   autoExplore: false,
   autoSanctuary: false,
   autoAffinity: false,
+  autoSweep: false,
+  autoFate: false,
+  autoWheel: false,
+  lastWheelSpin: 0,
   equippedTitle: null,
   unlockedTitles: [],
   onlineRewardsClaimed: [],
@@ -372,6 +381,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setAutoExplore: (v: boolean) => set({ autoExplore: v }),
   setAutoSanctuary: (v: boolean) => set({ autoSanctuary: v }),
   setAutoAffinity: (v: boolean) => set({ autoAffinity: v }),
+  setAutoSweep: (v: boolean) => set({ autoSweep: v }),
+  setAutoFate: (v: boolean) => set({ autoFate: v }),
+  setAutoWheel: (v: boolean) => set({ autoWheel: v }),
   setEquippedTitle: (id: string | null) => set({ equippedTitle: id }),
   activateFateBlessing: () => {
     const state = get();
@@ -805,6 +817,42 @@ export const useGameStore = create<GameStore>((set, get) => ({
       }
     }
 
+    // v83.0: Auto-sweep all cleared chapters every 60 ticks
+    if (state.autoSweep && state.totalPlayTime % 60 === 0 && state.totalPlayTime > 0) {
+      const result = get().sweepAll();
+      if (result.chapters > 0) {
+        updatedPlayer = get().player; // sweepAll modifies player directly
+      }
+    }
+
+    // v83.0: Auto-activate fate blessing when have tokens
+    if (state.autoFate && !state.fateBlessing.active && updatedPlayer.tianmingScrolls > 0) {
+      updatedPlayer.tianmingScrolls -= 1;
+      set({ fateBlessing: { active: true, expiresAt: Date.now() + 2 * 60 * 60 * 1000 } });
+    }
+
+    // v83.0: Auto-spin lucky wheel every hour when affordable
+    if (state.autoWheel && state.totalPlayTime % 30 === 0 && updatedPlayer.lingshi >= 5000) {
+      const now = Date.now();
+      if (now - state.lastWheelSpin >= 3600_000) {
+        updatedPlayer.lingshi -= 5000;
+        // Simplified wheel reward (weighted random inline)
+        const roll = Math.random();
+        const lv = updatedPlayer.level;
+        const goldBase = Math.max(1000, lv * 500);
+        if (roll < 0.25) { updatedPlayer.lingshi += goldBase; }
+        else if (roll < 0.45) { updatedPlayer.exp += Math.floor(goldBase * 0.8); }
+        else if (roll < 0.60) { updatedPlayer.pantao += Math.max(10, Math.floor(lv / 2)); }
+        else if (roll < 0.72) { (updatedPlayer as any).fragments = ((updatedPlayer as any).fragments ?? 0) + Math.max(5, Math.floor(lv / 10)); }
+        else if (roll < 0.82) { /* random consumable */ updatedPlayer.lingshi += Math.floor(goldBase * 1.5); }
+        else if (roll < 0.90) { updatedPlayer.pantao += Math.max(20, lv); }
+        else if (roll < 0.95) { updatedPlayer.tianmingScrolls = (updatedPlayer.tianmingScrolls ?? 0) + 1; }
+        else if (roll < 0.98) { updatedPlayer.lingshi += goldBase * 3; }
+        else { updatedPlayer.lingshi += goldBase * 10; } // 2% jackpot
+        set({ lastWheelSpin: now });
+      }
+    }
+
     // v13: Exploration daily reset
     useExplorationStore.getState().tickReset();
 
@@ -831,7 +879,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     // v81.0: Title unlock check (every 30 ticks)
     if (state.totalPlayTime % 30 === 0) {
-      const codex = updatedPlayer.codex ?? { equipment: [], monsters: [] };
+      const codex = (updatedPlayer as any).codex ?? { equipment: [], monsters: [] };
       const titleStats: TitleCheckStats = {
         level: updatedPlayer.level,
         reincarnations: updatedPlayer.reincarnations ?? 0,
@@ -842,7 +890,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         monsterCollected: (codex.monsters ?? []).length,
         trialBestFloor: updatedPlayer.trialBestFloor ?? 0,
         totalPlayTimeSec: state.totalPlayTime,
-        awakeningPoints: updatedPlayer.awakeningPoints ?? 0,
+        awakeningPoints: (updatedPlayer as any).awakeningPoints ?? 0,
       };
       const current = state.unlockedTitles;
       const newUnlocked = TITLES.filter(t => t.condition(titleStats)).map(t => t.id);
@@ -1512,6 +1560,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
       autoExplore: state.autoExplore,
       autoSanctuary: state.autoSanctuary,
       autoAffinity: state.autoAffinity,
+      autoSweep: state.autoSweep,
+      autoFate: state.autoFate,
+      autoWheel: state.autoWheel,
+      lastWheelSpin: state.lastWheelSpin,
       equippedTitle: state.equippedTitle,
       unlockedTitles: state.unlockedTitles,
       fateBlessing: state.fateBlessing,
@@ -1646,6 +1698,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
         autoExplore: (save as any).autoExplore ?? false,
         autoSanctuary: (save as any).autoSanctuary ?? false,
         autoAffinity: (save as any).autoAffinity ?? false,
+        autoSweep: (save as any).autoSweep ?? false,
+        autoFate: (save as any).autoFate ?? false,
+        autoWheel: (save as any).autoWheel ?? false,
+        lastWheelSpin: (save as any).lastWheelSpin ?? 0,
         equippedTitle: (save as any).equippedTitle ?? null,
         unlockedTitles: (save as any).unlockedTitles ?? [],
         fateBlessing: (save as any).fateBlessing ?? { active: false, expiresAt: 0 },

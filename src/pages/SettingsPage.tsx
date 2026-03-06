@@ -36,6 +36,12 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
   const setAutoExplore = useGameStore(s => (s as any).setAutoExplore) as (v: boolean) => void;
   const setAutoSanctuary = useGameStore(s => (s as any).setAutoSanctuary) as (v: boolean) => void;
   const setAutoAffinity = useGameStore(s => (s as any).setAutoAffinity) as (v: boolean) => void;
+  const autoSweep = useGameStore(s => (s as any).autoSweep) as boolean;
+  const setAutoSweep = useGameStore(s => (s as any).setAutoSweep) as (v: boolean) => void;
+  const autoFate = useGameStore(s => (s as any).autoFate) as boolean;
+  const setAutoFate = useGameStore(s => (s as any).setAutoFate) as (v: boolean) => void;
+  const autoWheel = useGameStore(s => (s as any).autoWheel) as boolean;
+  const setAutoWheel = useGameStore(s => (s as any).setAutoWheel) as (v: boolean) => void;
   const DECOMP_LABELS = ['关闭', '凡品', '灵品以下', '仙品以下'];
 
   const toggleAnim = () => {
@@ -121,23 +127,23 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
       <Card>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
           onClick={() => {
-            const allOn = autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity;
+            const allOn = autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel;
             if (allOn) {
-              // Turn all off
               setAutoDecomp(0); setAutoEquip(false); setAutoSkill(false); setAutoConsume(false);
               setAutoWorldBoss(false); setAutoExplore(false); setAutoSanctuary(false); setAutoAffinity(false);
+              setAutoSweep(false); setAutoFate(false); setAutoWheel(false);
             } else {
-              // Turn all on
               setAutoDecomp(2); setAutoEquip(true); setAutoSkill(true); setAutoConsume(true);
               setAutoWorldBoss(true); setAutoExplore(true); setAutoSanctuary(true); setAutoAffinity(true);
+              setAutoSweep(true); setAutoFate(true); setAutoWheel(true);
             }
           }}>
           <span style={{ fontWeight: 700, fontSize: 15 }}>🤖 一键全自动</span>
           <span style={{
-            color: (autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity) ? '#ffd700' : 'var(--dim)',
+            color: (autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel) ? '#ffd700' : 'var(--dim)',
             fontWeight: 600
           }}>
-            {(autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity) ? '✅ 全部开启' : '点击全开'}
+            {(autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel) ? '✅ 全部开启' : '点击全开'}
           </span>
         </div>
       </Card>
@@ -220,6 +226,24 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
             {autoAffinity ? '✅ 开启' : '关闭'}
           </span>
         </div>
+        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoSweep(!autoSweep)}>
+          <span className="stat-label">自动扫荡（60秒）</span>
+          <span style={{ color: autoSweep ? 'var(--accent)' : 'var(--dim)' }}>
+            {autoSweep ? '✅ 开启' : '关闭'}
+          </span>
+        </div>
+        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoFate(!autoFate)}>
+          <span className="stat-label">自动天命符（双倍）</span>
+          <span style={{ color: autoFate ? 'var(--accent)' : 'var(--dim)' }}>
+            {autoFate ? '✅ 开启' : '关闭'}
+          </span>
+        </div>
+        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoWheel(!autoWheel)}>
+          <span className="stat-label">自动转盘（每小时）</span>
+          <span style={{ color: autoWheel ? 'var(--accent)' : 'var(--dim)' }}>
+            {autoWheel ? '✅ 开启' : '关闭'}
+          </span>
+        </div>
       </Card>
 
       {/* Save management */}
@@ -251,7 +275,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
 
       {/* About */}
       <Card title="关于">
-        <div className="stat-row"><span className="stat-label">版本</span><span>v82.0</span></div>
+        <div className="stat-row"><span className="stat-label">版本</span><span>v83.0</span></div>
         <div className="stat-row"><span className="stat-label">引擎</span><span>React + Zustand + Vite</span></div>
       </Card>
 
