@@ -2,6 +2,7 @@
  * v82.0 TitlePanel — 称号面板
  * Display all titles, unlock status, equip/unequip, bonus preview
  */
+import React from 'react';
 import { useGameStore } from '../store/gameStore';
 import { TITLES, type Title } from '../data/titles';
 import { formatNumber } from '../utils/format';
@@ -18,8 +19,8 @@ function BonusTag({ label, value }: { label: string; value: string }) {
   );
 }
 
-function formatBonus(b: Title['bonuses']): JSX.Element[] {
-  const tags: JSX.Element[] = [];
+function formatBonus(b: Title['bonuses']): React.ReactElement[] {
+  const tags: React.ReactElement[] = [];
   if (b.attack) tags.push(<BonusTag key="atk" label="⚔️攻击" value={`+${(b.attack * 100).toFixed(0)}%`} />);
   if (b.maxHp) tags.push(<BonusTag key="hp" label="❤️生命" value={`+${(b.maxHp * 100).toFixed(0)}%`} />);
   if (b.critRate) tags.push(<BonusTag key="cr" label="💥暴击率" value={`+${b.critRate}%`} />);
