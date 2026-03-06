@@ -21,6 +21,7 @@ export interface OfflineResult {
   kills: number;
   stagesCleared: number;
   levelsGained: number;
+  comebackMul: number;    // v99.0: comeback bonus multiplier
 }
 
 /** Calculate effective stats (same logic as gameStore but standalone) */
@@ -107,7 +108,7 @@ export function calculateOfflineEarnings(
   const cappedSec = Math.min(offlineSeconds, MAX_OFFLINE);
 
   if (cappedSec < 60) {
-    return { duration: cappedSec, lingshi: 0, exp: 0, pantao: 0, equipment: [], equipmentItems: [], kills: 0, stagesCleared: 0, levelsGained: 0 };
+    return { duration: cappedSec, lingshi: 0, exp: 0, pantao: 0, equipment: [], equipmentItems: [], kills: 0, stagesCleared: 0, levelsGained: 0, comebackMul: 1.0 };
   }
 
   const eStats = calcEffectiveStats(player.stats, weapon, armor, treasure);
@@ -210,25 +211,32 @@ export function calculateOfflineEarnings(
     }
   }
 
-  // Calculate levels gained (for report display, actual levelup happens on dismiss)
-  let tempExp = player.exp + exp;
-  let tempLevel = player.level;
-  let levelsGained = 0;
-  while (tempExp >= expForLevel(tempLevel)) {
-    tempExp -= expForLevel(tempLevel);
-    tempLevel++;
-    levelsGained++;
+  // v99.0: Comeback bonus — offline ≥4h → 1.5x, ≥8h → 2.0x
+  const comebackMul = cappedSec >= 28800 ? 2.0 : cappedSec >= 14400 ? 1.5 : 1.0;
+  const finalLingshi = Math.floor(lingshi * comebackMul);
+  const finalExp = Math.floor(exp * comebackMul);
+  const finalPantao = Math.floor(pantao * comebackMul);
+
+  // Recalculate levels gained with bonus
+  let tempExp2 = player.exp + finalExp;
+  let tempLevel2 = player.level;
+  let levelsGained2 = 0;
+  while (tempExp2 >= expForLevel(tempLevel2)) {
+    tempExp2 -= expForLevel(tempLevel2);
+    tempLevel2++;
+    levelsGained2++;
   }
 
   return {
     duration: cappedSec,
-    lingshi,
-    exp,
-    pantao,
+    lingshi: finalLingshi,
+    exp: finalExp,
+    pantao: finalPantao,
     equipment: equipmentNames,
     equipmentItems,
     kills: totalKills,
     stagesCleared,
-    levelsGained,
+    levelsGained: levelsGained2,
+    comebackMul,
   };
 }
