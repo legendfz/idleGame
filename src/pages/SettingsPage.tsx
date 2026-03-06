@@ -109,6 +109,31 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
         <div className="color-dim" style={{ fontSize: 12, marginTop: 6 }}>{showStats ? '点击收起' : '点击展开'}</div>
       </Card>
 
+      {/* Master Auto Toggle */}
+      <Card>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
+          onClick={() => {
+            const allOn = autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity;
+            if (allOn) {
+              // Turn all off
+              setAutoDecomp(0); setAutoEquip(false); setAutoSkill(false); setAutoConsume(false);
+              setAutoWorldBoss(false); setAutoExplore(false); setAutoSanctuary(false); setAutoAffinity(false);
+            } else {
+              // Turn all on
+              setAutoDecomp(2); setAutoEquip(true); setAutoSkill(true); setAutoConsume(true);
+              setAutoWorldBoss(true); setAutoExplore(true); setAutoSanctuary(true); setAutoAffinity(true);
+            }
+          }}>
+          <span style={{ fontWeight: 700, fontSize: 15 }}>🤖 一键全自动</span>
+          <span style={{
+            color: (autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity) ? '#ffd700' : 'var(--dim)',
+            fontWeight: 600
+          }}>
+            {(autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity) ? '✅ 全部开启' : '点击全开'}
+          </span>
+        </div>
+      </Card>
+
       {/* Preferences */}
       <Card title="偏好设置">
         <div className="stat-row" style={{ cursor: 'pointer' }} onClick={toggleAnim}>
@@ -218,7 +243,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
 
       {/* About */}
       <Card title="关于">
-        <div className="stat-row"><span className="stat-label">版本</span><span>v80.0</span></div>
+        <div className="stat-row"><span className="stat-label">版本</span><span>v81.0</span></div>
         <div className="stat-row"><span className="stat-label">引擎</span><span>React + Zustand + Vite</span></div>
       </Card>
 
