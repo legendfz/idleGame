@@ -27,6 +27,7 @@ import { BUILDINGS as SANCT_BUILDINGS, getUpgradeCost as getSanctUpgradeCost } f
 import { getResonanceBonus } from '../data/resonance';
 import { useAffinityStore } from './affinityStore';
 import { AFFINITY_NPCS as AFFINITY_NPCS_LIST } from '../engine/affinity';
+import { TITLES, type TitleCheckStats } from '../data/titles';
 import { useExplorationStore } from './explorationStore';
 
 let logIdCounter = 0;
@@ -62,6 +63,8 @@ interface GameStore {
   autoExplore: boolean; // v78.0: auto-explore dungeons
   autoSanctuary: boolean; // v79.0: auto-upgrade sanctuary buildings
   autoAffinity: boolean; // v80.0: auto-gift affinity NPCs
+  equippedTitle: string | null; // v81.0: equipped title id
+  unlockedTitles: string[]; // v81.0: unlocked title ids
   onlineRewardsClaimed: number[]; // v57.0: claimed milestone minutes
   fateBlessing: { active: boolean; expiresAt: number }; // v73.0: double gains buff
 
@@ -353,6 +356,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   autoExplore: false,
   autoSanctuary: false,
   autoAffinity: false,
+  equippedTitle: null,
+  unlockedTitles: [],
   onlineRewardsClaimed: [],
   fateBlessing: { active: false, expiresAt: 0 },
 
@@ -367,6 +372,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setAutoExplore: (v: boolean) => set({ autoExplore: v }),
   setAutoSanctuary: (v: boolean) => set({ autoSanctuary: v }),
   setAutoAffinity: (v: boolean) => set({ autoAffinity: v }),
+  setEquippedTitle: (id: string | null) => set({ equippedTitle: id }),
   activateFateBlessing: () => {
     const state = get();
     if (state.player.tianmingScrolls <= 0) return false;
@@ -420,10 +426,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const awk = getAwakeningBonuses(player);
     // v67.0 转世里程碑加成
     const rmb = getReincMilestoneBonus(player.reincarnations);
-    effectiveStats.attack = Math.floor(effectiveStats.attack * atkMul * (1 + (cEffect.atkMult ?? 0)) * (1 + (awk.atk_pct ?? 0) / 100) * (1 + rmb.atk));
-    effectiveStats.maxHp = Math.floor(effectiveStats.maxHp * (1 + (awk.hp_pct ?? 0) / 100) * (1 + rmb.hp));
-    effectiveStats.critRate = Math.min(100, effectiveStats.critRate + (cEffect.critRateAdd ?? 0) + (awk.crit_rate ?? 0) + rmb.crit);
-    effectiveStats.critDmg = (effectiveStats.critDmg ?? 150) + (awk.crit_dmg ?? 0) + rmb.critDmg * 100;
+    // v81.0 称号加成
+    const titleId = get().equippedTitle;
+    const titleBonus = titleId ? TITLES.find(t => t.id === titleId)?.bonuses ?? {} : {};
+    effectiveStats.attack = Math.floor(effectiveStats.attack * atkMul * (1 + (cEffect.atkMult ?? 0)) * (1 + (awk.atk_pct ?? 0) / 100) * (1 + rmb.atk) * (1 + (titleBonus.attack ?? 0)));
+    effectiveStats.maxHp = Math.floor(effectiveStats.maxHp * (1 + (awk.hp_pct ?? 0) / 100) * (1 + rmb.hp) * (1 + (titleBonus.maxHp ?? 0)));
+    effectiveStats.critRate = Math.min(100, effectiveStats.critRate + (cEffect.critRateAdd ?? 0) + (awk.crit_rate ?? 0) + rmb.crit + (titleBonus.critRate ?? 0));
+    effectiveStats.critDmg = (effectiveStats.critDmg ?? 150) + (awk.crit_dmg ?? 0) + rmb.critDmg * 100 + (titleBonus.critDmg ?? 0) * 100;
 
     const enemy = { ...battle.currentEnemy };
     let log = [...battle.log];
@@ -611,8 +620,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const afLingshi = 1 + (afBuf.lingshiMul ?? 0) / 100;
       const afExp = 1 + (afBuf.expMul ?? 0) / 100;
       const fateMul = (state.fateBlessing.active && state.fateBlessing.expiresAt > Date.now()) ? 2 : 1;
-      const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus) * (1 + (awk.gold_pct ?? 0) / 100) * afLingshi * (1 + rmb.gold) * fateMul);
-      const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100) * afExp * (1 + rmb.exp) * fateMul);
+      const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus) * (1 + (awk.gold_pct ?? 0) / 100) * afLingshi * (1 + rmb.gold) * fateMul * (1 + (titleBonus.goldMul ?? 0)));
+      const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100) * afExp * (1 + rmb.exp) * fateMul * (1 + (titleBonus.expMul ?? 0)));
       updatedPlayer.lingshi += lingshiDrop;
       updatedPlayer.totalGoldEarned = (updatedPlayer.totalGoldEarned || 0) + lingshiDrop;
       updatedPlayer.exp += expDrop;
@@ -817,6 +826,28 @@ export const useGameStore = create<GameStore>((set, get) => ({
           const diff = Math.min(4, Math.max(1, Math.floor(updatedPlayer.level / 50) + 1));
           explStore.startRun(diff, updatedPlayer.lingshi);
         }
+      }
+    }
+
+    // v81.0: Title unlock check (every 30 ticks)
+    if (state.totalPlayTime % 30 === 0) {
+      const codex = updatedPlayer.codex ?? { equipment: [], monsters: [] };
+      const titleStats: TitleCheckStats = {
+        level: updatedPlayer.level,
+        reincarnations: updatedPlayer.reincarnations ?? 0,
+        totalKills: updatedPlayer.totalKills ?? 0,
+        highestChapter: state.highestChapter,
+        achievementCount: 0, // simplified
+        equipmentCollected: (codex.equipment ?? []).length,
+        monsterCollected: (codex.monsters ?? []).length,
+        trialBestFloor: updatedPlayer.trialBestFloor ?? 0,
+        totalPlayTimeSec: state.totalPlayTime,
+        awakeningPoints: updatedPlayer.awakeningPoints ?? 0,
+      };
+      const current = state.unlockedTitles;
+      const newUnlocked = TITLES.filter(t => t.condition(titleStats)).map(t => t.id);
+      if (newUnlocked.length > current.length) {
+        set({ unlockedTitles: newUnlocked });
       }
     }
 
@@ -1481,6 +1512,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       autoExplore: state.autoExplore,
       autoSanctuary: state.autoSanctuary,
       autoAffinity: state.autoAffinity,
+      equippedTitle: state.equippedTitle,
+      unlockedTitles: state.unlockedTitles,
       fateBlessing: state.fateBlessing,
       onlineRewardsClaimed: state.onlineRewardsClaimed,
     } as any;
@@ -1613,6 +1646,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         autoExplore: (save as any).autoExplore ?? false,
         autoSanctuary: (save as any).autoSanctuary ?? false,
         autoAffinity: (save as any).autoAffinity ?? false,
+        equippedTitle: (save as any).equippedTitle ?? null,
+        unlockedTitles: (save as any).unlockedTitles ?? [],
         fateBlessing: (save as any).fateBlessing ?? { active: false, expiresAt: 0 },
         onlineRewardsClaimed: [], // reset per session
       });
