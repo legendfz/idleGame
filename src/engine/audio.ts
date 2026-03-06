@@ -19,9 +19,13 @@ function onUserGesture() {
   document.removeEventListener('touchstart', onUserGesture);
   document.removeEventListener('keydown', onUserGesture);
 }
-document.addEventListener('click', onUserGesture, { once: true });
-document.addEventListener('touchstart', onUserGesture, { once: true });
-document.addEventListener('keydown', onUserGesture, { once: true });
+try {
+  document.addEventListener('click', onUserGesture, { once: true });
+  document.addEventListener('touchstart', onUserGesture, { once: true });
+  document.addEventListener('keydown', onUserGesture, { once: true });
+} catch {
+  // May fail in restricted environments
+}
 
 function getCtx(): AudioContext | null {
   // Don't create AudioContext before user interaction

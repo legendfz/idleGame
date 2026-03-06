@@ -25,6 +25,8 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
   const [filter, setFilter] = useState<EquipSlot | 'all'>('all');
   const [decomposeMode, setDecomposeMode] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const PAGE_SIZE = 20;
+  const [page, setPage] = useState(0);
 
   const toggleSelect = (uid: string) => {
     setSelected(prev => { const next = new Set(prev); if (next.has(uid)) next.delete(uid); else next.add(uid); return next; });
@@ -153,7 +155,17 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
         <Card><div className="color-dim" style={{ textAlign: 'center', padding: 16 }}>背包空空如也…去战斗获取装备吧！</div></Card>
       )}
 
-      {filtered.map(item => {
+      {filtered.length > PAGE_SIZE && (
+        <div className="bag-pagination" style={{ display: 'flex', justifyContent: 'center', gap: 8, margin: '8px 0' }}>
+          <button className="small-btn" disabled={page === 0} onClick={() => setPage(p => p - 1)}>上一页</button>
+          <span className="color-dim" style={{ lineHeight: '28px', fontSize: 12 }}>
+            {page + 1}/{Math.ceil(filtered.length / PAGE_SIZE)}
+          </span>
+          <button className="small-btn" disabled={(page + 1) * PAGE_SIZE >= filtered.length} onClick={() => setPage(p => p + 1)}>下一页</button>
+        </div>
+      )}
+
+      {filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).map(item => {
         const stat = getEquipEffectiveStat(item);
         const maxLvl = getMaxEnhanceLevel(item);
         const cost = item.level < maxLvl ? getEnhanceCost(item) : 0;

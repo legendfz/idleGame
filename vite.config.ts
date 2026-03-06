@@ -52,6 +52,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
+    target: 'es2015',
   },
   test: {
     globals: true,

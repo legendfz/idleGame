@@ -212,7 +212,7 @@ export const QUALITY_INFO: Record<Quality, { label: string; symbol: string; mult
   mythic:    { label: '✦鸿蒙', symbol: '✦', multiplier: 80,  color: '#ff4444' },
 };
 
-export const INVENTORY_MAX = 50;
+export const INVENTORY_MAX = 200;
 
 // v31.0 游戏设置
 export interface GameSettings {
