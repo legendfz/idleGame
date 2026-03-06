@@ -26,6 +26,7 @@ import { useSanctuaryStore } from './sanctuaryStore';
 import { BUILDINGS as SANCT_BUILDINGS, getUpgradeCost as getSanctUpgradeCost } from '../engine/sanctuary';
 import { getResonanceBonus } from '../data/resonance';
 import { useAffinityStore } from './affinityStore';
+import { AFFINITY_NPCS as AFFINITY_NPCS_LIST } from '../engine/affinity';
 import { useExplorationStore } from './explorationStore';
 
 let logIdCounter = 0;
@@ -60,6 +61,7 @@ interface GameStore {
   autoWorldBoss: boolean; // v72.0: auto-attack world boss
   autoExplore: boolean; // v78.0: auto-explore dungeons
   autoSanctuary: boolean; // v79.0: auto-upgrade sanctuary buildings
+  autoAffinity: boolean; // v80.0: auto-gift affinity NPCs
   onlineRewardsClaimed: number[]; // v57.0: claimed milestone minutes
   fateBlessing: { active: boolean; expiresAt: number }; // v73.0: double gains buff
 
@@ -350,6 +352,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   autoWorldBoss: false,
   autoExplore: false,
   autoSanctuary: false,
+  autoAffinity: false,
   onlineRewardsClaimed: [],
   fateBlessing: { active: false, expiresAt: 0 },
 
@@ -363,6 +366,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setAutoWorldBoss: (v: boolean) => set({ autoWorldBoss: v }),
   setAutoExplore: (v: boolean) => set({ autoExplore: v }),
   setAutoSanctuary: (v: boolean) => set({ autoSanctuary: v }),
+  setAutoAffinity: (v: boolean) => set({ autoAffinity: v }),
   activateFateBlessing: () => {
     const state = get();
     if (state.player.tianmingScrolls <= 0) return false;
@@ -777,6 +781,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const best = upgradeable[0];
         const res = sanctStore.upgrade(best.id, updatedPlayer.lingshi);
         if (res) updatedPlayer.lingshi -= res.cost;
+      }
+    }
+
+    // v80.0: Auto-gift affinity NPCs (cheapest tier, every 10 ticks)
+    if (state.autoAffinity && state.totalPlayTime % 10 === 0) {
+      const affStore = useAffinityStore.getState();
+      const giftCost = 100; // tier 0 cost
+      for (const npc of AFFINITY_NPCS_LIST) {
+        if (updatedPlayer.lingshi >= giftCost) {
+          const result = affStore.gift(npc.id, updatedPlayer.lingshi, 0);
+          if (result) updatedPlayer.lingshi -= result.cost;
+        }
       }
     }
 
@@ -1464,6 +1480,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       autoWorldBoss: state.autoWorldBoss,
       autoExplore: state.autoExplore,
       autoSanctuary: state.autoSanctuary,
+      autoAffinity: state.autoAffinity,
       fateBlessing: state.fateBlessing,
       onlineRewardsClaimed: state.onlineRewardsClaimed,
     } as any;
@@ -1595,6 +1612,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         autoWorldBoss: (save as any).autoWorldBoss ?? false,
         autoExplore: (save as any).autoExplore ?? false,
         autoSanctuary: (save as any).autoSanctuary ?? false,
+        autoAffinity: (save as any).autoAffinity ?? false,
         fateBlessing: (save as any).fateBlessing ?? { active: false, expiresAt: 0 },
         onlineRewardsClaimed: [], // reset per session
       });
