@@ -629,3 +629,10 @@
 - Build: 408KB/125KB gzip
 - Commit: 9d8ad1d, merged to main: 8749c8c
 - CEO直接实现（最高效）
+
+## v79.0「洞天自运」完成（2026-03-05 17:00）
+- 自动洞天升级：tick中自动升级最便宜的可负担建筑（最高10级）
+- 设置页开关（默认关闭）
+- Build: 409KB/125KB gzip
+- Commit: 7e1ddb1, merged to main: a797677
+- CEO直接实现（最高效）
