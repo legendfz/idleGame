@@ -77,6 +77,7 @@ interface GameStore {
   autoAscension: boolean; // v93.0: auto ascension challenge daily
   autoEnhance: boolean; // v95.0: auto-enhance equipped gear
   autoBuyPerks: boolean; // v96.0: auto-buy reincarnation perks
+  autoSynth: boolean; // v98.0: auto-synthesize 3 same-quality equips
   lastWheelSpin: number; // v83.0: last wheel spin timestamp
   equippedTitle: string | null; // v81.0: equipped title id
   unlockedTitles: string[]; // v81.0: unlocked title ids
@@ -125,6 +126,7 @@ interface GameStore {
   setAutoAscension: (v: boolean) => void;
   setAutoEnhance: (v: boolean) => void;
   setAutoBuyPerks: (v: boolean) => void;
+  setAutoSynth: (v: boolean) => void;
   setEquippedTitle: (id: string | null) => void;
   setCompletedChallenges: (ids: string[]) => void;
   activateFateBlessing: () => boolean;
@@ -400,6 +402,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   autoAscension: false,
   autoEnhance: false,
   autoBuyPerks: false,
+  autoSynth: false,
   lastWheelSpin: 0,
   equippedTitle: null,
   completedChallenges: [],
@@ -427,6 +430,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setAutoAscension: (v: boolean) => set({ autoAscension: v }),
   setAutoEnhance: (v: boolean) => set({ autoEnhance: v }),
   setAutoBuyPerks: (v: boolean) => set({ autoBuyPerks: v }),
+  setAutoSynth: (v: boolean) => set({ autoSynth: v }),
   setEquippedTitle: (id: string | null) => set({ equippedTitle: id }),
   setCompletedChallenges: (ids: string[]) => {
     const today = new Date().toISOString().slice(0, 10);
@@ -1047,6 +1051,25 @@ export const useGameStore = create<GameStore>((set, get) => ({
         }
         if (changed) {
           updatedPlayer.awakening = { ...awState, unlockedNodes: Array.from(unlocked) };
+        }
+      }
+    }
+
+    // v98.0: Auto-synthesize equipment every 45 ticks
+    if (state.autoSynth && state.totalPlayTime % 45 === 0 && state.totalPlayTime > 0) {
+      const qualityOrder: Quality[] = ['common', 'spirit', 'immortal', 'divine', 'legendary'];
+      let didSynth = true;
+      while (didSynth) {
+        didSynth = false;
+        const currentInv = get().inventory;
+        // Find first quality with 3+ unlocked non-equipped items
+        for (const q of qualityOrder) {
+          const candidates = currentInv.filter(i => i.quality === q && !i.locked);
+          if (candidates.length >= 3) {
+            const uids = candidates.slice(0, 3).map(i => i.uid);
+            const result = get().synthesizeEquip(uids);
+            if (result.success) { didSynth = true; break; }
+          }
         }
       }
     }
@@ -1784,6 +1807,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       autoAscension: state.autoAscension,
       autoEnhance: state.autoEnhance,
       autoBuyPerks: state.autoBuyPerks,
+      autoSynth: state.autoSynth,
       lastWheelSpin: state.lastWheelSpin,
       equippedTitle: state.equippedTitle,
       unlockedTitles: state.unlockedTitles,
@@ -1958,6 +1982,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         autoAscension: (save as any).autoAscension ?? false,
         autoEnhance: (save as any).autoEnhance ?? false,
         autoBuyPerks: (save as any).autoBuyPerks ?? false,
+        autoSynth: (save as any).autoSynth ?? false,
         lastWheelSpin: (save as any).lastWheelSpin ?? 0,
         equippedTitle: (save as any).equippedTitle ?? null,
         unlockedTitles: (save as any).unlockedTitles ?? [],
