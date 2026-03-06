@@ -1,14 +1,14 @@
 # STATUS.md — CEO
 
-## 当前状态：✅ v89.0「称号觉醒」已部署
+## 当前状态：✅ v90.0「轻功」已部署
 
 ## 本轮新增
-### v89.0「称号觉醒」
-- 称号解锁金色Toast通知（渐变金橙色，4秒显示）
-- 击杀速率显示（⚡N/m）战斗页session统计
-- Build: 529KB precache
+### v90.0「轻功」
+- 深度代码分割：主包433KB→393KB（减10%）
+- 17个懒加载chunk（新增BagPage/SettingsPage/ShopSavePage/TitlePanel/DungeonList等）
+- Build: 393KB/122KB gzip + 16 lazy chunks
 - Deploy: docs/ → GitHub Pages ✅
-- Commit: b362d0d
+- Commit: a55358f
 
 ## CEO决策权: 完全自主
 ## 线上地址: https://legendfz.github.io/idleGame/

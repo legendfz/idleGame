@@ -334,6 +334,13 @@ export function BattleView() {
           {idleStats.sessionTime > 60 && <>
             {'  '}<span style={{color:'#a78bfa',fontSize:10}}>💎{formatNumber(Math.floor(idleStats.goldPerSec * 60))}/m</span>
           </>}
+          {idleStats.expPerSec > 0 && (() => {
+            const expNeeded = expForLevel(player.level) - player.exp;
+            const secsToLevel = Math.ceil(expNeeded / idleStats.expPerSec);
+            return secsToLevel > 0 && secsToLevel < 86400 ? (
+              <>{'  '}<span style={{color:'#34d399',fontSize:10}}>⏳ 升级 {secsToLevel < 60 ? `${secsToLevel}s` : secsToLevel < 3600 ? `${Math.floor(secsToLevel/60)}m${secsToLevel%60>0?`${secsToLevel%60}s`:''}` : `${Math.floor(secsToLevel/3600)}h${Math.floor((secsToLevel%3600)/60)}m`}</span></>
+            ) : null;
+          })()}
         </div>
         {/* v75.0: Session earnings summary */}
         {sessionKills > 0 && (
