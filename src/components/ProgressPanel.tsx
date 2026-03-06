@@ -103,8 +103,17 @@ export function ProgressPanel() {
         border: '1px solid rgba(139,92,246,0.3)',
       }}>
         <div style={{ fontSize: 13, color: 'var(--text-dim)', marginBottom: 4 }}>🏆 仙途总进度</div>
-        <div style={{ fontSize: 32, fontWeight: 700, color: overallPct >= 100 ? '#fbbf24' : '#8b5cf6' }}>
-          {overallPct}%
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
+          <div style={{ fontSize: 32, fontWeight: 700, color: overallPct >= 100 ? '#fbbf24' : '#8b5cf6' }}>
+            {overallPct}%
+          </div>
+          <div style={{
+            fontSize: 20, fontWeight: 900, padding: '2px 10px', borderRadius: 6,
+            background: overallPct >= 95 ? 'linear-gradient(135deg,#fbbf24,#f59e0b)' : overallPct >= 80 ? 'linear-gradient(135deg,#8b5cf6,#6366f1)' : overallPct >= 60 ? 'linear-gradient(135deg,#3b82f6,#2563eb)' : 'rgba(255,255,255,0.1)',
+            color: overallPct >= 60 ? '#fff' : 'var(--text-dim)',
+          }}>
+            {overallPct >= 95 ? 'SSS' : overallPct >= 85 ? 'SS' : overallPct >= 70 ? 'S' : overallPct >= 50 ? 'A' : overallPct >= 30 ? 'B' : 'C'}
+          </div>
         </div>
         <div style={{ height: 10, borderRadius: 5, background: 'var(--bg-card)', margin: '8px 0 4px', overflow: 'hidden' }}>
           <div style={{

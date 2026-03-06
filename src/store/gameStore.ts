@@ -886,10 +886,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     // v80.0: Auto-gift affinity NPCs (cheapest tier, every 10 ticks)
     if (state.autoAffinity && state.totalPlayTime % 10 === 0) {
       const affStore = useAffinityStore.getState();
-      const giftCost = 100; // tier 0 cost
+      // v100.0: Smart gifting — use highest affordable tier
       for (const npc of AFFINITY_NPCS_LIST) {
-        if (updatedPlayer.lingshi >= giftCost) {
-          const result = affStore.gift(npc.id, updatedPlayer.lingshi, 0);
+        const tier = updatedPlayer.lingshi >= 10000 ? 2 : updatedPlayer.lingshi >= 1000 ? 1 : 0;
+        const cost = [100, 1000, 10000][tier];
+        if (updatedPlayer.lingshi >= cost) {
+          const result = affStore.gift(npc.id, updatedPlayer.lingshi, tier);
           if (result) updatedPlayer.lingshi -= result.cost;
         }
       }
