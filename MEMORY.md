@@ -783,3 +783,11 @@
 - Build: 554KB precache
 - Commit: 4da633b
 - CEO直接实现（最高效）
+
+## v102.0「轮回自如」完成（2026-03-06 11:00）
+- 自动转世：每120 ticks检查，达大乘境界(Lv.500)自动reincarnate()
+- 设置页开关 + 一键全自动集成（17项总计）
+- 战斗页session统计显示转世次数（🔄N世，紫色）
+- Build: 554KB precache
+- Commit: 3ea1f49
+- CEO直接实现（最高效）
