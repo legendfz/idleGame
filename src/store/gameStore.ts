@@ -14,6 +14,8 @@ import { calcDaoPoints, REINC_PERKS, REINC_MIN_REALM, REINC_MIN_LEVEL, getReincM
 import { ACTIVE_SKILLS } from '../data/skills';
 import { getAwakeningBonuses } from '../components/AwakeningPanel';
 import { ABYSS_MILESTONES } from '../data/abyssMilestones';
+import { calcTrialRewards } from '../data/roguelikeTrial';
+import { getDailyChallenges, MODIFIERS as ASC_MODIFIERS } from '../data/ascensionChallenge';
 import {
   rollEquipDrop, createEquipFromTemplate, getEquipEffectiveStat,
   getEnhanceCost, getMaxEnhanceLevel, getActiveSetBonuses,
@@ -70,6 +72,8 @@ interface GameStore {
   autoSweep: boolean; // v83.0: auto-sweep cleared chapters
   autoFate: boolean; // v83.0: auto-activate fate blessing
   autoWheel: boolean; // v83.0: auto-spin lucky wheel
+  autoTrial: boolean; // v93.0: auto quick trial every 5 min
+  autoAscension: boolean; // v93.0: auto ascension challenge daily
   lastWheelSpin: number; // v83.0: last wheel spin timestamp
   equippedTitle: string | null; // v81.0: equipped title id
   unlockedTitles: string[]; // v81.0: unlocked title ids
@@ -114,6 +118,8 @@ interface GameStore {
   setAutoSweep: (v: boolean) => void;
   setAutoFate: (v: boolean) => void;
   setAutoWheel: (v: boolean) => void;
+  setAutoTrial: (v: boolean) => void;
+  setAutoAscension: (v: boolean) => void;
   setEquippedTitle: (id: string | null) => void;
   setCompletedChallenges: (ids: string[]) => void;
   activateFateBlessing: () => boolean;
@@ -383,6 +389,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   autoSweep: false,
   autoFate: false,
   autoWheel: false,
+  autoTrial: false,
+  autoAscension: false,
   lastWheelSpin: 0,
   equippedTitle: null,
   completedChallenges: [],
@@ -406,6 +414,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setAutoSweep: (v: boolean) => set({ autoSweep: v }),
   setAutoFate: (v: boolean) => set({ autoFate: v }),
   setAutoWheel: (v: boolean) => set({ autoWheel: v }),
+  setAutoTrial: (v: boolean) => set({ autoTrial: v }),
+  setAutoAscension: (v: boolean) => set({ autoAscension: v }),
   setEquippedTitle: (id: string | null) => set({ equippedTitle: id }),
   setCompletedChallenges: (ids: string[]) => {
     const today = new Date().toISOString().slice(0, 10);
@@ -903,6 +913,43 @@ export const useGameStore = create<GameStore>((set, get) => ({
         else if (roll < 0.98) { updatedPlayer.lingshi += goldBase * 3; }
         else { updatedPlayer.lingshi += goldBase * 10; } // 2% jackpot
         set({ lastWheelSpin: now });
+      }
+    }
+
+    // v93.0: Auto quick trial every 5 minutes (300 ticks)
+    if (state.autoTrial && state.totalPlayTime % 300 === 0 && state.totalPlayTime > 0 && (updatedPlayer.trialBestFloor ?? 0) >= 3) {
+      const quickFloor = Math.max(1, Math.floor((updatedPlayer.trialBestFloor ?? 0) * 0.7));
+      const rewards = calcTrialRewards(quickFloor, updatedPlayer.level);
+      updatedPlayer.lingshi += rewards.lingshi;
+      updatedPlayer.exp += rewards.exp;
+      updatedPlayer.pantao += rewards.pantao;
+      updatedPlayer.trialTokens = (updatedPlayer.trialTokens ?? 0) + rewards.trialTokens;
+    }
+
+    // v93.0: Auto ascension challenge daily
+    if (state.autoAscension && state.totalPlayTime % 600 === 0 && state.totalPlayTime > 0) {
+      const today = new Date().toDateString();
+      const completed = state.completedChallengesDate === today ? [...state.completedChallenges] : [];
+      const challenges = getDailyChallenges();
+      let changed = false;
+      for (const ch of challenges) {
+        if (completed.includes(ch.id)) continue;
+        if (updatedPlayer.level < (ch.levelReq ?? 0)) continue;
+        const rewardMult = ch.modifiers.reduce((m: number, mid: string) => {
+          const mod = ASC_MODIFIERS.find((x) => x.id === mid);
+          return m * (mod?.rewardMult ?? 1);
+        }, 1);
+        const lv = updatedPlayer.level;
+        updatedPlayer.lingshi += Math.floor(ch.rewards.lingshi * lv * rewardMult);
+        updatedPlayer.pantao += Math.floor(ch.rewards.pantao * rewardMult);
+        updatedPlayer.hongmengShards = (updatedPlayer.hongmengShards ?? 0) + Math.floor(ch.rewards.shards * rewardMult);
+        updatedPlayer.trialTokens = (updatedPlayer.trialTokens ?? 0) + Math.floor(ch.rewards.trialTokens * rewardMult);
+        updatedPlayer.daoPoints = (updatedPlayer.daoPoints ?? 0) + Math.floor(ch.rewards.daoPoints * rewardMult);
+        completed.push(ch.id);
+        changed = true;
+      }
+      if (changed) {
+        set({ completedChallenges: completed, completedChallengesDate: today });
       }
     }
 
@@ -1635,6 +1682,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       autoSweep: state.autoSweep,
       autoFate: state.autoFate,
       autoWheel: state.autoWheel,
+      autoTrial: state.autoTrial,
+      autoAscension: state.autoAscension,
       lastWheelSpin: state.lastWheelSpin,
       equippedTitle: state.equippedTitle,
       unlockedTitles: state.unlockedTitles,
@@ -1779,6 +1828,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         autoSweep: (save as any).autoSweep ?? false,
         autoFate: (save as any).autoFate ?? false,
         autoWheel: (save as any).autoWheel ?? false,
+        autoTrial: (save as any).autoTrial ?? false,
+        autoAscension: (save as any).autoAscension ?? false,
         lastWheelSpin: (save as any).lastWheelSpin ?? 0,
         equippedTitle: (save as any).equippedTitle ?? null,
         unlockedTitles: (save as any).unlockedTitles ?? [],
