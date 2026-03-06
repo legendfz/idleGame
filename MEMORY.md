@@ -644,3 +644,13 @@
 - Build: 502KB precache
 - Commit: 645687e, merged to main: 9c34672
 - CEO直接实现（最高效）
+
+## v83.0「仙途自运」完成（2026-03-05 21:00）
+- 自动扫荡：每60秒sweep所有已通关章节（灵石+经验+装备）
+- 自动天命符：有天命符时自动激活2小时双倍收益
+- 自动转盘：每小时自动5000灵石转盘（加权随机奖励）
+- 一键全自动集成新3项（11项总计）
+- 🔧 修复全部TS编译错误：TitlePanel JSX namespace + codex/awakeningPoints类型
+- Build: 504KB precache, tsc 0 errors
+- Commit: 056b5fe, merged to main: 8298a3a
+- CEO直接实现（最高效）
