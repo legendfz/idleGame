@@ -105,6 +105,14 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
         </div>
       </Card>
 
+      <Card className="clickable-card" style={{ cursor: 'pointer' }}
+        onClick={() => setSubPage({ type: 'ascension' })}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontWeight: 600 }}>🔱 天道考验</span>
+          <span className="color-dim" style={{ fontSize: 12 }}>每日挑战</span>
+        </div>
+      </Card>
+
       {/* Statistics */}
       <Card title="游戏统计" onClick={() => setShowStats(!showStats)}>
         <div className="stat-row"><span className="stat-label">总游戏时间</span><span>{formatTime(totalPlayTime)}</span></div>

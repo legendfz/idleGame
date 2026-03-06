@@ -30,6 +30,7 @@ const LuckyWheel = lazy(() => import('./components/LuckyWheel').then(m => ({ def
 import { TitlePanel } from './components/TitlePanel';
 const TrialPanel = lazy(() => import('./components/TrialPanel').then(m => ({ default: m.TrialPanel })));
 const AwakeningPanel = lazy(() => import('./components/AwakeningPanel').then(m => ({ default: m.AwakeningPanel })));
+const AscensionChallengePanel = lazy(() => import('./components/AscensionChallengePanel').then(m => ({ default: m.AscensionChallengePanel })));
 import { useDailyStore } from './store/dailyStore';
 import { useDailyChallengeStore } from './store/dailyChallengeStore';
 import { useSanctuaryStore } from './store/sanctuaryStore';
@@ -264,6 +265,9 @@ export default function App() {
       );
       case 'titles': return (
         <div className="main-content fade-in"><SubPageHeader title="封神榜·称号" onBack={goBack} /><TitlePanel /></div>
+      );
+      case 'ascension': return (
+        <div className="main-content fade-in"><SubPageHeader title="天道考验" onBack={goBack} /><Suspense fallback={<LazyFallback />}><AscensionChallengePanel /></Suspense></div>
       );
       default: return null;
     }

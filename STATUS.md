@@ -1,13 +1,15 @@
 # STATUS.md — CEO
 
-## 当前状态：✅ v85.0「深渊永记」已部署
+## 当前状态：✅ v86.0「万法归一」已部署
 
 ## 本轮新增
-### v85.0「深渊永记」
-- 深渊最高层记录：跨转世持久化，战斗页实时显示
-- 累计击杀统计：allTimeKills跨转世不重置
-- 统计页新增：累计击杀+深渊最高层展示
-- Build: 420KB/128KB gzip
+### v86.0「万法归一」
+- 类型安全清理：54→~40个 as any
+- 碎片bug修复：fragments→hongmengShards（转盘奖励实际未生效）
+- 图鉴字段修正：codex→codexEquipIds/codexEnemyNames（称号解锁检查修正）
+- 5个缺失setter类型补全
+- 觉醒系统Player类型补全
+- Build: 422KB/128KB gzip
 - Deploy: docs/ → GitHub Pages ✅
 
 ## CEO决策权: 完全自主

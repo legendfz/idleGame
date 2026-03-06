@@ -23,7 +23,8 @@ export type SubPage =
   | { type: 'leaderboard' }
   | { type: 'daily' }
   | { type: 'wheel' }
-  | { type: 'titles' };
+  | { type: 'titles' }
+  | { type: 'ascension' };
 
 // ─── Card ───
 export function Card({ title, titleColor, children, className, style, borderColor, onClick }: {
