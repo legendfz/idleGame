@@ -670,3 +670,25 @@
 - Build: 420KB/128KB gzip
 - Commit: 5a524ff, merged to main: 9470782
 - CEO直接实现（最高效）
+
+## v86.0「万法归一」完成（2026-03-05 23:00）
+- 类型安全清理：54→~40个 as any（SettingsPage/WorldBossPanel/AwakeningPanel）
+- 碎片bug修复：转盘fragments→hongmengShards（之前奖励未实际生效）
+- 图鉴字段修正：codex→codexEquipIds/codexEnemyNames（称号解锁检查修正）
+- 5个缺失setter类型补全（setAutoSanctuary/Affinity/Sweep/Fate/Wheel）
+- 觉醒系统Player类型补全（awakening/awakeningPoints字段+默认值）
+- Build: 422KB/128KB gzip
+- Commit: 35b7999, merged to main: eca1923
+- CEO直接实现（最高效）
+
+## v87.0「天道考验」完成（2026-03-05 23:00）
+- 天道考验：每日3级挑战（初级1修饰器10波/中级2修饰器20波/极限3修饰器30波）
+- 8种战斗修饰器：铁壁(HP×3)/狂暴(ATK×2)/脆弱(ATK-50%)/破防(DEF-80%)/蜂拥(×2)/巨化(HP×5)/诅咒(双减)/精英(全强化)
+- 奖励按等级×修饰器倍率缩放（灵石/蟠桃/碎片/令牌/道点）
+- 日期种子随机：每天不同修饰器组合
+- 自动战斗300ms间隔，波次HP递增15%
+- 每日0点重置，存档持久化
+- 新文件：src/data/ascensionChallenge.ts, src/components/AscensionChallengePanel.tsx
+- Build: 423KB/128KB gzip
+- Commit: 713ba48, merged to main: 69bcefd
+- CEO直接实现（最高效）
