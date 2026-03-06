@@ -22,8 +22,11 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
   const player = useGameStore(s => s.player);
   const autoEquipBest = useGameStore(s => s.autoEquipBest);
   const quickDecompose = useGameStore(s => s.quickDecompose);
+  const synthesizeEquip = useGameStore(s => s.synthesizeEquip);
   const [filter, setFilter] = useState<EquipSlot | 'all'>('all');
   const [decomposeMode, setDecomposeMode] = useState(false);
+  const [synthMode, setSynthMode] = useState(false);
+  const [synthSelected, setSynthSelected] = useState<string[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const PAGE_SIZE = 20;
   const [page, setPage] = useState(0);
@@ -96,6 +99,7 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
           const n = autoEquipBest();
           if (n === 0) alert('已是最优装备！');
         }}>一键最优</button>
+        <button className="small-btn" style={synthMode ? { background: 'linear-gradient(135deg, #7c4dff, #448aff)', color: '#fff' } : {}} onClick={() => { setSynthMode(!synthMode); setSynthSelected([]); setDecomposeMode(false); }}>合成</button>
         <button className="small-btn" onClick={() => setSubPage({ type: 'refine' })}>精炼</button>
         <button className="small-btn" onClick={() => setSubPage({ type: 'shop' })}>商店</button>
         <button className="small-btn danger" onClick={() => {
@@ -144,6 +148,18 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
         </div>
       )}
 
+      {synthMode && (
+        <div className="decompose-toolbar" style={{ background: 'rgba(124,77,255,0.1)', borderColor: '#7c4dff' }}>
+          <span className="color-accent" style={{ fontSize: 12 }}>选择3件同品质装备合成更高品质 ({synthSelected.length}/3)</span>
+          <button className="small-btn accent" disabled={synthSelected.length !== 3} onClick={() => {
+            const result = synthesizeEquip(synthSelected);
+            alert(result.message);
+            if (result.success) setSynthSelected([]);
+          }}>合成!</button>
+          <button className="small-btn" onClick={() => { setSynthMode(false); setSynthSelected([]); }}>取消</button>
+        </div>
+      )}
+
       <div className="bag-filters">
         {([['all', '全部'], ['weapon', '武器'], ['armor', '护甲'], ['treasure', '法宝']] as const).map(([key, label]) => (
           <button key={key} className={`filter-btn ${filter === key ? 'active' : ''}`}
@@ -176,11 +192,25 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
 
         return (
           <Card key={item.uid} className="inv-item-card" borderColor={qi.color}
-            style={{ background: decomposeMode && isSelected ? 'rgba(244,67,54,0.1)' : undefined, cursor: decomposeMode ? 'pointer' : undefined }}
-            onClick={decomposeMode ? () => { if (!item.locked) toggleSelect(item.uid); } : undefined}>
+            style={{ background: decomposeMode && isSelected ? 'rgba(244,67,54,0.1)' : synthMode && synthSelected.includes(item.uid) ? 'rgba(124,77,255,0.15)' : undefined, cursor: (decomposeMode || synthMode) ? 'pointer' : undefined }}
+            onClick={decomposeMode ? () => { if (!item.locked) toggleSelect(item.uid); } : synthMode ? () => {
+              if (item.locked) return;
+              setSynthSelected(prev => {
+                if (prev.includes(item.uid)) return prev.filter(u => u !== item.uid);
+                if (prev.length >= 3) return prev;
+                // Enforce same quality
+                if (prev.length > 0) {
+                  const firstItem = inventory.find(i => i.uid === prev[0]);
+                  if (firstItem && firstItem.quality !== item.quality) { alert('必须选择相同品质的装备'); return prev; }
+                }
+                if (item.quality === 'mythic') { alert('鸿蒙品质已是最高'); return prev; }
+                return [...prev, item.uid];
+              });
+            } : undefined}>
             <div className="equip-header">
               <span style={{ color: qi.color }}>
                 {decomposeMode && <span style={{ marginRight: 4 }}>{isSelected ? '[x]' : '[ ]'}</span>}
+                {synthMode && <span style={{ marginRight: 4, color: '#7c4dff' }}>{synthSelected.includes(item.uid) ? '◆' : '◇'}</span>}
                 {item.locked ? '🔒' : ''}{qi.symbol} {item.name} {item.level > 0 ? `+${item.level}` : ''}
               </span>
               <span style={{ color: qi.color, fontSize: 11 }}>{qi.label}</span>

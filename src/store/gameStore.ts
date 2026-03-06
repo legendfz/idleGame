@@ -3,7 +3,7 @@ let _lastBackpackFullWarn = 0;
 let _achStatesCache: Record<string, { completed: boolean }> | null = null;
 export function setAchStatesCache(states: Record<string, { completed: boolean }>) { _achStatesCache = states; }
 import { create } from 'zustand';
-import { PlayerState, BattleState, BattleLogEntry, TabId, GameSave, EquipmentItem, EquipSlot, Stats, QUALITY_INFO, FloatingText, INVENTORY_MAX, OfflineReport, ActiveConsumable, ConsumableEffect } from '../types';
+import { PlayerState, BattleState, BattleLogEntry, TabId, GameSave, EquipmentItem, EquipSlot, Quality, Stats, QUALITY_INFO, FloatingText, INVENTORY_MAX, OfflineReport, ActiveConsumable, ConsumableEffect } from '../types';
 import { getConsumable } from '../data/consumables';
 import { REALMS } from '../data/realms';
 import { ACHIEVEMENTS as ACHIEVEMENTS_DATA } from '../data/achievements';
@@ -23,7 +23,7 @@ import {
   isHighEnhance, getHighEnhanceRate, getHighEnhanceDrop,
   canRefine, getRefineCost, REFINE_MATERIAL_COUNT, REFINE_BASE_RATE,
   REFINE_TIANMING_BONUS, REFINE_SHARD_PITY, hasHiddenPassive, hasFullMythic15,
-  SCROLL_PRICES,
+  SCROLL_PRICES, EQUIPMENT_TEMPLATES,
 } from '../data/equipment';
 import { calculateOfflineEarnings } from '../engine/offline';
 import { useSanctuaryStore } from './sanctuaryStore';
@@ -152,6 +152,8 @@ interface GameStore {
   addConsumable: (buffId: string, count: number) => void;
   // v55.0 Generic player update
   updatePlayer: (partial: Partial<PlayerState>) => void;
+  // v97.0 Equipment synthesis
+  synthesizeEquip: (uids: string[]) => { success: boolean; result?: EquipmentItem; message: string };
 }
 
 interface SaveSlotInfo {
@@ -2148,5 +2150,55 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
   updatePlayer: (partial: Partial<PlayerState>) => {
     set({ player: { ...get().player, ...partial } });
+  },
+
+  // v97.0: Equipment synthesis — 3 same-quality items → 1 higher-quality item
+  synthesizeEquip: (uids: string[]) => {
+    const state = get();
+    if (uids.length !== 3) return { success: false, message: '需要选择3件装备' };
+
+    const items = uids.map(uid => state.inventory.find(i => i.uid === uid)).filter(Boolean) as EquipmentItem[];
+    if (items.length !== 3) return { success: false, message: '装备不存在' };
+    if (items.some(i => i.locked)) return { success: false, message: '不能合成已锁定装备' };
+
+    const quality = items[0].quality;
+    if (!items.every(i => i.quality === quality)) return { success: false, message: '3件装备品质必须相同' };
+
+    const qualityOrder: Quality[] = ['common', 'spirit', 'immortal', 'divine', 'legendary', 'mythic'];
+    const qIdx = qualityOrder.indexOf(quality);
+    if (qIdx >= qualityOrder.length - 1) return { success: false, message: '鸿蒙品质已是最高，无法合成' };
+
+    const nextQuality = qualityOrder[qIdx + 1];
+    // Pick random template of next quality, preferring same slot as majority input
+    const slotCounts: Record<string, number> = {};
+    items.forEach(i => { slotCounts[i.slot] = (slotCounts[i.slot] || 0) + 1; });
+    const preferredSlot = Object.entries(slotCounts).sort((a, b) => b[1] - a[1])[0][0] as EquipSlot;
+
+    let pool = EQUIPMENT_TEMPLATES.filter(t => t.quality === nextQuality && t.slot === preferredSlot);
+    if (pool.length === 0) pool = EQUIPMENT_TEMPLATES.filter(t => t.quality === nextQuality);
+    if (pool.length === 0) return { success: false, message: '没有可合成的目标装备' };
+
+    const template = pool[Math.floor(Math.random() * pool.length)];
+    const newItem = createEquipFromTemplate(template);
+
+    // Remove 3 materials, add result
+    const uidSet = new Set(uids);
+    const newInventory = state.inventory.filter(i => !uidSet.has(i.uid));
+    newInventory.push(newItem);
+
+    // Update codex
+    const codexEquipIds = [...state.player.codexEquipIds];
+    if (!codexEquipIds.includes(newItem.templateId)) codexEquipIds.push(newItem.templateId);
+
+    set({
+      inventory: newInventory,
+      player: { ...state.player, codexEquipIds },
+      battle: {
+        ...state.battle,
+        log: addLog(state.battle.log, `合成成功！${QUALITY_INFO[quality].symbol}×3 → ${QUALITY_INFO[nextQuality].symbol}${newItem.name}`, 'levelup'),
+      },
+    });
+
+    return { success: true, result: newItem, message: `合成成功！获得 ${QUALITY_INFO[nextQuality].symbol}${newItem.name}` };
   },
 }));
