@@ -79,6 +79,7 @@ interface GameStore {
   autoEnhance: boolean; // v95.0: auto-enhance equipped gear
   autoBuyPerks: boolean; // v96.0: auto-buy reincarnation perks
   autoSynth: boolean; // v98.0: auto-synthesize 3 same-quality equips
+  autoReincarnate: boolean; // v102.0: auto-reincarnate when conditions met
   lastWheelSpin: number; // v83.0: last wheel spin timestamp
   equippedTitle: string | null; // v81.0: equipped title id
   unlockedTitles: string[]; // v81.0: unlocked title ids
@@ -130,6 +131,7 @@ interface GameStore {
   setAutoEnhance: (v: boolean) => void;
   setAutoBuyPerks: (v: boolean) => void;
   setAutoSynth: (v: boolean) => void;
+  setAutoReincarnate: (v: boolean) => void;
   setEquippedTitle: (id: string | null) => void;
   setCompletedChallenges: (ids: string[]) => void;
   activateFateBlessing: () => boolean;
@@ -406,6 +408,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   autoEnhance: false,
   autoBuyPerks: false,
   autoSynth: false,
+  autoReincarnate: false,
   lastWheelSpin: 0,
   equippedTitle: null,
   completedChallenges: [],
@@ -436,6 +439,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setAutoEnhance: (v: boolean) => set({ autoEnhance: v }),
   setAutoBuyPerks: (v: boolean) => set({ autoBuyPerks: v }),
   setAutoSynth: (v: boolean) => set({ autoSynth: v }),
+  setAutoReincarnate: (v: boolean) => set({ autoReincarnate: v }),
   setEquippedTitle: (id: string | null) => set({ equippedTitle: id }),
   setCompletedChallenges: (ids: string[]) => {
     const today = new Date().toISOString().slice(0, 10);
@@ -1078,6 +1082,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
             if (result.success) { didSynth = true; break; }
           }
         }
+      }
+    }
+
+    // v102.0: Auto-reincarnate every 120 ticks when conditions met
+    if (state.autoReincarnate && state.totalPlayTime % 120 === 0 && state.totalPlayTime > 0) {
+      if (updatedPlayer.realmIndex >= REINC_MIN_REALM && updatedPlayer.level >= REINC_MIN_LEVEL) {
+        // Use get().reincarnate() to trigger full reincarnation
+        // We need to save current state first, then trigger reincarnate
+        set({ player: updatedPlayer, battle: updatedBattle, inventory: updatedInventory });
+        get().reincarnate();
+        return; // Reincarnation resets everything, skip rest of tick
       }
     }
 
@@ -1837,6 +1852,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       autoEnhance: state.autoEnhance,
       autoBuyPerks: state.autoBuyPerks,
       autoSynth: state.autoSynth,
+      autoReincarnate: state.autoReincarnate,
       lastWheelSpin: state.lastWheelSpin,
       equippedTitle: state.equippedTitle,
       unlockedTitles: state.unlockedTitles,
@@ -2013,6 +2029,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         autoEnhance: (save as any).autoEnhance ?? false,
         autoBuyPerks: (save as any).autoBuyPerks ?? false,
         autoSynth: (save as any).autoSynth ?? false,
+        autoReincarnate: (save as any).autoReincarnate ?? false,
         lastWheelSpin: (save as any).lastWheelSpin ?? 0,
         equippedTitle: (save as any).equippedTitle ?? null,
         unlockedTitles: (save as any).unlockedTitles ?? [],

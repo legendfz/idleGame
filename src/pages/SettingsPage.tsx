@@ -52,6 +52,8 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
   const setAutoBuyPerks = useGameStore(s => s.setAutoBuyPerks);
   const autoSynth = useGameStore(s => s.autoSynth);
   const setAutoSynth = useGameStore(s => s.setAutoSynth);
+  const autoReincarnate = useGameStore(s => s.autoReincarnate);
+  const setAutoReincarnate = useGameStore(s => s.setAutoReincarnate);
   const DECOMP_LABELS = ['关闭', '凡品', '灵品以下', '仙品以下'];
 
   const toggleAnim = () => {
@@ -145,7 +147,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
       <Card>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
           onClick={() => {
-            const allOn = autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoBuyPerks && autoSynth;
+            const allOn = autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoBuyPerks && autoSynth && autoReincarnate;
             if (allOn) {
               setAutoDecomp(0); setAutoEquip(false); setAutoSkill(false); setAutoConsume(false);
               setAutoWorldBoss(false); setAutoExplore(false); setAutoSanctuary(false); setAutoAffinity(false);
@@ -153,15 +155,15 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
             } else {
               setAutoDecomp(2); setAutoEquip(true); setAutoSkill(true); setAutoConsume(true);
               setAutoWorldBoss(true); setAutoExplore(true); setAutoSanctuary(true); setAutoAffinity(true);
-              setAutoSweep(true); setAutoFate(true); setAutoWheel(true); setAutoTrial(true); setAutoAscension(true); setAutoEnhance(true); setAutoBuyPerks(true); setAutoSynth(true);
+              setAutoSweep(true); setAutoFate(true); setAutoWheel(true); setAutoTrial(true); setAutoAscension(true); setAutoEnhance(true); setAutoBuyPerks(true); setAutoSynth(true); setAutoReincarnate(true);
             }
           }}>
           <span style={{ fontWeight: 700, fontSize: 15 }}>🤖 一键全自动</span>
           <span style={{
-            color: (autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoBuyPerks && autoSynth) ? '#ffd700' : 'var(--dim)',
+            color: (autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoBuyPerks && autoSynth && autoReincarnate) ? '#ffd700' : 'var(--dim)',
             fontWeight: 600
           }}>
-            {(autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoBuyPerks && autoSynth) ? '✅ 全部开启' : '点击全开'}
+            {(autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoBuyPerks && autoSynth && autoReincarnate) ? '✅ 全部开启' : '点击全开'}
           </span>
         </div>
       </Card>
@@ -290,6 +292,12 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
           <span className="stat-label">自动合成装备（低→高品质）</span>
           <span style={{ color: autoSynth ? 'var(--accent)' : 'var(--dim)' }}>
             {autoSynth ? '✅ 开启' : '关闭'}
+          </span>
+        </div>
+        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoReincarnate(!autoReincarnate)}>
+          <span className="stat-label">自动转世（达到大乘境界自动轮回）</span>
+          <span style={{ color: autoReincarnate ? 'var(--accent)' : 'var(--dim)' }}>
+            {autoReincarnate ? '✅ 开启' : '关闭'}
           </span>
         </div>
       </Card>
