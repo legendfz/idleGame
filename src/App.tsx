@@ -41,6 +41,47 @@ import { getCurrentWorldBoss } from './data/worldBoss';
 
 const LazyFallback = () => <div style={{ padding: 40, textAlign: 'center', color: '#aaa' }}>加载中...</div>;
 
+function StoryModal() {
+  const story = useGameStore(s => s.activeStory);
+  if (!story) return null;
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 20000,
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
+      animation: 'fadeIn 0.5s ease',
+    }} onClick={() => useGameStore.setState({ activeStory: null })}>
+      <div style={{
+        background: 'linear-gradient(135deg, #1a1a2e, #16213e)', border: '2px solid #ffd700',
+        borderRadius: 16, padding: '28px 24px', maxWidth: 360, width: '100%',
+        boxShadow: '0 0 40px rgba(255,215,0,0.3)', textAlign: 'center',
+      }} onClick={e => e.stopPropagation()}>
+        <div style={{ fontSize: 14, color: '#ffd700', marginBottom: 8, letterSpacing: 2 }}>═══ 仙途传说 ═══</div>
+        <h2 style={{ color: '#fff', fontSize: 22, margin: '8px 0 16px', textShadow: '0 0 10px rgba(255,215,0,0.5)' }}>
+          {story.title}
+        </h2>
+        <p style={{ color: '#ddd', fontSize: 14, lineHeight: 1.8, textAlign: 'left', marginBottom: 16 }}>
+          {story.text}
+        </p>
+        {story.reward && (
+          <div style={{
+            background: 'rgba(255,215,0,0.15)', borderRadius: 8, padding: '8px 12px',
+            color: '#ffd700', fontSize: 13, marginBottom: 12,
+          }}>
+            🎁 获得奖励：{story.reward.type === 'lingshi' ? '灵石' : story.reward.type === 'pantao' ? '蟠桃' : '经验'} +{story.reward.amount.toLocaleString()}
+          </div>
+        )}
+        <button style={{
+          background: 'linear-gradient(135deg, #ffd700, #ff8c00)', border: 'none',
+          borderRadius: 20, padding: '10px 32px', color: '#1a1a2e', fontWeight: 700,
+          fontSize: 15, cursor: 'pointer',
+        }} onClick={() => useGameStore.setState({ activeStory: null })}>
+          继续修行
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function TitleToast() {
   const titleToast = useGameStore(s => s.titleToast);
   if (!titleToast) return null;
@@ -317,6 +358,7 @@ export default function App() {
       <OfflineReportModal />
       <TutorialOverlay />
       <TitleToast />
+      <StoryModal />
       {saveFlash && (
         <div style={{
           position: 'fixed', bottom: 70, left: '50%', transform: 'translateX(-50%)',

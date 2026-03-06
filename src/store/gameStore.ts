@@ -32,6 +32,7 @@ import { getResonanceBonus } from '../data/resonance';
 import { useAffinityStore } from './affinityStore';
 import { AFFINITY_NPCS as AFFINITY_NPCS_LIST } from '../engine/affinity';
 import { TITLES, type TitleCheckStats } from '../data/titles';
+import { STORIES as STORY_LIST } from '../data/story';
 import { useExplorationStore } from './explorationStore';
 
 let logIdCounter = 0;
@@ -86,6 +87,8 @@ interface GameStore {
   completedChallenges: string[]; // v87.0: completed ascension challenge ids today
   completedChallengesDate: string; // v87.0: date string for daily reset
   titleToast: string | null; // v89.0: title unlock toast
+  seenStories: string[]; // v101.0: seen story entries
+  activeStory: { title: string; text: string; reward?: { type: string; amount: number } } | null; // v101.0
 
   // Actions
   setTab: (tab: TabId) => void;
@@ -408,6 +411,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   completedChallenges: [],
   completedChallengesDate: '',
   titleToast: null,
+  seenStories: [],
+  activeStory: null,
   unlockedTitles: [],
   onlineRewardsClaimed: [],
   fateBlessing: { active: false, expiresAt: 0 },
@@ -1124,6 +1129,28 @@ export const useGameStore = create<GameStore>((set, get) => ({
       }
     }
 
+    // v101.0: Story triggers
+    if (state.totalPlayTime % 10 === 0) {
+      const seen = state.seenStories;
+      for (const story of STORY_LIST) {
+        if (seen.includes(story.id)) continue;
+        let triggered = false;
+        if (story.trigger.type === 'level' && updatedPlayer.level >= story.trigger.value) triggered = true;
+        if (story.trigger.type === 'reincarnation' && updatedPlayer.reincarnations >= story.trigger.value) triggered = true;
+        if (triggered) {
+          const newSeen = [...seen, story.id];
+          // Apply reward
+          if (story.reward) {
+            if (story.reward.type === 'lingshi') updatedPlayer.lingshi += story.reward.amount;
+            if (story.reward.type === 'pantao') updatedPlayer.pantao += story.reward.amount;
+            if (story.reward.type === 'exp') updatedPlayer.exp += story.reward.amount;
+          }
+          set({ seenStories: newSeen, activeStory: { title: story.title, text: story.text, reward: story.reward }, player: updatedPlayer });
+          break; // one story per check
+        }
+      }
+    }
+
     // v31.0: Auto-decompose low quality items
     const adq = state.autoDecomposeQuality;
     if (adq > 0) {
@@ -1813,6 +1840,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       lastWheelSpin: state.lastWheelSpin,
       equippedTitle: state.equippedTitle,
       unlockedTitles: state.unlockedTitles,
+      seenStories: state.seenStories,
       fateBlessing: state.fateBlessing,
       onlineRewardsClaimed: state.onlineRewardsClaimed,
       completedChallenges: state.completedChallenges,
@@ -1988,6 +2016,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         lastWheelSpin: (save as any).lastWheelSpin ?? 0,
         equippedTitle: (save as any).equippedTitle ?? null,
         unlockedTitles: (save as any).unlockedTitles ?? [],
+        seenStories: (save as any).seenStories ?? [],
         fateBlessing: (save as any).fateBlessing ?? { active: false, expiresAt: 0 },
         onlineRewardsClaimed: [], // reset per session
         completedChallenges: (save as any).completedChallenges ?? [],
