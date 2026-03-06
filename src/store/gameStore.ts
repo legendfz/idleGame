@@ -23,6 +23,7 @@ import {
 } from '../data/equipment';
 import { calculateOfflineEarnings } from '../engine/offline';
 import { useSanctuaryStore } from './sanctuaryStore';
+import { BUILDINGS as SANCT_BUILDINGS, getUpgradeCost as getSanctUpgradeCost } from '../engine/sanctuary';
 import { getResonanceBonus } from '../data/resonance';
 import { useAffinityStore } from './affinityStore';
 import { useExplorationStore } from './explorationStore';
@@ -58,6 +59,7 @@ interface GameStore {
   autoConsume: boolean; // v63.0: auto-use potions
   autoWorldBoss: boolean; // v72.0: auto-attack world boss
   autoExplore: boolean; // v78.0: auto-explore dungeons
+  autoSanctuary: boolean; // v79.0: auto-upgrade sanctuary buildings
   onlineRewardsClaimed: number[]; // v57.0: claimed milestone minutes
   fateBlessing: { active: boolean; expiresAt: number }; // v73.0: double gains buff
 
@@ -347,6 +349,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   autoConsume: false,
   autoWorldBoss: false,
   autoExplore: false,
+  autoSanctuary: false,
   onlineRewardsClaimed: [],
   fateBlessing: { active: false, expiresAt: 0 },
 
@@ -359,6 +362,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setAutoConsume: (v: boolean) => set({ autoConsume: v }),
   setAutoWorldBoss: (v: boolean) => set({ autoWorldBoss: v }),
   setAutoExplore: (v: boolean) => set({ autoExplore: v }),
+  setAutoSanctuary: (v: boolean) => set({ autoSanctuary: v }),
   activateFateBlessing: () => {
     const state = get();
     if (state.player.tianmingScrolls <= 0) return false;
@@ -760,6 +764,21 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const sBuffs = useSanctuaryStore.getState().getBuffs();
     if (sBuffs.lingshi) updatedPlayer.lingshi += sBuffs.lingshi;
     if (sBuffs.exp) updatedPlayer.exp += sBuffs.exp;
+
+    // v79.0: Auto-upgrade sanctuary buildings (cheapest first)
+    if (state.autoSanctuary) {
+      const sanctStore = useSanctuaryStore.getState();
+      const sanctLevels = sanctStore.sanctuary.levels;
+      const upgradeable = SANCT_BUILDINGS
+        .map(b => ({ id: b.id, cost: getSanctUpgradeCost(b, sanctLevels[b.id] ?? 0), lv: sanctLevels[b.id] ?? 0 }))
+        .filter(x => x.lv < 10 && x.cost <= updatedPlayer.lingshi)
+        .sort((a, b) => a.cost - b.cost);
+      if (upgradeable.length > 0) {
+        const best = upgradeable[0];
+        const res = sanctStore.upgrade(best.id, updatedPlayer.lingshi);
+        if (res) updatedPlayer.lingshi -= res.cost;
+      }
+    }
 
     // v13: Exploration daily reset
     useExplorationStore.getState().tickReset();
@@ -1444,6 +1463,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       autoConsume: state.autoConsume,
       autoWorldBoss: state.autoWorldBoss,
       autoExplore: state.autoExplore,
+      autoSanctuary: state.autoSanctuary,
       fateBlessing: state.fateBlessing,
       onlineRewardsClaimed: state.onlineRewardsClaimed,
     } as any;
@@ -1574,6 +1594,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         autoConsume: (save as any).autoConsume ?? false,
         autoWorldBoss: (save as any).autoWorldBoss ?? false,
         autoExplore: (save as any).autoExplore ?? false,
+        autoSanctuary: (save as any).autoSanctuary ?? false,
         fateBlessing: (save as any).fateBlessing ?? { active: false, expiresAt: 0 },
         onlineRewardsClaimed: [], // reset per session
       });
