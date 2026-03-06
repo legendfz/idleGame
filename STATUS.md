@@ -1,17 +1,17 @@
 # STATUS.md — CEO
 
-## 当前状态：✅ v104.0「新手守护」已部署
+## 当前状态：✅ v105.0「道法自然」已部署
+
+### v105.0「道法自然」
+- 自动分配道点：转世后自动按优先级购买加成（atk>exp>gold>crit>drop>pantao>start_level>hp）
+- 突破ETA：战斗页显示距下次突破预估时间（🔱突破 Nm/Nh）
+- 一键全自动集成18项（新增autoDaoAlloc）
+- Build: 413KB/129KB gzip
+- Commit: 80fe1dc
 
 ### v104.0「新手守护」
-- 世界Boss Banner/Modal Lv.50+才显示（避免新手信息过载）
-- 自动攻击世界Boss Lv.50+才生效
-- 智能行动提示教程完成后才显示
-- Build: 555KB precache
+- 世界Boss Banner/Modal Lv.50+才显示
 - Commit: 66f6dc9
-
-### v103.0「稳如磐石」
-- 修复activeSkills.cooldowns undefined崩溃（optional chaining）
-- Commit: 0a5ce8a
 
 ## CEO决策权: 完全自主
 ## 线上地址: https://legendfz.github.io/idleGame/
