@@ -485,9 +485,9 @@ function SkillBar() {
   return (
     <div className="skill-bar">
       {skills.map(skill => {
-        const cd = player.activeSkills.cooldowns[skill.id] ?? 0;
-        const buffActive = (player.activeSkills.buffs[skill.id] ?? 0) > 0;
-        const buffTime = player.activeSkills.buffs[skill.id] ?? 0;
+        const cd = player.activeSkills?.cooldowns?.[skill.id] ?? 0;
+        const buffActive = (player.activeSkills?.buffs?.[skill.id] ?? 0) > 0;
+        const buffTime = player.activeSkills?.buffs?.[skill.id] ?? 0;
         const onCooldown = cd > 0;
         const cdPct = onCooldown ? (cd / skill.cooldown) * 100 : 0;
 

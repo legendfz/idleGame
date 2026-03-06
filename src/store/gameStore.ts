@@ -560,7 +560,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     let tickDmg = 0;
 
     // v52.0: Tick skill cooldowns & buffs
-    const skillState = { ...updatedPlayer.activeSkills, cooldowns: { ...updatedPlayer.activeSkills.cooldowns }, buffs: { ...updatedPlayer.activeSkills.buffs } };
+    const as = updatedPlayer.activeSkills ?? { cooldowns: {}, buffs: {} };
+    const skillState = { ...as, cooldowns: { ...(as.cooldowns ?? {}) }, buffs: { ...(as.buffs ?? {}) } };
     for (const sid of Object.keys(skillState.cooldowns)) {
       skillState.cooldowns[sid] = Math.max(0, skillState.cooldowns[sid] - 1);
       if (skillState.cooldowns[sid] <= 0) delete skillState.cooldowns[sid];
@@ -2155,12 +2156,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const skill = ACTIVE_SKILLS.find(s => s.id === skillId);
     if (!skill) return false;
     if (player.level < skill.unlockLevel) return false;
-    const cd = player.activeSkills.cooldowns[skillId] ?? 0;
+    const cd = player.activeSkills?.cooldowns?.[skillId] ?? 0;
     if (cd > 0) return false;
 
     const newSkillState = {
-      cooldowns: { ...player.activeSkills.cooldowns, [skillId]: skill.cooldown },
-      buffs: { ...player.activeSkills.buffs },
+      cooldowns: { ...(player.activeSkills?.cooldowns ?? {}), [skillId]: skill.cooldown },
+      buffs: { ...(player.activeSkills?.buffs ?? {}) },
     };
 
     if (skill.effect.type === 'shield' || skill.effect.type === 'attackBuff') {
