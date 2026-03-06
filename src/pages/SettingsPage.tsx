@@ -30,8 +30,10 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
   const setAutoConsume = useGameStore(s => s.setAutoConsume);
   const autoWorldBoss = useGameStore(s => (s as any).autoWorldBoss) as boolean;
   const autoExplore = useGameStore(s => (s as any).autoExplore) as boolean;
+  const autoSanctuary = useGameStore(s => (s as any).autoSanctuary) as boolean;
   const setAutoWorldBoss = useGameStore(s => (s as any).setAutoWorldBoss) as (v: boolean) => void;
   const setAutoExplore = useGameStore(s => (s as any).setAutoExplore) as (v: boolean) => void;
+  const setAutoSanctuary = useGameStore(s => (s as any).setAutoSanctuary) as (v: boolean) => void;
   const DECOMP_LABELS = ['关闭', '凡品', '灵品以下', '仙品以下'];
 
   const toggleAnim = () => {
@@ -169,6 +171,12 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
           <span className="stat-label">自动秘境探索</span>
           <span style={{ color: autoExplore ? 'var(--accent)' : 'var(--dim)' }}>
             {autoExplore ? '✅ 开启' : '关闭'}
+          </span>
+        </div>
+        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoSanctuary(!autoSanctuary)}>
+          <span className="stat-label">自动洞天升级</span>
+          <span style={{ color: autoSanctuary ? 'var(--accent)' : 'var(--dim)' }}>
+            {autoSanctuary ? '✅ 开启' : '关闭'}
           </span>
         </div>
       </Card>
