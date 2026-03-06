@@ -228,7 +228,7 @@ export type TabId = 'battle' | 'team' | 'journey' | 'bag' | 'achievement' | 'set
 export interface FloatingText {
   id: number;
   text: string;
-  type: 'normal' | 'crit' | 'click';
+  type: 'normal' | 'crit' | 'click' | 'gold' | 'exp' | 'levelup' | 'drop';
   timestamp: number;
 }
 

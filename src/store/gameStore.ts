@@ -8,7 +8,7 @@ import { getConsumable } from '../data/consumables';
 import { REALMS } from '../data/realms';
 import { ACHIEVEMENTS as ACHIEVEMENTS_DATA } from '../data/achievements';
 import { CHAPTERS, createEnemy, ABYSS_CHAPTER_ID } from '../data/chapters';
-import { expForLevel } from '../utils/format';
+import { expForLevel, formatNumber } from '../utils/format';
 import { sfx } from '../engine/audio';
 import { calcDaoPoints, REINC_PERKS, REINC_MIN_REALM, REINC_MIN_LEVEL, getReincMilestoneBonus } from '../data/reincarnation';
 import { AWAKENING_PATHS, totalAwakeningPoints, AWAKENING_UNLOCK_REINC } from '../data/awakening';
@@ -728,6 +728,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
       tickGold += lingshiDrop;
       tickExp += expDrop;
       log = addLog(log, `  灵石+${lingshiDrop}  经验+${expDrop}`, 'drop');
+      // v106.0: Reward floats
+      if (lingshiDrop > 0) newFloats.push({ id: floatIdCounter++, text: `+${formatNumber(lingshiDrop)}💰`, type: 'gold', timestamp: Date.now() });
+      if (expDrop > 0) newFloats.push({ id: floatIdCounter++, text: `+${formatNumber(expDrop)}✨`, type: 'exp', timestamp: Date.now() });
 
       if (enemy.pantaoDrop > 0 && Math.random() < enemy.pantaoDrop) {
         updatedPlayer.pantao += 1;
@@ -762,6 +765,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           }
           const qi = QUALITY_INFO[eqDrop.quality];
           log = addLog(log, `  获得 ${qi.symbol}${eqDrop.name}`, 'drop');
+          newFloats.push({ id: floatIdCounter++, text: `${qi.symbol}${eqDrop.name}`, type: 'drop', timestamp: Date.now() });
           sfx.itemDrop();
           // v39.0: Auto-equip if better
           if (state.autoEquipOnDrop) {
@@ -795,6 +799,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         updatedPlayer.stats.hp = updatedPlayer.stats.maxHp;
         updatedPlayer.clickPower = Math.floor(5 + updatedPlayer.level * 0.8);
         log = addLog(log, `升级 Lv.${updatedPlayer.level}  攻+${Math.floor(3 + updatedPlayer.level * 0.5)}  血+${Math.floor(10 + updatedPlayer.level * 2)}`, 'levelup');
+        newFloats.push({ id: floatIdCounter++, text: `🎉 Lv.${updatedPlayer.level}`, type: 'levelup', timestamp: Date.now() });
         sfx.levelUp();
       }
 
