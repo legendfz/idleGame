@@ -48,6 +48,8 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
   const setAutoAscension = useGameStore(s => s.setAutoAscension);
   const autoEnhance = useGameStore(s => s.autoEnhance);
   const setAutoEnhance = useGameStore(s => s.setAutoEnhance);
+  const autoBuyPerks = useGameStore(s => s.autoBuyPerks);
+  const setAutoBuyPerks = useGameStore(s => s.setAutoBuyPerks);
   const DECOMP_LABELS = ['关闭', '凡品', '灵品以下', '仙品以下'];
 
   const toggleAnim = () => {
@@ -141,23 +143,23 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
       <Card>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
           onClick={() => {
-            const allOn = autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance;
+            const allOn = autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoBuyPerks;
             if (allOn) {
               setAutoDecomp(0); setAutoEquip(false); setAutoSkill(false); setAutoConsume(false);
               setAutoWorldBoss(false); setAutoExplore(false); setAutoSanctuary(false); setAutoAffinity(false);
-              setAutoSweep(false); setAutoFate(false); setAutoWheel(false); setAutoTrial(false); setAutoAscension(false); setAutoEnhance(false);
+              setAutoSweep(false); setAutoFate(false); setAutoWheel(false); setAutoTrial(false); setAutoAscension(false); setAutoEnhance(false); setAutoBuyPerks(false);
             } else {
               setAutoDecomp(2); setAutoEquip(true); setAutoSkill(true); setAutoConsume(true);
               setAutoWorldBoss(true); setAutoExplore(true); setAutoSanctuary(true); setAutoAffinity(true);
-              setAutoSweep(true); setAutoFate(true); setAutoWheel(true); setAutoTrial(true); setAutoAscension(true); setAutoEnhance(true);
+              setAutoSweep(true); setAutoFate(true); setAutoWheel(true); setAutoTrial(true); setAutoAscension(true); setAutoEnhance(true); setAutoBuyPerks(true);
             }
           }}>
           <span style={{ fontWeight: 700, fontSize: 15 }}>🤖 一键全自动</span>
           <span style={{
-            color: (autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance) ? '#ffd700' : 'var(--dim)',
+            color: (autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoBuyPerks) ? '#ffd700' : 'var(--dim)',
             fontWeight: 600
           }}>
-            {(autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance) ? '✅ 全部开启' : '点击全开'}
+            {(autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoBuyPerks) ? '✅ 全部开启' : '点击全开'}
           </span>
         </div>
       </Card>
@@ -274,6 +276,12 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
           <span className="stat-label">自动强化已装备（+1~+10）</span>
           <span style={{ color: autoEnhance ? 'var(--accent)' : 'var(--dim)' }}>
             {autoEnhance ? '✅ 开启' : '关闭'}
+          </span>
+        </div>
+        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoBuyPerks(!autoBuyPerks)}>
+          <span className="stat-label">自动购买道点加成</span>
+          <span style={{ color: autoBuyPerks ? 'var(--accent)' : 'var(--dim)' }}>
+            {autoBuyPerks ? '✅ 开启' : '关闭'}
           </span>
         </div>
       </Card>

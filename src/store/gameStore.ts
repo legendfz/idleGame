@@ -11,6 +11,7 @@ import { CHAPTERS, createEnemy, ABYSS_CHAPTER_ID } from '../data/chapters';
 import { expForLevel } from '../utils/format';
 import { sfx } from '../engine/audio';
 import { calcDaoPoints, REINC_PERKS, REINC_MIN_REALM, REINC_MIN_LEVEL, getReincMilestoneBonus } from '../data/reincarnation';
+import { AWAKENING_PATHS, totalAwakeningPoints, AWAKENING_UNLOCK_REINC } from '../data/awakening';
 import { ACTIVE_SKILLS } from '../data/skills';
 import { getAwakeningBonuses } from '../components/AwakeningPanel';
 import { ABYSS_MILESTONES } from '../data/abyssMilestones';
@@ -75,6 +76,7 @@ interface GameStore {
   autoTrial: boolean; // v93.0: auto quick trial every 5 min
   autoAscension: boolean; // v93.0: auto ascension challenge daily
   autoEnhance: boolean; // v95.0: auto-enhance equipped gear
+  autoBuyPerks: boolean; // v96.0: auto-buy reincarnation perks
   lastWheelSpin: number; // v83.0: last wheel spin timestamp
   equippedTitle: string | null; // v81.0: equipped title id
   unlockedTitles: string[]; // v81.0: unlocked title ids
@@ -122,6 +124,7 @@ interface GameStore {
   setAutoTrial: (v: boolean) => void;
   setAutoAscension: (v: boolean) => void;
   setAutoEnhance: (v: boolean) => void;
+  setAutoBuyPerks: (v: boolean) => void;
   setEquippedTitle: (id: string | null) => void;
   setCompletedChallenges: (ids: string[]) => void;
   activateFateBlessing: () => boolean;
@@ -394,6 +397,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   autoTrial: false,
   autoAscension: false,
   autoEnhance: false,
+  autoBuyPerks: false,
   lastWheelSpin: 0,
   equippedTitle: null,
   completedChallenges: [],
@@ -420,6 +424,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setAutoTrial: (v: boolean) => set({ autoTrial: v }),
   setAutoAscension: (v: boolean) => set({ autoAscension: v }),
   setAutoEnhance: (v: boolean) => set({ autoEnhance: v }),
+  setAutoBuyPerks: (v: boolean) => set({ autoBuyPerks: v }),
   setEquippedTitle: (id: string | null) => set({ equippedTitle: id }),
   setCompletedChallenges: (ids: string[]) => {
     const today = new Date().toISOString().slice(0, 10);
@@ -975,6 +980,71 @@ export const useGameStore = create<GameStore>((set, get) => ({
           updatedPlayer.lingshi -= cost;
           const enhanced = { ...item, level: item.level + 1 };
           set({ [key]: enhanced } as any);
+        }
+      }
+    }
+
+    // v96.0: Auto-buy reincarnation perks every 60 ticks
+    if (state.autoBuyPerks && state.totalPlayTime % 60 === 0 && state.totalPlayTime > 0 && updatedPlayer.daoPoints > 0) {
+      // Buy cheapest available perk repeatedly until out of points
+      let bought = true;
+      while (bought) {
+        bought = false;
+        let cheapest: { id: string; cost: number } | null = null;
+        for (const perk of REINC_PERKS) {
+          const lv = updatedPlayer.reincPerks?.[perk.id] ?? 0;
+          if (lv >= perk.maxLevel) continue;
+          if (!cheapest || perk.costPerLevel < cheapest.cost) {
+            cheapest = { id: perk.id, cost: perk.costPerLevel };
+          }
+        }
+        if (cheapest && updatedPlayer.daoPoints >= cheapest.cost) {
+          updatedPlayer.daoPoints -= cheapest.cost;
+          updatedPlayer.reincPerks = { ...updatedPlayer.reincPerks, [cheapest.id]: (updatedPlayer.reincPerks?.[cheapest.id] ?? 0) + 1 };
+          bought = true;
+        }
+      }
+    }
+
+    // v96.0: Auto-unlock awakening nodes every 60 ticks
+    if (state.autoBuyPerks && state.totalPlayTime % 60 === 0 && state.totalPlayTime > 0) {
+      const reincCount = updatedPlayer.reincarnations ?? 0;
+      if (reincCount >= AWAKENING_UNLOCK_REINC) {
+        const awState = updatedPlayer.awakening ?? { unlockedNodes: [] as string[], selectedPath: null };
+        const unlocked = new Set<string>(awState.unlockedNodes ?? []);
+        const totalPts = totalAwakeningPoints(reincCount);
+        const spentPts = (awState.unlockedNodes ?? []).reduce((sum: number, nid: string) => {
+          for (const path of AWAKENING_PATHS) {
+            const node = path.nodes.find(n => n.id === nid);
+            if (node) return sum + node.cost;
+          }
+          return sum;
+        }, 0);
+        let avail = totalPts - spentPts;
+        let changed = false;
+        // Greedily unlock cheapest available nodes across all paths
+        let found = true;
+        while (found && avail > 0) {
+          found = false;
+          let cheapestNode: { id: string; cost: number } | null = null;
+          for (const path of AWAKENING_PATHS) {
+            for (const node of path.nodes) {
+              if (unlocked.has(node.id)) continue;
+              if (node.requires && !unlocked.has(node.requires)) continue;
+              if (node.cost <= avail && (!cheapestNode || node.cost < cheapestNode.cost)) {
+                cheapestNode = { id: node.id, cost: node.cost };
+              }
+            }
+          }
+          if (cheapestNode) {
+            unlocked.add(cheapestNode.id);
+            avail -= cheapestNode.cost;
+            changed = true;
+            found = true;
+          }
+        }
+        if (changed) {
+          updatedPlayer.awakening = { ...awState, unlockedNodes: Array.from(unlocked) };
         }
       }
     }
@@ -1711,6 +1781,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       autoTrial: state.autoTrial,
       autoAscension: state.autoAscension,
       autoEnhance: state.autoEnhance,
+      autoBuyPerks: state.autoBuyPerks,
       lastWheelSpin: state.lastWheelSpin,
       equippedTitle: state.equippedTitle,
       unlockedTitles: state.unlockedTitles,
@@ -1884,6 +1955,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         autoTrial: (save as any).autoTrial ?? false,
         autoAscension: (save as any).autoAscension ?? false,
         autoEnhance: (save as any).autoEnhance ?? false,
+        autoBuyPerks: (save as any).autoBuyPerks ?? false,
         lastWheelSpin: (save as any).lastWheelSpin ?? 0,
         equippedTitle: (save as any).equippedTitle ?? null,
         unlockedTitles: (save as any).unlockedTitles ?? [],
