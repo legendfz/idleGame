@@ -28,20 +28,20 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
   const setAutoSkill = useGameStore(s => s.setAutoSkill);
   const autoConsume = useGameStore(s => s.autoConsume);
   const setAutoConsume = useGameStore(s => s.setAutoConsume);
-  const autoWorldBoss = useGameStore(s => (s as any).autoWorldBoss) as boolean;
-  const autoExplore = useGameStore(s => (s as any).autoExplore) as boolean;
-  const autoSanctuary = useGameStore(s => (s as any).autoSanctuary) as boolean;
-  const autoAffinity = useGameStore(s => (s as any).autoAffinity) as boolean;
-  const setAutoWorldBoss = useGameStore(s => (s as any).setAutoWorldBoss) as (v: boolean) => void;
-  const setAutoExplore = useGameStore(s => (s as any).setAutoExplore) as (v: boolean) => void;
-  const setAutoSanctuary = useGameStore(s => (s as any).setAutoSanctuary) as (v: boolean) => void;
-  const setAutoAffinity = useGameStore(s => (s as any).setAutoAffinity) as (v: boolean) => void;
-  const autoSweep = useGameStore(s => (s as any).autoSweep) as boolean;
-  const setAutoSweep = useGameStore(s => (s as any).setAutoSweep) as (v: boolean) => void;
-  const autoFate = useGameStore(s => (s as any).autoFate) as boolean;
-  const setAutoFate = useGameStore(s => (s as any).setAutoFate) as (v: boolean) => void;
-  const autoWheel = useGameStore(s => (s as any).autoWheel) as boolean;
-  const setAutoWheel = useGameStore(s => (s as any).setAutoWheel) as (v: boolean) => void;
+  const autoWorldBoss = useGameStore(s => s.autoWorldBoss);
+  const autoExplore = useGameStore(s => s.autoExplore);
+  const autoSanctuary = useGameStore(s => s.autoSanctuary);
+  const autoAffinity = useGameStore(s => s.autoAffinity);
+  const setAutoWorldBoss = useGameStore(s => s.setAutoWorldBoss);
+  const setAutoExplore = useGameStore(s => s.setAutoExplore);
+  const setAutoSanctuary = useGameStore(s => s.setAutoSanctuary);
+  const setAutoAffinity = useGameStore(s => s.setAutoAffinity);
+  const autoSweep = useGameStore(s => s.autoSweep);
+  const setAutoSweep = useGameStore(s => s.setAutoSweep);
+  const autoFate = useGameStore(s => s.autoFate);
+  const setAutoFate = useGameStore(s => s.setAutoFate);
+  const autoWheel = useGameStore(s => s.autoWheel);
+  const setAutoWheel = useGameStore(s => s.setAutoWheel);
   const DECOMP_LABELS = ['关闭', '凡品', '灵品以下', '仙品以下'];
 
   const toggleAnim = () => {
@@ -90,7 +90,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
       <Card><DailyChallengePanel /></Card>
 
       <Card className="clickable-card" style={{ cursor: 'pointer' }}
-        onClick={() => setSubPage({ type: 'wheel' as any })}>
+        onClick={() => setSubPage({ type: 'wheel' })}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontWeight: 600 }}>🎡 天道轮盘</span>
           <span className="color-dim" style={{ fontSize: 12 }}>消耗灵石抽奖</span>
@@ -98,7 +98,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
       </Card>
 
       <Card className="clickable-card" style={{ cursor: 'pointer' }}
-        onClick={() => setSubPage({ type: 'titles' as any })}>
+        onClick={() => setSubPage({ type: 'titles' })}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontWeight: 600 }}>👑 封神榜·称号</span>
           <span className="color-dim" style={{ fontSize: 12 }}>已解锁 {useGameStore.getState().unlockedTitles.length} 个</span>

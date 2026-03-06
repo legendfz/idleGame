@@ -72,7 +72,7 @@ function saveWorldBoss(data: WorldBossSave) {
 // v72.0: Auto world boss - runs in background via BattlePage
 export function useAutoWorldBoss() {
   const player = useGameStore(s => s.player);
-  const autoWorldBoss = useGameStore(s => (s as any).autoWorldBoss);
+  const autoWorldBoss = useGameStore(s => s.autoWorldBoss);
   const updatePlayer = useGameStore(s => s.updatePlayer);
 
   useEffect(() => {

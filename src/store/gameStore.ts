@@ -13,6 +13,7 @@ import { sfx } from '../engine/audio';
 import { calcDaoPoints, REINC_PERKS, REINC_MIN_REALM, REINC_MIN_LEVEL, getReincMilestoneBonus } from '../data/reincarnation';
 import { ACTIVE_SKILLS } from '../data/skills';
 import { getAwakeningBonuses } from '../components/AwakeningPanel';
+import { ABYSS_MILESTONES } from '../data/abyssMilestones';
 import {
   rollEquipDrop, createEquipFromTemplate, getEquipEffectiveStat,
   getEnhanceCost, getMaxEnhanceLevel, getActiveSetBonuses,
@@ -41,6 +42,7 @@ interface GameStore {
   highestStage: number;
   highestAbyssFloor: number; // v85.0: highest abyss floor reached
   allTimeKills: number; // v85.0: total kills across all reincarnations
+  claimedAbyssMilestones: number[]; // v86.0: claimed abyss floor milestones
   // Equipment
   equippedWeapon: EquipmentItem | null;
   equippedArmor: EquipmentItem | null;
@@ -104,9 +106,15 @@ interface GameStore {
   setAutoConsume: (v: boolean) => void;
   setAutoWorldBoss: (v: boolean) => void;
   setAutoExplore: (v: boolean) => void;
+  setAutoSanctuary: (v: boolean) => void;
+  setAutoAffinity: (v: boolean) => void;
+  setAutoSweep: (v: boolean) => void;
+  setAutoFate: (v: boolean) => void;
+  setAutoWheel: (v: boolean) => void;
   setEquippedTitle: (id: string | null) => void;
   activateFateBlessing: () => boolean;
   claimOnlineReward: (minutes: number) => { gold: number; exp: number; pantao: number; desc: string } | null;
+  claimAbyssMilestone: (floor: number) => boolean; // v86.0
   autoEquipBest: () => number;
   quickDecompose: (maxQuality: number) => number;
   goToChapter: (chapterId: number) => void;
@@ -180,6 +188,8 @@ function makeInitialPlayer(): PlayerState {
     activeSkills: { cooldowns: {}, buffs: {} },
     consumableInventory: {},
     activeConsumables: [],
+    awakening: { unlockedNodes: [], selectedPath: null },
+    awakeningPoints: 0,
     trialTokens: 0,
     trialBestFloor: 0,
     trialShopPurchases: {},
@@ -346,6 +356,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   highestPower: 0,
   highestAbyssFloor: 0,
   allTimeKills: 0,
+  claimedAbyssMilestones: [],
   equippedWeapon: null,
   equippedArmor: null,
   equippedTreasure: null,
@@ -417,6 +428,23 @@ export const useGameStore = create<GameStore>((set, get) => ({
     });
     return r;
   },
+  // v86.0: Claim abyss milestone rewards
+  claimAbyssMilestone: (floor: number) => {
+    const state = get();
+    if (state.claimedAbyssMilestones.includes(floor)) return false;
+    const milestone = ABYSS_MILESTONES.find(m => m.floor === floor);
+    if (!milestone || state.highestAbyssFloor < floor) return false;
+    const p = { ...state.player };
+    if (milestone.rewards.lingshi) p.lingshi += milestone.rewards.lingshi;
+    if (milestone.rewards.pantao) p.pantao += milestone.rewards.pantao;
+    if (milestone.rewards.shards) p.hongmengShards += milestone.rewards.shards;
+    if (milestone.rewards.daoPoints) p.daoPoints = (p.daoPoints ?? 0) + milestone.rewards.daoPoints;
+    if (milestone.rewards.trialTokens) p.trialTokens = (p.trialTokens ?? 0) + milestone.rewards.trialTokens;
+    if (milestone.rewards.tianmingScrolls) p.tianmingScrolls += milestone.rewards.tianmingScrolls;
+    set({ player: p, claimedAbyssMilestones: [...state.claimedAbyssMilestones, floor] });
+    return true;
+  },
+
   clearFloatingText: (id) => set(s => ({ floatingTexts: s.floatingTexts.filter(f => f.id !== id) })),
 
   getEffectiveStats: () => {
@@ -852,7 +880,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         if (roll < 0.25) { updatedPlayer.lingshi += goldBase; }
         else if (roll < 0.45) { updatedPlayer.exp += Math.floor(goldBase * 0.8); }
         else if (roll < 0.60) { updatedPlayer.pantao += Math.max(10, Math.floor(lv / 2)); }
-        else if (roll < 0.72) { (updatedPlayer as any).fragments = ((updatedPlayer as any).fragments ?? 0) + Math.max(5, Math.floor(lv / 10)); }
+        else if (roll < 0.72) { updatedPlayer.hongmengShards = (updatedPlayer.hongmengShards ?? 0) + Math.max(5, Math.floor(lv / 10)); }
         else if (roll < 0.82) { /* random consumable */ updatedPlayer.lingshi += Math.floor(goldBase * 1.5); }
         else if (roll < 0.90) { updatedPlayer.pantao += Math.max(20, lv); }
         else if (roll < 0.95) { updatedPlayer.tianmingScrolls = (updatedPlayer.tianmingScrolls ?? 0) + 1; }
@@ -888,18 +916,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     // v81.0: Title unlock check (every 30 ticks)
     if (state.totalPlayTime % 30 === 0) {
-      const codex = (updatedPlayer as any).codex ?? { equipment: [], monsters: [] };
       const titleStats: TitleCheckStats = {
         level: updatedPlayer.level,
         reincarnations: updatedPlayer.reincarnations ?? 0,
         totalKills: updatedPlayer.totalKills ?? 0,
         highestChapter: state.highestChapter,
         achievementCount: 0, // simplified
-        equipmentCollected: (codex.equipment ?? []).length,
-        monsterCollected: (codex.monsters ?? []).length,
+        equipmentCollected: (updatedPlayer.codexEquipIds ?? []).length,
+        monsterCollected: (updatedPlayer.codexEnemyNames ?? []).length,
         trialBestFloor: updatedPlayer.trialBestFloor ?? 0,
         totalPlayTimeSec: state.totalPlayTime,
-        awakeningPoints: (updatedPlayer as any).awakeningPoints ?? 0,
+        awakeningPoints: updatedPlayer.awakeningPoints ?? 0,
       };
       const current = state.unlockedTitles;
       const newUnlocked = TITLES.filter(t => t.condition(titleStats)).map(t => t.id);
@@ -1555,6 +1582,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       highestPower: _hp58,
       highestAbyssFloor: state.highestAbyssFloor,
       allTimeKills: state.allTimeKills,
+      claimedAbyssMilestones: state.claimedAbyssMilestones,
       lastSaveTimestamp: Date.now(),
       totalPlayTime: state.totalPlayTime,
       equipment: { weapon: state.equippedWeapon, armor: state.equippedArmor, treasure: state.equippedTreasure },
@@ -1695,6 +1723,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         highestPower: (save as any).highestPower ?? 0,
         highestAbyssFloor: (save as any).highestAbyssFloor ?? 0,
         allTimeKills: (save as any).allTimeKills ?? 0,
+        claimedAbyssMilestones: (save as any).claimedAbyssMilestones ?? [],
         totalPlayTime: save.totalPlayTime,
         lastSaveTimestamp: Date.now(),
         equippedWeapon: weapon,
@@ -1736,7 +1765,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       player: makeInitialPlayer(),
       battle: makeInitialBattle(),
       highestChapter: 1, highestStage: 1,
-      highestAbyssFloor: 0, allTimeKills: 0,
+      highestAbyssFloor: 0, allTimeKills: 0, claimedAbyssMilestones: [],
       equippedWeapon: null, equippedArmor: null, equippedTreasure: null,
       inventory: [],
       floatingTexts: [],
@@ -1757,6 +1786,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       highestPower: state.highestPower,
       highestAbyssFloor: state.highestAbyssFloor,
       allTimeKills: state.allTimeKills,
+      claimedAbyssMilestones: state.claimedAbyssMilestones,
       lastSaveTimestamp: Date.now(),
       totalPlayTime: state.totalPlayTime,
       equipment: { weapon: state.equippedWeapon, armor: state.equippedArmor, treasure: state.equippedTreasure },
