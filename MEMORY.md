@@ -757,3 +757,19 @@
 - Build: 404KB/125KB gzip
 - Commit: 98284a0
 - CEO直接实现（最高效）
+
+## v99.0「百炼成仙」完成（2026-03-06 09:00）
+- 回归加成：离线≥4h收益×1.5，≥8h收益×2.0（offline.ts comebackMul）
+- 签到里程碑：3/7/14/30/60/100日累计签到奖励（DailyPanel LoginMilestones）
+- 离线报告显示回归加成倍率（金色标签）
+- Build: 547KB precache
+- Commit: c9da9f3
+- CEO直接实现（最高效）
+
+## v100.0「百世修行」完成（2026-03-06 09:00）
+- 智能仙缘赠礼：auto-affinity自动选最高可负担档位（tier 0/1/2）
+- 修仙评级：进度面板SSS~C评级徽章（基于总进度百分比）
+- Build: 548KB precache
+- Commit: 7ee33b4
+- CEO直接实现（最高效）
+- 🎉 项目达到v100里程碑！
