@@ -53,6 +53,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
   const autoSynth = useGameStore(s => s.autoSynth);
   const setAutoSynth = useGameStore(s => s.setAutoSynth);
   const autoReincarnate = useGameStore(s => s.autoReincarnate);
+  const autoDaoAlloc = useGameStore(s => (s as any).autoDaoAlloc) ?? false;
   const setAutoReincarnate = useGameStore(s => s.setAutoReincarnate);
   const DECOMP_LABELS = ['关闭', '凡品', '灵品以下', '仙品以下'];
 
@@ -147,23 +148,23 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
       <Card>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
           onClick={() => {
-            const allOn = autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoBuyPerks && autoSynth && autoReincarnate;
+            const allOn = autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoBuyPerks && autoSynth && autoReincarnate && autoDaoAlloc;
             if (allOn) {
               setAutoDecomp(0); setAutoEquip(false); setAutoSkill(false); setAutoConsume(false);
               setAutoWorldBoss(false); setAutoExplore(false); setAutoSanctuary(false); setAutoAffinity(false);
-              setAutoSweep(false); setAutoFate(false); setAutoWheel(false); setAutoTrial(false); setAutoAscension(false); setAutoEnhance(false); setAutoBuyPerks(false); setAutoSynth(false);
+              setAutoSweep(false); setAutoFate(false); setAutoWheel(false); setAutoTrial(false); setAutoAscension(false); setAutoEnhance(false); setAutoBuyPerks(false); setAutoSynth(false); (useGameStore.getState() as any).setAutoDaoAlloc(false);
             } else {
               setAutoDecomp(2); setAutoEquip(true); setAutoSkill(true); setAutoConsume(true);
               setAutoWorldBoss(true); setAutoExplore(true); setAutoSanctuary(true); setAutoAffinity(true);
-              setAutoSweep(true); setAutoFate(true); setAutoWheel(true); setAutoTrial(true); setAutoAscension(true); setAutoEnhance(true); setAutoBuyPerks(true); setAutoSynth(true); setAutoReincarnate(true);
+              setAutoSweep(true); setAutoFate(true); setAutoWheel(true); setAutoTrial(true); setAutoAscension(true); setAutoEnhance(true); setAutoBuyPerks(true); setAutoSynth(true); setAutoReincarnate(true); (useGameStore.getState() as any).setAutoDaoAlloc(true);
             }
           }}>
           <span style={{ fontWeight: 700, fontSize: 15 }}>🤖 一键全自动</span>
           <span style={{
-            color: (autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoBuyPerks && autoSynth && autoReincarnate) ? '#ffd700' : 'var(--dim)',
+            color: (autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoBuyPerks && autoSynth && autoReincarnate && autoDaoAlloc) ? '#ffd700' : 'var(--dim)',
             fontWeight: 600
           }}>
-            {(autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoBuyPerks && autoSynth && autoReincarnate) ? '✅ 全部开启' : '点击全开'}
+            {(autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoBuyPerks && autoSynth && autoReincarnate && autoDaoAlloc) ? '✅ 全部开启' : '点击全开'}
           </span>
         </div>
       </Card>
@@ -298,6 +299,12 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
           <span className="stat-label">自动转世（达到大乘境界自动轮回）</span>
           <span style={{ color: autoReincarnate ? 'var(--accent)' : 'var(--dim)' }}>
             {autoReincarnate ? '✅ 开启' : '关闭'}
+          </span>
+        </div>
+        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => (useGameStore.getState() as any).setAutoDaoAlloc(!autoDaoAlloc)}>
+          <span className="stat-label">自动分配道点（转世后自动购买加成）</span>
+          <span style={{ color: autoDaoAlloc ? 'var(--accent)' : 'var(--dim)' }}>
+            {autoDaoAlloc ? '✅ 开启' : '关闭'}
           </span>
         </div>
       </Card>

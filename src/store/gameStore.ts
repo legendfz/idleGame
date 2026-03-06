@@ -80,6 +80,7 @@ interface GameStore {
   autoBuyPerks: boolean; // v96.0: auto-buy reincarnation perks
   autoSynth: boolean; // v98.0: auto-synthesize 3 same-quality equips
   autoReincarnate: boolean; // v102.0: auto-reincarnate when conditions met
+  autoDaoAlloc: boolean; // v105.0: auto-allocate dao points after reincarnation
   lastWheelSpin: number; // v83.0: last wheel spin timestamp
   equippedTitle: string | null; // v81.0: equipped title id
   unlockedTitles: string[]; // v81.0: unlocked title ids
@@ -409,6 +410,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   autoBuyPerks: false,
   autoSynth: false,
   autoReincarnate: false,
+  autoDaoAlloc: false, // v105.0
   lastWheelSpin: 0,
   equippedTitle: null,
   completedChallenges: [],
@@ -440,6 +442,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setAutoBuyPerks: (v: boolean) => set({ autoBuyPerks: v }),
   setAutoSynth: (v: boolean) => set({ autoSynth: v }),
   setAutoReincarnate: (v: boolean) => set({ autoReincarnate: v }),
+  setAutoDaoAlloc: (v: boolean) => set({ autoDaoAlloc: v } as any),
   setEquippedTitle: (id: string | null) => set({ equippedTitle: id }),
   setCompletedChallenges: (ids: string[]) => {
     const today = new Date().toISOString().slice(0, 10);
@@ -1352,6 +1355,43 @@ export const useGameStore = create<GameStore>((set, get) => ({
       idleStats: { goldPerSec: 0, expPerSec: 0, dps: 0, sessionTime: 0 },
     });
 
+    // v105.0: Auto-allocate dao points after reincarnation
+    if ((state as any).autoDaoAlloc) {
+      const allocOrder = ['atk_mult', 'exp_mult', 'gold_mult', 'crit_flat', 'drop_rate', 'pantao_mult', 'start_level', 'hp_mult'];
+      let dp = newPlayer.daoPoints;
+      const perks = { ...newPlayer.reincPerks };
+      let changed = true;
+      while (changed && dp > 0) {
+        changed = false;
+        for (const pid of allocOrder) {
+          const perk = REINC_PERKS.find(p => p.id === pid);
+          if (!perk) continue;
+          const cur = perks[pid] ?? 0;
+          if (cur >= perk.maxLevel) continue;
+          if (dp >= perk.costPerLevel) {
+            perks[pid] = cur + 1;
+            dp -= perk.costPerLevel;
+            changed = true;
+          }
+        }
+      }
+      newPlayer.daoPoints = dp;
+      newPlayer.reincPerks = perks;
+      // Re-apply start_level with new perks
+      const newStartLevel = REINC_PERKS.find(p => p.id === 'start_level')!.effect(perks['start_level'] ?? 0);
+      if (newStartLevel > startLevel) {
+        newPlayer.level = Math.max(newPlayer.level, newStartLevel);
+        newPlayer.stats.attack = makeInitialPlayer().stats.attack + Math.floor(newStartLevel * 3.5);
+        newPlayer.stats.maxHp = makeInitialPlayer().stats.maxHp + Math.floor(newStartLevel * 12);
+        newPlayer.stats.hp = newPlayer.stats.maxHp;
+      }
+      // Re-apply crit perk
+      const newCritBonus = REINC_PERKS.find(p => p.id === 'crit_flat')!.effect(perks['crit_flat'] ?? 0);
+      if (newCritBonus > critBonus) {
+        newPlayer.stats.critRate = makeInitialPlayer().stats.critRate + newCritBonus;
+      }
+    }
+
     sfx.breakthrough();
   },
 
@@ -1854,6 +1894,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       autoBuyPerks: state.autoBuyPerks,
       autoSynth: state.autoSynth,
       autoReincarnate: state.autoReincarnate,
+      autoDaoAlloc: (state as any).autoDaoAlloc,
       lastWheelSpin: state.lastWheelSpin,
       equippedTitle: state.equippedTitle,
       unlockedTitles: state.unlockedTitles,
@@ -2031,6 +2072,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         autoBuyPerks: (save as any).autoBuyPerks ?? false,
         autoSynth: (save as any).autoSynth ?? false,
         autoReincarnate: (save as any).autoReincarnate ?? false,
+        autoDaoAlloc: (save as any).autoDaoAlloc ?? false,
         lastWheelSpin: (save as any).lastWheelSpin ?? 0,
         equippedTitle: (save as any).equippedTitle ?? null,
         unlockedTitles: (save as any).unlockedTitles ?? [],

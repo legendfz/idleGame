@@ -341,6 +341,19 @@ export function BattleView() {
               <>{'  '}<span style={{color:'#34d399',fontSize:10}}>⏳ 升级 {secsToLevel < 60 ? `${secsToLevel}s` : secsToLevel < 3600 ? `${Math.floor(secsToLevel/60)}m${secsToLevel%60>0?`${secsToLevel%60}s`:''}` : `${Math.floor(secsToLevel/3600)}h${Math.floor((secsToLevel%3600)/60)}m`}</span></>
             ) : null;
           })()}
+          {/* v105.0: Breakthrough ETA */}
+          {idleStats.expPerSec > 0 && nextRealm && !canBreakthrough && (() => {
+            // Calculate total exp needed to reach next realm's level
+            let totalExpNeeded = 0;
+            for (let lv = player.level; lv < nextRealm.levelReq; lv++) {
+              totalExpNeeded += expForLevel(lv);
+            }
+            totalExpNeeded -= player.exp; // subtract current progress
+            const secsToBreak = Math.ceil(totalExpNeeded / idleStats.expPerSec);
+            return secsToBreak > 0 && secsToBreak < 86400 * 7 ? (
+              <>{'  '}<span style={{color:'#f59e0b',fontSize:10}}>🔱 突破 {secsToBreak < 60 ? `${secsToBreak}s` : secsToBreak < 3600 ? `${Math.floor(secsToBreak/60)}m` : secsToBreak < 86400 ? `${Math.floor(secsToBreak/3600)}h${Math.floor((secsToBreak%3600)/60)}m` : `${Math.floor(secsToBreak/86400)}d`}</span></>
+            ) : null;
+          })()}
         </div>
         {/* v75.0: Session earnings summary */}
         {sessionKills > 0 && (
