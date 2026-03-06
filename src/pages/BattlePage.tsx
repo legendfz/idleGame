@@ -5,6 +5,7 @@ import { formatNumber, expForLevel, formatTime } from '../utils/format';
 import { REALMS } from '../data/realms';
 import { getRandomEvent, resolveChoice, type RandomEvent, type EventChoice } from '../data/randomEvents';
 import { CHAPTERS, ABYSS_CHAPTER_ID } from '../data/chapters';
+import { TITLES } from '../data/titles';
 import { ACTIVE_SKILLS } from '../data/skills';
 import { CONSUMABLE_BUFFS } from '../data/consumables';
 import { Card, FloatingDamage, BossToast } from './shared';
@@ -43,6 +44,8 @@ export function BattleView() {
   const setBattleSpeed = useGameStore(s => s.setBattleSpeed);
   const killStreak = useGameStore(s => s.battle.killStreak) || 0;
   const attemptBreakthrough = useGameStore(s => s.attemptBreakthrough);
+  const equippedTitleId = useGameStore(s => s.equippedTitle);
+  const equippedTitle = equippedTitleId ? TITLES.find(t => t.id === equippedTitleId) : null;
   const eStats = getEffectiveStats();
   const enemy = battle.currentEnemy;
   const hpPct = enemy ? Math.max(0, (enemy.hp / enemy.maxHp) * 100) : 0;
@@ -222,7 +225,7 @@ export function BattleView() {
       </div>
       {/* Realm & Level bar */}
       <div className="battle-realm-bar">
-        <span className="battle-realm-name">{currentRealm?.name ?? '练气'} Lv.{player.level}</span>
+        <span className="battle-realm-name">{currentRealm?.name ?? '练气'} Lv.{player.level}{equippedTitle && <span style={{ marginLeft: 6, fontSize: 11, color: equippedTitle.color, fontWeight: 600 }}>「{equippedTitle.name}」</span>}</span>
         <div className="battle-exp-track">
           <div className="battle-exp-fill" style={{ width: `${expPct}%` }} />
         </div>
