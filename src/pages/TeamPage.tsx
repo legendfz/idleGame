@@ -4,6 +4,8 @@ import { REALMS } from '../data/realms';
 import { formatNumber } from '../utils/format';
 import { Card, SubPageHeader, SubPage } from './shared';
 import { getResonanceBonus } from '../data/resonance';
+import { getActiveSetBonuses, EQUIP_SETS, EQUIPMENT_TEMPLATES } from '../data/equipment';
+import { QUALITY_INFO, EquipmentItem } from '../types';
 
 export function CharacterDetailPage({ onBack }: { onBack: () => void }) {
   const player = useGameStore(s => s.player);
@@ -41,6 +43,72 @@ export function CharacterDetailPage({ onBack }: { onBack: () => void }) {
         )}
       </Card>
     </div>
+  );
+}
+
+function SetBonusPanel({ weapon, armor, treasure }: { weapon: EquipmentItem | null; armor: EquipmentItem | null; treasure: EquipmentItem | null }) {
+  const equipped = [weapon, armor, treasure].filter(Boolean) as EquipmentItem[];
+  const activeSets = getActiveSetBonuses(weapon, armor, treasure);
+  
+  if (activeSets.length === 0 && equipped.length === 0) return null;
+
+  // Find sets where player has at least 1 piece equipped
+  const relevantSets = EQUIP_SETS.map(set => {
+    const ownedCount = set.pieces.filter(pid => equipped.some(e => e.templateId === pid)).length;
+    return { set, ownedCount };
+  }).filter(s => s.ownedCount > 0);
+
+  if (relevantSets.length === 0) return null;
+
+  return (
+    <Card style={{ borderColor: '#8b5cf6', background: 'rgba(139,92,246,0.06)' }}>
+      <div style={{ fontSize: 13, fontWeight: 700, color: '#8b5cf6', marginBottom: 8, textAlign: 'center' }}>
+        ⚔️ 套装效果
+      </div>
+      {relevantSets.map(({ set, ownedCount }) => {
+        const totalPieces = set.pieces.length;
+        const isActive = ownedCount >= (set.bonuses[0]?.count ?? 2);
+        return (
+          <div key={set.id} style={{ marginBottom: 8, padding: '6px 8px', borderRadius: 8, background: isActive ? 'rgba(139,92,246,0.12)' : 'rgba(255,255,255,0.03)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: 12, fontWeight: 600, color: isActive ? '#a78bfa' : '#888' }}>
+                {set.name}
+              </span>
+              <span style={{ fontSize: 11, color: isActive ? '#a78bfa' : '#666' }}>
+                {ownedCount}/{totalPieces}
+              </span>
+            </div>
+            {/* Show pieces */}
+            <div style={{ display: 'flex', gap: 4, marginTop: 4, flexWrap: 'wrap' }}>
+              {set.pieces.map(pid => {
+                const tmpl = EQUIPMENT_TEMPLATES.find(t => t.id === pid);
+                const owned = equipped.some(e => e.templateId === pid);
+                const quality = tmpl?.quality ?? 'common';
+                return (
+                  <span key={pid} style={{
+                    fontSize: 10, padding: '1px 5px', borderRadius: 4,
+                    border: `1px solid ${owned ? QUALITY_INFO[quality].color : '#333'}`,
+                    color: owned ? QUALITY_INFO[quality].color : '#555',
+                    background: owned ? `${QUALITY_INFO[quality].color}15` : 'transparent',
+                  }}>
+                    {tmpl?.emoji ?? '?'} {tmpl?.name ?? pid}
+                  </span>
+                );
+              })}
+            </div>
+            {/* Show bonuses */}
+            {set.bonuses.map((b, i) => (
+              <div key={i} style={{
+                fontSize: 10, marginTop: 3,
+                color: ownedCount >= b.count ? '#4ade80' : '#555',
+              }}>
+                [{b.count}件] {b.description} {ownedCount >= b.count ? '✅' : ''}
+              </div>
+            ))}
+          </div>
+        );
+      })}
+    </Card>
   );
 }
 
@@ -97,6 +165,7 @@ export function TeamView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
           </div>
         </Card>
       )}
+      <SetBonusPanel weapon={weapon} armor={armor} treasure={treasure} />
       <button className="breakthrough-btn" style={{ margin: '0 12px 12px', fontSize: 13 }} onClick={handleBatchEnhance}>
         ⚒ 一键强化已装备
       </button>
