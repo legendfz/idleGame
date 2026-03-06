@@ -699,3 +699,11 @@
 - Build: 426KB/129KB gzip
 - Commit: d2beb4e, merged to main: 7c50b68
 - CEO直接实现（最高效）
+
+## v89.0「称号觉醒」完成（2026-03-06 01:00）
+- 称号解锁金色Toast通知（渐变金橙色，4秒自动消失）
+- 击杀速率显示（⚡N/m）战斗页session统计栏
+- titleToast state + TitleToast组件
+- Build: 529KB precache
+- Commit: b362d0d
+- CEO直接实现（最高效）
