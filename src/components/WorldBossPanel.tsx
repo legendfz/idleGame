@@ -76,7 +76,7 @@ export function useAutoWorldBoss() {
   const updatePlayer = useGameStore(s => s.updatePlayer);
 
   useEffect(() => {
-    if (!autoWorldBoss) return;
+    if (!autoWorldBoss || player.level < 50) return;
     const iv = setInterval(() => {
       const now = Date.now();
       const active = getCurrentWorldBoss(now);

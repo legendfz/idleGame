@@ -176,9 +176,9 @@ export function BattleView() {
 
   return (
     <div className="main-content fade-in">
-      {/* World Boss Banner */}
-      <WorldBossBanner onOpen={() => setShowWorldBoss(true)} />
-      {showWorldBoss && <WorldBossModal onClose={() => setShowWorldBoss(false)} />}
+      {/* World Boss Banner — hide for new players */}
+      {player.level >= 50 && <WorldBossBanner onOpen={() => setShowWorldBoss(true)} />}
+      {showWorldBoss && player.level >= 50 && <WorldBossModal onClose={() => setShowWorldBoss(false)} />}
 
       {/* v66.0: Random Event Modal */}
       {activeEvent && (
@@ -462,7 +462,7 @@ function SmartHints() {
     return h.slice(0, 4); // max 4 hints
   }, [player.level, player.realmIndex, player.pantao, player.lingshi, player.reincarnations, dailyCanSignIn, sanctuaryLevels, explorationFreeRuns]);
 
-  if (hints.length === 0) return null;
+  if (hints.length === 0 || !player.tutorialDone) return null;
 
   return (
     <div className="action-hints">
