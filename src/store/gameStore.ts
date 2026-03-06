@@ -993,7 +993,21 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set({
       player: updatedPlayer,
       battle: updatedBattle,
-      inventory: updatedInventory,
+      inventory: updatedInventory.length > INVENTORY_MAX
+        ? (() => {
+            // Auto-decompose: remove lowest quality unlocked items
+            const qualityOrder = Object.keys(QUALITY_INFO);
+            const unlocked = updatedInventory.filter(i => !i.locked);
+            unlocked.sort((a, b) => qualityOrder.indexOf(a.quality) - qualityOrder.indexOf(b.quality));
+            const toRemove = new Set(unlocked.slice(0, updatedInventory.length - INVENTORY_MAX).map(i => i.uid));
+            // Add decompose proceeds
+            for (const item of unlocked.slice(0, updatedInventory.length - INVENTORY_MAX)) {
+              const stat = item.baseStat * (1 + item.level * 0.1);
+              updatedPlayer.lingshi += Math.floor(stat * 0.6 + (item.level + 1) * 30);
+            }
+            return updatedInventory.filter(i => !toRemove.has(i.uid));
+          })()
+        : updatedInventory,
       equippedWeapon: autoEquipState.equippedWeapon ?? null,
       equippedArmor: autoEquipState.equippedArmor ?? null,
       equippedTreasure: autoEquipState.equippedTreasure ?? null,
@@ -1624,12 +1638,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
       completedChallenges: state.completedChallenges,
       completedChallengesDate: state.completedChallengesDate,
     } as any;
-    localStorage.setItem('xiyou-idle-save', JSON.stringify(save));
+    try { localStorage.setItem('xiyou-idle-save', JSON.stringify(save)); } catch (e) { console.warn('[Save] localStorage unavailable', e); }
     set({ lastSaveTimestamp: Date.now() });
   },
 
   load: () => {
-    const raw = localStorage.getItem('xiyou-idle-save');
+    let raw: string | null = null;
+    try { raw = localStorage.getItem('xiyou-idle-save'); } catch { return; }
     if (!raw) return;
     try {
       const save: GameSave = JSON.parse(raw);
@@ -1778,7 +1793,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   reset: () => {
-    localStorage.removeItem('xiyou-idle-save');
+    try { localStorage.removeItem('xiyou-idle-save'); } catch {}
     set({
       player: makeInitialPlayer(),
       battle: makeInitialBattle(),
@@ -1810,27 +1825,27 @@ export const useGameStore = create<GameStore>((set, get) => ({
       equipment: { weapon: state.equippedWeapon, armor: state.equippedArmor, treasure: state.equippedTreasure },
       inventory: state.inventory,
     };
-    localStorage.setItem(`xiyou-idle-slot-${slotId}`, JSON.stringify(save));
+    try { localStorage.setItem(`xiyou-idle-slot-${slotId}`, JSON.stringify(save)); } catch {}
   },
 
   loadFromSlot: (slotId: number) => {
-    const raw = localStorage.getItem(`xiyou-idle-slot-${slotId}`);
+    let raw: string | null = null;
+    try { raw = localStorage.getItem(`xiyou-idle-slot-${slotId}`); } catch { return; }
     if (!raw) return;
-    // Save current to auto-save first
     get().save();
-    // Then load from slot (reuse load logic by temporarily setting localStorage)
-    localStorage.setItem('xiyou-idle-save', raw);
+    try { localStorage.setItem('xiyou-idle-save', raw); } catch {}
     get().load();
   },
 
   deleteSlot: (slotId: number) => {
-    localStorage.removeItem(`xiyou-idle-slot-${slotId}`);
+    try { localStorage.removeItem(`xiyou-idle-slot-${slotId}`); } catch {}
   },
 
   getSaveSlots: () => {
     const slots: SaveSlotInfo[] = [];
     for (let i = 1; i <= 3; i++) {
-      const raw = localStorage.getItem(`xiyou-idle-slot-${i}`);
+      let raw: string | null = null;
+      try { raw = localStorage.getItem(`xiyou-idle-slot-${i}`); } catch {}
       if (raw) {
         try {
           const save: GameSave = JSON.parse(raw);
