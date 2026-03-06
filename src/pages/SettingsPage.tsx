@@ -46,6 +46,8 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
   const setAutoTrial = useGameStore(s => s.setAutoTrial);
   const autoAscension = useGameStore(s => s.autoAscension);
   const setAutoAscension = useGameStore(s => s.setAutoAscension);
+  const autoEnhance = useGameStore(s => s.autoEnhance);
+  const setAutoEnhance = useGameStore(s => s.setAutoEnhance);
   const DECOMP_LABELS = ['关闭', '凡品', '灵品以下', '仙品以下'];
 
   const toggleAnim = () => {
@@ -139,23 +141,23 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
       <Card>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
           onClick={() => {
-            const allOn = autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension;
+            const allOn = autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance;
             if (allOn) {
               setAutoDecomp(0); setAutoEquip(false); setAutoSkill(false); setAutoConsume(false);
               setAutoWorldBoss(false); setAutoExplore(false); setAutoSanctuary(false); setAutoAffinity(false);
-              setAutoSweep(false); setAutoFate(false); setAutoWheel(false); setAutoTrial(false); setAutoAscension(false);
+              setAutoSweep(false); setAutoFate(false); setAutoWheel(false); setAutoTrial(false); setAutoAscension(false); setAutoEnhance(false);
             } else {
               setAutoDecomp(2); setAutoEquip(true); setAutoSkill(true); setAutoConsume(true);
               setAutoWorldBoss(true); setAutoExplore(true); setAutoSanctuary(true); setAutoAffinity(true);
-              setAutoSweep(true); setAutoFate(true); setAutoWheel(true); setAutoTrial(true); setAutoAscension(true);
+              setAutoSweep(true); setAutoFate(true); setAutoWheel(true); setAutoTrial(true); setAutoAscension(true); setAutoEnhance(true);
             }
           }}>
           <span style={{ fontWeight: 700, fontSize: 15 }}>🤖 一键全自动</span>
           <span style={{
-            color: (autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension) ? '#ffd700' : 'var(--dim)',
+            color: (autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance) ? '#ffd700' : 'var(--dim)',
             fontWeight: 600
           }}>
-            {(autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension) ? '✅ 全部开启' : '点击全开'}
+            {(autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance) ? '✅ 全部开启' : '点击全开'}
           </span>
         </div>
       </Card>
@@ -266,6 +268,12 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
           <span className="stat-label">自动天道考验（每日）</span>
           <span style={{ color: autoAscension ? 'var(--accent)' : 'var(--dim)' }}>
             {autoAscension ? '✅ 开启' : '关闭'}
+          </span>
+        </div>
+        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoEnhance(!autoEnhance)}>
+          <span className="stat-label">自动强化已装备（+1~+10）</span>
+          <span style={{ color: autoEnhance ? 'var(--accent)' : 'var(--dim)' }}>
+            {autoEnhance ? '✅ 开启' : '关闭'}
           </span>
         </div>
       </Card>

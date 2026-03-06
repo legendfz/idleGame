@@ -74,6 +74,7 @@ interface GameStore {
   autoWheel: boolean; // v83.0: auto-spin lucky wheel
   autoTrial: boolean; // v93.0: auto quick trial every 5 min
   autoAscension: boolean; // v93.0: auto ascension challenge daily
+  autoEnhance: boolean; // v95.0: auto-enhance equipped gear
   lastWheelSpin: number; // v83.0: last wheel spin timestamp
   equippedTitle: string | null; // v81.0: equipped title id
   unlockedTitles: string[]; // v81.0: unlocked title ids
@@ -120,6 +121,7 @@ interface GameStore {
   setAutoWheel: (v: boolean) => void;
   setAutoTrial: (v: boolean) => void;
   setAutoAscension: (v: boolean) => void;
+  setAutoEnhance: (v: boolean) => void;
   setEquippedTitle: (id: string | null) => void;
   setCompletedChallenges: (ids: string[]) => void;
   activateFateBlessing: () => boolean;
@@ -391,6 +393,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   autoWheel: false,
   autoTrial: false,
   autoAscension: false,
+  autoEnhance: false,
   lastWheelSpin: 0,
   equippedTitle: null,
   completedChallenges: [],
@@ -416,6 +419,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setAutoWheel: (v: boolean) => set({ autoWheel: v }),
   setAutoTrial: (v: boolean) => set({ autoTrial: v }),
   setAutoAscension: (v: boolean) => set({ autoAscension: v }),
+  setAutoEnhance: (v: boolean) => set({ autoEnhance: v }),
   setEquippedTitle: (id: string | null) => set({ equippedTitle: id }),
   setCompletedChallenges: (ids: string[]) => {
     const today = new Date().toISOString().slice(0, 10);
@@ -950,6 +954,28 @@ export const useGameStore = create<GameStore>((set, get) => ({
       }
       if (changed) {
         set({ completedChallenges: completed, completedChallengesDate: today });
+      }
+    }
+
+    // v95.0: Auto-enhance equipped gear every 30 ticks
+    if (state.autoEnhance && state.totalPlayTime % 30 === 0 && state.totalPlayTime > 0) {
+      const slots: Array<{ item: EquipmentItem | null; key: 'equippedWeapon' | 'equippedArmor' | 'equippedTreasure' }> = [
+        { item: state.equippedWeapon, key: 'equippedWeapon' },
+        { item: state.equippedArmor, key: 'equippedArmor' },
+        { item: state.equippedTreasure, key: 'equippedTreasure' },
+      ];
+      for (const { item, key } of slots) {
+        if (!item) continue;
+        const maxLv = getMaxEnhanceLevel(item);
+        if (item.level >= maxLv) continue;
+        // Only normal enhance (+1~+10), skip high enhance
+        if (item.level >= 10) continue;
+        const cost = getEnhanceCost(item);
+        if (updatedPlayer.lingshi >= cost) {
+          updatedPlayer.lingshi -= cost;
+          const enhanced = { ...item, level: item.level + 1 };
+          set({ [key]: enhanced } as any);
+        }
       }
     }
 
@@ -1684,6 +1710,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       autoWheel: state.autoWheel,
       autoTrial: state.autoTrial,
       autoAscension: state.autoAscension,
+      autoEnhance: state.autoEnhance,
       lastWheelSpin: state.lastWheelSpin,
       equippedTitle: state.equippedTitle,
       unlockedTitles: state.unlockedTitles,
@@ -1856,6 +1883,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         autoWheel: (save as any).autoWheel ?? false,
         autoTrial: (save as any).autoTrial ?? false,
         autoAscension: (save as any).autoAscension ?? false,
+        autoEnhance: (save as any).autoEnhance ?? false,
         lastWheelSpin: (save as any).lastWheelSpin ?? 0,
         equippedTitle: (save as any).equippedTitle ?? null,
         unlockedTitles: (save as any).unlockedTitles ?? [],
