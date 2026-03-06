@@ -31,9 +31,11 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
   const autoWorldBoss = useGameStore(s => (s as any).autoWorldBoss) as boolean;
   const autoExplore = useGameStore(s => (s as any).autoExplore) as boolean;
   const autoSanctuary = useGameStore(s => (s as any).autoSanctuary) as boolean;
+  const autoAffinity = useGameStore(s => (s as any).autoAffinity) as boolean;
   const setAutoWorldBoss = useGameStore(s => (s as any).setAutoWorldBoss) as (v: boolean) => void;
   const setAutoExplore = useGameStore(s => (s as any).setAutoExplore) as (v: boolean) => void;
   const setAutoSanctuary = useGameStore(s => (s as any).setAutoSanctuary) as (v: boolean) => void;
+  const setAutoAffinity = useGameStore(s => (s as any).setAutoAffinity) as (v: boolean) => void;
   const DECOMP_LABELS = ['关闭', '凡品', '灵品以下', '仙品以下'];
 
   const toggleAnim = () => {
@@ -179,6 +181,12 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
             {autoSanctuary ? '✅ 开启' : '关闭'}
           </span>
         </div>
+        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoAffinity(!autoAffinity)}>
+          <span className="stat-label">自动仙缘赠礼</span>
+          <span style={{ color: autoAffinity ? 'var(--accent)' : 'var(--dim)' }}>
+            {autoAffinity ? '✅ 开启' : '关闭'}
+          </span>
+        </div>
       </Card>
 
       {/* Save management */}
@@ -210,7 +218,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
 
       {/* About */}
       <Card title="关于">
-        <div className="stat-row"><span className="stat-label">版本</span><span>v51.0</span></div>
+        <div className="stat-row"><span className="stat-label">版本</span><span>v80.0</span></div>
         <div className="stat-row"><span className="stat-label">引擎</span><span>React + Zustand + Vite</span></div>
       </Card>
 
