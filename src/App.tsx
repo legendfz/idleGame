@@ -1,36 +1,37 @@
-import { useEffect, useRef, useState, lazy, Suspense } from 'react';
+import { useEffect, useRef, useState, lazy, Suspense, memo, useCallback } from 'react';
 import { useGameStore, setAchStatesCache } from './store/gameStore';
 import { useDungeonStore } from './store/dungeonStore';
 import { useAchievementStore } from './store/achievementStore';
 import { useLeaderboardStore } from './store/leaderboardStore';
-import DungeonList from './components/DungeonList';
-import DungeonBattle from './components/DungeonBattle';
-import AchievementList from './components/AchievementList';
-import Leaderboard from './components/Leaderboard';
 import AchievementToast from './components/AchievementToast';
 import { TutorialOverlay } from './components/TutorialOverlay';
 
-// Lazy-loaded heavy panels (not needed on first render)
+// Lazy-loaded panels (not needed on first render)
 const StatsView = lazy(() => import('./components/StatsView').then(m => ({ default: m.StatsView })));
 const SanctuaryPanel = lazy(() => import('./components/SanctuaryPanel').then(m => ({ default: m.SanctuaryPanel })));
 const ExplorationPanel = lazy(() => import('./components/ExplorationPanel').then(m => ({ default: m.ExplorationPanel })));
 const AffinityPanel = lazy(() => import('./components/AffinityPanel').then(m => ({ default: m.AffinityPanel })));
+const ReincarnationPanel = lazy(() => import('./components/ReincarnationPanel').then(m => ({ default: m.ReincarnationPanel })));
+const DailyPanel = lazy(() => import('./components/DailyPanel').then(m => ({ default: m.DailyPanel })));
+const LuckyWheel = lazy(() => import('./components/LuckyWheel').then(m => ({ default: m.LuckyWheel })));
+const TrialPanel = lazy(() => import('./components/TrialPanel').then(m => ({ default: m.TrialPanel })));
+const AwakeningPanel = lazy(() => import('./components/AwakeningPanel').then(m => ({ default: m.AwakeningPanel })));
+const AscensionChallengePanel = lazy(() => import('./components/AscensionChallengePanel').then(m => ({ default: m.AscensionChallengePanel })));
+const DungeonList = lazy(() => import('./components/DungeonList'));
+const DungeonBattle = lazy(() => import('./components/DungeonBattle'));
+const AchievementList = lazy(() => import('./components/AchievementList'));
+const Leaderboard = lazy(() => import('./components/Leaderboard'));
+const TitlePanel = lazy(() => import('./components/TitlePanel').then(m => ({ default: m.TitlePanel })));
+const BagView = lazy(() => import('./pages/BagPage').then(m => ({ default: m.BagView })));
+const SettingsView = lazy(() => import('./pages/SettingsPage').then(m => ({ default: m.SettingsView })));
+const ShopPage = lazy(() => import('./pages/ShopSavePage').then(m => ({ default: m.ShopPage })));
+const SaveManagerPage = lazy(() => import('./pages/ShopSavePage').then(m => ({ default: m.SaveManagerPage })));
 
 import { TopBar, OfflineReportModal, SubPageHeader, SubPage } from './pages/shared';
 import { BattleView } from './pages/BattlePage';
 import { TeamView, CharacterDetailPage } from './pages/TeamPage';
 import { JourneyView, ChapterSelectPage } from './pages/JourneyPage';
 import { EquipDetailPage, RefinePage } from './pages/EquipmentPage';
-import { ShopPage, SaveManagerPage } from './pages/ShopSavePage';
-import { BagView } from './pages/BagPage';
-import { SettingsView } from './pages/SettingsPage';
-const ReincarnationPanel = lazy(() => import('./components/ReincarnationPanel').then(m => ({ default: m.ReincarnationPanel })));
-const DailyPanel = lazy(() => import('./components/DailyPanel').then(m => ({ default: m.DailyPanel })));
-const LuckyWheel = lazy(() => import('./components/LuckyWheel').then(m => ({ default: m.LuckyWheel })));
-import { TitlePanel } from './components/TitlePanel';
-const TrialPanel = lazy(() => import('./components/TrialPanel').then(m => ({ default: m.TrialPanel })));
-const AwakeningPanel = lazy(() => import('./components/AwakeningPanel').then(m => ({ default: m.AwakeningPanel })));
-const AscensionChallengePanel = lazy(() => import('./components/AscensionChallengePanel').then(m => ({ default: m.AscensionChallengePanel })));
 import { useDailyStore } from './store/dailyStore';
 import { useDailyChallengeStore } from './store/dailyChallengeStore';
 import { useSanctuaryStore } from './store/sanctuaryStore';
@@ -246,30 +247,30 @@ export default function App() {
     switch (subPage.type) {
       case 'equipDetail': return <EquipDetailPage item={subPage.item} onBack={goBack} />;
       case 'refine': return <RefinePage onBack={goBack} />;
-      case 'shop': return <ShopPage onBack={goBack} />;
+      case 'shop': return <Suspense fallback={<LazyFallback />}><ShopPage onBack={goBack} /></Suspense>;
       case 'characterDetail': return <CharacterDetailPage onBack={goBack} />;
       case 'chapterSelect': return <ChapterSelectPage onBack={goBack} />;
-      case 'saveManager': return <SaveManagerPage onBack={goBack} />;
+      case 'saveManager': return <Suspense fallback={<LazyFallback />}><SaveManagerPage onBack={goBack} /></Suspense>;
       case 'dungeonList': return (
         <div className="main-content fade-in">
           <SubPageHeader title="取经副本" onBack={goBack} />
-          <DungeonList onStartDungeon={(id) => {
+          <Suspense fallback={<LazyFallback />}><DungeonList onStartDungeon={(id) => {
             const stats = useGameStore.getState().getEffectiveStats();
             useDungeonStore.getState().startDungeon(id, stats.maxHp);
             setSubPage({ type: 'dungeonBattle' });
-          }} />
+          }} /></Suspense>
         </div>
       );
       case 'dungeonBattle': return (
         <div className="main-content fade-in">
-          <DungeonBattle onEnd={() => { useDungeonStore.getState().save(); setSubPage({ type: 'dungeonList' }); }} />
+          <Suspense fallback={<LazyFallback />}><DungeonBattle onEnd={() => { useDungeonStore.getState().save(); setSubPage({ type: 'dungeonList' }); }} /></Suspense>
         </div>
       );
       case 'achievements': return (
-        <div className="main-content fade-in"><SubPageHeader title="成就" onBack={goBack} /><AchievementList /></div>
+        <div className="main-content fade-in"><SubPageHeader title="成就" onBack={goBack} /><Suspense fallback={<LazyFallback />}><AchievementList /></Suspense></div>
       );
       case 'leaderboard': return (
-        <div className="main-content fade-in"><SubPageHeader title="排行榜" onBack={goBack} /><Leaderboard /></div>
+        <div className="main-content fade-in"><SubPageHeader title="排行榜" onBack={goBack} /><Suspense fallback={<LazyFallback />}><Leaderboard /></Suspense></div>
       );
       case 'daily': return (
         <div className="main-content fade-in"><SubPageHeader title="每日签到" onBack={goBack} /><Suspense fallback={<LazyFallback />}><DailyPanel /></Suspense></div>
@@ -278,7 +279,7 @@ export default function App() {
         <div className="main-content fade-in"><SubPageHeader title="天道轮盘" onBack={goBack} /><Suspense fallback={<LazyFallback />}><LuckyWheel /></Suspense></div>
       );
       case 'titles': return (
-        <div className="main-content fade-in"><SubPageHeader title="封神榜·称号" onBack={goBack} /><TitlePanel /></div>
+        <div className="main-content fade-in"><SubPageHeader title="封神榜·称号" onBack={goBack} /><Suspense fallback={<LazyFallback />}><TitlePanel /></Suspense></div>
       );
       case 'ascension': return (
         <div className="main-content fade-in"><SubPageHeader title="天道考验" onBack={goBack} /><Suspense fallback={<LazyFallback />}><AscensionChallengePanel /></Suspense></div>
@@ -293,8 +294,8 @@ export default function App() {
       case 'battle': return <BattleView />;
       case 'team': return <TeamView setSubPage={setSubPage} />;
       case 'journey': return <JourneyView setSubPage={setSubPage} />;
-      case 'bag': return <BagView setSubPage={setSubPage} />;
-      case 'achievement': return <div className="main-content fade-in"><AchievementList /></div>;
+      case 'bag': return <Suspense fallback={<LazyFallback />}><BagView setSubPage={setSubPage} /></Suspense>;
+      case 'achievement': return <Suspense fallback={<LazyFallback />}><div className="main-content fade-in"><AchievementList /></div></Suspense>;
       case 'reincarnation': return <Suspense fallback={<LazyFallback />}><ReincarnationPanel /></Suspense>;
       case 'sanctuary': return <Suspense fallback={<LazyFallback />}><SanctuaryPanel /></Suspense>;
       case 'exploration': return <Suspense fallback={<LazyFallback />}><ExplorationPanel /></Suspense>;
@@ -302,7 +303,7 @@ export default function App() {
       case 'stats': return <Suspense fallback={<LazyFallback />}><StatsView /></Suspense>;
       case 'trial': return <Suspense fallback={<LazyFallback />}><TrialPanel /></Suspense>;
       case 'awakening': return <Suspense fallback={<LazyFallback />}><AwakeningPanel /></Suspense>;
-      case 'settings': return <SettingsView setSubPage={setSubPage} />;
+      case 'settings': return <Suspense fallback={<LazyFallback />}><SettingsView setSubPage={setSubPage} /></Suspense>;
       default: return <BattleView />;
     }
   };
