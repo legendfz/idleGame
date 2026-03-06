@@ -16,6 +16,7 @@ const DailyPanel = lazy(() => import('./components/DailyPanel').then(m => ({ def
 const LuckyWheel = lazy(() => import('./components/LuckyWheel').then(m => ({ default: m.LuckyWheel })));
 const TrialPanel = lazy(() => import('./components/TrialPanel').then(m => ({ default: m.TrialPanel })));
 const AwakeningPanel = lazy(() => import('./components/AwakeningPanel').then(m => ({ default: m.AwakeningPanel })));
+const PetPanel = lazy(() => import('./components/PetPanel').then(m => ({ default: m.PetPanel })));
 const AscensionChallengePanel = lazy(() => import('./components/AscensionChallengePanel').then(m => ({ default: m.AscensionChallengePanel })));
 const DungeonList = lazy(() => import('./components/DungeonList'));
 const DungeonBattle = lazy(() => import('./components/DungeonBattle'));
@@ -109,6 +110,7 @@ const ALL_TABS = [
   { id: 'affinity' as const, icon: '缘', label: '仙缘', unlockLevel: 40 },
   { id: 'trial' as const, icon: '劫', label: '试炼', unlockLevel: 60 },
   { id: 'awakening' as const, icon: '醒', label: '觉醒', unlockLevel: 80 },
+  { id: 'pets' as const, icon: '兽', label: '灵兽', unlockLevel: 10 },
   { id: 'settings' as const, icon: '设', label: '更多', unlockLevel: 0 },
 ];
 
@@ -344,6 +346,7 @@ export default function App() {
       case 'stats': return <Suspense fallback={<LazyFallback />}><StatsView /></Suspense>;
       case 'trial': return <Suspense fallback={<LazyFallback />}><TrialPanel /></Suspense>;
       case 'awakening': return <Suspense fallback={<LazyFallback />}><AwakeningPanel /></Suspense>;
+      case 'pets': return <Suspense fallback={<LazyFallback />}><PetPanel /></Suspense>;
       case 'settings': return <Suspense fallback={<LazyFallback />}><SettingsView setSubPage={setSubPage} /></Suspense>;
       default: return <BattleView />;
     }

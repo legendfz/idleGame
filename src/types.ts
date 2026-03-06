@@ -48,6 +48,9 @@ export interface PlayerState {
   trialTokens: number;
   trialBestFloor: number;
   trialShopPurchases: Record<string, number>; // shopItemId → count
+  // v107.0 灵兽
+  petLevels: Record<string, number>;   // petId → level
+  activePetId: string | null;          // currently summoned pet
 }
 
 export interface ActiveSkillState {
@@ -222,7 +225,7 @@ export interface GameSettings {
   soundVolume: number;
 }
 
-export type TabId = 'battle' | 'team' | 'journey' | 'bag' | 'achievement' | 'settings' | 'stats' | 'reincarnation' | 'sanctuary' | 'exploration' | 'affinity' | 'trial' | 'awakening';
+export type TabId = 'battle' | 'team' | 'journey' | 'bag' | 'achievement' | 'settings' | 'stats' | 'reincarnation' | 'sanctuary' | 'exploration' | 'affinity' | 'trial' | 'awakening' | 'pets';
 
 /** Floating damage text */
 export interface FloatingText {

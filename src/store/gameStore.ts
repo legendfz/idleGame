@@ -29,6 +29,7 @@ import { calculateOfflineEarnings } from '../engine/offline';
 import { useSanctuaryStore } from './sanctuaryStore';
 import { BUILDINGS as SANCT_BUILDINGS, getUpgradeCost as getSanctUpgradeCost } from '../engine/sanctuary';
 import { getResonanceBonus } from '../data/resonance';
+import { getPetTotalBonus, PETS as PETS_DATA } from '../data/pets';
 import { useAffinityStore } from './affinityStore';
 import { AFFINITY_NPCS as AFFINITY_NPCS_LIST } from '../engine/affinity';
 import { TITLES, type TitleCheckStats } from '../data/titles';
@@ -98,6 +99,8 @@ interface GameStore {
   clickAttack: () => void;
   attemptBreakthrough: () => void;
   reincarnate: () => void;
+  feedPet: (petId: string) => void;
+  setActivePet: (petId: string | null) => void;
   buyReincPerk: (perkId: string, maxBuy?: boolean) => void;
   getReincMultiplier: (perkId: string) => number;
   dismissOfflineReport: () => void;
@@ -217,6 +220,8 @@ function makeInitialPlayer(): PlayerState {
     awakeningPoints: 0,
     trialTokens: 0,
     trialBestFloor: 0,
+    petLevels: {},
+    activePetId: null,
     trialShopPurchases: {},
   };
 }
@@ -322,6 +327,13 @@ function calcEffectiveStats(
     s.critRate = Math.min(100, s.critRate + resonance.critRate);
     s.critDmg += resonance.critDmg;
   }
+  // v107.0: Pet bonuses (灵兽加成)
+  const gs = useGameStore.getState();
+  const petBonus = getPetTotalBonus(gs.player.petLevels, gs.player.activePetId);
+  if (petBonus.atkPct) s.attack = Math.floor(s.attack * (1 + petBonus.atkPct / 100));
+  if (petBonus.hpPct) s.maxHp = Math.floor(s.maxHp * (1 + petBonus.hpPct / 100));
+  if (petBonus.critRate) s.critRate = Math.min(100, s.critRate + petBonus.critRate);
+  if (petBonus.critDmg) s.critDmg += petBonus.critDmg / 100;
   return s;
 }
 
@@ -720,8 +732,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const afLingshi = 1 + (afBuf.lingshiMul ?? 0) / 100;
       const afExp = 1 + (afBuf.expMul ?? 0) / 100;
       const fateMul = (state.fateBlessing.active && state.fateBlessing.expiresAt > Date.now()) ? 2 : 1;
-      const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus) * (1 + (awk.gold_pct ?? 0) / 100) * afLingshi * (1 + rmb.gold) * fateMul * (1 + (titleBonus.goldMul ?? 0)));
-      const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100) * afExp * (1 + rmb.exp) * fateMul * (1 + (titleBonus.expMul ?? 0)));
+      const petB = getPetTotalBonus(player.petLevels, player.activePetId);
+      const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus) * (1 + (awk.gold_pct ?? 0) / 100) * afLingshi * (1 + rmb.gold) * fateMul * (1 + (titleBonus.goldMul ?? 0)) * (1 + (petB.goldPct ?? 0) / 100));
+      const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100) * afExp * (1 + rmb.exp) * fateMul * (1 + (titleBonus.expMul ?? 0)) * (1 + (petB.expPct ?? 0) / 100));
       updatedPlayer.lingshi += lingshiDrop;
       updatedPlayer.totalGoldEarned = (updatedPlayer.totalGoldEarned || 0) + lingshiDrop;
       updatedPlayer.exp += expDrop;
@@ -1332,6 +1345,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     newPlayer.codexEquipIds = [...player.codexEquipIds];
     newPlayer.codexEnemyNames = [...player.codexEnemyNames];
     newPlayer.activeSkills = { cooldowns: {}, buffs: {} }; // Reset cooldowns on reincarnation
+    newPlayer.petLevels = { ...player.petLevels }; // Keep pet levels
+    newPlayer.activePetId = player.activePetId;
     newPlayer.consumableInventory = { ...player.consumableInventory }; // Keep consumables
     newPlayer.activeConsumables = []; // Clear active buffs
 
@@ -1985,6 +2000,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       save.player.activeSkills = save.player.activeSkills ?? { cooldowns: {}, buffs: {} };
       save.player.consumableInventory = save.player.consumableInventory ?? {};
       save.player.activeConsumables = save.player.activeConsumables ?? [];
+      save.player.petLevels = save.player.petLevels ?? {};
+      save.player.activePetId = save.player.activePetId ?? null;
         save.version = 4;
       }
 
@@ -2321,5 +2338,32 @@ export const useGameStore = create<GameStore>((set, get) => ({
     });
 
     return { success: true, result: newItem, message: `合成成功！获得 ${QUALITY_INFO[nextQuality].symbol}${newItem.name}` };
+  },
+
+  // v107.0: Pet system
+  feedPet: (petId: string) => {
+    const state = get();
+    const pet = PETS_DATA.find(p => p.id === petId);
+    if (!pet) return;
+    const currentLevel = state.player.petLevels[petId] ?? 0;
+    if (currentLevel >= pet.maxLevel) return;
+    if (state.player.level < pet.unlockLevel) return;
+    const cost = pet.feedCost(currentLevel);
+    if (state.player.lingshi < cost) return;
+    set({
+      player: {
+        ...state.player,
+        lingshi: state.player.lingshi - cost,
+        petLevels: { ...state.player.petLevels, [petId]: currentLevel + 1 },
+      },
+      battle: {
+        ...state.battle,
+        log: addLog(state.battle.log, `${pet.emoji}${pet.name} 升至 Lv.${currentLevel + 1}！`, 'levelup'),
+      },
+    });
+  },
+
+  setActivePet: (petId: string | null) => {
+    set({ player: { ...get().player, activePetId: petId } });
   },
 }));
