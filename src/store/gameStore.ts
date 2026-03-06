@@ -1692,16 +1692,42 @@ export const useGameStore = create<GameStore>((set, get) => ({
       completedChallenges: state.completedChallenges,
       completedChallengesDate: state.completedChallengesDate,
     } as any;
-    try { localStorage.setItem('xiyou-idle-save', JSON.stringify(save)); } catch (e) { console.warn('[Save] localStorage unavailable', e); }
+    try {
+      const saveStr = JSON.stringify(save);
+      // v94.0: Rotate backup saves (keep last 3)
+      try {
+        const prev = localStorage.getItem('xiyou-idle-save');
+        if (prev) {
+          const b2 = localStorage.getItem('xiyou-idle-backup-2');
+          if (b2) localStorage.setItem('xiyou-idle-backup-3', b2);
+          const b1 = localStorage.getItem('xiyou-idle-backup-1');
+          if (b1) localStorage.setItem('xiyou-idle-backup-2', b1);
+          localStorage.setItem('xiyou-idle-backup-1', prev);
+        }
+      } catch { /* backup rotation is best-effort */ }
+      localStorage.setItem('xiyou-idle-save', saveStr);
+    } catch (e) { console.warn('[Save] localStorage unavailable', e); }
     set({ lastSaveTimestamp: Date.now() });
   },
 
   load: () => {
     let raw: string | null = null;
     try { raw = localStorage.getItem('xiyou-idle-save'); } catch { return; }
-    if (!raw) return;
+    // v94.0: If main save is corrupted/missing, try backups
+    const tryParse = (s: string | null): GameSave | null => {
+      if (!s) return null;
+      try { const p = JSON.parse(s); if (p && p.player && p.battle) return p; } catch { /* corrupted */ }
+      return null;
+    };
+    let save = tryParse(raw);
+    if (!save) {
+      for (let i = 1; i <= 3; i++) {
+        try { save = tryParse(localStorage.getItem(`xiyou-idle-backup-${i}`)); } catch { continue; }
+        if (save) { console.warn(`[Save] Main save corrupted, recovered from backup-${i}`); break; }
+      }
+    }
+    if (!save) return;
     try {
-      const save: GameSave = JSON.parse(raw);
 
       // Save migrations
       if (save.version <= 2) {

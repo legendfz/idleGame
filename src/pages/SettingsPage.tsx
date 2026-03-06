@@ -278,6 +278,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
             多槽位管理
           </button>
           <button className="action-btn" onClick={exportSave}>导出存档</button>
+          <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>💾 自动备份已开启（保留最近3次存档）</div>
           <button className="action-btn" onClick={() => setShowImport(!showImport)}>导入存档</button>
           {showImport && (
             <div style={{ marginTop: 10 }}>
