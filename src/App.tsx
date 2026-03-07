@@ -32,9 +32,12 @@ const SaveManagerPage = lazy(() => import('./pages/ShopSavePage').then(m => ({ d
 
 import { TopBar, OfflineReportModal, SubPageHeader, SubPage } from './pages/shared';
 import { BattleView } from './pages/BattlePage';
-import { TeamView, CharacterDetailPage } from './pages/TeamPage';
-import { JourneyView, ChapterSelectPage } from './pages/JourneyPage';
-import { EquipDetailPage, RefinePage } from './pages/EquipmentPage';
+const TeamPageLazy = lazy(() => import('./pages/TeamPage').then(m => ({ default: m.TeamView })));
+const CharacterDetailPageLazy = lazy(() => import('./pages/TeamPage').then(m => ({ default: m.CharacterDetailPage })));
+const JourneyViewLazy = lazy(() => import('./pages/JourneyPage').then(m => ({ default: m.JourneyView })));
+const ChapterSelectPageLazy = lazy(() => import('./pages/JourneyPage').then(m => ({ default: m.ChapterSelectPage })));
+const EquipDetailPageLazy = lazy(() => import('./pages/EquipmentPage').then(m => ({ default: m.EquipDetailPage })));
+const RefinePageLazy = lazy(() => import('./pages/EquipmentPage').then(m => ({ default: m.RefinePage })));
 import { useDailyStore } from './store/dailyStore';
 import { useDailyChallengeStore } from './store/dailyChallengeStore';
 import { useSanctuaryStore } from './store/sanctuaryStore';
@@ -313,11 +316,11 @@ export default function App() {
   // ─── Sub-page routing ───
   const renderSubPage = () => {
     switch (subPage.type) {
-      case 'equipDetail': return <EquipDetailPage item={subPage.item} onBack={goBack} />;
-      case 'refine': return <RefinePage onBack={goBack} />;
+      case 'equipDetail': return <EquipDetailPageLazy item={subPage.item} onBack={goBack} />;
+      case 'refine': return <RefinePageLazy onBack={goBack} />;
       case 'shop': return <Suspense fallback={<LazyFallback />}><ShopPage onBack={goBack} /></Suspense>;
-      case 'characterDetail': return <CharacterDetailPage onBack={goBack} />;
-      case 'chapterSelect': return <ChapterSelectPage onBack={goBack} />;
+      case 'characterDetail': return <CharacterDetailPageLazy onBack={goBack} />;
+      case 'chapterSelect': return <ChapterSelectPageLazy onBack={goBack} />;
       case 'saveManager': return <Suspense fallback={<LazyFallback />}><SaveManagerPage onBack={goBack} /></Suspense>;
       case 'dungeonList': return (
         <div className="main-content fade-in">
@@ -366,8 +369,8 @@ export default function App() {
   const renderTab = () => {
     switch (activeTab) {
       case 'battle': return <BattleView />;
-      case 'team': return <TeamView setSubPage={setSubPage} />;
-      case 'journey': return <JourneyView setSubPage={setSubPage} />;
+      case 'team': return <TeamPageLazy setSubPage={setSubPage} />;
+      case 'journey': return <JourneyViewLazy setSubPage={setSubPage} />;
       case 'bag': return <Suspense fallback={<LazyFallback />}><BagView setSubPage={setSubPage} /></Suspense>;
       case 'achievement': return <Suspense fallback={<LazyFallback />}><div className="main-content fade-in"><AchievementList /></div></Suspense>;
       case 'reincarnation': return <Suspense fallback={<LazyFallback />}><ReincarnationPanel /></Suspense>;
