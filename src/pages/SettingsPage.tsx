@@ -58,6 +58,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
   const autoReincarnate = useGameStore(s => s.autoReincarnate);
   const autoDaoAlloc = useGameStore(s => (s as any).autoDaoAlloc) ?? false;
   const autoFarm = useGameStore(s => (s as any).autoFarm) ?? false;
+  const autoEvent = useGameStore(s => (s as any).autoEvent) ?? false;
   const autoTranscend = useGameStore(s => (s as any).autoTranscend) ?? false;
   const autoBuyTranscendPerks = useGameStore(s => (s as any).autoBuyTranscendPerks) ?? false;
   const setAutoReincarnate = useGameStore(s => s.setAutoReincarnate);
@@ -170,23 +171,23 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
       <Card>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
           onClick={() => {
-            const allOn = autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoFeedPet && autoBuyPerks && autoSynth && autoReincarnate && autoDaoAlloc && autoFarm && autoTranscend && autoBuyTranscendPerks;
+            const allOn = autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoFeedPet && autoBuyPerks && autoSynth && autoReincarnate && autoDaoAlloc && autoFarm && autoTranscend && autoBuyTranscendPerks && autoEvent;
             if (allOn) {
               setAutoDecomp(0); setAutoEquip(false); setAutoSkill(false); setAutoConsume(false);
               setAutoWorldBoss(false); setAutoExplore(false); setAutoSanctuary(false); setAutoAffinity(false);
-              setAutoSweep(false); setAutoFate(false); setAutoWheel(false); setAutoTrial(false); setAutoAscension(false); setAutoEnhance(false); setAutoBuyPerks(false); setAutoSynth(false); (useGameStore.getState() as any).setAutoDaoAlloc(false); (useGameStore.getState() as any).setAutoFarm(false); (useGameStore.getState() as any).setAutoTranscend(false); (useGameStore.getState() as any).setAutoBuyTranscendPerks(false);
+              setAutoSweep(false); setAutoFate(false); setAutoWheel(false); setAutoTrial(false); setAutoAscension(false); setAutoEnhance(false); setAutoBuyPerks(false); setAutoSynth(false); (useGameStore.getState() as any).setAutoDaoAlloc(false); (useGameStore.getState() as any).setAutoFarm(false); (useGameStore.getState() as any).setAutoTranscend(false); (useGameStore.getState() as any).setAutoBuyTranscendPerks(false); (useGameStore.getState() as any).setAutoEvent(false);
             } else {
               setAutoDecomp(2); setAutoEquip(true); setAutoSkill(true); setAutoConsume(true);
               setAutoWorldBoss(true); setAutoExplore(true); setAutoSanctuary(true); setAutoAffinity(true);
-              setAutoSweep(true); setAutoFate(true); setAutoWheel(true); setAutoTrial(true); setAutoAscension(true); setAutoEnhance(true); setAutoFeedPet(true); setAutoBuyPerks(true); setAutoSynth(true); setAutoReincarnate(true); (useGameStore.getState() as any).setAutoDaoAlloc(true); (useGameStore.getState() as any).setAutoFarm(true); (useGameStore.getState() as any).setAutoTranscend(true); (useGameStore.getState() as any).setAutoBuyTranscendPerks(true);
+              setAutoSweep(true); setAutoFate(true); setAutoWheel(true); setAutoTrial(true); setAutoAscension(true); setAutoEnhance(true); setAutoFeedPet(true); setAutoBuyPerks(true); setAutoSynth(true); setAutoReincarnate(true); (useGameStore.getState() as any).setAutoDaoAlloc(true); (useGameStore.getState() as any).setAutoFarm(true); (useGameStore.getState() as any).setAutoTranscend(true); (useGameStore.getState() as any).setAutoBuyTranscendPerks(true); (useGameStore.getState() as any).setAutoEvent(true);
             }
           }}>
           <span style={{ fontWeight: 700, fontSize: 15 }}>🤖 一键全自动</span>
           <span style={{
-            color: (autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoFeedPet && autoBuyPerks && autoSynth && autoReincarnate && autoDaoAlloc && autoFarm && autoTranscend && autoBuyTranscendPerks) ? '#ffd700' : 'var(--dim)',
+            color: (autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoFeedPet && autoBuyPerks && autoSynth && autoReincarnate && autoDaoAlloc && autoFarm && autoTranscend && autoBuyTranscendPerks && autoEvent) ? '#ffd700' : 'var(--dim)',
             fontWeight: 600
           }}>
-            {(autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoFeedPet && autoBuyPerks && autoSynth && autoReincarnate && autoDaoAlloc && autoFarm && autoTranscend && autoBuyTranscendPerks) ? '✅ 全部开启' : '点击全开'}
+            {(autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoFeedPet && autoBuyPerks && autoSynth && autoReincarnate && autoDaoAlloc && autoFarm && autoTranscend && autoBuyTranscendPerks && autoEvent) ? '✅ 全部开启' : '点击全开'}
           </span>
         </div>
       </Card>
@@ -339,6 +340,12 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
           <span className="stat-label">自动回退刷怪（卡关时回退高效章节）</span>
           <span style={{ color: autoFarm ? 'var(--accent)' : 'var(--dim)' }}>
             {autoFarm ? '✅ 开启' : '关闭'}
+          </span>
+        </div>
+        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => (useGameStore.getState() as any).setAutoEvent(!autoEvent)}>
+          <span className="stat-label">自动处理随机事件（选择第一个选项）</span>
+          <span style={{ color: autoEvent ? 'var(--accent)' : 'var(--dim)' }}>
+            {autoEvent ? '✅ 开启' : '关闭'}
           </span>
         </div>
         <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => (useGameStore.getState() as any).setAutoTranscend(!autoTranscend)}>

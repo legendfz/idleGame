@@ -178,6 +178,21 @@ export function BattleView() {
     setEventResult(null);
   }, []);
 
+  // v133.0: Auto-event — choose first (safest) option automatically
+  const autoEvent = useGameStore(s => s.autoEvent);
+  useEffect(() => {
+    if (autoEvent && activeEvent && !eventResult) {
+      const timer = setTimeout(() => handleEventChoice(activeEvent.choices[0]), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [autoEvent, activeEvent, eventResult, handleEventChoice]);
+  useEffect(() => {
+    if (autoEvent && eventResult) {
+      const timer = setTimeout(dismissEvent, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [autoEvent, eventResult, dismissEvent]);
+
   return (
     <div className="main-content fade-in">
       {/* World Boss Banner — hide for new players */}
