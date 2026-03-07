@@ -10,6 +10,7 @@ import { getResonanceBonus } from '../data/resonance';
 import { expForLevel } from '../utils/format';
 import { REINC_PERKS } from '../data/reincarnation';
 import { getAwakeningBonuses } from '../components/AwakeningPanel';
+import { getPetTotalBonus } from '../data/pets';
 
 export interface OfflineResult {
   duration: number;       // capped seconds
@@ -122,10 +123,13 @@ export function calculateOfflineEarnings(
 
   // v64.0: Apply awakening bonuses
   const awk = getAwakeningBonuses(player);
-  eStats.attack = Math.floor(eStats.attack * atkMul * (1 + (awk.atk_pct ?? 0) / 100));
-  eStats.maxHp = Math.floor(eStats.maxHp * (1 + (awk.hp_pct ?? 0) / 100));
-  eStats.critRate = Math.min(100, eStats.critRate + (awk.crit_rate ?? 0));
-  eStats.critDmg += (awk.crit_dmg ?? 0) / 100;
+  // v108.0: Apply pet bonuses
+  const petBonus = getPetTotalBonus(player.petLevels ?? {}, player.activePetId ?? null);
+
+  eStats.attack = Math.floor(eStats.attack * atkMul * (1 + (awk.atk_pct ?? 0) / 100) * (1 + (petBonus.atkPct ?? 0) / 100));
+  eStats.maxHp = Math.floor(eStats.maxHp * (1 + (awk.hp_pct ?? 0) / 100) * (1 + (petBonus.hpPct ?? 0) / 100));
+  eStats.critRate = Math.min(100, eStats.critRate + (awk.crit_rate ?? 0) + (petBonus.critRate ?? 0));
+  eStats.critDmg += (awk.crit_dmg ?? 0) / 100 + (petBonus.critDmg ?? 0) / 100;
 
   // Average DPS including crit expectation
   const avgCritMul = 1 + (eStats.critRate / 100) * (eStats.critDmg - 1);
@@ -162,10 +166,13 @@ export function calculateOfflineEarnings(
   // Resource rewards (v64.0: apply reincarnation + awakening multipliers)
   const lingshiAwkMul = 1 + (awk.lingshi_pct ?? 0) / 100;
   const expAwkMul = 1 + (awk.exp_pct ?? 0) / 100;
+  // v108.0: Pet gold/exp multipliers for offline
+  const petGoldMul = 1 + (petBonus.goldPct ?? 0) / 100;
+  const petExpMul = 1 + (petBonus.expPct ?? 0) / 100;
   const lingshi = Math.floor(
-    (totalMinions * minion.lingshiDrop + totalBosses * boss.lingshiDrop) * lingshiMul * goldMul * lingshiAwkMul
+    (totalMinions * minion.lingshiDrop + totalBosses * boss.lingshiDrop) * lingshiMul * goldMul * lingshiAwkMul * petGoldMul
   );
-  const exp = Math.floor((totalMinions * minion.expDrop + totalBosses * boss.expDrop) * expMul * expAwkMul);
+  const exp = Math.floor((totalMinions * minion.expDrop + totalBosses * boss.expDrop) * expMul * expAwkMul * petExpMul);
 
   // Pantao: use expected value (boss pantao chance × boss kills)
   const pantao = Math.floor(totalBosses * (boss.pantaoDrop || 0));

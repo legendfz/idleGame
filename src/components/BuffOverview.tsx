@@ -14,6 +14,7 @@ import { formatNumber } from '../utils/format';
 import { useAffinityStore } from '../store/affinityStore';
 import { getResonanceBonus } from '../data/resonance';
 import { AFFINITY_NPCS } from '../engine/affinity';
+import { getPetTotalBonus, PETS } from '../data/pets';
 
 interface BuffSource {
   system: string;
@@ -124,7 +125,19 @@ export function BuffOverview() {
       result.push({ system: '共鸣', icon: '🔮', color: '#e2c97e', buffs: [{ label: resonance.name, value: resonance.description }] });
     }
 
-    // 9. Reincarnation count
+    // 9. Pet bonuses (v108.0)
+    const petB = getPetTotalBonus(player.petLevels ?? {}, player.activePetId ?? null);
+    const petBuffs: { label: string; value: string }[] = [];
+    if (petB.atkPct) petBuffs.push({ label: '灵兽·攻击', value: `+${petB.atkPct.toFixed(0)}%` });
+    if (petB.hpPct) petBuffs.push({ label: '灵兽·生命', value: `+${petB.hpPct.toFixed(0)}%` });
+    if (petB.critRate) petBuffs.push({ label: '灵兽·暴击', value: `+${petB.critRate.toFixed(1)}%` });
+    if (petB.critDmg) petBuffs.push({ label: '灵兽·暴伤', value: `+${petB.critDmg.toFixed(0)}%` });
+    if (petB.expPct) petBuffs.push({ label: '灵兽·经验', value: `+${petB.expPct.toFixed(0)}%` });
+    if (petB.goldPct) petBuffs.push({ label: '灵兽·灵石', value: `+${petB.goldPct.toFixed(0)}%` });
+    if (petB.dropRate) petBuffs.push({ label: '灵兽·掉率', value: `+${petB.dropRate.toFixed(0)}%` });
+    if (petBuffs.length > 0) result.push({ system: '灵兽', icon: '🐾', color: '#4dd0e1', buffs: petBuffs });
+
+    // 10. Reincarnation count
     const reincCount = player.reincarnations ?? 0;
     if (reincCount > 0) {
       result.push({ system: '轮回', icon: '♾️', color: '#ce93d8', buffs: [{ label: `转世 ${reincCount} 次`, value: `道点可用` }] });

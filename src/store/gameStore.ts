@@ -78,6 +78,7 @@ interface GameStore {
   autoTrial: boolean; // v93.0: auto quick trial every 5 min
   autoAscension: boolean; // v93.0: auto ascension challenge daily
   autoEnhance: boolean; // v95.0: auto-enhance equipped gear
+  autoFeedPet: boolean; // v108.0: auto-feed active pet
   autoBuyPerks: boolean; // v96.0: auto-buy reincarnation perks
   autoSynth: boolean; // v98.0: auto-synthesize 3 same-quality equips
   autoReincarnate: boolean; // v102.0: auto-reincarnate when conditions met
@@ -133,6 +134,7 @@ interface GameStore {
   setAutoTrial: (v: boolean) => void;
   setAutoAscension: (v: boolean) => void;
   setAutoEnhance: (v: boolean) => void;
+  setAutoFeedPet: (v: boolean) => void;
   setAutoBuyPerks: (v: boolean) => void;
   setAutoSynth: (v: boolean) => void;
   setAutoReincarnate: (v: boolean) => void;
@@ -419,6 +421,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   autoTrial: false,
   autoAscension: false,
   autoEnhance: false,
+  autoFeedPet: false,
   autoBuyPerks: false,
   autoSynth: false,
   autoReincarnate: false,
@@ -451,6 +454,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setAutoTrial: (v: boolean) => set({ autoTrial: v }),
   setAutoAscension: (v: boolean) => set({ autoAscension: v }),
   setAutoEnhance: (v: boolean) => set({ autoEnhance: v }),
+  setAutoFeedPet: (v: boolean) => set({ autoFeedPet: v }),
   setAutoBuyPerks: (v: boolean) => set({ autoBuyPerks: v }),
   setAutoSynth: (v: boolean) => set({ autoSynth: v }),
   setAutoReincarnate: (v: boolean) => set({ autoReincarnate: v }),
@@ -1019,6 +1023,21 @@ export const useGameStore = create<GameStore>((set, get) => ({
           updatedPlayer.lingshi -= cost;
           const enhanced = { ...item, level: item.level + 1 };
           set({ [key]: enhanced } as any);
+        }
+      }
+    }
+
+    // v108.0: Auto-feed active pet every 20 ticks
+    if (state.autoFeedPet && state.totalPlayTime % 20 === 0 && state.totalPlayTime > 0 && updatedPlayer.activePetId) {
+      const pet = PETS_DATA.find(p => p.id === updatedPlayer.activePetId);
+      if (pet) {
+        const currentLv = updatedPlayer.petLevels?.[pet.id] ?? 0;
+        if (currentLv < pet.maxLevel) {
+          const cost = pet.feedCost(currentLv);
+          if (updatedPlayer.lingshi >= cost) {
+            updatedPlayer.lingshi -= cost;
+            updatedPlayer.petLevels = { ...updatedPlayer.petLevels, [pet.id]: currentLv + 1 };
+          }
         }
       }
     }
@@ -1911,6 +1930,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       autoTrial: state.autoTrial,
       autoAscension: state.autoAscension,
       autoEnhance: state.autoEnhance,
+      autoFeedPet: state.autoFeedPet,
       autoBuyPerks: state.autoBuyPerks,
       autoSynth: state.autoSynth,
       autoReincarnate: state.autoReincarnate,
@@ -2091,6 +2111,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         autoTrial: (save as any).autoTrial ?? false,
         autoAscension: (save as any).autoAscension ?? false,
         autoEnhance: (save as any).autoEnhance ?? false,
+        autoFeedPet: (save as any).autoFeedPet ?? false,
         autoBuyPerks: (save as any).autoBuyPerks ?? false,
         autoSynth: (save as any).autoSynth ?? false,
         autoReincarnate: (save as any).autoReincarnate ?? false,

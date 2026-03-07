@@ -48,6 +48,8 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
   const setAutoAscension = useGameStore(s => s.setAutoAscension);
   const autoEnhance = useGameStore(s => s.autoEnhance);
   const setAutoEnhance = useGameStore(s => s.setAutoEnhance);
+  const autoFeedPet = useGameStore(s => s.autoFeedPet);
+  const setAutoFeedPet = useGameStore(s => s.setAutoFeedPet);
   const autoBuyPerks = useGameStore(s => s.autoBuyPerks);
   const setAutoBuyPerks = useGameStore(s => s.setAutoBuyPerks);
   const autoSynth = useGameStore(s => s.autoSynth);
@@ -148,7 +150,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
       <Card>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
           onClick={() => {
-            const allOn = autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoBuyPerks && autoSynth && autoReincarnate && autoDaoAlloc;
+            const allOn = autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoFeedPet && autoBuyPerks && autoSynth && autoReincarnate && autoDaoAlloc;
             if (allOn) {
               setAutoDecomp(0); setAutoEquip(false); setAutoSkill(false); setAutoConsume(false);
               setAutoWorldBoss(false); setAutoExplore(false); setAutoSanctuary(false); setAutoAffinity(false);
@@ -156,15 +158,15 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
             } else {
               setAutoDecomp(2); setAutoEquip(true); setAutoSkill(true); setAutoConsume(true);
               setAutoWorldBoss(true); setAutoExplore(true); setAutoSanctuary(true); setAutoAffinity(true);
-              setAutoSweep(true); setAutoFate(true); setAutoWheel(true); setAutoTrial(true); setAutoAscension(true); setAutoEnhance(true); setAutoBuyPerks(true); setAutoSynth(true); setAutoReincarnate(true); (useGameStore.getState() as any).setAutoDaoAlloc(true);
+              setAutoSweep(true); setAutoFate(true); setAutoWheel(true); setAutoTrial(true); setAutoAscension(true); setAutoEnhance(true); setAutoFeedPet(true); setAutoBuyPerks(true); setAutoSynth(true); setAutoReincarnate(true); (useGameStore.getState() as any).setAutoDaoAlloc(true);
             }
           }}>
           <span style={{ fontWeight: 700, fontSize: 15 }}>🤖 一键全自动</span>
           <span style={{
-            color: (autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoBuyPerks && autoSynth && autoReincarnate && autoDaoAlloc) ? '#ffd700' : 'var(--dim)',
+            color: (autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoFeedPet && autoBuyPerks && autoSynth && autoReincarnate && autoDaoAlloc) ? '#ffd700' : 'var(--dim)',
             fontWeight: 600
           }}>
-            {(autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoBuyPerks && autoSynth && autoReincarnate && autoDaoAlloc) ? '✅ 全部开启' : '点击全开'}
+            {(autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoFeedPet && autoBuyPerks && autoSynth && autoReincarnate && autoDaoAlloc) ? '✅ 全部开启' : '点击全开'}
           </span>
         </div>
       </Card>
@@ -281,6 +283,12 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
           <span className="stat-label">自动强化已装备（+1~+10）</span>
           <span style={{ color: autoEnhance ? 'var(--accent)' : 'var(--dim)' }}>
             {autoEnhance ? '✅ 开启' : '关闭'}
+          </span>
+        </div>
+        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoFeedPet(!autoFeedPet)}>
+          <span className="stat-label">自动喂养出战灵兽</span>
+          <span style={{ color: autoFeedPet ? 'var(--accent)' : 'var(--dim)' }}>
+            {autoFeedPet ? '✅ 开启' : '关闭'}
           </span>
         </div>
         <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoBuyPerks(!autoBuyPerks)}>
