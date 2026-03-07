@@ -90,6 +90,8 @@ interface GameStore {
   autoReincarnate: boolean; // v102.0: auto-reincarnate when conditions met
   autoDaoAlloc: boolean; // v105.0: auto-allocate dao points after reincarnation
   autoFarm: boolean; // v111.0: auto-retreat to optimal farming chapter
+  autoTranscend: boolean; // v117.0: auto-transcend when 10+ reincarnations
+  autoBuyTranscendPerks: boolean; // v117.0: auto-buy transcendence perks
   lastWheelSpin: number; // v83.0: last wheel spin timestamp
   equippedTitle: string | null; // v81.0: equipped title id
   unlockedTitles: string[]; // v81.0: unlocked title ids
@@ -449,6 +451,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   autoReincarnate: false,
   autoDaoAlloc: false, // v105.0
   autoFarm: false, // v111.0
+  autoTranscend: false, // v117.0
+  autoBuyTranscendPerks: false, // v117.0
   lastWheelSpin: 0,
   equippedTitle: null,
   completedChallenges: [],
@@ -483,6 +487,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setAutoReincarnate: (v: boolean) => set({ autoReincarnate: v }),
   setAutoDaoAlloc: (v: boolean) => set({ autoDaoAlloc: v } as any),
   setAutoFarm: (v: boolean) => set({ autoFarm: v } as any),
+  setAutoTranscend: (v: boolean) => set({ autoTranscend: v } as any),
+  setAutoBuyTranscendPerks: (v: boolean) => set({ autoBuyTranscendPerks: v } as any),
   // v115.0: Pin achievement
   pinAchievement: (id: string | null) => set({ player: { ...get().player, pinnedAchievement: id } }),
   setEquippedTitle: (id: string | null) => set({ equippedTitle: id }),
@@ -1197,6 +1203,37 @@ export const useGameStore = create<GameStore>((set, get) => ({
         set({ player: updatedPlayer, battle: updatedBattle, inventory: updatedInventory });
         get().reincarnate();
         return; // Reincarnation resets everything, skip rest of tick
+      }
+    }
+
+    // v117.0: Auto-transcend every 180 ticks when conditions met
+    if (state.autoTranscend && state.totalPlayTime % 180 === 0 && state.totalPlayTime > 0) {
+      const reincCount = updatedPlayer.reincarnations ?? 0;
+      if (reincCount >= TRANSCEND_MIN_REINC && updatedPlayer.realmIndex >= REINC_MIN_REALM && updatedPlayer.level >= REINC_MIN_LEVEL) {
+        set({ player: updatedPlayer, battle: updatedBattle, inventory: updatedInventory });
+        get().transcend();
+        return;
+      }
+    }
+
+    // v117.0: Auto-buy transcendence perks every 90 ticks
+    if (state.autoBuyTranscendPerks && state.totalPlayTime % 90 === 0 && state.totalPlayTime > 0 && (updatedPlayer.transcendPoints ?? 0) > 0) {
+      let bought = true;
+      while (bought) {
+        bought = false;
+        let cheapest: { id: string; cost: number } | null = null;
+        for (const perk of TRANSCEND_PERKS) {
+          const lv = (updatedPlayer.transcendPerks ?? {})[perk.id] ?? 0;
+          if (lv >= perk.maxLevel) continue;
+          if (!cheapest || perk.costPerLevel < cheapest.cost) {
+            cheapest = { id: perk.id, cost: perk.costPerLevel };
+          }
+        }
+        if (cheapest && (updatedPlayer.transcendPoints ?? 0) >= cheapest.cost) {
+          updatedPlayer.transcendPoints = (updatedPlayer.transcendPoints ?? 0) - cheapest.cost;
+          updatedPlayer.transcendPerks = { ...(updatedPlayer.transcendPerks ?? {}), [cheapest.id]: ((updatedPlayer.transcendPerks ?? {})[cheapest.id] ?? 0) + 1 };
+          bought = true;
+        }
       }
     }
 
@@ -2073,6 +2110,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       autoReincarnate: state.autoReincarnate,
       autoDaoAlloc: (state as any).autoDaoAlloc,
       autoFarm: (state as any).autoFarm,
+      autoTranscend: (state as any).autoTranscend,
+      autoBuyTranscendPerks: (state as any).autoBuyTranscendPerks,
       lastWheelSpin: state.lastWheelSpin,
       equippedTitle: state.equippedTitle,
       unlockedTitles: state.unlockedTitles,
@@ -2291,6 +2330,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         autoReincarnate: (save as any).autoReincarnate ?? false,
         autoDaoAlloc: (save as any).autoDaoAlloc ?? false,
         autoFarm: (save as any).autoFarm ?? false,
+        autoTranscend: (save as any).autoTranscend ?? false,
+        autoBuyTranscendPerks: (save as any).autoBuyTranscendPerks ?? false,
         lastWheelSpin: (save as any).lastWheelSpin ?? 0,
         equippedTitle: (save as any).equippedTitle ?? null,
         unlockedTitles: (save as any).unlockedTitles ?? [],

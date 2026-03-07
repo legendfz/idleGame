@@ -19,6 +19,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
   const [sfxVol, setSfxVol] = useState(getSfxVolume);
   const [importText, setImportText] = useState('');
   const [showImport, setShowImport] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [showStats, setShowStats] = useState(false);
   const autoDecomp = useGameStore(s => s.autoDecomposeQuality) ?? 0;
   const setAutoDecomp = useGameStore(s => s.setAutoDecomposeQuality);
@@ -57,6 +58,8 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
   const autoReincarnate = useGameStore(s => s.autoReincarnate);
   const autoDaoAlloc = useGameStore(s => (s as any).autoDaoAlloc) ?? false;
   const autoFarm = useGameStore(s => (s as any).autoFarm) ?? false;
+  const autoTranscend = useGameStore(s => (s as any).autoTranscend) ?? false;
+  const autoBuyTranscendPerks = useGameStore(s => (s as any).autoBuyTranscendPerks) ?? false;
   const setAutoReincarnate = useGameStore(s => s.setAutoReincarnate);
   const DECOMP_LABELS = ['关闭', '凡品', '灵品以下', '仙品以下'];
 
@@ -159,23 +162,23 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
       <Card>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
           onClick={() => {
-            const allOn = autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoFeedPet && autoBuyPerks && autoSynth && autoReincarnate && autoDaoAlloc && autoFarm;
+            const allOn = autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoFeedPet && autoBuyPerks && autoSynth && autoReincarnate && autoDaoAlloc && autoFarm && autoTranscend && autoBuyTranscendPerks;
             if (allOn) {
               setAutoDecomp(0); setAutoEquip(false); setAutoSkill(false); setAutoConsume(false);
               setAutoWorldBoss(false); setAutoExplore(false); setAutoSanctuary(false); setAutoAffinity(false);
-              setAutoSweep(false); setAutoFate(false); setAutoWheel(false); setAutoTrial(false); setAutoAscension(false); setAutoEnhance(false); setAutoBuyPerks(false); setAutoSynth(false); (useGameStore.getState() as any).setAutoDaoAlloc(false); (useGameStore.getState() as any).setAutoFarm(false);
+              setAutoSweep(false); setAutoFate(false); setAutoWheel(false); setAutoTrial(false); setAutoAscension(false); setAutoEnhance(false); setAutoBuyPerks(false); setAutoSynth(false); (useGameStore.getState() as any).setAutoDaoAlloc(false); (useGameStore.getState() as any).setAutoFarm(false); (useGameStore.getState() as any).setAutoTranscend(false); (useGameStore.getState() as any).setAutoBuyTranscendPerks(false);
             } else {
               setAutoDecomp(2); setAutoEquip(true); setAutoSkill(true); setAutoConsume(true);
               setAutoWorldBoss(true); setAutoExplore(true); setAutoSanctuary(true); setAutoAffinity(true);
-              setAutoSweep(true); setAutoFate(true); setAutoWheel(true); setAutoTrial(true); setAutoAscension(true); setAutoEnhance(true); setAutoFeedPet(true); setAutoBuyPerks(true); setAutoSynth(true); setAutoReincarnate(true); (useGameStore.getState() as any).setAutoDaoAlloc(true); (useGameStore.getState() as any).setAutoFarm(true);
+              setAutoSweep(true); setAutoFate(true); setAutoWheel(true); setAutoTrial(true); setAutoAscension(true); setAutoEnhance(true); setAutoFeedPet(true); setAutoBuyPerks(true); setAutoSynth(true); setAutoReincarnate(true); (useGameStore.getState() as any).setAutoDaoAlloc(true); (useGameStore.getState() as any).setAutoFarm(true); (useGameStore.getState() as any).setAutoTranscend(true); (useGameStore.getState() as any).setAutoBuyTranscendPerks(true);
             }
           }}>
           <span style={{ fontWeight: 700, fontSize: 15 }}>🤖 一键全自动</span>
           <span style={{
-            color: (autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoFeedPet && autoBuyPerks && autoSynth && autoReincarnate && autoDaoAlloc && autoFarm) ? '#ffd700' : 'var(--dim)',
+            color: (autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoFeedPet && autoBuyPerks && autoSynth && autoReincarnate && autoDaoAlloc && autoFarm && autoTranscend && autoBuyTranscendPerks) ? '#ffd700' : 'var(--dim)',
             fontWeight: 600
           }}>
-            {(autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoFeedPet && autoBuyPerks && autoSynth && autoReincarnate && autoDaoAlloc && autoFarm) ? '✅ 全部开启' : '点击全开'}
+            {(autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoFeedPet && autoBuyPerks && autoSynth && autoReincarnate && autoDaoAlloc && autoFarm && autoTranscend && autoBuyTranscendPerks) ? '✅ 全部开启' : '点击全开'}
           </span>
         </div>
       </Card>
@@ -330,6 +333,51 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
             {autoFarm ? '✅ 开启' : '关闭'}
           </span>
         </div>
+        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => (useGameStore.getState() as any).setAutoTranscend(!autoTranscend)}>
+          <span className="stat-label">自动超越（10次转世后自动超越轮回）</span>
+          <span style={{ color: autoTranscend ? 'var(--accent)' : 'var(--dim)' }}>
+            {autoTranscend ? '✅ 开启' : '关闭'}
+          </span>
+        </div>
+        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => (useGameStore.getState() as any).setAutoBuyTranscendPerks(!autoBuyTranscendPerks)}>
+          <span className="stat-label">自动购买超越加成（自动分配超越点）</span>
+          <span style={{ color: autoBuyTranscendPerks ? 'var(--accent)' : 'var(--dim)' }}>
+            {autoBuyTranscendPerks ? '✅ 开启' : '关闭'}
+          </span>
+        </div>
+      </Card>
+
+      {/* v117.0: Player Card */}
+      <Card title="📜 仙途名片">
+        <p style={{ color: 'var(--dim)', fontSize: 12, margin: '0 0 8px' }}>生成你的修仙名片，分享给好友</p>
+        <button className="action-btn" style={{ background: 'linear-gradient(135deg, #7c3aed, #f59e0b)', border: 'none', color: '#fff', fontWeight: 700, width: '100%' }}
+          onClick={() => {
+            const s = useGameStore.getState();
+            const es = s.getEffectiveStats();
+            const r = REALMS[s.player.realmIndex] ?? REALMS[0];
+            const card = [
+              '╔══════════════════════════╗',
+              '║    🐵 西游·悟空传 名片    ║',
+              '╠══════════════════════════╣',
+              `║ 境界：${r.name}`,
+              `║ 等级：Lv.${s.player.level}`,
+              `║ ⚔️ 攻击：${formatNumber(es.attack)}`,
+              `║ ❤️ 生命：${formatNumber(es.maxHp)}`,
+              `║ ⭐ 战力：${formatNumber(es.attack * (1 + (es.critRate / 100) * (es.critDmg)) + es.maxHp * 0.05)}`,
+              `║ 🔄 转世：${s.player.reincarnations ?? 0}次`,
+              `║ 💫 超越：${(s.player as any).transcendCount ?? 0}次`,
+              `║ 🏆 最高战力：${formatNumber(s.highestPower ?? 0)}`,
+              `║ ⏱️ 游戏时长：${formatTime(s.totalPlayTime)}`,
+              '╚══════════════════════════╝',
+              '🔗 https://legendfz.github.io/idleGame/',
+            ].join('\n');
+            navigator.clipboard.writeText(card).then(() => {
+              setCopied(true);
+              setTimeout(() => setCopied(false), 2000);
+            }).catch(() => {});
+          }}>
+          {copied ? '✅ 已复制到剪贴板！' : '📋 生成并复制名片'}
+        </button>
       </Card>
 
       {/* Save management */}
