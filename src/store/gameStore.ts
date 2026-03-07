@@ -1114,6 +1114,23 @@ export const useGameStore = create<GameStore>((set, get) => ({
       }
     }
 
+    // v119.0: Auto-switch to best unlocked pet (every 60 ticks)
+    if (state.autoFeedPet && state.totalPlayTime % 60 === 0 && state.totalPlayTime > 0) {
+      let bestPet: string | null = null;
+      let bestScore = -1;
+      for (const pet of PETS_DATA) {
+        if (updatedPlayer.level < pet.unlockLevel) continue;
+        const lv = updatedPlayer.petLevels?.[pet.id] ?? 0;
+        if (lv <= 0) continue;
+        const b = pet.bonuses(lv);
+        const score = (b.atkPct ?? 0) + (b.hpPct ?? 0) * 0.3 + (b.expPct ?? 0) * 0.5 + (b.goldPct ?? 0) * 0.3 + (b.critRate ?? 0) * 2 + (b.critDmg ?? 0) * 0.5 + (b.dropRate ?? 0) * 0.5;
+        if (score > bestScore) { bestScore = score; bestPet = pet.id; }
+      }
+      if (bestPet && bestPet !== updatedPlayer.activePetId) {
+        updatedPlayer.activePetId = bestPet;
+      }
+    }
+
     // v96.0: Auto-buy reincarnation perks every 60 ticks
     if (state.autoBuyPerks && state.totalPlayTime % 60 === 0 && state.totalPlayTime > 0 && updatedPlayer.daoPoints > 0) {
       // Buy cheapest available perk repeatedly until out of points
