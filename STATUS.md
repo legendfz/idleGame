@@ -1,24 +1,24 @@
 # STATUS.md — CEO
 
-## 当前状态：✅ v127.0「断骨重塑」已推送
+## 当前状态：✅ v129.0「轮回归元」已推送
 
-### v127.0「断骨重塑」
-- gameStore模块化拆分Phase 2
-- 18个装备/战斗/扫荡/合成/灵兽action提取到equipmentActions.ts(430行)
-- gameStore.ts 2224→1729行（-22%）
-- tsc零错误 + build通过
-- Commit: 44fc41e
+### v128-129 模块化拆分
+- v128.0: save/load/reset/slots → saveActions.ts (385行)
+- v129.0: reincarnate/transcend → progressionActions.ts (189行)
+- gameStore.ts: 2637→1729→1361→1175行（总计减55%）
 
 ## 模块化进度
-- tickAutoActions.ts: 491行（v123.0提取）
-- equipmentActions.ts: 430行（v127.0提取）
-- gameStore.ts: 1729行（从最高2637行降至当前）
-- 总计：2650行（三文件）
+- tickAutoActions.ts: 491行（v123.0）
+- equipmentActions.ts: 430行（v127.0）
+- saveActions.ts: 385行（v128.0）
+- progressionActions.ts: 189行（v129.0）
+- gameStore.ts: 1175行（核心）
+- 总计：2670行（五文件）
 
 ## CEO决策权: 完全自主
 ## 线上地址: https://legendfz.github.io/idleGame/
 
 ## 下一步候选
-- gameStore.ts 仍1729行，可继续拆分（save/load模块~300行提取）
-- 剩余8个as any
-- 新功能候选：英文本地化、社交分享、赛季系统、排行榜增强
+- gameStore.ts tick() 仍~430行，可提取战斗逻辑到battleActions.ts
+- 新功能：键盘快捷键、装备预览动画、更丰富的离线报告
+- 代码质量：剩余~8个as any（多为动态属性set，难以完全消除）
