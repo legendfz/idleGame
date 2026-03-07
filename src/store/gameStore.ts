@@ -16,6 +16,7 @@ import { CHAPTERS, createEnemy, ABYSS_CHAPTER_ID } from '../data/chapters';
 import { expForLevel, formatNumber } from '../utils/format';
 import { sfx } from '../engine/audio';
 import { calcDaoPoints, REINC_PERKS, REINC_MIN_REALM, REINC_MIN_LEVEL, getReincMilestoneBonus } from '../data/reincarnation';
+import { TRANSCEND_PERKS, TRANSCEND_MIN_REINC, calcTranscendPoints, getTranscendBonuses } from '../data/transcendence';
 import { AWAKENING_PATHS, totalAwakeningPoints, AWAKENING_UNLOCK_REINC } from '../data/awakening';
 import { ACTIVE_SKILLS } from '../data/skills';
 import { getAwakeningBonuses } from '../components/AwakeningPanel';
@@ -146,6 +147,8 @@ interface GameStore {
   setAutoReincarnate: (v: boolean) => void;
   setEquippedTitle: (id: string | null) => void;
   pinAchievement: (id: string | null) => void; // v115.0
+  transcend: () => void; // v116.0: 超越轮回
+  buyTranscendPerk: (perkId: string, maxBuy?: boolean) => void; // v116.0
   setCompletedChallenges: (ids: string[]) => void;
   activateFateBlessing: () => boolean;
   claimOnlineReward: (minutes: number) => { gold: number; exp: number; pantao: number; desc: string } | null;
@@ -234,6 +237,10 @@ function makeInitialPlayer(): PlayerState {
     trialShopPurchases: {},
     bestKillStreak: 0,
     pinnedAchievement: null,
+    transcendCount: 0,
+    transcendPoints: 0,
+    totalTranscendPoints: 0,
+    transcendPerks: {},
   };
 }
 
@@ -338,8 +345,14 @@ function calcEffectiveStats(
     s.critRate = Math.min(100, s.critRate + resonance.critRate);
     s.critDmg += resonance.critDmg;
   }
-  // v107.0: Pet bonuses (灵兽加成)
+  // v116.0: Transcendence bonuses (超越加成)
   const gs = useGameStore.getState();
+  const trBonus = getTranscendBonuses(gs.player.transcendPerks ?? {});
+  s.attack = Math.floor(s.attack * trBonus.atkMul);
+  s.maxHp = Math.floor(s.maxHp * trBonus.hpMul);
+  s.critRate = Math.min(100, s.critRate + trBonus.critFlat);
+  s.critDmg += trBonus.critDmg;
+  // v107.0: Pet bonuses (灵兽加成)
   const petBonus = getPetTotalBonus(gs.player.petLevels, gs.player.activePetId);
   if (petBonus.atkPct) s.attack = Math.floor(s.attack * (1 + petBonus.atkPct / 100));
   if (petBonus.hpPct) s.maxHp = Math.floor(s.maxHp * (1 + petBonus.hpPct / 100));
@@ -546,6 +559,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const atkMul = REINC_PERKS.find(p => p.id === 'atk_mult')!.effect(player.reincPerks?.['atk_mult'] ?? 0);
     const expMul = REINC_PERKS.find(p => p.id === 'exp_mult')!.effect(player.reincPerks?.['exp_mult'] ?? 0);
     const goldMul = REINC_PERKS.find(p => p.id === 'gold_mult')!.effect(player.reincPerks?.['gold_mult'] ?? 0);
+    // v116.0 超越加成
+    const trBonusTick = getTranscendBonuses(player.transcendPerks ?? {});
     // v53.0 消耗品增益
     const cEffect = getActiveConsumableEffects(player.activeConsumables ?? []);
     // v59.0 觉醒加成
@@ -754,8 +769,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const afExp = 1 + (afBuf.expMul ?? 0) / 100;
       const fateMul = (state.fateBlessing.active && state.fateBlessing.expiresAt > Date.now()) ? 2 : 1;
       const petB = getPetTotalBonus(player.petLevels, player.activePetId);
-      const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus) * (1 + (awk.gold_pct ?? 0) / 100) * afLingshi * (1 + rmb.gold) * fateMul * (1 + (titleBonus.goldMul ?? 0)) * (1 + (petB.goldPct ?? 0) / 100));
-      const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100) * afExp * (1 + rmb.exp) * fateMul * (1 + (titleBonus.expMul ?? 0)) * (1 + (petB.expPct ?? 0) / 100));
+      const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus) * (1 + (awk.gold_pct ?? 0) / 100) * afLingshi * (1 + rmb.gold) * fateMul * (1 + (titleBonus.goldMul ?? 0)) * (1 + (petB.goldPct ?? 0) / 100) * trBonusTick.goldMul);
+      const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100) * afExp * (1 + rmb.exp) * fateMul * (1 + (titleBonus.expMul ?? 0)) * (1 + (petB.expPct ?? 0) / 100) * trBonusTick.expMul);
       updatedPlayer.lingshi += lingshiDrop;
       updatedPlayer.totalGoldEarned = (updatedPlayer.totalGoldEarned || 0) + lingshiDrop;
       updatedPlayer.exp += expDrop;
@@ -1514,6 +1529,78 @@ export const useGameStore = create<GameStore>((set, get) => ({
     return perk.effect(player.reincPerks[perkId] ?? 0);
   },
 
+  // === v116.0: Transcendence (超越轮回) ===
+
+  transcend: () => {
+    const state = get();
+    const { player } = state;
+    if (player.reincarnations < TRANSCEND_MIN_REINC) return;
+
+    const tpGain = calcTranscendPoints(player.reincarnations, player.totalDaoPoints);
+
+    // Reset everything including reincarnation progress
+    const newPlayer = makeInitialPlayer();
+    newPlayer.transcendCount = (player.transcendCount ?? 0) + 1;
+    newPlayer.transcendPoints = (player.transcendPoints ?? 0) + tpGain;
+    newPlayer.totalTranscendPoints = (player.totalTranscendPoints ?? 0) + tpGain;
+    newPlayer.transcendPerks = { ...(player.transcendPerks ?? {}) };
+    // Keep codex/tutorial/pet/consumables across transcendence
+    newPlayer.tutorialDone = true;
+    newPlayer.tutorialStep = 6;
+    newPlayer.systemTutorials = [...player.systemTutorials];
+    newPlayer.codexEquipIds = [...player.codexEquipIds];
+    newPlayer.codexEnemyNames = [...player.codexEnemyNames];
+    newPlayer.petLevels = { ...player.petLevels };
+    newPlayer.activePetId = player.activePetId;
+    newPlayer.bestKillStreak = player.bestKillStreak;
+    newPlayer.pinnedAchievement = player.pinnedAchievement;
+    newPlayer.consumableInventory = { ...player.consumableInventory };
+    // Reset: reincarnations, daoPoints, reincPerks, awakening all go back to 0
+    newPlayer.reincarnations = 0;
+    newPlayer.daoPoints = 0;
+    newPlayer.totalDaoPoints = 0;
+    newPlayer.reincPerks = {};
+    newPlayer.awakening = { unlockedNodes: [], selectedPath: null };
+    newPlayer.awakeningPoints = 0;
+
+    set({
+      player: newPlayer,
+      battle: makeInitialBattle(),
+      inventory: [],
+      equippedWeapon: null,
+      equippedArmor: null,
+      equippedTreasure: null,
+      highestChapter: 1,
+      highestStage: 1,
+      floatingTexts: [],
+      idleStats: { goldPerSec: 0, expPerSec: 0, dps: 0, sessionTime: 0 },
+    });
+    sfx.breakthrough();
+  },
+
+  buyTranscendPerk: (perkId: string, maxBuy?: boolean) => {
+    const { player } = get();
+    const perk = TRANSCEND_PERKS.find(p => p.id === perkId);
+    if (!perk) return;
+    const currentLv = (player.transcendPerks ?? {})[perkId] ?? 0;
+    if (currentLv >= perk.maxLevel) return;
+    if ((player.transcendPoints ?? 0) < perk.costPerLevel) return;
+
+    const affordable = Math.floor((player.transcendPoints ?? 0) / perk.costPerLevel);
+    const remaining = perk.maxLevel - currentLv;
+    const count = maxBuy ? Math.min(affordable, remaining) : 1;
+    if (count <= 0) return;
+
+    set({
+      player: {
+        ...player,
+        transcendPoints: (player.transcendPoints ?? 0) - perk.costPerLevel * count,
+        transcendPerks: { ...(player.transcendPerks ?? {}), [perkId]: currentLv + count },
+      },
+    });
+    sfx.click();
+  },
+
   // === Equipment ===
 
   equipItem: (item) => {
@@ -2075,6 +2162,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
       save.player.activePetId = save.player.activePetId ?? null;
       save.player.bestKillStreak = save.player.bestKillStreak ?? 0;
       save.player.pinnedAchievement = save.player.pinnedAchievement ?? null;
+      save.player.transcendCount = save.player.transcendCount ?? 0;
+      save.player.transcendPoints = save.player.transcendPoints ?? 0;
+      save.player.totalTranscendPoints = save.player.totalTranscendPoints ?? 0;
+      save.player.transcendPerks = save.player.transcendPerks ?? {};
       save.player.trialShopPurchases = save.player.trialShopPurchases ?? {};
       save.player.reincPerks = save.player.reincPerks ?? {};
       // Ensure all dynamic fields have safe defaults (old saves may lack them)

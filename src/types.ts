@@ -54,6 +54,11 @@ export interface PlayerState {
   // v115.0
   bestKillStreak: number;              // highest kill streak ever
   pinnedAchievement: string | null;    // pinned achievement id for battle page
+  // v116.0
+  transcendCount: number;
+  transcendPoints: number;
+  totalTranscendPoints: number;
+  transcendPerks: Record<string, number>;
 }
 
 export interface ActiveSkillState {

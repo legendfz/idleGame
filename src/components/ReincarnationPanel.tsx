@@ -1,6 +1,8 @@
 import { useGameStore } from '../store/gameStore';
 import { REINC_PERKS, REINC_MIN_REALM, REINC_MIN_LEVEL, calcDaoPoints, REINC_MILESTONES } from '../data/reincarnation';
 import { REALMS } from '../data/realms';
+import { TranscendencePanel } from './TranscendencePanel';
+import { TRANSCEND_MIN_REINC } from '../data/transcendence';
 
 export function ReincarnationPanel() {
   const player = useGameStore(s => s.player);
@@ -129,6 +131,14 @@ export function ReincarnationPanel() {
           </div>
         );
       })}
+
+      {/* v116.0: Transcendence section */}
+      {(player.reincarnations >= TRANSCEND_MIN_REINC || (player.transcendCount ?? 0) > 0) && (
+        <>
+          <div style={{ margin: '16px 0 8px', borderTop: '1px solid rgba(139,92,246,0.3)' }} />
+          <TranscendencePanel />
+        </>
+      )}
     </div>
   );
 }

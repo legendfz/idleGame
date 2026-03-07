@@ -15,6 +15,7 @@ import { useAffinityStore } from '../store/affinityStore';
 import { getResonanceBonus } from '../data/resonance';
 import { AFFINITY_NPCS } from '../engine/affinity';
 import { getPetTotalBonus, PETS } from '../data/pets';
+import { getTranscendBonuses } from '../data/transcendence';
 
 interface BuffSource {
   system: string;
@@ -73,6 +74,18 @@ export function BuffOverview() {
     if (rmbBonus.critDmg > 0) reincBuffs.push({ label: '里程碑·暴伤', value: `+${Math.round(rmbBonus.critDmg * 100)}%` });
     if (rmbBonus.drop > 0) reincBuffs.push({ label: '里程碑·掉率', value: `+${Math.round(rmbBonus.drop * 100)}%` });
     if (reincBuffs.length > 0) result.push({ system: '转世', icon: '🔄', color: '#ff7043', buffs: reincBuffs });
+
+    // 3.5 v116.0: Transcendence
+    const trBonus = getTranscendBonuses(player.transcendPerks ?? {});
+    const trBuffs: { label: string; value: string }[] = [];
+    if (trBonus.atkMul > 1) trBuffs.push({ label: '混沌之力', value: `攻击 ×${trBonus.atkMul.toFixed(1)}` });
+    if (trBonus.hpMul > 1) trBuffs.push({ label: '不灭金身', value: `生命 ×${trBonus.hpMul.toFixed(1)}` });
+    if (trBonus.expMul > 1) trBuffs.push({ label: '天道感悟', value: `经验 ×${trBonus.expMul.toFixed(1)}` });
+    if (trBonus.goldMul > 1) trBuffs.push({ label: '聚宝天尊', value: `灵石 ×${trBonus.goldMul.toFixed(1)}` });
+    if (trBonus.critFlat > 0) trBuffs.push({ label: '天眼通', value: `暴击 +${trBonus.critFlat}%` });
+    if (trBonus.critDmg > 0) trBuffs.push({ label: '雷霆万钧', value: `暴伤 +${(trBonus.critDmg * 100).toFixed(0)}%` });
+    if (trBonus.dropMul > 1) trBuffs.push({ label: '天降神兵', value: `掉率 ×${trBonus.dropMul.toFixed(1)}` });
+    if (trBuffs.length > 0) result.push({ system: '超越', icon: '🌌', color: '#c084fc', buffs: trBuffs });
 
     // 4. Awakening
     const awk = getAwakeningBonuses(player);
