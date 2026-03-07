@@ -83,6 +83,7 @@ interface GameStore {
   autoSynth: boolean; // v98.0: auto-synthesize 3 same-quality equips
   autoReincarnate: boolean; // v102.0: auto-reincarnate when conditions met
   autoDaoAlloc: boolean; // v105.0: auto-allocate dao points after reincarnation
+  autoFarm: boolean; // v111.0: auto-retreat to optimal farming chapter
   lastWheelSpin: number; // v83.0: last wheel spin timestamp
   equippedTitle: string | null; // v81.0: equipped title id
   unlockedTitles: string[]; // v81.0: unlocked title ids
@@ -426,6 +427,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   autoSynth: false,
   autoReincarnate: false,
   autoDaoAlloc: false, // v105.0
+  autoFarm: false, // v111.0
   lastWheelSpin: 0,
   equippedTitle: null,
   completedChallenges: [],
@@ -459,6 +461,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setAutoSynth: (v: boolean) => set({ autoSynth: v }),
   setAutoReincarnate: (v: boolean) => set({ autoReincarnate: v }),
   setAutoDaoAlloc: (v: boolean) => set({ autoDaoAlloc: v } as any),
+  setAutoFarm: (v: boolean) => set({ autoFarm: v } as any),
   setEquippedTitle: (id: string | null) => set({ equippedTitle: id }),
   setCompletedChallenges: (ids: string[]) => {
     const today = new Date().toISOString().slice(0, 10);
@@ -928,6 +931,26 @@ export const useGameStore = create<GameStore>((set, get) => ({
         if (updatedPlayer.lingshi >= cost) {
           const result = affStore.gift(npc.id, updatedPlayer.lingshi, tier);
           if (result) updatedPlayer.lingshi -= result.cost;
+        }
+      }
+    }
+
+    // v111.0: Auto-farm — retreat to optimal chapter when struggling at frontier
+    if ((state as any).autoFarm && state.totalPlayTime % 30 === 0 && state.totalPlayTime > 0) {
+      const curChapter = updatedBattle.chapterId;
+      // Only act if at highest chapter and highestChapter > 1
+      if (curChapter >= state.highestChapter && state.highestChapter > 1 && curChapter < ABYSS_CHAPTER_ID) {
+        // Check if current enemy has > 50% HP remaining (we're struggling)
+        const curEnemy = updatedBattle.currentEnemy;
+        if (curEnemy && curEnemy.hp > curEnemy.maxHp * 0.5) {
+          // Retreat to highest cleared chapter for efficient farming
+          const farmChapter = state.highestChapter - 1;
+          const farmCh = CHAPTERS.find(c => c.id === farmChapter);
+          if (farmCh) {
+            const farmEnemy = createEnemy(farmChapter, 1, false)!;
+            log = addLog(log, `🧭 自动回退至「${farmCh.name}」高效刷怪`, 'info');
+            updatedBattle = { ...updatedBattle, chapterId: farmChapter, stageNum: 1, wave: 1, isBossWave: false, currentEnemy: farmEnemy, log, tribulation: undefined };
+          }
         }
       }
     }
@@ -1935,6 +1958,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       autoSynth: state.autoSynth,
       autoReincarnate: state.autoReincarnate,
       autoDaoAlloc: (state as any).autoDaoAlloc,
+      autoFarm: (state as any).autoFarm,
       lastWheelSpin: state.lastWheelSpin,
       equippedTitle: state.equippedTitle,
       unlockedTitles: state.unlockedTitles,
@@ -2116,6 +2140,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         autoSynth: (save as any).autoSynth ?? false,
         autoReincarnate: (save as any).autoReincarnate ?? false,
         autoDaoAlloc: (save as any).autoDaoAlloc ?? false,
+        autoFarm: (save as any).autoFarm ?? false,
         lastWheelSpin: (save as any).lastWheelSpin ?? 0,
         equippedTitle: (save as any).equippedTitle ?? null,
         unlockedTitles: (save as any).unlockedTitles ?? [],
