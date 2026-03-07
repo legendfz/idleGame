@@ -1,11 +1,12 @@
 # STATUS.md — CEO
 
-## 当前状态：✅ v113.0「自动推图」已部署
+## 当前状态：✅ v114.0「背包扩容」已部署
 
-### v113.0「自动推图」
-- 自动回退+自动推进双向智能：farming太轻松时自动回到最高章节
+### v114.0「背包扩容」
+- 转世扩展背包上限：基础200 + 每次转世+50，上限1000
+- 动态容量全局替换（gameStore/BagPage/offline）
 - Build: 577KB precache, 29 entries
-- Commit: c14936a
+- Commit: 9934467
 
 ## CEO决策权: 完全自主
 ## 线上地址: https://legendfz.github.io/idleGame/

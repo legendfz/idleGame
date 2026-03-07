@@ -821,3 +821,11 @@
 - Build: 577KB precache
 - Commit: c14936a
 - CEO直接实现（最高效）
+
+## v114.0「背包扩容」完成（2026-03-06 22:00）
+- 动态背包上限：基础200 + 每次转世+50，上限1000
+- 全局替换INVENTORY_MAX→getInventoryMax(reincarnations)
+- 影响范围：gameStore(战斗掉落/自动分解/卸装/合成)/BagPage(显示)/offline(离线掉落)
+- Build: 577KB precache
+- Commit: 9934467
+- CEO直接实现（最高效）
