@@ -411,7 +411,7 @@ export function feedPetAction(get: GetFn, set: SetFn, petId: string) {
   const state = get();
   const pet = PETS_DATA.find(p => p.id === petId);
   if (!pet) return;
-  const currentLevel = state.player.petLevels[petId] ?? 0;
+  const currentLevel = state.player.petLevels?.[petId] ?? 0;
   if (currentLevel >= pet.maxLevel) return;
   if (state.player.level < pet.unlockLevel) return;
   const cost = pet.feedCost(currentLevel);

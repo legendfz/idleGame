@@ -12,7 +12,7 @@ export function PetPanel() {
   const totalBonuses = useMemo(() => {
     const totals = { atkPct: 0, hpPct: 0, expPct: 0, goldPct: 0, critRate: 0, critDmg: 0, dropRate: 0 };
     for (const pet of PETS) {
-      const lv = player.petLevels[pet.id] ?? 0;
+      const lv = player.petLevels?.[pet.id] ?? 0;
       if (lv <= 0) continue;
       const b = pet.bonuses(lv);
       const mul = player.activePetId === pet.id ? 1.0 : 0.3;
@@ -65,7 +65,7 @@ export function PetPanel() {
 function PetCard({ pet, player, feedPet, setActivePet }: {
   pet: PetDef; player: any; feedPet: (id: string) => void; setActivePet: (id: string | null) => void;
 }) {
-  const level = player.petLevels[pet.id] ?? 0;
+  const level = player.petLevels?.[pet.id] ?? 0;
   const unlocked = player.level >= pet.unlockLevel;
   const isActive = player.activePetId === pet.id;
   const maxed = level >= pet.maxLevel;
