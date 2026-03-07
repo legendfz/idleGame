@@ -167,6 +167,7 @@ export function BattleView() {
     if (result.rewards.pantao) p.pantao = Math.max(0, p.pantao + result.rewards.pantao);
     if (result.rewards.shards) p.hongmengShards += result.rewards.shards;
     if (result.rewards.scrolls) p.tianmingScrolls += result.rewards.scrolls;
+    if (result.rewards.daoPoints) p.daoPoints = (p.daoPoints ?? 0) + result.rewards.daoPoints;
     useGameStore.setState({ player: p });
   }, [player.level]);
 

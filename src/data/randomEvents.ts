@@ -126,6 +126,117 @@ export const RANDOM_EVENTS: RandomEvent[] = [
       },
     ],
   },
+  // ── v122.0 新增：6个中高级随机事件 ──
+  {
+    id: 'dragon_gate', name: '龙门飞渡', emoji: '🐲',
+    description: '前方出现一座金光闪闪的龙门，传说跃过龙门可脱胎换骨...',
+    minLevel: 100,
+    choices: [
+      {
+        label: '纵身飞跃', description: '全力一搏，跃过龙门',
+        outcome: { type: 'risk', successRate: 0.35, successReward: { pantao: 20, shards: 50, daoPoints: 5 }, failPenalty: {}, message: '你一跃而过！龙门金光灌体，实力暴增！', failMessage: '差之毫厘，被龙门弹回，但你有所领悟' },
+      },
+      {
+        label: '参悟龙纹', description: '在龙门旁静心参悟纹路',
+        outcome: { type: 'reward', successRate: 1, successReward: { exp: 2000, pantao: 5 }, message: '龙纹中蕴含大道至理，你修为大增' },
+      },
+      {
+        label: '取龙门水', description: '收集龙门瀑布灵水',
+        outcome: { type: 'reward', successRate: 1, successReward: { pantao: 8, lingshi: 3000 }, message: '灵水甘甜，蕴含蟠桃之力' },
+      },
+    ],
+  },
+  {
+    id: 'celestial_forge', name: '天工炉', emoji: '🔥',
+    description: '一座无人看守的仙家锻炉正熊熊燃烧，炉火通明...',
+    minLevel: 150,
+    choices: [
+      {
+        label: '投入碎片锻造', description: '用鸿蒙碎片尝试锻造',
+        outcome: { type: 'risk', successRate: 0.45, successReward: { shards: 80, scrolls: 2 }, failPenalty: { shards: -10 }, message: '天火淬炼，碎片化为更纯粹的精华！', failMessage: '火候不对，部分碎片化为灰烬' },
+      },
+      {
+        label: '以火炼体', description: '步入炉火淬炼肉身',
+        outcome: { type: 'risk', successRate: 0.5, successReward: { exp: 5000, pantao: 10 }, failPenalty: {}, message: '烈火焚身，浴火重生！修为暴涨！', failMessage: '火势太猛，你不得不退出' },
+      },
+      {
+        label: '观火悟道', description: '在一旁观摩火焰变化',
+        outcome: { type: 'reward', successRate: 1, successReward: { exp: 1500, lingshi: 2000 }, message: '火中蕴含天道法则，你有所悟' },
+      },
+    ],
+  },
+  {
+    id: 'void_rift', name: '虚空裂隙', emoji: '🌀',
+    description: '空间突然撕裂，一道通往未知世界的裂隙出现在面前...',
+    minLevel: 200,
+    choices: [
+      {
+        label: '闯入裂隙', description: '纵身跃入虚空',
+        outcome: { type: 'risk', successRate: 0.3, successReward: { lingshi: 20000, shards: 100, daoPoints: 10 }, failPenalty: {}, message: '虚空彼岸藏有无尽宝藏！你满载而归！', failMessage: '虚空混沌难辨方向，你被弹了回来' },
+      },
+      {
+        label: '封印裂隙', description: '施法封印虚空裂缝',
+        outcome: { type: 'reward', successRate: 1, successReward: { exp: 3000, pantao: 8, scrolls: 1 }, message: '封印虚空获得天道馈赠' },
+      },
+    ],
+  },
+  {
+    id: 'peach_banquet', name: '蟠桃盛会', emoji: '🍑',
+    description: '你意外闯入一场蟠桃盛会，仙果琳琅满目...',
+    minLevel: 80,
+    choices: [
+      {
+        label: '大快朵颐', description: '尽情享用蟠桃',
+        outcome: { type: 'reward', successRate: 1, successReward: { pantao: 15, exp: 1000 }, message: '仙桃入口即化，修为精进！' },
+      },
+      {
+        label: '偷藏几个', description: '趁人不注意多拿一些',
+        outcome: { type: 'risk', successRate: 0.4, successReward: { pantao: 40, lingshi: 5000 }, failPenalty: { pantao: -3 }, message: '你悄悄藏了一大把蟠桃！', failMessage: '被王母娘娘发现了，罚你交出蟠桃' },
+      },
+      {
+        label: '敬献灵石', description: '献上灵石表示尊敬',
+        outcome: { type: 'reward', successRate: 1, successReward: { pantao: 10, scrolls: 1 }, message: '王母大悦，赐你天命符一枚' },
+      },
+    ],
+  },
+  {
+    id: 'karma_mirror', name: '因果镜', emoji: '🪞',
+    description: '一面悬浮的古镜映照出你的前世今生...',
+    minLevel: 300,
+    choices: [
+      {
+        label: '直视因果', description: '凝视镜中前世',
+        outcome: { type: 'risk', successRate: 0.5, successReward: { daoPoints: 15, exp: 10000 }, failPenalty: {}, message: '因果轮转，你领悟了前世道行！', failMessage: '因果缠绕太深，你暂时无法参透' },
+      },
+      {
+        label: '打破镜子', description: '斩断因果束缚',
+        outcome: { type: 'risk', successRate: 0.25, successReward: { shards: 200, daoPoints: 20, pantao: 30 }, failPenalty: {}, message: '因果断裂！无量功德降临！', failMessage: '镜子纹丝不动，因果不可强断' },
+      },
+      {
+        label: '对镜修行', description: '以镜为引，参悟大道',
+        outcome: { type: 'reward', successRate: 1, successReward: { exp: 5000, pantao: 12 }, message: '镜花水月，你悟出一丝天道' },
+      },
+    ],
+  },
+  {
+    id: 'star_fall', name: '星辰陨落', emoji: '☄️',
+    description: '一颗燃烧的星辰从天而降，坠落在前方不远处！',
+    minLevel: 500,
+    choices: [
+      {
+        label: '吸收星力', description: '吞噬星辰精华',
+        outcome: { type: 'risk', successRate: 0.4, successReward: { lingshi: 50000, shards: 150, daoPoints: 25, scrolls: 3 }, failPenalty: {}, message: '星辰之力涌入经脉！你感到无穷力量！', failMessage: '星力太过狂暴，你无法吸收' },
+      },
+      {
+        label: '采集星铁', description: '收取陨铁材料',
+        outcome: { type: 'reward', successRate: 1, successReward: { shards: 80, lingshi: 10000 }, message: '星铁入手，锻造神兵的绝佳材料！' },
+      },
+      {
+        label: '星坑打坐', description: '在余温中修炼',
+        outcome: { type: 'reward', successRate: 1, successReward: { exp: 15000, pantao: 20 }, message: '星辰余力温润经脉，修为精进' },
+      },
+    ],
+  },
 ];
 
 export function getRandomEvent(level: number): RandomEvent | null {
