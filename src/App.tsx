@@ -282,6 +282,29 @@ export default function App() {
     return () => clearInterval(id);
   }, [save]);
 
+  // v130.0: Keyboard shortcuts
+  const setTab = useGameStore(s => s.setTab);
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      const key = e.key;
+      // Number keys 1-9 for tabs
+      if (key >= '1' && key <= '9') {
+        const tabs: import('./types').TabId[] = ['battle', 'team', 'journey', 'bag', 'achievement', 'stats', 'sanctuary', 'exploration', 'affinity', 'settings'];
+        const idx = parseInt(key) - 1;
+        if (idx < tabs.length) { e.preventDefault(); setTab(tabs[idx]); }
+      }
+      // Space = click attack
+      if (key === ' ' && activeTab === 'battle') { e.preventDefault(); useGameStore.getState().clickAttack(); }
+      // B = auto equip best
+      if (key === 'b' || key === 'B') { useGameStore.getState().autoEquipBest(); }
+      // R = reincarnate (with shift)
+      if (key === 'R' && e.shiftKey) { useGameStore.getState().reincarnate(); }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [activeTab, setTab]);
+
   // Reset sub-page on tab change
   useEffect(() => { setSubPage({ type: 'none' }); }, [activeTab]);
 
