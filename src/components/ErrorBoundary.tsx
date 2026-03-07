@@ -36,8 +36,20 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode }
           </p>
           <button
             onClick={() => {
-              try { localStorage.removeItem('xiyou-idle-save'); } catch {}
-              window.location.reload();
+              try {
+                localStorage.removeItem('xiyou-idle-save');
+                localStorage.removeItem('xiyou-idle-backup-1');
+                localStorage.removeItem('xiyou-idle-backup-2');
+                localStorage.removeItem('xiyou-idle-backup-3');
+              } catch {}
+              // Clear SW cache to force fresh load
+              if ('caches' in window) {
+                caches.keys().then(names => names.forEach(n => caches.delete(n)));
+              }
+              if (navigator.serviceWorker) {
+                navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+              }
+              setTimeout(() => window.location.reload(), 500);
             }}
             style={{
               marginTop: 16,

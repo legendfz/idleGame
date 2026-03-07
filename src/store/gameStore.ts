@@ -355,7 +355,7 @@ function calcEffectiveStats(
   s.critRate = Math.min(100, s.critRate + trBonus.critFlat);
   s.critDmg += trBonus.critDmg;
   // v107.0: Pet bonuses (灵兽加成)
-  const petBonus = getPetTotalBonus(gs.player.petLevels, gs.player.activePetId);
+  const petBonus = getPetTotalBonus(gs.player.petLevels ?? {}, gs.player.activePetId);
   if (petBonus.atkPct) s.attack = Math.floor(s.attack * (1 + petBonus.atkPct / 100));
   if (petBonus.hpPct) s.maxHp = Math.floor(s.maxHp * (1 + petBonus.hpPct / 100));
   if (petBonus.critRate) s.critRate = Math.min(100, s.critRate + petBonus.critRate);
@@ -777,7 +777,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const afLingshi = 1 + (afBuf.lingshiMul ?? 0) / 100;
       const afExp = 1 + (afBuf.expMul ?? 0) / 100;
       const fateMul = (state.fateBlessing.active && state.fateBlessing.expiresAt > Date.now()) ? 2 : 1;
-      const petB = getPetTotalBonus(player.petLevels, player.activePetId);
+      const petB = getPetTotalBonus(player.petLevels ?? {}, player.activePetId);
       const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus) * (1 + (awk.gold_pct ?? 0) / 100) * afLingshi * (1 + rmb.gold) * fateMul * (1 + (titleBonus.goldMul ?? 0)) * (1 + (petB.goldPct ?? 0) / 100) * trBonusTick.goldMul);
       const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100) * afExp * (1 + rmb.exp) * fateMul * (1 + (titleBonus.expMul ?? 0)) * (1 + (petB.expPct ?? 0) / 100) * trBonusTick.expMul);
       updatedPlayer.lingshi += lingshiDrop;

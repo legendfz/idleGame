@@ -63,8 +63,9 @@ export const PETS: PetDef[] = [
   },
 ];
 
-export function getPetTotalBonus(petLevels: Record<string, number>, activePetId: string | null): PetBonus {
+export function getPetTotalBonus(petLevels: Record<string, number> | undefined, activePetId: string | null): PetBonus {
   const total: PetBonus = {};
+  if (!petLevels) return total;
   // Active pet gets full bonus, others get 30%
   for (const pet of PETS) {
     const lv = petLevels[pet.id] ?? 0;
