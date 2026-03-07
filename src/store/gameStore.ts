@@ -936,20 +936,31 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
 
     // v111.0: Auto-farm — retreat to optimal chapter when struggling at frontier
+    // v113.0: Auto-push — return to highest chapter when farming is too easy
     if ((state as any).autoFarm && state.totalPlayTime % 30 === 0 && state.totalPlayTime > 0) {
       const curChapter = updatedBattle.chapterId;
-      // Only act if at highest chapter and highestChapter > 1
       if (curChapter >= state.highestChapter && state.highestChapter > 1 && curChapter < ABYSS_CHAPTER_ID) {
-        // Check if current enemy has > 50% HP remaining (we're struggling)
+        // Struggling at frontier: retreat
         const curEnemy = updatedBattle.currentEnemy;
         if (curEnemy && curEnemy.hp > curEnemy.maxHp * 0.5) {
-          // Retreat to highest cleared chapter for efficient farming
           const farmChapter = state.highestChapter - 1;
           const farmCh = CHAPTERS.find(c => c.id === farmChapter);
           if (farmCh) {
             const farmEnemy = createEnemy(farmChapter, 1, false)!;
             log = addLog(log, `🧭 自动回退至「${farmCh.name}」高效刷怪`, 'info');
             updatedBattle = { ...updatedBattle, chapterId: farmChapter, stageNum: 1, wave: 1, isBossWave: false, currentEnemy: farmEnemy, log, tribulation: undefined };
+          }
+        }
+      } else if (curChapter < state.highestChapter && curChapter < ABYSS_CHAPTER_ID) {
+        // Farming lower chapter: check if we're overkilling (too easy), push back up
+        const curEnemy = updatedBattle.currentEnemy;
+        if (curEnemy && curEnemy.hp <= 0) {
+          // Enemy already dead = we're very strong, try pushing to highest
+          const pushCh = CHAPTERS.find(c => c.id === state.highestChapter);
+          if (pushCh) {
+            const pushEnemy = createEnemy(state.highestChapter, state.highestStage, false)!;
+            log = addLog(log, `⚔️ 实力提升！自动推进至「${pushCh.name}」`, 'info');
+            updatedBattle = { ...updatedBattle, chapterId: state.highestChapter, stageNum: state.highestStage, wave: 1, isBossWave: false, currentEnemy: pushEnemy, log, tribulation: undefined };
           }
         }
       }
