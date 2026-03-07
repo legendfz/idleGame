@@ -910,3 +910,14 @@
 - Build: 441KB/138KB gzip
 - Commit: 90d6d18
 - CEO直接实现（最高效）
+## v127.0「断骨重塑」完成（2026-03-07 11:00）
+- gameStore模块化拆分Phase 2：18个action提取到equipmentActions.ts(430行)
+- equipItem/unequipSlot/enhanceEquip/refineItem/buyScroll/sellEquip/toggleLock
+- decomposeEquip/batchDecompose/autoEquipBest/quickDecompose
+- goToChapter/sweepChapter/sweepAll/batchEnhanceEquipped
+- synthesizeEquip/feedPet/setActivePet
+- gameStore.ts 2224→1729行（-22%）
+- applyEnhanceResult helper也移到新文件
+- tsc零错误 + build通过
+- Commit: 44fc41e
+- CEO直接实现（最高效）
