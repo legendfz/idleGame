@@ -1737,7 +1737,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       completedChallenges: state.completedChallenges,
       completedChallengesDate: state.completedChallengesDate,
       weeklyBoss: state.weeklyBoss,
-    } as any;
+    };
     try {
       const saveStr = JSON.stringify(save);
       // v94.0: Rotate backup saves (keep last 3)
@@ -1848,14 +1848,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
       }
 
       // v118.0: Weekly Boss
-      (save as any).weeklyBoss = (save as any).weeklyBoss ?? { week: 0, clearedFloors: [], claimed: [] };
+      save.weeklyBoss = save.weeklyBoss ?? { week: 0, clearedFloors: [], claimed: [] };
       // Ensure all sub-stores have safe defaults
       save.sanctuary = save.sanctuary ?? { levels: {} };
       if (!save.sanctuary.levels) save.sanctuary.levels = {};
       save.affinity = save.affinity ?? { levels: {} };
       if (!save.affinity.levels) save.affinity.levels = {};
-      (save as any).dungeonProgress = (save as any).dungeonProgress ?? {};
-      (save as any).dungeonDailyAttempts = (save as any).dungeonDailyAttempts ?? {};
 
       const enemy = createEnemy(save.battle.chapterId, save.battle.stageNum, false)!
       const offlineSec = (Date.now() - save.lastSaveTimestamp) / 1000;
@@ -1917,10 +1915,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
         },
         highestChapter: save.highestChapter,
         highestStage: save.highestStage,
-        highestPower: (save as any).highestPower ?? 0,
-        highestAbyssFloor: (save as any).highestAbyssFloor ?? 0,
-        allTimeKills: (save as any).allTimeKills ?? 0,
-        claimedAbyssMilestones: (save as any).claimedAbyssMilestones ?? [],
+        highestPower: save.highestPower ?? 0,
+        highestAbyssFloor: save.highestAbyssFloor ?? 0,
+        allTimeKills: save.allTimeKills ?? 0,
+        claimedAbyssMilestones: save.claimedAbyssMilestones ?? [],
         totalPlayTime: save.totalPlayTime,
         lastSaveTimestamp: Date.now(),
         equippedWeapon: weapon,
@@ -1928,45 +1926,44 @@ export const useGameStore = create<GameStore>((set, get) => ({
         equippedTreasure: treasure,
         inventory: finalInventory,
         offlineReport: report,
-        battleSpeed: (save as any).battleSpeed ?? 1,
-        autoDecomposeQuality: (save as any).autoDecomposeQuality ?? 0,
-        autoEquipOnDrop: (save as any).autoEquipOnDrop ?? true,
-        autoSkill: (save as any).autoSkill ?? false,
-        autoConsume: (save as any).autoConsume ?? false,
-        autoWorldBoss: (save as any).autoWorldBoss ?? false,
-        autoExplore: (save as any).autoExplore ?? false,
-        autoSanctuary: (save as any).autoSanctuary ?? false,
-        autoAffinity: (save as any).autoAffinity ?? false,
-        autoSweep: (save as any).autoSweep ?? false,
-        autoFate: (save as any).autoFate ?? false,
-        autoWheel: (save as any).autoWheel ?? false,
-        autoTrial: (save as any).autoTrial ?? false,
-        autoAscension: (save as any).autoAscension ?? false,
-        autoEnhance: (save as any).autoEnhance ?? false,
-        autoFeedPet: (save as any).autoFeedPet ?? false,
-        autoBuyPerks: (save as any).autoBuyPerks ?? false,
-        autoSynth: (save as any).autoSynth ?? false,
-        autoReincarnate: (save as any).autoReincarnate ?? false,
-        autoDaoAlloc: (save as any).autoDaoAlloc ?? false,
-        autoFarm: (save as any).autoFarm ?? false,
-        autoTranscend: (save as any).autoTranscend ?? false,
-        autoBuyTranscendPerks: (save as any).autoBuyTranscendPerks ?? false,
-        lastWheelSpin: (save as any).lastWheelSpin ?? 0,
-        equippedTitle: (save as any).equippedTitle ?? null,
-        unlockedTitles: (save as any).unlockedTitles ?? [],
-        seenStories: (save as any).seenStories ?? [],
-        fateBlessing: (save as any).fateBlessing ?? { active: false, expiresAt: 0 },
+        battleSpeed: save.battleSpeed ?? 1,
+        autoDecomposeQuality: save.autoDecomposeQuality ?? 0,
+        autoEquipOnDrop: save.autoEquipOnDrop ?? true,
+        autoSkill: save.autoSkill ?? false,
+        autoConsume: save.autoConsume ?? false,
+        autoWorldBoss: save.autoWorldBoss ?? false,
+        autoExplore: save.autoExplore ?? false,
+        autoSanctuary: save.autoSanctuary ?? false,
+        autoAffinity: save.autoAffinity ?? false,
+        autoSweep: save.autoSweep ?? false,
+        autoFate: save.autoFate ?? false,
+        autoWheel: save.autoWheel ?? false,
+        autoTrial: save.autoTrial ?? false,
+        autoAscension: save.autoAscension ?? false,
+        autoEnhance: save.autoEnhance ?? false,
+        autoFeedPet: save.autoFeedPet ?? false,
+        autoBuyPerks: save.autoBuyPerks ?? false,
+        autoSynth: save.autoSynth ?? false,
+        autoReincarnate: save.autoReincarnate ?? false,
+        autoDaoAlloc: save.autoDaoAlloc ?? false,
+        autoFarm: save.autoFarm ?? false,
+        autoTranscend: save.autoTranscend ?? false,
+        autoBuyTranscendPerks: save.autoBuyTranscendPerks ?? false,
+        lastWheelSpin: save.lastWheelSpin ?? 0,
+        equippedTitle: save.equippedTitle ?? null,
+        unlockedTitles: save.unlockedTitles ?? [],
+        seenStories: save.seenStories ?? [],
+        fateBlessing: save.fateBlessing ?? { active: false, expiresAt: 0 },
         onlineRewardsClaimed: [], // reset per session
-        completedChallenges: (save as any).completedChallenges ?? [],
-        completedChallengesDate: (save as any).completedChallengesDate ?? '',
+        completedChallenges: save.completedChallenges ?? [],
+        completedChallengesDate: save.completedChallengesDate ?? '',
+        weeklyBoss: save.weeklyBoss ?? { week: 0, clearedFloors: [], claimed: [] },
       } as any);
-      // v118.0: restore weeklyBoss
-      set({ weeklyBoss: (save as any).weeklyBoss ?? { week: 0, clearedFloors: [], claimed: [] } } as any);
 
       // Load v13 stores
-      if ((save as any).sanctuary) useSanctuaryStore.getState().load((save as any).sanctuary);
-      if ((save as any).exploration) useExplorationStore.getState().load((save as any).exploration);
-      if ((save as any).affinity) useAffinityStore.getState().load((save as any).affinity);
+      if (save.sanctuary) useSanctuaryStore.getState().load(save.sanctuary);
+      if (save.exploration) useExplorationStore.getState().load(save.exploration);
+      if (save.affinity) useAffinityStore.getState().load(save.affinity);
     } catch {
       console.error('Failed to load save');
     }
