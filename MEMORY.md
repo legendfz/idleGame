@@ -829,3 +829,12 @@
 - Build: 577KB precache
 - Commit: 9934467
 - CEO直接实现（最高效）
+
+## v115.0「仙途追踪」完成（2026-03-06 23:00）
+- 成就追踪钉选：成就页📌按钮pin/unpin，战斗页紫色进度条实时显示
+- 支持条件类型：level/kill_count/equipment_count/gold_total/online_time/collect_unique/realm_reach
+- 最高连杀记录：bestKillStreak字段，统计页🔥显示
+- 转世保留：bestKillStreak + pinnedAchievement跨转世不重置
+- Build: 580KB precache
+- Commit: 1299e4e
+- CEO直接实现（最高效）
