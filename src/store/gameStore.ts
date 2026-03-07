@@ -45,9 +45,9 @@ import { getPetTotalBonus } from '../data/pets';
 import { useAffinityStore } from './affinityStore';
 import { TITLES, type TitleCheckStats } from '../data/titles';
 import { executeBattleTick } from './tickBattle';
+import { clickAttackAction, attemptBreakthroughAction } from './battleActions';
 
 let logIdCounter = 0;
-let floatIdCounter = 0;
 
 interface GameStore {
   player: PlayerState;
@@ -363,30 +363,6 @@ export function calcEffectiveStats(
   return s;
 }
 
-function calcClickPower(baseClick: number, treasure: EquipmentItem | null): number {
-  let cp = baseClick;
-  if (treasure?.passive?.type === 'clickPower') cp += treasure.passive.value;
-  return cp;
-}
-
-function getLingshiBonusMul(weapon: EquipmentItem | null, armor: EquipmentItem | null, treasure: EquipmentItem | null): number {
-  let mul = 1;
-  for (const eq of [weapon, armor, treasure]) {
-    if (eq?.passive?.type === 'lingshiBonus') mul += eq.passive.value;
-  }
-  return mul;
-}
-
-/** Helper: convert chapter+stage to global stage index */
-function getGlobalStage(chapterId: number, stageNum: number): number {
-  let total = 0;
-  for (const ch of CHAPTERS) {
-    if (ch.id < chapterId) total += ch.stages;
-    else break;
-  }
-  return total + stageNum;
-}
-
 /** Helper to apply enhance result to the correct location */
 export const useGameStore = create<GameStore>((set, get) => ({
   player: makeInitialPlayer(),
@@ -493,74 +469,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
     executeBattleTick(get, set);
   },
 
-  clickAttack: () => {
-    const { player, battle, equippedTreasure, floatingTexts } = get();
-    if (!battle.currentEnemy) return;
-    const enemy = { ...battle.currentEnemy };
-    const cp = calcClickPower(player.clickPower, equippedTreasure);
-    enemy.hp -= cp;
-    sfx.hit();
-    const log = addLog([...battle.log], `点击 > ${enemy.name}  -${cp}`, 'attack');
-    const newFloat: FloatingText = {
-      id: floatIdCounter++,
-      text: `点击 ${cp}`,
-      type: 'click',
-      timestamp: Date.now(),
-    };
-    set({
-      battle: { ...battle, currentEnemy: enemy.hp <= 0 ? { ...enemy, hp: 0 } : enemy, log },
-      floatingTexts: [...floatingTexts, newFloat].slice(-10),
-    });
-  },
+  clickAttack: () => clickAttackAction(get, set),
 
-  attemptBreakthrough: () => {
-    const { player, battle } = get();
-    const nextRealm = REALMS[player.realmIndex + 1];
-    if (!nextRealm) return;
-    if (player.level < nextRealm.levelReq || player.pantao < nextRealm.pantaoReq) return;
-    // If tribulation already active, don't restart
-    if (battle.tribulation?.active) return;
-
-    // Tribulation boss: scales with realm level
-    const tribNames = ['雷劫', '火劫', '风劫', '心魔', '天劫', '九天雷罚', '混沌劫', '灭世天劫', '鸿蒙劫'];
-    const tribEmojis = ['[雷]', '[火]', '[风]', '[魔]', '[劫]', '[雷]', '[混]', '[灭]', '[鸿]'];
-    const ri = player.realmIndex; // 0-based, breakthrough to ri+1
-    const tribHp = Math.floor(player.stats.maxHp * (3 + ri * 2));
-    const tribDef = Math.floor(player.stats.attack * 0.15 * (1 + ri * 0.3));
-    const tribAtk = Math.floor(player.stats.maxHp * 0.08 * (1 + ri * 0.2));
-    const tribName = tribNames[Math.min(ri, tribNames.length - 1)];
-    const tribEmoji = tribEmojis[Math.min(ri, tribEmojis.length - 1)];
-
-    // Spend pantao, spawn tribulation enemy
-    set({
-      player: {
-        ...player,
-        pantao: player.pantao - nextRealm.pantaoReq,
-      },
-      battle: {
-        ...battle,
-        currentEnemy: {
-          name: tribName,
-          emoji: tribEmoji,
-          hp: tribHp,
-          maxHp: tribHp,
-          defense: tribDef,
-          lingshiDrop: 0,
-          expDrop: 0,
-          pantaoDrop: Math.floor(nextRealm.pantaoReq * 0.3),
-          isBoss: true,
-        },
-        isBossWave: true,
-        tribulation: {
-          active: true,
-          realmIndex: player.realmIndex + 1,
-          timer: 60 + ri * 10, // 60-150 seconds
-        },
-        log: addLog(battle.log, `⚡ 天劫降临！「${tribName}」— 在 ${60 + ri * 10}秒内击败它！`, 'boss'),
-      },
-    });
-    sfx.bossAppear();
-  },
+  attemptBreakthrough: () => attemptBreakthroughAction(get, set),
 
   // === Progression === (delegated to progressionActions.ts v129.0)
   reincarnate: () => reincarnateAction(get, set),
