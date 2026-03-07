@@ -921,3 +921,18 @@
 - tsc零错误 + build通过
 - Commit: 44fc41e
 - CEO直接实现（最高效）
+
+## v128.0「存道归真」完成（2026-03-07 12:00）
+- save/load/reset/slots提取到saveActions.ts(385行)
+- gameStore.ts 1729→1361行(-21%)
+- Commit: 6cc752b
+
+## v129.0「轮回归元」完成（2026-03-07 12:00）
+- 转世/超越5个action提取到progressionActions.ts(189行)
+- gameStore.ts 1361→1175行(-14%)，清理未用import
+- Commit: f5ebcb2
+
+## v130.0「指尖乾坤」完成（2026-03-07 12:00）
+- 键盘快捷键：1-9切Tab/空格攻击/B最优装备/Shift+R转世
+- Commit: 4fdc29b
+- CEO直接实现（最高效）
