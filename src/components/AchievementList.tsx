@@ -5,6 +5,7 @@
 import { useState } from 'react';
 import { ACHIEVEMENTS } from '../data/achievements';
 import { useAchievementStore } from '../store/achievementStore';
+import { useGameStore } from '../store/gameStore';
 import TabBar from './shared/TabBar';
 import MiniProgressBar from './shared/MiniProgressBar';
 
@@ -13,6 +14,8 @@ export default function AchievementList() {
   const selectedTitle = useAchievementStore(s => s.selectedTitle);
   const unlockedTitles = useAchievementStore(s => s.unlockedTitles);
   const selectTitle = useAchievementStore(s => s.selectTitle);
+  const pinnedAch = useGameStore(s => s.player.pinnedAchievement);
+  const pinAchievement = useGameStore(s => s.pinAchievement);
   const [activeTab, setActiveTab] = useState<string>('milestone');
 
   const filtered = ACHIEVEMENTS.filter(a =>
@@ -80,7 +83,22 @@ export default function AchievementList() {
                   />
                 )}
               </div>
-              <span className="ach-reward">奖励: {ach.reward.description}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span className="ach-reward">奖励: {ach.reward.description}</span>
+                {!completed && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); pinAchievement(pinnedAch === ach.id ? null : ach.id); }}
+                    style={{
+                      background: pinnedAch === ach.id ? '#805ad5' : 'transparent',
+                      border: `1px solid ${pinnedAch === ach.id ? '#805ad5' : '#555'}`,
+                      borderRadius: 4, padding: '1px 5px', fontSize: 10,
+                      color: pinnedAch === ach.id ? '#fff' : '#888', cursor: 'pointer',
+                    }}
+                  >
+                    {pinnedAch === ach.id ? '📌' : '📌'}
+                  </button>
+                )}
+              </div>
             </div>
           );
         })}

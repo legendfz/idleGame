@@ -27,6 +27,7 @@ export function StatsView() {
     { icon: '▸', label: '击杀数', value: (player.totalKills || 0).toLocaleString() },
     { icon: '▸', label: '累计击杀', value: (useGameStore.getState().allTimeKills || 0).toLocaleString() },
     { icon: '▸', label: '深渊最高层', value: `${useGameStore.getState().highestAbyssFloor || 0}层` },
+    { icon: '▸', label: '最高连杀', value: `🔥${player.bestKillStreak || 0}` },
     { icon: '▸', label: '最高伤害', value: formatNumber(player.maxDamage || 0) },
     { icon: '▸', label: '突破次数', value: (player.totalBreakthroughs || 0).toString() },
     { icon: '▸', label: '装备掉落', value: (player.totalEquipDrops || 0).toString() },

@@ -145,6 +145,7 @@ interface GameStore {
   setAutoSynth: (v: boolean) => void;
   setAutoReincarnate: (v: boolean) => void;
   setEquippedTitle: (id: string | null) => void;
+  pinAchievement: (id: string | null) => void; // v115.0
   setCompletedChallenges: (ids: string[]) => void;
   activateFateBlessing: () => boolean;
   claimOnlineReward: (minutes: number) => { gold: number; exp: number; pantao: number; desc: string } | null;
@@ -231,6 +232,8 @@ function makeInitialPlayer(): PlayerState {
     petLevels: {},
     activePetId: null,
     trialShopPurchases: {},
+    bestKillStreak: 0,
+    pinnedAchievement: null,
   };
 }
 
@@ -467,6 +470,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setAutoReincarnate: (v: boolean) => set({ autoReincarnate: v }),
   setAutoDaoAlloc: (v: boolean) => set({ autoDaoAlloc: v } as any),
   setAutoFarm: (v: boolean) => set({ autoFarm: v } as any),
+  // v115.0: Pin achievement
+  pinAchievement: (id: string | null) => set({ player: { ...get().player, pinnedAchievement: id } }),
   setEquippedTitle: (id: string | null) => set({ equippedTitle: id }),
   setCompletedChallenges: (ids: string[]) => {
     const today = new Date().toISOString().slice(0, 10);
@@ -715,6 +720,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
       // v49.0: Kill streak
       updatedBattle.killStreak = (updatedBattle.killStreak || 0) + 1;
       const streak = updatedBattle.killStreak;
+      // v115.0: Track best kill streak
+      if (streak > (updatedPlayer.bestKillStreak || 0)) {
+        updatedPlayer.bestKillStreak = streak;
+      }
       const streakBonus = streak >= 100 ? 0.5 : streak >= 50 ? 0.3 : streak >= 20 ? 0.2 : streak >= 10 ? 0.1 : 0;
       log = addLog(log, `${enemy.name} 击败！${streak >= 10 ? ` 🔥连杀×${streak} (+${Math.round(streakBonus*100)}%奖励)` : ''}`, 'kill');
       // Streak milestone notifications
@@ -1405,6 +1414,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     newPlayer.activeSkills = { cooldowns: {}, buffs: {} }; // Reset cooldowns on reincarnation
     newPlayer.petLevels = { ...player.petLevels }; // Keep pet levels
     newPlayer.activePetId = player.activePetId;
+    newPlayer.bestKillStreak = player.bestKillStreak; // v115.0: Keep best streak
+    newPlayer.pinnedAchievement = player.pinnedAchievement;
     newPlayer.consumableInventory = { ...player.consumableInventory }; // Keep consumables
     newPlayer.activeConsumables = []; // Clear active buffs
 
@@ -2062,6 +2073,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       save.player.activeConsumables = save.player.activeConsumables ?? [];
       save.player.petLevels = save.player.petLevels ?? {};
       save.player.activePetId = save.player.activePetId ?? null;
+      save.player.bestKillStreak = save.player.bestKillStreak ?? 0;
+      save.player.pinnedAchievement = save.player.pinnedAchievement ?? null;
       save.player.trialShopPurchases = save.player.trialShopPurchases ?? {};
       save.player.reincPerks = save.player.reincPerks ?? {};
       // Ensure all dynamic fields have safe defaults (old saves may lack them)

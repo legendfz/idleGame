@@ -51,6 +51,9 @@ export interface PlayerState {
   // v107.0 灵兽
   petLevels: Record<string, number>;   // petId → level
   activePetId: string | null;          // currently summoned pet
+  // v115.0
+  bestKillStreak: number;              // highest kill streak ever
+  pinnedAchievement: string | null;    // pinned achievement id for battle page
 }
 
 export interface ActiveSkillState {
