@@ -885,3 +885,12 @@
 - Build: 607KB precache
 - Commit: 9fd3fcf
 - CEO直接实现（最高效）
+
+## v123.0「千锤百炼」完成（2026-03-07 07:00）
+- tick()函数模块化拆分：gameStore.ts 2637→2227行（-15.5%）
+- 410行auto-actions提取到新文件 src/store/tickAutoActions.ts
+- 20个独立函数 + runAllAutoActions()统一编排
+- 支持reincarnate/transcend提前return
+- Build: 435KB/136KB gzip, 610KB precache
+- Commit: 4dd4cb1
+- CEO直接实现（最高效）
