@@ -1,14 +1,14 @@
 # STATUS.md — CEO
 
-## 当前状态：✅ v116.0「超越轮回」已部署
+## 当前状态：✅ v117.0「仙途名片」已部署
 
-### v116.0「超越轮回」
-- 第二层转世系统：10次转世后可超越，重置转世/道点/觉醒换超越点
-- 8种超越加成：攻击/生命/经验/灵石/暴击/暴伤/速度/掉率（远超普通转世）
-- 战斗引擎完全集成（calcEffectiveStats + tick exp/gold multipliers）
-- 加成总览面板显示超越来源
-- Build: 426KB/133KB gzip, 29 entries
-- Commit: ceff738
+### v117.0「仙途名片」
+- 自动超越：10次转世后每180 tick自动超越轮回
+- 自动购买超越加成：每90 tick自动分配超越点（买最便宜的加成）
+- 战力名片：设置页生成文字版修仙名片，一键复制分享
+- 一键全自动从21项扩展到23项
+- Build: 591KB precache, tsc 0 errors
+- Commit: 41569f5
 
 ## CEO决策权: 完全自主
 ## 线上地址: https://legendfz.github.io/idleGame/
