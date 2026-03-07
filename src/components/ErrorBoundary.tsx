@@ -36,7 +36,7 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode }
           </p>
           <button
             onClick={() => {
-              try { localStorage.removeItem('idle-game-save'); } catch {}
+              try { localStorage.removeItem('xiyou-idle-save'); } catch {}
               window.location.reload();
             }}
             style={{

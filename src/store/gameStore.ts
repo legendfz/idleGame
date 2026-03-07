@@ -2046,10 +2046,40 @@ export const useGameStore = create<GameStore>((set, get) => ({
       save.player.activeConsumables = save.player.activeConsumables ?? [];
       save.player.petLevels = save.player.petLevels ?? {};
       save.player.activePetId = save.player.activePetId ?? null;
+      save.player.trialShopPurchases = save.player.trialShopPurchases ?? {};
+      save.player.reincPerks = save.player.reincPerks ?? {};
+      // Ensure all dynamic fields have safe defaults (old saves may lack them)
+      const p = save.player as any;
+      p.reincCount = p.reincCount ?? 0;
+      p.killStreak = p.killStreak ?? 0;
+      p.allTimeKills = p.allTimeKills ?? 0;
+      p.maxAbyssFloor = p.maxAbyssFloor ?? 0;
+      p.ascensionCount = p.ascensionCount ?? 0;
+      p.celestialPoints = p.celestialPoints ?? 0;
+      p.guildId = p.guildId ?? null;
+      p.guildContribution = p.guildContribution ?? 0;
+      p.formationSlots = p.formationSlots ?? {};
+      p.unlockedFormations = p.unlockedFormations ?? ['basic'];
+      p.activeFormation = p.activeFormation ?? 'basic';
+      p.activeTitle = p.activeTitle ?? null;
+      p.unlockedTitles = p.unlockedTitles ?? [];
+      p.dailyChallenges = p.dailyChallenges ?? {};
+      p.dailyChallengeProgress = p.dailyChallengeProgress ?? {};
+      p.dailyChallengesClaimed = p.dailyChallengesClaimed ?? {};
+      p.awakeningLevel = p.awakeningLevel ?? 0;
+      p.awakeningPoints = p.awakeningPoints ?? {};
         save.version = 4;
       }
 
-      const enemy = createEnemy(save.battle.chapterId, save.battle.stageNum, false)!;
+      // Ensure all sub-stores have safe defaults
+      save.sanctuary = save.sanctuary ?? { levels: {} };
+      if (!save.sanctuary.levels) save.sanctuary.levels = {};
+      save.affinity = save.affinity ?? { levels: {} };
+      if (!save.affinity.levels) save.affinity.levels = {};
+      (save as any).dungeonProgress = (save as any).dungeonProgress ?? {};
+      (save as any).dungeonDailyAttempts = (save as any).dungeonDailyAttempts ?? {};
+
+      const enemy = createEnemy(save.battle.chapterId, save.battle.stageNum, false)!
       const offlineSec = (Date.now() - save.lastSaveTimestamp) / 1000;
 
       const weapon = save.equipment?.weapon ?? null;
