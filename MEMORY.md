@@ -807,3 +807,10 @@
 - Build: 574KB precache
 - Commit: edf8465
 - CEO直接实现（最高效）
+
+## v112.0「凝神聚气」完成（2026-03-06 20:00）
+- formatNumber兆单位（万/亿/兆）+ NaN/Infinity安全保护（safeNum helper）
+- 队伍页装备强化详情：3槽位显示当前等级/强化费用/成功率百分比
+- Build: 577KB precache
+- Commit: 357c3dc
+- CEO直接实现（最高效）
