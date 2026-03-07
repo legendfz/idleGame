@@ -800,3 +800,10 @@
 - Build: 563KB precache
 - Commit: e44780f
 - CEO直接实现（最高效）
+
+## v111.0「仙途护航」完成（2026-03-06 19:00）
+- 自动回退刷怪：每30 tick检测，若在最高章节且敌人HP>50%（卡关），自动回退到highestChapter-1
+- 设置页开关 + 一键全自动集成（21项总计）
+- Build: 574KB precache
+- Commit: edf8465
+- CEO直接实现（最高效）
