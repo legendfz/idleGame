@@ -109,6 +109,14 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
       <Card><DailyChallengePanel /></Card>
 
       <Card className="clickable-card" style={{ cursor: 'pointer' }}
+        onClick={() => setSubPage({ type: 'weeklyBoss' })}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontWeight: 600 }}>⚔️ 周天秘境</span>
+          <span className="color-dim" style={{ fontSize: 12 }}>每周重置</span>
+        </div>
+      </Card>
+
+      <Card className="clickable-card" style={{ cursor: 'pointer' }}
         onClick={() => setSubPage({ type: 'wheel' })}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontWeight: 600 }}>🎡 天道轮盘</span>

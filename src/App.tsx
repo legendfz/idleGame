@@ -18,6 +18,7 @@ const TrialPanel = lazy(() => import('./components/TrialPanel').then(m => ({ def
 const AwakeningPanel = lazy(() => import('./components/AwakeningPanel').then(m => ({ default: m.AwakeningPanel })));
 const PetPanel = lazy(() => import('./components/PetPanel').then(m => ({ default: m.PetPanel })));
 const AscensionChallengePanel = lazy(() => import('./components/AscensionChallengePanel').then(m => ({ default: m.AscensionChallengePanel })));
+const WeeklyBossPanel = lazy(() => import('./components/WeeklyBossPanel').then(m => ({ default: m.WeeklyBossPanel })));
 const GuidePanel = lazy(() => import('./components/GuidePanel').then(m => ({ default: m.GuidePanel })));
 const DungeonList = lazy(() => import('./components/DungeonList'));
 const DungeonBattle = lazy(() => import('./components/DungeonBattle'));
@@ -327,6 +328,9 @@ export default function App() {
       );
       case 'ascension': return (
         <div className="main-content fade-in"><SubPageHeader title="天道考验" onBack={goBack} /><Suspense fallback={<LazyFallback />}><AscensionChallengePanel /></Suspense></div>
+      );
+      case 'weeklyBoss': return (
+        <div className="main-content fade-in"><SubPageHeader title="周天秘境" onBack={goBack} /><Suspense fallback={<LazyFallback />}><WeeklyBossPanel /></Suspense></div>
       );
     if (subPage.type === 'guide') return (
         <div className="main-content fade-in"><SubPageHeader title="仙途百科" onBack={goBack} /><Suspense fallback={<LazyFallback />}><GuidePanel /></Suspense></div>

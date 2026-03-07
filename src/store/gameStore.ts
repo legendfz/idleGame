@@ -463,6 +463,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   unlockedTitles: [],
   onlineRewardsClaimed: [],
   fateBlessing: { active: false, expiresAt: 0 },
+  weeklyBoss: { week: 0, clearedFloors: [] as number[], claimed: [] as number[] },
 
   setTab: (tab) => set({ activeTab: tab }),
   dismissOfflineReport: () => set({ offlineReport: null }),
@@ -489,6 +490,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setAutoFarm: (v: boolean) => set({ autoFarm: v } as any),
   setAutoTranscend: (v: boolean) => set({ autoTranscend: v } as any),
   setAutoBuyTranscendPerks: (v: boolean) => set({ autoBuyTranscendPerks: v } as any),
+  // v118.0: Weekly Boss
+  setWeeklyBoss: (data: any) => set({ weeklyBoss: data } as any),
   // v115.0: Pin achievement
   pinAchievement: (id: string | null) => set({ player: { ...get().player, pinnedAchievement: id } }),
   setEquippedTitle: (id: string | null) => set({ equippedTitle: id }),
@@ -2120,6 +2123,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       onlineRewardsClaimed: state.onlineRewardsClaimed,
       completedChallenges: state.completedChallenges,
       completedChallengesDate: state.completedChallengesDate,
+      weeklyBoss: (state as any).weeklyBoss,
     } as any;
     try {
       const saveStr = JSON.stringify(save);
@@ -2230,6 +2234,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         save.version = 4;
       }
 
+      // v118.0: Weekly Boss
+      (save as any).weeklyBoss = (save as any).weeklyBoss ?? { week: 0, clearedFloors: [], claimed: [] };
       // Ensure all sub-stores have safe defaults
       save.sanctuary = save.sanctuary ?? { levels: {} };
       if (!save.sanctuary.levels) save.sanctuary.levels = {};
@@ -2340,7 +2346,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
         onlineRewardsClaimed: [], // reset per session
         completedChallenges: (save as any).completedChallenges ?? [],
         completedChallengesDate: (save as any).completedChallengesDate ?? '',
-      });
+      } as any);
+      // v118.0: restore weeklyBoss
+      set({ weeklyBoss: (save as any).weeklyBoss ?? { week: 0, clearedFloors: [], claimed: [] } } as any);
 
       // Load v13 stores
       if ((save as any).sanctuary) useSanctuaryStore.getState().load((save as any).sanctuary);
