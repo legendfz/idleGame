@@ -3,7 +3,12 @@ let _lastBackpackFullWarn = 0;
 let _achStatesCache: Record<string, { completed: boolean }> | null = null;
 export function setAchStatesCache(states: Record<string, { completed: boolean }>) { _achStatesCache = states; }
 import { create } from 'zustand';
-import { PlayerState, BattleState, BattleLogEntry, TabId, GameSave, EquipmentItem, EquipSlot, Quality, Stats, QUALITY_INFO, FloatingText, INVENTORY_MAX, OfflineReport, ActiveConsumable, ConsumableEffect } from '../types';
+import { PlayerState, BattleState, BattleLogEntry, TabId, GameSave, EquipmentItem, EquipSlot, Quality, Stats, QUALITY_INFO, FloatingText, INVENTORY_MAX, INVENTORY_BASE, INVENTORY_PER_REINC, INVENTORY_CAP, OfflineReport, ActiveConsumable, ConsumableEffect } from '../types';
+
+// v114.0: Dynamic bag capacity based on reincarnation count
+export function getInventoryMax(reincarnations: number): number {
+  return Math.min(INVENTORY_CAP, INVENTORY_BASE + (reincarnations ?? 0) * INVENTORY_PER_REINC);
+}
 import { getConsumable } from '../data/consumables';
 import { REALMS } from '../data/realms';
 import { ACHIEVEMENTS as ACHIEVEMENTS_DATA } from '../data/achievements';
@@ -771,7 +776,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       }
 
       // Equipment drop (with inventory limit check — T-100 fix)
-      if (updatedInventory.length < INVENTORY_MAX) {
+      if (updatedInventory.length < getInventoryMax(updatedPlayer.reincarnations)) {
         const globalStage = getGlobalStage(updatedBattle.chapterId, updatedBattle.stageNum);
         const dropMul = REINC_PERKS.find(p => p.id === 'drop_mult')!.effect(updatedPlayer.reincPerks?.['drop_mult'] ?? 0) - 1 + rmb.drop;
         const eqDrop = rollEquipDrop(globalStage, enemy.isBoss, dropMul);
@@ -805,7 +810,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         // Backpack full warning (P0 fix: inform player)
         const now = Date.now();
         if (now - _lastBackpackFullWarn > 30000) {
-          log = addLog(log, `  ⚠️ 背包已满(${INVENTORY_MAX}/${INVENTORY_MAX})！请分解或开启自动分解`, 'info');
+          log = addLog(log, `  ⚠️ 背包已满(${updatedInventory.length}/${getInventoryMax(updatedPlayer.reincarnations)})！请分解或开启自动分解`, 'info');
           _lastBackpackFullWarn = now;
         }
       }
@@ -1285,15 +1290,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set({
       player: updatedPlayer,
       battle: updatedBattle,
-      inventory: updatedInventory.length > INVENTORY_MAX
+      inventory: updatedInventory.length > getInventoryMax(updatedPlayer.reincarnations)
         ? (() => {
             // Auto-decompose: remove lowest quality unlocked items
             const qualityOrder = Object.keys(QUALITY_INFO);
             const unlocked = updatedInventory.filter(i => !i.locked);
             unlocked.sort((a, b) => qualityOrder.indexOf(a.quality) - qualityOrder.indexOf(b.quality));
-            const toRemove = new Set(unlocked.slice(0, updatedInventory.length - INVENTORY_MAX).map(i => i.uid));
+            const toRemove = new Set(unlocked.slice(0, updatedInventory.length - getInventoryMax(updatedPlayer.reincarnations)).map(i => i.uid));
             // Add decompose proceeds
-            for (const item of unlocked.slice(0, updatedInventory.length - INVENTORY_MAX)) {
+            for (const item of unlocked.slice(0, updatedInventory.length - getInventoryMax(updatedPlayer.reincarnations))) {
               const stat = item.baseStat * (1 + item.level * 0.1);
               updatedPlayer.lingshi += Math.floor(stat * 0.6 + (item.level + 1) * 30);
             }
@@ -1519,7 +1524,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const item = state[key];
     if (!item) return;
     // T-039: check inventory limit
-    if (state.inventory.length >= INVENTORY_MAX) return;
+    if (state.inventory.length >= getInventoryMax(state.player.reincarnations)) return;
     set({ [key]: null, inventory: [...state.inventory, item] } as any);
   },
 
@@ -1860,7 +1865,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const exp = Math.floor((avgLv * 3 + 5) * (1 + Math.random() * 0.5) * reincMults.exp);
       totalGold += gold;
       totalExp += exp;
-      if (Math.random() < 0.25 && state.inventory.length < INVENTORY_MAX) {
+      if (Math.random() < 0.25 && state.inventory.length < getInventoryMax(state.player.reincarnations)) {
         const midStage = Math.floor((ch.stages || 50) / 2) + (chapterId - 1) * 50;
         const drop = rollEquipDrop(midStage, false);
         if (drop) {
@@ -2127,7 +2132,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       }
 
       // Merge offline equipment into inventory
-      const finalInventory = [...(save.inventory ?? []), ...offline.equipmentItems].slice(0, INVENTORY_MAX);
+      const finalInventory = [...(save.inventory ?? []), ...offline.equipmentItems].slice(0, getInventoryMax(save.player?.reincarnations ?? 0));
 
       const report: OfflineReport | null = offline.duration >= 60 ? {
         duration: offline.duration,

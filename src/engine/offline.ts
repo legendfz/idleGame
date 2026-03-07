@@ -3,7 +3,8 @@
  * 基于真实怪物数据 + 装备加成，替代粗略 DPS 公式
  */
 
-import { PlayerState, Stats, EquipmentItem, QUALITY_INFO, INVENTORY_MAX } from '../types';
+import { PlayerState, Stats, EquipmentItem, QUALITY_INFO } from '../types';
+import { getInventoryMax } from '../store/gameStore';
 import { createEnemy } from '../data/chapters';
 import { rollEquipDrop, createEquipFromTemplate, getEquipEffectiveStat, getActiveSetBonuses, EQUIPMENT_TEMPLATES } from '../data/equipment';
 import { getResonanceBonus } from '../data/resonance';
@@ -181,9 +182,10 @@ export function calculateOfflineEarnings(
   const equipmentItems: EquipmentItem[] = [];
   const equipmentNames: string[] = [];
   const globalStage = getGlobalStage(chapterId, stageNum, chapters);
+  const invMax = getInventoryMax(player.reincarnations ?? 0);
   let invSize = existingInventorySize;
 
-  for (let i = 0; i < totalBosses && invSize + equipmentItems.length < INVENTORY_MAX; i++) {
+  for (let i = 0; i < totalBosses && invSize + equipmentItems.length < invMax; i++) {
     const drop = rollEquipDrop(globalStage, true);
     if (drop) {
       const item = createEquipFromTemplate(drop);
@@ -193,10 +195,10 @@ export function calculateOfflineEarnings(
   }
 
   // 离线掉落保底：每100关保底灵品，每500关保底仙品
-  if (stagesCleared >= 100 && invSize + equipmentItems.length < INVENTORY_MAX) {
+  if (stagesCleared >= 100 && invSize + equipmentItems.length < invMax) {
     const spiritGuaranteed = Math.floor(stagesCleared / 100);
     const spiritPool = EQUIPMENT_TEMPLATES.filter(e => e.quality === 'spirit' && globalStage >= e.dropFromStage);
-    for (let i = 0; i < spiritGuaranteed && invSize + equipmentItems.length < INVENTORY_MAX; i++) {
+    for (let i = 0; i < spiritGuaranteed && invSize + equipmentItems.length < invMax; i++) {
       if (spiritPool.length > 0) {
         const tmpl = spiritPool[Math.floor(Math.random() * spiritPool.length)];
         const item = createEquipFromTemplate(tmpl);
@@ -205,10 +207,10 @@ export function calculateOfflineEarnings(
       }
     }
   }
-  if (stagesCleared >= 500 && invSize + equipmentItems.length < INVENTORY_MAX) {
+  if (stagesCleared >= 500 && invSize + equipmentItems.length < invMax) {
     const immortalGuaranteed = Math.floor(stagesCleared / 500);
     const immortalPool = EQUIPMENT_TEMPLATES.filter(e => e.quality === 'immortal' && globalStage >= e.dropFromStage);
-    for (let i = 0; i < immortalGuaranteed && invSize + equipmentItems.length < INVENTORY_MAX; i++) {
+    for (let i = 0; i < immortalGuaranteed && invSize + equipmentItems.length < invMax; i++) {
       if (immortalPool.length > 0) {
         const tmpl = immortalPool[Math.floor(Math.random() * immortalPool.length)];
         const item = createEquipFromTemplate(tmpl);

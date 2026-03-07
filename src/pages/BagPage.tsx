@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { formatNumber } from '../utils/format';
-import { EquipmentItem, EquipSlot, QUALITY_INFO, INVENTORY_MAX } from '../types';
+import { EquipmentItem, EquipSlot, QUALITY_INFO } from '../types';
+import { getInventoryMax } from '../store/gameStore';
 import {
   getEquipEffectiveStat, getEnhanceCost, getMaxEnhanceLevel, getActiveSetBonuses,
   hasFullMythic15,
@@ -128,7 +129,7 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
       {/* Bag header */}
       <div className="bag-header">
         <h3 className="section-title" style={{ margin: 0 }}>
-          背包 ({inventory.length}/{INVENTORY_MAX})
+          背包 ({inventory.length}/{getInventoryMax(player.reincarnations)})
         </h3>
         <button className={`small-btn ${decomposeMode ? 'danger' : ''}`}
           onClick={() => { setDecomposeMode(!decomposeMode); setSelected(new Set()); }}

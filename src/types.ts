@@ -215,7 +215,10 @@ export const QUALITY_INFO: Record<Quality, { label: string; symbol: string; mult
   mythic:    { label: '✦鸿蒙', symbol: '✦', multiplier: 80,  color: '#ff4444' },
 };
 
-export const INVENTORY_MAX = 200;
+export const INVENTORY_BASE = 200;
+export const INVENTORY_PER_REINC = 50;
+export const INVENTORY_CAP = 1000;
+export const INVENTORY_MAX = 200; // legacy fallback, use getInventoryMax()
 
 // v31.0 游戏设置
 export interface GameSettings {
