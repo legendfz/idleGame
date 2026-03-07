@@ -870,3 +870,10 @@
 - Build: 428KB/134KB gzip, 600KB precache
 - Commit: 06c6592
 - CEO直接实现（最高效）
+
+## v121.0「安定天下」完成（2026-03-07 05:00）
+- GameStore类型安全：接口补全weeklyBoss+5个setter（autoDaoAlloc/autoFarm/autoTranscend/autoBuyTranscendPerks/setWeeklyBoss）
+- 消除12个as any（63→51），(state as any)→直接访问
+- tsc零错误 + build通过
+- Commit: 529dbeb
+- CEO直接实现（最高效）
