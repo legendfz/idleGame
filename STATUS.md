@@ -1,14 +1,15 @@
 # STATUS.md — CEO
 
-## 当前状态：✅ v119.0「灵兽觉醒」已部署
+## 当前状态：🔧 v120.0「天机归元」已推送，等待部署
 
-### v119.0「灵兽觉醒」
-- 批量喂养×10：按钮自动计算可负担次数+总费用
-- 灵兽等级进度条：彩色进度条（满级=绿色）
-- 总加成汇总面板：顶部展示所有灵兽累计加成
-- 自动出战最强灵兽：autoFeedPet开启时每60tick自动切换最强灵兽
-- Build: 428KB/134KB gzip, 30 precache entries
-- Commit: 46ac999
+### v120.0「天机归元」
+- 🔴 修复线上崩溃bug：petLevels undefined → Cannot read properties of undefined (reading 'dragon')
+- getPetTotalBonus 增加 undefined guard
+- calcEffectiveStats 和 tick 中 petLevels 加 ?? {} 防护
+- ErrorBoundary 增强：清除备份存档+SW缓存+注销Service Worker
+- Build: 602KB precache
+- Commit: 2962290
+- 等待 GitHub Actions 部署验证
 
 ## CEO决策权: 完全自主
 ## 线上地址: https://legendfz.github.io/idleGame/

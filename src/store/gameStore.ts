@@ -102,6 +102,7 @@ interface GameStore {
   titleToast: string | null; // v89.0: title unlock toast
   seenStories: string[]; // v101.0: seen story entries
   activeStory: { title: string; text: string; reward?: { type: string; amount: number } } | null; // v101.0
+  weeklyBoss: { week: number; clearedFloors: number[]; claimed: number[] }; // v118.0
 
   // Actions
   setTab: (tab: TabId) => void;
@@ -147,6 +148,11 @@ interface GameStore {
   setAutoBuyPerks: (v: boolean) => void;
   setAutoSynth: (v: boolean) => void;
   setAutoReincarnate: (v: boolean) => void;
+  setAutoDaoAlloc: (v: boolean) => void; // v105.0
+  setAutoFarm: (v: boolean) => void; // v111.0
+  setAutoTranscend: (v: boolean) => void; // v117.0
+  setAutoBuyTranscendPerks: (v: boolean) => void; // v117.0
+  setWeeklyBoss: (data: { week: number; clearedFloors: number[]; claimed: number[] }) => void; // v118.0
   setEquippedTitle: (id: string | null) => void;
   pinAchievement: (id: string | null) => void; // v115.0
   transcend: () => void; // v116.0: 超越轮回
@@ -486,12 +492,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setAutoBuyPerks: (v: boolean) => set({ autoBuyPerks: v }),
   setAutoSynth: (v: boolean) => set({ autoSynth: v }),
   setAutoReincarnate: (v: boolean) => set({ autoReincarnate: v }),
-  setAutoDaoAlloc: (v: boolean) => set({ autoDaoAlloc: v } as any),
-  setAutoFarm: (v: boolean) => set({ autoFarm: v } as any),
-  setAutoTranscend: (v: boolean) => set({ autoTranscend: v } as any),
-  setAutoBuyTranscendPerks: (v: boolean) => set({ autoBuyTranscendPerks: v } as any),
+  setAutoDaoAlloc: (v: boolean) => set({ autoDaoAlloc: v }),
+  setAutoFarm: (v: boolean) => set({ autoFarm: v }),
+  setAutoTranscend: (v: boolean) => set({ autoTranscend: v }),
+  setAutoBuyTranscendPerks: (v: boolean) => set({ autoBuyTranscendPerks: v }),
   // v118.0: Weekly Boss
-  setWeeklyBoss: (data: any) => set({ weeklyBoss: data } as any),
+  setWeeklyBoss: (data: { week: number; clearedFloors: number[]; claimed: number[] }) => set({ weeklyBoss: data }),
   // v115.0: Pin achievement
   pinAchievement: (id: string | null) => set({ player: { ...get().player, pinnedAchievement: id } }),
   setEquippedTitle: (id: string | null) => set({ equippedTitle: id }),
@@ -975,7 +981,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     // v111.0: Auto-farm — retreat to optimal chapter when struggling at frontier
     // v113.0: Auto-push — return to highest chapter when farming is too easy
-    if ((state as any).autoFarm && state.totalPlayTime % 30 === 0 && state.totalPlayTime > 0) {
+    if (state.autoFarm && state.totalPlayTime % 30 === 0 && state.totalPlayTime > 0) {
       const curChapter = updatedBattle.chapterId;
       if (curChapter >= state.highestChapter && state.highestChapter > 1 && curChapter < ABYSS_CHAPTER_ID) {
         // Struggling at frontier: retreat
@@ -1517,7 +1523,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     });
 
     // v105.0: Auto-allocate dao points after reincarnation
-    if ((state as any).autoDaoAlloc) {
+    if (state.autoDaoAlloc) {
       const allocOrder = ['atk_mult', 'exp_mult', 'gold_mult', 'crit_flat', 'drop_rate', 'pantao_mult', 'start_level', 'hp_mult'];
       let dp = newPlayer.daoPoints;
       const perks = { ...newPlayer.reincPerks };
@@ -2128,10 +2134,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
       autoBuyPerks: state.autoBuyPerks,
       autoSynth: state.autoSynth,
       autoReincarnate: state.autoReincarnate,
-      autoDaoAlloc: (state as any).autoDaoAlloc,
-      autoFarm: (state as any).autoFarm,
-      autoTranscend: (state as any).autoTranscend,
-      autoBuyTranscendPerks: (state as any).autoBuyTranscendPerks,
+      autoDaoAlloc: state.autoDaoAlloc,
+      autoFarm: state.autoFarm,
+      autoTranscend: state.autoTranscend,
+      autoBuyTranscendPerks: state.autoBuyTranscendPerks,
       lastWheelSpin: state.lastWheelSpin,
       equippedTitle: state.equippedTitle,
       unlockedTitles: state.unlockedTitles,
@@ -2140,7 +2146,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       onlineRewardsClaimed: state.onlineRewardsClaimed,
       completedChallenges: state.completedChallenges,
       completedChallengesDate: state.completedChallengesDate,
-      weeklyBoss: (state as any).weeklyBoss,
+      weeklyBoss: state.weeklyBoss,
     } as any;
     try {
       const saveStr = JSON.stringify(save);
