@@ -26,10 +26,24 @@ export function ShopPage({ onBack }: { onBack: () => void }) {
               <span className="color-dim">x{s.count}</span>
             </div>
             <div className="color-dim" style={{ fontSize: 11 }}>{s.desc}</div>
-            <button className="small-btn accent" disabled={player.pantao < s.price}
-              onClick={() => buyScroll(s.type)} style={{ marginTop: 4 }}>
-              购买 · {s.price} 蟠桃
-            </button>
+            <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+              <button className="small-btn accent" disabled={player.pantao < s.price}
+                onClick={() => buyScroll(s.type)}>
+                购买 · {s.price} 蟠桃
+              </button>
+              <button className="small-btn" disabled={player.pantao < s.price * 10}
+                onClick={() => { for (let i = 0; i < 10; i++) buyScroll(s.type); }}
+                style={{ background: player.pantao >= s.price * 10 ? 'linear-gradient(135deg,#7c3aed,#6d28d9)' : 'rgba(255,255,255,0.08)', color: player.pantao >= s.price * 10 ? '#fff' : 'var(--text-dim)', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: player.pantao >= s.price * 10 ? 'pointer' : 'default' }}>
+                ×10 · {s.price * 10} 蟠桃
+              </button>
+              {player.pantao >= s.price && (
+                <button className="small-btn"
+                  onClick={() => { const max = Math.floor(player.pantao / s.price); for (let i = 0; i < max; i++) buyScroll(s.type); }}
+                  style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}>
+                  买满({Math.floor(player.pantao / s.price)})
+                </button>
+              )}
+            </div>
           </Card>
         ))}
       </Card>

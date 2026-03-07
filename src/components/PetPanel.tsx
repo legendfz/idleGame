@@ -89,8 +89,29 @@ function PetCard({ pet, player, feedPet, setActivePet }: {
     return { count, totalCost: total, canAfford: count > 0 };
   })();
 
+  // Calculate feed max info
+  const feedMaxInfo = (() => {
+    if (maxed || !unlocked) return { count: 0, totalCost: 0, canAfford: false };
+    let total = 0;
+    let count = 0;
+    for (let i = 0; i < pet.maxLevel - level; i++) {
+      const lv = level + i;
+      const c = pet.feedCost(lv);
+      if (total + c > player.lingshi) break;
+      total += c;
+      count++;
+    }
+    return { count, totalCost: total, canAfford: count > 10 };
+  })();
+
   const handleFeed10 = () => {
     for (let i = 0; i < feed10Info.count; i++) {
+      feedPet(pet.id);
+    }
+  };
+
+  const handleFeedMax = () => {
+    for (let i = 0; i < feedMaxInfo.count; i++) {
       feedPet(pet.id);
     }
   };
@@ -156,6 +177,18 @@ function PetCard({ pet, player, feedPet, setActivePet }: {
               }}
             >
               ×{feed10Info.count} 💰{formatNumber(feed10Info.totalCost)}
+            </button>
+          )}
+          {!maxed && feedMaxInfo.canAfford && (
+            <button
+              onClick={handleFeedMax}
+              style={{
+                padding: '6px 10px', borderRadius: 8, border: 'none', fontSize: 11, cursor: 'pointer',
+                background: 'linear-gradient(135deg,#f59e0b,#d97706)',
+                color: '#fff',
+              }}
+            >
+              满喂({feedMaxInfo.count}) 💰{formatNumber(feedMaxInfo.totalCost)}
             </button>
           )}
           {level > 0 && (
