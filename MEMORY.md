@@ -936,3 +936,17 @@
 - 键盘快捷键：1-9切Tab/空格攻击/B最优装备/Shift+R转世
 - Commit: 4fdc29b
 - CEO直接实现（最高效）
+
+## v136.0「战法分离」完成（2026-03-07 15:01）
+- clickAttack+attemptBreakthrough提取到battleActions.ts(75行)
+- gameStore.ts 614→525行(-14.5%)，模块化~95%
+- Commit: 39eb401
+- CEO直接实现（最高效）
+
+## v137.0「装备预设」完成（2026-03-07 15:01）
+- 3套装备预设方案：保存当前装备/一键装备/删除
+- 队伍页LoadoutPanel（紫色卡片UI）
+- equipLoadouts存档持久化
+- Build: ~425KB/134KB gzip
+- Commit: 3efffad
+- CEO直接实现（最高效）
