@@ -313,6 +313,7 @@ export interface GameSave {
   completedChallenges?: string[];
   completedChallengesDate?: string;
   weeklyBoss?: { week: number; clearedFloors: number[]; claimed: number[] };
+  equipLoadouts?: { name: string; weapon: string | null; armor: string | null; treasure: string | null }[];
   // v13
   sanctuary?: any;
   exploration?: any;

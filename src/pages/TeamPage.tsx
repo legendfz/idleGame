@@ -191,6 +191,83 @@ export function TeamView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
         ⚒ 一键强化已装备
       </button>
       {enhanceMsg && <div style={{ textAlign: 'center', color: '#ffcc00', fontSize: 13, marginBottom: 8 }}>{enhanceMsg}</div>}
+      {/* v137.0: Equipment Loadouts */}
+      <LoadoutPanel />
     </div>
+  );
+}
+
+function LoadoutPanel() {
+  const equipLoadouts = useGameStore(s => s.equipLoadouts) || [];
+  const saveLoadout = useGameStore(s => s.saveLoadout);
+  const applyLoadout = useGameStore(s => s.applyLoadout);
+  const deleteLoadout = useGameStore(s => s.deleteLoadout);
+  const weapon = useGameStore(s => s.equippedWeapon);
+  const armor = useGameStore(s => s.equippedArmor);
+  const treasure = useGameStore(s => s.equippedTreasure);
+  const [msg, setMsg] = useState('');
+  const [editSlot, setEditSlot] = useState<number | null>(null);
+  const [editName, setEditName] = useState('');
+  const MAX_SLOTS = 3;
+
+  const handleSave = (i: number) => {
+    const name = editSlot === i ? editName : `方案${i + 1}`;
+    saveLoadout(i, name);
+    setEditSlot(null);
+    setMsg(`已保存「${name}」`);
+    setTimeout(() => setMsg(''), 2000);
+  };
+
+  const handleApply = (i: number) => {
+    const result = applyLoadout(i);
+    setMsg(result.message);
+    setTimeout(() => setMsg(''), 2000);
+  };
+
+  return (
+    <Card title="📋 装备预设" titleColor="#a78bfa">
+      {Array.from({ length: MAX_SLOTS }, (_, i) => {
+        const loadout = equipLoadouts[i];
+        const hasData = loadout && (loadout.weapon || loadout.armor || loadout.treasure);
+        return (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, padding: '6px 8px', background: 'rgba(167,139,250,0.08)', borderRadius: 8 }}>
+            {editSlot === i ? (
+              <input
+                value={editName}
+                onChange={e => setEditName(e.target.value)}
+                onBlur={() => { handleSave(i); }}
+                onKeyDown={e => { if (e.key === 'Enter') handleSave(i); }}
+                autoFocus
+                style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid #a78bfa', borderRadius: 4, color: '#fff', padding: '2px 6px', fontSize: 12, width: 80 }}
+                placeholder={`方案${i + 1}`}
+              />
+            ) : (
+              <span style={{ color: hasData ? '#e2c97e' : '#666', fontSize: 13 }}>
+                {hasData ? `${loadout.name || `方案${i + 1}`}` : `空槽${i + 1}`}
+              </span>
+            )}
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button
+                onClick={() => { setEditSlot(i); setEditName(equipLoadouts[i]?.name || `方案${i + 1}`); }}
+                style={{ background: '#6366f1', color: '#fff', border: 'none', borderRadius: 4, padding: '3px 8px', fontSize: 11, cursor: 'pointer' }}
+              >保存</button>
+              {hasData && (
+                <>
+                  <button
+                    onClick={() => handleApply(i)}
+                    style={{ background: '#22c55e', color: '#fff', border: 'none', borderRadius: 4, padding: '3px 8px', fontSize: 11, cursor: 'pointer' }}
+                  >装备</button>
+                  <button
+                    onClick={() => { deleteLoadout(i); setMsg('已删除'); setTimeout(() => setMsg(''), 2000); }}
+                    style={{ background: '#ef4444', color: '#fff', border: 'none', borderRadius: 4, padding: '3px 8px', fontSize: 11, cursor: 'pointer' }}
+                  >删</button>
+                </>
+              )}
+            </div>
+          </div>
+        );
+      })}
+      {msg && <div style={{ textAlign: 'center', color: '#ffcc00', fontSize: 12, marginTop: 4 }}>{msg}</div>}
+    </Card>
   );
 }

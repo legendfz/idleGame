@@ -108,6 +108,8 @@ interface GameStore {
   seenStories: string[]; // v101.0: seen story entries
   activeStory: { title: string; text: string; reward?: { type: string; amount: number } } | null; // v101.0
   weeklyBoss: { week: number; clearedFloors: number[]; claimed: number[] }; // v118.0
+  // v137.0: Equipment loadouts
+  equipLoadouts: { name: string; weapon: string | null; armor: string | null; treasure: string | null }[];
 
   // Actions
   setTab: (tab: TabId) => void;
@@ -191,6 +193,10 @@ interface GameStore {
   updatePlayer: (partial: Partial<PlayerState>) => void;
   // v97.0 Equipment synthesis
   synthesizeEquip: (uids: string[]) => { success: boolean; result?: EquipmentItem; message: string };
+  // v137.0: Equipment loadouts
+  saveLoadout: (slotIndex: number, name: string) => void;
+  applyLoadout: (slotIndex: number) => { applied: number; message: string };
+  deleteLoadout: (slotIndex: number) => void;
 }
 
 // SaveSlotInfo imported from ./saveActions
@@ -418,6 +424,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   onlineRewardsClaimed: [],
   fateBlessing: { active: false, expiresAt: 0 },
   weeklyBoss: { week: 0, clearedFloors: [] as number[], claimed: [] as number[] },
+  equipLoadouts: [] as { name: string; weapon: string | null; armor: string | null; treasure: string | null }[],
 
   setTab: (tab) => set({ activeTab: tab }),
   dismissOfflineReport: () => set({ offlineReport: null }),
@@ -522,4 +529,68 @@ export const useGameStore = create<GameStore>((set, get) => ({
   feedPet: (petId: string) => feedPetAction(get, set, petId),
 
   setActivePet: (petId: string | null) => setActivePetAction(get, set, petId),
+
+  // v137.0: Equipment loadouts
+  saveLoadout: (slotIndex: number, name: string) => {
+    const { equippedWeapon, equippedArmor, equippedTreasure, equipLoadouts } = get();
+    const loadout = {
+      name: name || `方案${slotIndex + 1}`,
+      weapon: equippedWeapon?.uid ?? null,
+      armor: equippedArmor?.uid ?? null,
+      treasure: equippedTreasure?.uid ?? null,
+    };
+    const updated = [...(equipLoadouts || [])];
+    while (updated.length <= slotIndex) updated.push({ name: '', weapon: null, armor: null, treasure: null });
+    updated[slotIndex] = loadout;
+    set({ equipLoadouts: updated });
+  },
+  applyLoadout: (slotIndex: number) => {
+    const { equipLoadouts, inventory, equippedWeapon, equippedArmor, equippedTreasure } = get();
+    const loadout = (equipLoadouts || [])[slotIndex];
+    if (!loadout) return { applied: 0, message: '预设不存在' };
+    let applied = 0;
+    // Unequip all first
+    const allItems = [...inventory];
+    if (equippedWeapon) allItems.push(equippedWeapon);
+    if (equippedArmor) allItems.push(equippedArmor);
+    if (equippedTreasure) allItems.push(equippedTreasure);
+    
+    let newWeapon: EquipmentItem | null = null;
+    let newArmor: EquipmentItem | null = null;
+    let newTreasure: EquipmentItem | null = null;
+    const usedUids = new Set<string>();
+    
+    // Find items by uid
+    if (loadout.weapon) {
+      const item = allItems.find(i => i.uid === loadout.weapon);
+      if (item && item.slot === 'weapon') { newWeapon = item; usedUids.add(item.uid); applied++; }
+    }
+    if (loadout.armor) {
+      const item = allItems.find(i => i.uid === loadout.armor);
+      if (item && item.slot === 'armor') { newArmor = item; usedUids.add(item.uid); applied++; }
+    }
+    if (loadout.treasure) {
+      const item = allItems.find(i => i.uid === loadout.treasure);
+      if (item && item.slot === 'treasure') { newTreasure = item; usedUids.add(item.uid); applied++; }
+    }
+    
+    // Remaining items go to inventory
+    const newInventory = allItems.filter(i => !usedUids.has(i.uid));
+    
+    set({
+      equippedWeapon: newWeapon,
+      equippedArmor: newArmor,
+      equippedTreasure: newTreasure,
+      inventory: newInventory,
+    });
+    return { applied, message: applied > 0 ? `已装备${applied}件` : '未找到匹配装备' };
+  },
+  deleteLoadout: (slotIndex: number) => {
+    const { equipLoadouts } = get();
+    const updated = [...(equipLoadouts || [])];
+    if (slotIndex < updated.length) {
+      updated[slotIndex] = { name: '', weapon: null, armor: null, treasure: null };
+    }
+    set({ equipLoadouts: updated });
+  },
 }));

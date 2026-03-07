@@ -85,6 +85,7 @@ export function saveAction(get: () => any, set: (s: any) => void) {
     completedChallenges: state.completedChallenges,
     completedChallengesDate: state.completedChallengesDate,
     weeklyBoss: state.weeklyBoss,
+    equipLoadouts: state.equipLoadouts ?? [],
   };
   try {
     const saveStr = JSON.stringify(save);
@@ -297,6 +298,7 @@ export function loadAction(get: () => any, set: (s: any) => void, addLog: (log: 
       completedChallenges: save.completedChallenges ?? [],
       completedChallengesDate: save.completedChallengesDate ?? '',
       weeklyBoss: save.weeklyBoss ?? { week: 0, clearedFloors: [], claimed: [] },
+      equipLoadouts: save.equipLoadouts ?? [],
     } as any);
 
     if (save.sanctuary) useSanctuaryStore.getState().load(save.sanctuary);
