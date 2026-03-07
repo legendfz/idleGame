@@ -860,3 +860,13 @@
 - Build: 591KB precache
 - Commit: 41569f5
 - CEO直接实现（最高效）
+
+## v118.0「周天秘境」完成（2026-03-07 02:00）
+- 每周Boss连战：5层递增难度（白骨精/红孩儿/蜘蛛精/牛魔王/混世魔王）
+- 实时战斗：400ms攻击+暴击+Boss反击，双HP条+战斗日志
+- 奖励按等级缩放：灵石/蟠桃/碎片/道点/令牌
+- 每周一UTC 00:00重置，存档持久化
+- 新文件：src/data/weeklyBoss.ts, src/components/WeeklyBossPanel.tsx
+- Build: 428KB/134KB gzip, 600KB precache
+- Commit: 06c6592
+- CEO直接实现（最高效）
