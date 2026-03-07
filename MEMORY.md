@@ -814,3 +814,10 @@
 - Build: 577KB precache
 - Commit: 357c3dc
 - CEO直接实现（最高效）
+
+## v113.0「自动推图」完成（2026-03-06 21:00）
+- 自动推图双向智能：回退(卡关时)+推进(farming太轻松时回到最高章节)
+- autoFarm逻辑增强：低章farming时敌人已死→自动推回highestChapter
+- Build: 577KB precache
+- Commit: c14936a
+- CEO直接实现（最高效）
