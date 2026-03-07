@@ -9,6 +9,7 @@ import { TITLES } from '../data/titles';
 import { ACTIVE_SKILLS } from '../data/skills';
 import { CONSUMABLE_BUFFS } from '../data/consumables';
 import { Card, FloatingDamage, BossToast } from './shared';
+import { StatBreakdownModal } from '../components/StatBreakdown';
 import { useAutoWorldBoss } from '../components/WorldBossPanel';
 import { WorldBossBanner, WorldBossModal } from '../components/WorldBossPanel';
 import { BUILDINGS, getUpgradeCost } from '../engine/sanctuary';
@@ -85,6 +86,7 @@ export function BattleView() {
   const useSkill = useGameStore(s => s.useSkill);
   const activeSkills = useGameStore(s => s.player.activeSkills);
   const [showWorldBoss, setShowWorldBoss] = useState(false);
+  const [showBreakdown, setShowBreakdown] = useState(false);
   const sessionMinutes = Math.floor(idleStats.sessionTime / 60);
   // v75.0: Track session earnings
   const sessionStartRef = useRef({ gold: player.totalGoldEarned, kills: player.totalKills });
@@ -181,6 +183,7 @@ export function BattleView() {
       {/* World Boss Banner — hide for new players */}
       {player.level >= 50 && <WorldBossBanner onOpen={() => setShowWorldBoss(true)} />}
       {showWorldBoss && player.level >= 50 && <WorldBossModal onClose={() => setShowWorldBoss(false)} />}
+      {showBreakdown && <StatBreakdownModal onClose={() => setShowBreakdown(false)} />}
 
       {/* v66.0: Random Event Modal */}
       {activeEvent && (
@@ -320,7 +323,7 @@ export function BattleView() {
           <span className="color-attack">⚔ {formatNumber(eStats.attack)}</span>
           <span className="color-hp">❤ {formatNumber(eStats.maxHp)}</span>
           <span className="color-crit">💥 {eStats.critRate.toFixed(0)}%</span>
-          <span style={{ color: '#ffcc00', fontWeight: 700 }}>⭐ {formatNumber(Math.floor(eStats.attack * (1 + (eStats.critRate / 100) * ((eStats.critDmg || 150) / 100)) + eStats.maxHp * 0.05))}</span>
+          <span style={{ color: '#ffcc00', fontWeight: 700, cursor: 'pointer', textDecoration: 'underline dotted' }} onClick={() => setShowBreakdown(true)}>⭐ {formatNumber(Math.floor(eStats.attack * (1 + (eStats.critRate / 100) * ((eStats.critDmg || 150) / 100)) + eStats.maxHp * 0.05))}</span>
           {highestPower > 0 && <span style={{ color: '#888', fontSize: 10 }}>🏆{formatNumber(highestPower)}</span>}
           {killStreak >= 10 && (
             <span style={{ color: killStreak >= 100 ? '#ff4444' : killStreak >= 50 ? '#ff8800' : '#ffaa00', fontWeight: 700 }}>
