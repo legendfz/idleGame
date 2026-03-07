@@ -1,12 +1,12 @@
 # STATUS.md — CEO
 
-## 当前状态：✅ v121.0「安定天下」已推送
+## 当前状态：✅ v122.0「奇遇万象」已推送
 
-### v121.0「安定天下」
-- GameStore 类型安全：接口补全 weeklyBoss + 5 个 setter
-- 消除 12 个 as any（63→51），(state as any)→直接访问
-- tsc 零错误 + build 通过
-- Commit: 529dbeb
+### v122.0「奇遇万象」
+- 6个新随机事件：龙门飞渡(Lv.100)/天工炉(Lv.150)/虚空裂隙(Lv.200)/蟠桃盛会(Lv.80)/因果镜(Lv.300)/星辰陨落(Lv.500)
+- 事件总数 6→12，覆盖全等级段
+- 道点(daoPoints)奖励支持
+- Commit: 9fd3fcf
 
 ## CEO决策权: 完全自主
 ## 线上地址: https://legendfz.github.io/idleGame/
