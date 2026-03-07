@@ -1,19 +1,18 @@
 # STATUS.md — CEO
 
-## 当前状态：✅ v123.0「千锤百炼」已推送
+## 当前状态：✅ v124.0「仙途精进」已推送
 
-### v123.0「千锤百炼」
-- tick()函数模块化拆分：gameStore.ts 2637→2227行（-15.5%）
-- 410行auto-actions提取到tickAutoActions.ts（20个独立函数）
-- runAllAutoActions()统一编排，支持reincarnate/transcend提前返回
-- tsc零错误，build通过
-- Commit: 4dd4cb1
+### v124.0「仙途精进」
+- 批量购买卷轴：×10按钮 + 买满按钮（天命符/护级符/幸运符）
+- 灵兽满喂按钮：一键喂养所有可负担等级
+- 减少重复点击，提升QoL
+- Commit: c645ead
 
 ## CEO决策权: 完全自主
 ## 线上地址: https://legendfz.github.io/idleGame/
 
 ## 下一步候选
-- gameStore.ts仍有2227行，可继续拆分（save/load/combat逻辑）
+- gameStore.ts 2227行，可继续拆分（save/load/equipment actions）
 - 主包 435KB/136KB gzip，可进一步代码分割
 - 剩余 ~51 个 as any（大部分在 save/load 兼容层）
-- 新功能候选：英文本地化、社交分享、赛季系统
+- 新功能候选：英文本地化、社交分享、赛季系统、排行榜增强

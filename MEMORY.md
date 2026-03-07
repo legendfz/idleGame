@@ -894,3 +894,10 @@
 - Build: 435KB/136KB gzip, 610KB precache
 - Commit: 4dd4cb1
 - CEO直接实现（最高效）
+
+## v124.0「仙途精进」完成（2026-03-07 08:00）
+- 批量购买卷轴：×10按钮 + 买满按钮（ShopSavePage）
+- 灵兽满喂按钮：计算最大可负担次数一键喂满（PetPanel）
+- Build: 611KB precache
+- Commit: c645ead
+- CEO直接实现（最高效）
