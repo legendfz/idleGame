@@ -15,8 +15,8 @@ import { ACHIEVEMENTS as ACHIEVEMENTS_DATA } from '../data/achievements';
 import { CHAPTERS, createEnemy, ABYSS_CHAPTER_ID } from '../data/chapters';
 import { expForLevel, formatNumber } from '../utils/format';
 import { sfx } from '../engine/audio';
-import { calcDaoPoints, REINC_PERKS, REINC_MIN_REALM, REINC_MIN_LEVEL, getReincMilestoneBonus } from '../data/reincarnation';
-import { TRANSCEND_PERKS, TRANSCEND_MIN_REINC, calcTranscendPoints, getTranscendBonuses } from '../data/transcendence';
+import { REINC_PERKS, getReincMilestoneBonus } from '../data/reincarnation';
+import { getTranscendBonuses } from '../data/transcendence';
 import { AWAKENING_PATHS, totalAwakeningPoints, AWAKENING_UNLOCK_REINC } from '../data/awakening';
 import { ACTIVE_SKILLS } from '../data/skills';
 import { getAwakeningBonuses } from '../components/AwakeningPanel';
@@ -42,6 +42,10 @@ import {
   saveAction, loadAction, resetAction, saveToSlotAction,
   loadFromSlotAction, deleteSlotAction, getSaveSlotsAction, SaveSlotInfo,
 } from './saveActions';
+import {
+  reincarnateAction, buyReincPerkAction, getReincMultiplierAction,
+  transcendAction, buyTranscendPerkAction,
+} from './progressionActions';
 import { calculateOfflineEarnings } from '../engine/offline';
 import { useSanctuaryStore } from './sanctuaryStore';
 import { BUILDINGS as SANCT_BUILDINGS, getUpgradeCost as getSanctUpgradeCost } from '../engine/sanctuary';
@@ -1036,201 +1040,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
     sfx.bossAppear();
   },
 
-  reincarnate: () => {
-    const state = get();
-    const { player } = state;
-    if (player.realmIndex < REINC_MIN_REALM || player.level < REINC_MIN_LEVEL) return;
+  // === Progression === (delegated to progressionActions.ts v129.0)
+  reincarnate: () => reincarnateAction(get, set),
+  buyReincPerk: (perkId: string, maxBuy?: boolean) => buyReincPerkAction(get, set, perkId, maxBuy),
+  getReincMultiplier: (perkId: string) => getReincMultiplierAction(get, perkId),
+  transcend: () => transcendAction(get, set),
+  buyTranscendPerk: (perkId: string, maxBuy?: boolean) => buyTranscendPerkAction(get, set, perkId, maxBuy),
 
-    const daoGain = calcDaoPoints(player.level, player.realmIndex, player.reincarnations);
-    const startLevel = REINC_PERKS.find(p => p.id === 'start_level')!.effect(player.reincPerks['start_level'] ?? 0);
-
-    // Reset player but keep permanent stuff
-    const newPlayer = makeInitialPlayer();
-    newPlayer.reincarnations = player.reincarnations + 1;
-    newPlayer.daoPoints = player.daoPoints + daoGain;
-    newPlayer.totalDaoPoints = player.totalDaoPoints + daoGain;
-    newPlayer.reincPerks = { ...player.reincPerks };
-    newPlayer.tutorialDone = true;
-    newPlayer.tutorialStep = 6;
-    newPlayer.systemTutorials = [...player.systemTutorials];
-    newPlayer.codexEquipIds = [...player.codexEquipIds];
-    newPlayer.codexEnemyNames = [...player.codexEnemyNames];
-    newPlayer.activeSkills = { cooldowns: {}, buffs: {} }; // Reset cooldowns on reincarnation
-    newPlayer.petLevels = { ...player.petLevels }; // Keep pet levels
-    newPlayer.activePetId = player.activePetId;
-    newPlayer.bestKillStreak = player.bestKillStreak; // v115.0: Keep best streak
-    newPlayer.pinnedAchievement = player.pinnedAchievement;
-    newPlayer.consumableInventory = { ...player.consumableInventory }; // Keep consumables
-    newPlayer.activeConsumables = []; // Clear active buffs
-
-    // Apply start_level perk
-    if (startLevel > 0) {
-      newPlayer.level = Math.max(1, startLevel);
-      newPlayer.stats.attack += Math.floor(startLevel * 3.5);
-      newPlayer.stats.maxHp += Math.floor(startLevel * 12);
-      newPlayer.stats.hp = newPlayer.stats.maxHp;
-    }
-
-    // Apply crit perk
-    const critBonus = REINC_PERKS.find(p => p.id === 'crit_flat')!.effect(player.reincPerks['crit_flat'] ?? 0);
-    newPlayer.stats.critRate += critBonus;
-
-    set({
-      player: newPlayer,
-      battle: makeInitialBattle(),
-      inventory: [],
-      equippedWeapon: null,
-      equippedArmor: null,
-      equippedTreasure: null,
-      highestChapter: 1,
-      highestStage: 1,
-      floatingTexts: [],
-      idleStats: { goldPerSec: 0, expPerSec: 0, dps: 0, sessionTime: 0 },
-    });
-
-    // v105.0: Auto-allocate dao points after reincarnation
-    if (state.autoDaoAlloc) {
-      const allocOrder = ['atk_mult', 'exp_mult', 'gold_mult', 'crit_flat', 'drop_rate', 'pantao_mult', 'start_level', 'hp_mult'];
-      let dp = newPlayer.daoPoints;
-      const perks = { ...newPlayer.reincPerks };
-      let changed = true;
-      while (changed && dp > 0) {
-        changed = false;
-        for (const pid of allocOrder) {
-          const perk = REINC_PERKS.find(p => p.id === pid);
-          if (!perk) continue;
-          const cur = perks[pid] ?? 0;
-          if (cur >= perk.maxLevel) continue;
-          if (dp >= perk.costPerLevel) {
-            perks[pid] = cur + 1;
-            dp -= perk.costPerLevel;
-            changed = true;
-          }
-        }
-      }
-      newPlayer.daoPoints = dp;
-      newPlayer.reincPerks = perks;
-      // Re-apply start_level with new perks
-      const newStartLevel = REINC_PERKS.find(p => p.id === 'start_level')!.effect(perks['start_level'] ?? 0);
-      if (newStartLevel > startLevel) {
-        newPlayer.level = Math.max(newPlayer.level, newStartLevel);
-        newPlayer.stats.attack = makeInitialPlayer().stats.attack + Math.floor(newStartLevel * 3.5);
-        newPlayer.stats.maxHp = makeInitialPlayer().stats.maxHp + Math.floor(newStartLevel * 12);
-        newPlayer.stats.hp = newPlayer.stats.maxHp;
-      }
-      // Re-apply crit perk
-      const newCritBonus = REINC_PERKS.find(p => p.id === 'crit_flat')!.effect(perks['crit_flat'] ?? 0);
-      if (newCritBonus > critBonus) {
-        newPlayer.stats.critRate = makeInitialPlayer().stats.critRate + newCritBonus;
-      }
-    }
-
-    sfx.breakthrough();
-  },
-
-  buyReincPerk: (perkId: string, maxBuy?: boolean) => {
-    const { player } = get();
-    const perk = REINC_PERKS.find(p => p.id === perkId);
-    if (!perk) return;
-    const currentLv = player.reincPerks[perkId] ?? 0;
-    if (currentLv >= perk.maxLevel) return;
-    if (player.daoPoints < perk.costPerLevel) return;
-
-    const affordable = Math.floor(player.daoPoints / perk.costPerLevel);
-    const remaining = perk.maxLevel - currentLv;
-    const count = maxBuy ? Math.min(affordable, remaining) : 1;
-    if (count <= 0) return;
-
-    set({
-      player: {
-        ...player,
-        daoPoints: player.daoPoints - perk.costPerLevel * count,
-        reincPerks: { ...player.reincPerks, [perkId]: currentLv + count },
-      },
-    });
-    sfx.click();
-  },
-
-  getReincMultiplier: (perkId: string) => {
-    const { player } = get();
-    const perk = REINC_PERKS.find(p => p.id === perkId);
-    if (!perk) return 1;
-    return perk.effect(player.reincPerks[perkId] ?? 0);
-  },
-
-  // === v116.0: Transcendence (超越轮回) ===
-
-  transcend: () => {
-    const state = get();
-    const { player } = state;
-    if (player.reincarnations < TRANSCEND_MIN_REINC) return;
-
-    const tpGain = calcTranscendPoints(player.reincarnations, player.totalDaoPoints);
-
-    // Reset everything including reincarnation progress
-    const newPlayer = makeInitialPlayer();
-    newPlayer.transcendCount = (player.transcendCount ?? 0) + 1;
-    newPlayer.transcendPoints = (player.transcendPoints ?? 0) + tpGain;
-    newPlayer.totalTranscendPoints = (player.totalTranscendPoints ?? 0) + tpGain;
-    newPlayer.transcendPerks = { ...(player.transcendPerks ?? {}) };
-    // Keep codex/tutorial/pet/consumables across transcendence
-    newPlayer.tutorialDone = true;
-    newPlayer.tutorialStep = 6;
-    newPlayer.systemTutorials = [...player.systemTutorials];
-    newPlayer.codexEquipIds = [...player.codexEquipIds];
-    newPlayer.codexEnemyNames = [...player.codexEnemyNames];
-    newPlayer.petLevels = { ...player.petLevels };
-    newPlayer.activePetId = player.activePetId;
-    newPlayer.bestKillStreak = player.bestKillStreak;
-    newPlayer.pinnedAchievement = player.pinnedAchievement;
-    newPlayer.consumableInventory = { ...player.consumableInventory };
-    // Reset: reincarnations, daoPoints, reincPerks, awakening all go back to 0
-    newPlayer.reincarnations = 0;
-    newPlayer.daoPoints = 0;
-    newPlayer.totalDaoPoints = 0;
-    newPlayer.reincPerks = {};
-    newPlayer.awakening = { unlockedNodes: [], selectedPath: null };
-    newPlayer.awakeningPoints = 0;
-
-    set({
-      player: newPlayer,
-      battle: makeInitialBattle(),
-      inventory: [],
-      equippedWeapon: null,
-      equippedArmor: null,
-      equippedTreasure: null,
-      highestChapter: 1,
-      highestStage: 1,
-      floatingTexts: [],
-      idleStats: { goldPerSec: 0, expPerSec: 0, dps: 0, sessionTime: 0 },
-    });
-    sfx.breakthrough();
-  },
-
-  buyTranscendPerk: (perkId: string, maxBuy?: boolean) => {
-    const { player } = get();
-    const perk = TRANSCEND_PERKS.find(p => p.id === perkId);
-    if (!perk) return;
-    const currentLv = (player.transcendPerks ?? {})[perkId] ?? 0;
-    if (currentLv >= perk.maxLevel) return;
-    if ((player.transcendPoints ?? 0) < perk.costPerLevel) return;
-
-    const affordable = Math.floor((player.transcendPoints ?? 0) / perk.costPerLevel);
-    const remaining = perk.maxLevel - currentLv;
-    const count = maxBuy ? Math.min(affordable, remaining) : 1;
-    if (count <= 0) return;
-
-    set({
-      player: {
-        ...player,
-        transcendPoints: (player.transcendPoints ?? 0) - perk.costPerLevel * count,
-        transcendPerks: { ...(player.transcendPerks ?? {}), [perkId]: currentLv + count },
-      },
-    });
-    sfx.click();
-  },
-
-  // === Equipment === (delegated to equipmentActions.ts v127.0)
   equipItem: (item) => equipItemAction(get, set, item),
   unequipSlot: (slot) => unequipSlotAction(get, set, slot),
   enhanceEquip: (uid, useProtect = false, useLucky = false) => enhanceEquipAction(get, set, uid, useProtect, useLucky),
