@@ -6,6 +6,7 @@ import { Card, SubPageHeader, SubPage } from './shared';
 import { getResonanceBonus } from '../data/resonance';
 import { getActiveSetBonuses, EQUIP_SETS, EQUIPMENT_TEMPLATES } from '../data/equipment';
 import { QUALITY_INFO, EquipmentItem } from '../types';
+import { getEnhanceCost, getMaxEnhanceLevel, isHighEnhance, getHighEnhanceRate } from '../data/equipment';
 
 export function CharacterDetailPage({ onBack }: { onBack: () => void }) {
   const player = useGameStore(s => s.player);
@@ -166,6 +167,26 @@ export function TeamView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
         </Card>
       )}
       <SetBonusPanel weapon={weapon} armor={armor} treasure={treasure} />
+      {/* Equipment enhance info */}
+      <Card title="装备强化" titleColor="#e2c97e">
+        {([['武器', weapon], ['护甲', armor], ['法宝', treasure]] as const).map(([label, item]) => {
+          if (!item) return <div key={label} style={{ fontSize: 12, color: '#555', marginBottom: 6 }}>{label}：未装备</div>;
+          const maxLv = getMaxEnhanceLevel(item);
+          const atMax = item.level >= maxLv;
+          const cost = atMax ? 0 : getEnhanceCost(item);
+          const high = isHighEnhance(item);
+          const rate = high && !atMax ? getHighEnhanceRate(item.level + 1) : 100;
+          const qColor = QUALITY_INFO[item.quality].color;
+          return (
+            <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, fontSize: 12 }}>
+              <span style={{ color: qColor }}>{item.emoji} {item.name} +{item.level}</span>
+              <span style={{ color: atMax ? '#4ade80' : '#ccc' }}>
+                {atMax ? '✅ 满级' : `💰${formatNumber(cost)} · ${rate}%`}
+              </span>
+            </div>
+          );
+        })}
+      </Card>
       <button className="breakthrough-btn" style={{ margin: '0 12px 12px', fontSize: 13 }} onClick={handleBatchEnhance}>
         ⚒ 一键强化已装备
       </button>
