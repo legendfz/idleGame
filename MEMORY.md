@@ -1107,3 +1107,14 @@
 - Build: ~655KB precache
 - Commit: e7f7710
 - CEO直接实现（最高效）
+
+## v157.0「战力天梯」完成（2026-03-08 07:00）
+- 背包品质筛选：6品质按钮（凡/灵/仙/神/混沌/鸿蒙），品质色彩标识
+- 战力里程碑系统：8级永久加成（1K/5K/2W/10W/50W/200W/1KW/1亿战力）
+- 里程碑命名：初窥门径→小有所成→崭露头角→名震一方→威震四海→天下无双→举世无敌→混沌主宰
+- 加成维度：攻击/生命/暴击率/暴伤/经验/灵石（最高+50%攻生+8%暴击+80%暴伤+25%经验灵石）
+- 接入：calcEffectiveStats(战斗) + tickBattle(经验/灵石) + offline(离线收益) + BuffOverview(加成总览)
+- 新文件：src/data/powerMilestones.ts
+- Build: 452KB/142KB gzip, 655KB precache
+- Commit: eedff0a
+- CEO直接实现（最高效）
