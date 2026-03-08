@@ -19,6 +19,7 @@ import { getTranscendBonuses } from '../data/transcendence';
 import { getCodexBonuses } from '../data/codexPower';
 import { getLevelMilestoneBonuses } from '../data/levelMilestones';
 import { getPowerMilestoneBonuses } from '../data/powerMilestones';
+import { getAbyssMilestoneBonuses } from '../data/abyssMilestones';
 import { getGemBonuses } from '../data/gems';
 
 interface BuffSource {
@@ -35,6 +36,7 @@ export function BuffOverview() {
   const treasure = useGameStore(s => s.equippedTreasure);
   const sanctuary = useSanctuaryStore(s => s.sanctuary);
   const highestPower = useGameStore(s => s.highestPower) ?? 0;
+  const highestAbyssFloor = useGameStore(s => s.highestAbyssFloor) ?? 0;
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const sources = useMemo(() => {
@@ -204,6 +206,17 @@ export function BuffOverview() {
     if (pwrMilB.expMul) pwrBuffs.push({ label: '战力·经验', value: `+${(pwrMilB.expMul * 100).toFixed(0)}%` });
     if (pwrMilB.goldMul) pwrBuffs.push({ label: '战力·灵石', value: `+${(pwrMilB.goldMul * 100).toFixed(0)}%` });
     if (pwrBuffs.length > 0) result.push({ system: '战力', icon: '⚡', color: '#ffd54f', buffs: pwrBuffs });
+
+    // v170.0: Abyss milestone bonuses (深渊里程碑)
+    const abyssB = getAbyssMilestoneBonuses(highestAbyssFloor);
+    const abyssBuffs: { label: string; value: string }[] = [];
+    if (abyssB.atkPct) abyssBuffs.push({ label: '深渊·攻击', value: `+${(abyssB.atkPct * 100).toFixed(0)}%` });
+    if (abyssB.hpPct) abyssBuffs.push({ label: '深渊·生命', value: `+${(abyssB.hpPct * 100).toFixed(0)}%` });
+    if (abyssB.critRate) abyssBuffs.push({ label: '深渊·暴击', value: `+${(abyssB.critRate * 100).toFixed(0)}%` });
+    if (abyssB.critDmg) abyssBuffs.push({ label: '深渊·暴伤', value: `+${(abyssB.critDmg * 100).toFixed(0)}%` });
+    if (abyssB.expPct) abyssBuffs.push({ label: '深渊·经验', value: `+${(abyssB.expPct * 100).toFixed(0)}%` });
+    if (abyssB.goldPct) abyssBuffs.push({ label: '深渊·灵石', value: `+${(abyssB.goldPct * 100).toFixed(0)}%` });
+    if (abyssBuffs.length > 0) result.push({ system: '深渊', icon: '🕳️', color: '#b388ff', buffs: abyssBuffs });
 
     // 11. Reincarnation count
     const reincCount = player.reincarnations ?? 0;

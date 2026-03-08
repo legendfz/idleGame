@@ -22,6 +22,7 @@ import { getCodexBonuses } from '../data/codexPower';
 import { getLevelMilestoneBonuses } from '../data/levelMilestones';
 import { getGemBonuses } from '../data/gems';
 import { getPowerMilestoneBonuses } from '../data/powerMilestones';
+import { getAbyssMilestoneBonuses } from '../data/abyssMilestones';
 import { getSubstatBonuses } from '../data/substats';
 import {
   equipItemAction, unequipSlotAction, enhanceEquipAction, refineItemAction,
@@ -430,6 +431,12 @@ export function calcEffectiveStats(
   if (subB.critRate) s.critRate = Math.min(100, s.critRate + subB.critRate);
   if (subB.critDmg) s.critDmg += subB.critDmg / 100;
   if (subB.speedPct) s.speed += subB.speedPct / 100;
+  // v170.0: Abyss milestone bonuses (深渊里程碑)
+  const abyssB = getAbyssMilestoneBonuses(gs.highestAbyssFloor ?? 0);
+  if (abyssB.atkPct) s.attack = Math.floor(s.attack * (1 + abyssB.atkPct));
+  if (abyssB.hpPct) s.maxHp = Math.floor(s.maxHp * (1 + abyssB.hpPct));
+  if (abyssB.critRate) s.critRate = Math.min(100, s.critRate + abyssB.critRate);
+  if (abyssB.critDmg) s.critDmg += abyssB.critDmg;
   return s;
 }
 

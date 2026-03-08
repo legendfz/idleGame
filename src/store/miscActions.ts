@@ -120,14 +120,8 @@ export function claimAbyssMilestoneAction(get: Get, set: Set, floor: number): bo
   if (state.claimedAbyssMilestones.includes(floor)) return false;
   const milestone = ABYSS_MILESTONES.find((m: any) => m.floor === floor);
   if (!milestone || state.highestAbyssFloor < floor) return false;
-  const p = { ...state.player };
-  if (milestone.rewards.lingshi) p.lingshi += milestone.rewards.lingshi;
-  if (milestone.rewards.pantao) p.pantao += milestone.rewards.pantao;
-  if (milestone.rewards.shards) p.hongmengShards += milestone.rewards.shards;
-  if (milestone.rewards.daoPoints) p.daoPoints = (p.daoPoints ?? 0) + milestone.rewards.daoPoints;
-  if (milestone.rewards.trialTokens) p.trialTokens = (p.trialTokens ?? 0) + milestone.rewards.trialTokens;
-  if (milestone.rewards.tianmingScrolls) p.tianmingScrolls += milestone.rewards.tianmingScrolls;
-  set({ player: p, claimedAbyssMilestones: [...state.claimedAbyssMilestones, floor] });
+  // Abyss milestones grant permanent stat bonuses (via getAbyssMilestoneBonuses), just mark claimed
+  set({ claimedAbyssMilestones: [...state.claimedAbyssMilestones, floor] });
   return true;
 }
 

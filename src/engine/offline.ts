@@ -17,6 +17,7 @@ import { getCodexBonuses } from '../data/codexPower';
 import { getLevelMilestoneBonuses } from '../data/levelMilestones';
 import { getGemBonuses } from '../data/gems';
 import { getPowerMilestoneBonuses } from '../data/powerMilestones';
+import { getAbyssMilestoneBonuses } from '../data/abyssMilestones';
 import { TITLES } from '../data/titles';
 import { getSubstatBonuses } from '../data/substats';
 import { useAffinityStore } from '../store/affinityStore';
@@ -115,6 +116,7 @@ export function calculateOfflineEarnings(
   chapters: { id: number; stages: number }[],
   equippedTitle?: string | null,
   highestPower?: number,
+  highestAbyssFloor?: number,
 ): OfflineResult {
   const MAX_OFFLINE = 86400; // 24h cap
   const cappedSec = Math.min(offlineSeconds, MAX_OFFLINE);
@@ -214,6 +216,9 @@ export function calculateOfflineEarnings(
   const pwrMilB = getPowerMilestoneBonuses(highestPower ?? 0);
   const pwrGold = 1 + (pwrMilB.goldMul ?? 0);
   const pwrExp = 1 + (pwrMilB.expMul ?? 0);
+  const abyssB = getAbyssMilestoneBonuses(highestAbyssFloor ?? 0);
+  const abyssGold = 1 + abyssB.goldPct;
+  const abyssExp = 1 + abyssB.expPct;
   // v162.0: Substat bonuses for offline
   const subArrays = [weapon, armor, treasure].filter(Boolean).map(e => e!.substats ?? []);
   const subB = getSubstatBonuses(subArrays);
@@ -222,12 +227,12 @@ export function calculateOfflineEarnings(
   const lingshi = Math.floor(
     (totalMinions * minion.lingshiDrop + totalBosses * boss.lingshiDrop)
     * lingshiMul * goldMul * lingshiAwkMul * petGoldMul * codexGoldMul
-    * (1 + rmb.gold) * (1 + (titleBonus.goldMul ?? 0)) * trBonus.goldMul * afLingshi * lvlMilGold * gemGold * pwrGold * subGold
+    * (1 + rmb.gold) * (1 + (titleBonus.goldMul ?? 0)) * trBonus.goldMul * afLingshi * lvlMilGold * gemGold * pwrGold * subGold * abyssGold
   );
   const exp = Math.floor(
     (totalMinions * minion.expDrop + totalBosses * boss.expDrop)
     * expMul * expAwkMul * petExpMul * codexExpMul
-    * (1 + rmb.exp) * (1 + (titleBonus.expMul ?? 0)) * trBonus.expMul * afExp * lvlMilExp * gemExp * pwrExp * subExp
+    * (1 + rmb.exp) * (1 + (titleBonus.expMul ?? 0)) * trBonus.expMul * afExp * lvlMilExp * gemExp * pwrExp * subExp * abyssExp
   );
 
   // Pantao: use expected value (boss pantao chance × boss kills)

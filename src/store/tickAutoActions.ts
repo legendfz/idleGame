@@ -4,6 +4,7 @@
  */
 import { PlayerState, BattleState, EquipmentItem, Quality, QUALITY_INFO } from '../types';
 import { CHAPTERS, createEnemy, ABYSS_CHAPTER_ID } from '../data/chapters';
+import { ABYSS_MILESTONES } from '../data/abyssMilestones';
 import { REINC_PERKS, REINC_MIN_REALM, REINC_MIN_LEVEL } from '../data/reincarnation';
 import { TRANSCEND_PERKS, TRANSCEND_MIN_REINC } from '../data/transcendence';
 import { AWAKENING_PATHS, totalAwakeningPoints, AWAKENING_UNLOCK_REINC } from '../data/awakening';
@@ -656,6 +657,21 @@ export function autoClaimDailyChallenges(ctx: TickContext) {
   dcStore.save();
 }
 
+export function autoClaimAbyssMilestones(ctx: TickContext) {
+  if (ctx.totalPlayTime % 10 !== 0 || ctx.totalPlayTime === 0) return;
+  const claimed = [...(ctx.state.claimedAbyssMilestones ?? [])];
+  const highest = ctx.state.highestAbyssFloor ?? 0;
+  let changed = false;
+  for (const m of ABYSS_MILESTONES) {
+    if (m.floor <= highest && !claimed.includes(m.floor)) {
+      claimed.push(m.floor);
+      ctx.log = ctx.addLog(ctx.log, `🏔️ 深渊里程碑「${m.label}」已解锁！`, 'info');
+      changed = true;
+    }
+  }
+  if (changed) ctx.set({ claimedAbyssMilestones: claimed });
+}
+
 export function runAllAutoActions(ctx: TickContext): boolean {
   autoUpgradeSanctuary(ctx);
   autoGiftAffinity(ctx);
@@ -681,5 +697,6 @@ export function runAllAutoActions(ctx: TickContext): boolean {
   autoBreakthrough(ctx);
   autoWeeklyBoss(ctx);
   autoClaimDailyChallenges(ctx);
+  autoClaimAbyssMilestones(ctx);
   return false;
 }
