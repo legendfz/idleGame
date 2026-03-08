@@ -165,7 +165,16 @@ function BottomNav() {
   // Red dot: world boss is active
   const [worldBossActive, setWorldBossActive] = useState(false);
   useEffect(() => {
-    const check = () => setWorldBossActive(!!getCurrentWorldBoss(Date.now()));
+    let wasActive = false;
+    const check = () => {
+      const active = !!getCurrentWorldBoss(Date.now());
+      setWorldBossActive(active);
+      // v150.0: Notify idle players when world boss spawns
+      if (active && !wasActive && document.hidden && 'Notification' in window && Notification.permission === 'granted') {
+        new Notification('⚔️ 世界Boss来袭！', { body: '快来挑战世界Boss，赢取丰厚奖励！', icon: '/pwa-192x192.svg' });
+      }
+      wasActive = active;
+    };
     check();
     const id = setInterval(check, 10000);
     return () => clearInterval(id);
@@ -327,6 +336,27 @@ export default function App() {
     document.title = `Lv.${playerLevel} 西游·悟空传`;
     return () => clearInterval(id);
   }, [playerLevel]);
+
+  // v150.0: Browser notifications for idle players (tab hidden)
+  const lastNotifLevel = useRef(playerLevel);
+  useEffect(() => {
+    if (!document.hidden || Notification.permission !== 'granted') return;
+    if (playerLevel > lastNotifLevel.current && playerLevel % 50 === 0) {
+      new Notification('🎉 西游·悟空传', { body: `恭喜突破 Lv.${playerLevel}！`, icon: '/pwa-192x192.svg' });
+    }
+    lastNotifLevel.current = playerLevel;
+  }, [playerLevel]);
+  // Request notification permission on first interaction
+  useEffect(() => {
+    const ask = () => {
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+      window.removeEventListener('click', ask);
+    };
+    window.addEventListener('click', ask);
+    return () => window.removeEventListener('click', ask);
+  }, []);
 
   const goBack = () => setSubPage({ type: 'none' });
 
