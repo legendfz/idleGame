@@ -168,6 +168,9 @@ export function loadAction(get: () => any, set: (s: any) => void, addLog: (log: 
       save.player.activePetId = save.player.activePetId ?? null;
       save.player.bestKillStreak = save.player.bestKillStreak ?? 0;
       save.player.pinnedAchievement = save.player.pinnedAchievement ?? null;
+      save.player.fastestReincTime = save.player.fastestReincTime ?? 0;
+      save.player.totalReincarnations = save.player.totalReincarnations ?? 0;
+      save.player.reincStartTime = save.player.reincStartTime ?? 0;
       save.player.transcendCount = save.player.transcendCount ?? 0;
       save.player.transcendPoints = save.player.transcendPoints ?? 0;
       save.player.totalTranscendPoints = save.player.totalTranscendPoints ?? 0;

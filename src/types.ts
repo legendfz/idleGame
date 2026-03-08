@@ -55,6 +55,9 @@ export interface PlayerState {
   // v115.0
   bestKillStreak: number;              // highest kill streak ever
   allTimeLingshi: number;              // v144.0: total lingshi earned all time
+  fastestReincTime: number;            // v152.0: fastest reincarnation time in seconds (0=never)
+  totalReincarnations: number;         // v152.0: all-time reincarnation count (across transcends)
+  reincStartTime: number;              // v152.0: totalPlayTime when current reincarnation started
   pinnedAchievement: string | null;    // pinned achievement id for battle page
   // v116.0
   transcendCount: number;

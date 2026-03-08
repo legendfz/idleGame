@@ -12,6 +12,11 @@ export function reincarnateAction(get: () => any, set: (s: any) => void) {
   const daoGain = calcDaoPoints(player.level, player.realmIndex, player.reincarnations);
   const startLevel = REINC_PERKS.find((p: any) => p.id === 'start_level')!.effect(player.reincPerks['start_level'] ?? 0);
 
+  // v152.0: Track fastest reincarnation time
+  const reincTime = (state.totalPlayTime ?? 0) - (player.reincStartTime ?? 0);
+  const prevBest = player.fastestReincTime ?? 0;
+  const bestReincTime = (prevBest === 0 || (reincTime > 0 && reincTime < prevBest)) ? reincTime : prevBest;
+
   const newPlayer = makeInitialPlayer();
   newPlayer.reincarnations = player.reincarnations + 1;
   newPlayer.daoPoints = player.daoPoints + daoGain;
@@ -30,6 +35,9 @@ export function reincarnateAction(get: () => any, set: (s: any) => void) {
   newPlayer.consumableInventory = { ...player.consumableInventory };
   newPlayer.activeConsumables = [];
   newPlayer.allTimeLingshi = player.allTimeLingshi ?? 0;
+  newPlayer.fastestReincTime = bestReincTime;
+  newPlayer.totalReincarnations = (player.totalReincarnations ?? 0) + 1;
+  newPlayer.reincStartTime = state.totalPlayTime ?? 0;
 
   if (startLevel > 0) {
     newPlayer.level = Math.max(1, startLevel);
@@ -145,6 +153,9 @@ export function transcendAction(get: () => any, set: (s: any) => void) {
   newPlayer.pinnedAchievement = player.pinnedAchievement;
   newPlayer.consumableInventory = { ...player.consumableInventory };
   newPlayer.allTimeLingshi = player.allTimeLingshi ?? 0;
+  newPlayer.fastestReincTime = player.fastestReincTime ?? 0;
+  newPlayer.totalReincarnations = player.totalReincarnations ?? 0;
+  newPlayer.reincStartTime = state.totalPlayTime ?? 0;
   newPlayer.reincarnations = 0;
   newPlayer.daoPoints = 0;
   newPlayer.totalDaoPoints = 0;
