@@ -44,7 +44,7 @@ export function attemptBreakthroughAction(get: () => any, set: (partial: any) =>
   const tribEmojis = ['[雷]', '[火]', '[风]', '[魔]', '[劫]', '[雷]', '[混]', '[灭]', '[鸿]'];
   const ri = player.realmIndex;
   const tribHp = Math.floor(player.stats.maxHp * (3 + ri * 2));
-  const tribDef = Math.floor(player.stats.attack * 0.15 * (1 + ri * 0.3));
+  const tribDef = Math.floor(player.level * 5 * (1 + ri * 0.15));
   const tribAtk = Math.floor(player.stats.maxHp * 0.08 * (1 + ri * 0.2));
   const tribName = tribNames[Math.min(ri, tribNames.length - 1)];
   const tribEmoji = tribEmojis[Math.min(ri, tribEmojis.length - 1)];

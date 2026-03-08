@@ -34,6 +34,7 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const PAGE_SIZE = 20;
   const [page, setPage] = useState(0);
+  const [sortMode, setSortMode] = useState<'quality' | 'stat' | 'level'>('quality');
 
   const toggleSelect = (uid: string) => {
     setSelected(prev => { const next = new Set(prev); if (next.has(uid)) next.delete(uid); else next.add(uid); return next; });
@@ -64,6 +65,8 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
     .filter(item => filter === 'all' || item.slot === filter)
     .filter(item => qualityFilter === 'all' || item.quality === qualityFilter)
     .sort((a, b) => {
+      if (sortMode === 'stat') return getEquipEffectiveStat(b) - getEquipEffectiveStat(a);
+      if (sortMode === 'level') return (b.level ?? 0) - (a.level ?? 0);
       const qi = Object.keys(QUALITY_INFO);
       return qi.indexOf(b.quality) - qi.indexOf(a.quality);
     });
@@ -178,6 +181,15 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
           <button key={key} className={`filter-btn ${qualityFilter === key ? 'active' : ''}`}
             style={qualityFilter === key ? { borderColor: qi.color, color: qi.color } : { color: qi.color }}
             onClick={() => { setQualityFilter(key); setPage(0); }}>{qi.label.slice(0, 2)}</button>
+        ))}
+      </div>
+
+      <div style={{ display: 'flex', gap: 4, padding: '0 8px 4px', fontSize: 11 }}>
+        <span className="color-dim" style={{ lineHeight: '24px' }}>排序:</span>
+        {([['quality', '品质'], ['stat', '属性'], ['level', '强化']] as const).map(([key, label]) => (
+          <button key={key} className={`filter-btn ${sortMode === key ? 'active' : ''}`}
+            style={{ fontSize: 11, padding: '2px 8px' }}
+            onClick={() => setSortMode(key)}>{label}</button>
         ))}
       </div>
 

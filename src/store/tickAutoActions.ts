@@ -569,7 +569,7 @@ export function autoBreakthrough(ctx: TickContext) {
   const tribEmojis = ['[雷]', '[火]', '[风]', '[魔]', '[劫]', '[雷]', '[混]', '[灭]', '[鸿]'];
   const ri = ctx.updatedPlayer.realmIndex;
   const tribHp = Math.floor(ctx.updatedPlayer.stats.maxHp * (3 + ri * 2));
-  const tribDef = Math.floor(ctx.updatedPlayer.stats.attack * 0.15 * (1 + ri * 0.3));
+  const tribDef = Math.floor(ctx.updatedPlayer.level * 5 * (1 + ri * 0.15));
   const tribName = tribNames[Math.min(ri, tribNames.length - 1)];
   const tribEmoji = tribEmojis[Math.min(ri, tribEmojis.length - 1)];
   ctx.updatedPlayer = { ...ctx.updatedPlayer, pantao: ctx.updatedPlayer.pantao - autoBreakNext.pantaoReq };
