@@ -228,6 +228,9 @@ body {
 .bottom-nav { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
 .bottom-nav::-webkit-scrollbar { display: none; }
 .bottom-nav button { min-width: 48px; flex-shrink: 0; }
+.secondary-nav { border-top: 1px solid var(--border); background: rgba(20,20,35,0.95); }
+.secondary-nav button { padding: 4px 0 2px; font-size: 9px; }
+.secondary-nav button .icon { font-size: 14px; }
 @media (max-width: 374px) {
   .bottom-nav button span:not(.icon) { display: none; }
   .bottom-nav button .icon { font-size: 20px; }

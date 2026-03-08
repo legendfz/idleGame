@@ -174,13 +174,13 @@ export function BattleView() {
   const autoEvent = useGameStore(s => s.autoEvent);
   useEffect(() => {
     if (autoEvent && activeEvent && !eventResult) {
-      const timer = setTimeout(() => handleEventChoice(activeEvent.choices[0]), 500);
+      const timer = setTimeout(() => handleEventChoice(activeEvent.choices[0]), 100);
       return () => clearTimeout(timer);
     }
   }, [autoEvent, activeEvent, eventResult, handleEventChoice]);
   useEffect(() => {
     if (autoEvent && eventResult) {
-      const timer = setTimeout(dismissEvent, 1000);
+      const timer = setTimeout(dismissEvent, 300);
       return () => clearTimeout(timer);
     }
   }, [autoEvent, eventResult, dismissEvent]);

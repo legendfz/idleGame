@@ -108,22 +108,27 @@ function TitleToast() {
   );
 }
 
-const ALL_TABS = [
+// Primary tabs (always visible in main row)
+const PRIMARY_TABS = [
   { id: 'battle' as const, icon: '战', label: '战斗', unlockLevel: 0 },
   { id: 'team' as const, icon: '伍', label: '队伍', unlockLevel: 0 },
   { id: 'journey' as const, icon: '途', label: '旅途', unlockLevel: 0 },
   { id: 'bag' as const, icon: '包', label: '背包', unlockLevel: 5 },
+  { id: 'settings' as const, icon: '设', label: '更多', unlockLevel: 0 },
+];
+// Secondary tabs (shown in expandable row)
+const SECONDARY_TABS = [
+  { id: 'pets' as const, icon: '兽', label: '灵兽', unlockLevel: 10 },
   { id: 'achievement' as const, icon: '勋', label: '成就', unlockLevel: 10 },
   { id: 'stats' as const, icon: '据', label: '统计', unlockLevel: 15 },
-  { id: 'reincarnation' as const, icon: '轮', label: '转世', unlockLevel: 50 },
   { id: 'sanctuary' as const, icon: '府', label: '洞天', unlockLevel: 20 },
   { id: 'exploration' as const, icon: '境', label: '秘境', unlockLevel: 30 },
   { id: 'affinity' as const, icon: '缘', label: '仙缘', unlockLevel: 40 },
+  { id: 'reincarnation' as const, icon: '轮', label: '转世', unlockLevel: 50 },
   { id: 'trial' as const, icon: '劫', label: '试炼', unlockLevel: 60 },
   { id: 'awakening' as const, icon: '醒', label: '觉醒', unlockLevel: 80 },
-  { id: 'pets' as const, icon: '兽', label: '灵兽', unlockLevel: 10 },
-  { id: 'settings' as const, icon: '设', label: '更多', unlockLevel: 0 },
 ];
+const ALL_TABS = [...PRIMARY_TABS, ...SECONDARY_TABS];
 
 function useUnlockedTabs() {
   const level = useGameStore(s => s.player.level);
@@ -181,25 +186,56 @@ function BottomNav() {
   }, []);
 
   const { tabs, toast } = useUnlockedTabs();
+  const level = useGameStore(s => s.player.level);
+  const [showSecondary, setShowSecondary] = useState(false);
+  const primaryTabs = PRIMARY_TABS.filter(t => level >= t.unlockLevel);
+  const secondaryTabs = SECONDARY_TABS.filter(t => level >= t.unlockLevel);
+  const isSecondaryActive = secondaryTabs.some(t => t.id === activeTab);
+
+  // Auto-show secondary row when a secondary tab is active
+  useEffect(() => {
+    if (isSecondaryActive) setShowSecondary(true);
+  }, [isSecondaryActive]);
+
   return (
     <>
       {toast && (
         <div style={{
-          position: 'fixed', bottom: '70px', left: '50%', transform: 'translateX(-50%)',
+          position: 'fixed', bottom: showSecondary ? '120px' : '70px', left: '50%', transform: 'translateX(-50%)',
           background: 'linear-gradient(135deg, #667eea, #764ba2)', color: '#fff',
           padding: '8px 20px', borderRadius: '20px', fontSize: '14px', fontWeight: 600,
           zIndex: 9999, boxShadow: '0 4px 15px rgba(0,0,0,0.3)', whiteSpace: 'nowrap',
           animation: 'fadeInUp 0.3s ease'
         }}>{toast}</div>
       )}
-      <div className="bottom-nav">
-        {tabs.map(tab => (
-          <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => setTab(tab.id)}
+      {/* Secondary row (expandable) */}
+      {showSecondary && secondaryTabs.length > 0 && (
+        <div className="bottom-nav secondary-nav">
+          {secondaryTabs.map(tab => (
+            <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => setTab(tab.id)}
+              style={{ position: 'relative' }}>
+              <span className="icon">{tab.icon}</span><span>{tab.label}</span>
+              {tab.id === 'sanctuary' && sanctuaryRedDot && <span className="nav-red-dot" />}
+              {tab.id === 'exploration' && explorationRedDot && <span className="nav-red-dot" />}
+            </button>
+          ))}
+        </div>
+      )}
+      {/* Primary row (always visible) */}
+      <div className="bottom-nav primary-nav">
+        {secondaryTabs.length > 0 && (
+          <button onClick={() => setShowSecondary(!showSecondary)}
+            className={isSecondaryActive ? 'active' : ''}
+            style={{ position: 'relative' }}>
+            <span className="icon" style={{ transition: 'transform 0.2s', transform: showSecondary ? 'rotate(180deg)' : 'none' }}>▲</span>
+            <span>{isSecondaryActive ? secondaryTabs.find(t => t.id === activeTab)?.label || '展开' : '展开'}</span>
+          </button>
+        )}
+        {primaryTabs.map(tab => (
+          <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); if (!PRIMARY_TABS.some(t => t.id === tab.id)) return; }}
             style={{ position: 'relative' }}>
             <span className="icon">{tab.icon}</span><span>{tab.label}</span>
             {tab.id === 'settings' && dailyCanSignIn && <span className="nav-red-dot" />}
-            {tab.id === 'sanctuary' && sanctuaryRedDot && <span className="nav-red-dot" />}
-            {tab.id === 'exploration' && explorationRedDot && <span className="nav-red-dot" />}
             {tab.id === 'battle' && worldBossActive && <span className="nav-red-dot" style={{ background: '#ff4500' }} />}
           </button>
         ))}
