@@ -16,6 +16,7 @@ import { getPetTotalBonus } from '../data/pets';
 import { getCodexBonuses } from '../data/codexPower';
 import { getLevelMilestoneBonuses } from '../data/levelMilestones';
 import { getGemBonuses } from '../data/gems';
+import { getPowerMilestoneBonuses } from '../data/powerMilestones';
 import { TITLES } from '../data/titles';
 import { useAffinityStore } from '../store/affinityStore';
 
@@ -112,6 +113,7 @@ export function calculateOfflineEarnings(
   existingInventorySize: number,
   chapters: { id: number; stages: number }[],
   equippedTitle?: string | null,
+  highestPower?: number,
 ): OfflineResult {
   const MAX_OFFLINE = 86400; // 24h cap
   const cappedSec = Math.min(offlineSeconds, MAX_OFFLINE);
@@ -207,15 +209,19 @@ export function calculateOfflineEarnings(
   const gemB = allGems.length > 0 ? getGemBonuses(allGems) : { goldMul: 0, expMul: 0 };
   const gemGold = 1 + gemB.goldMul / 100;
   const gemExp = 1 + gemB.expMul / 100;
+  // v157.0: Power milestone bonuses for offline
+  const pwrMilB = getPowerMilestoneBonuses(highestPower ?? 0);
+  const pwrGold = 1 + (pwrMilB.goldMul ?? 0);
+  const pwrExp = 1 + (pwrMilB.expMul ?? 0);
   const lingshi = Math.floor(
     (totalMinions * minion.lingshiDrop + totalBosses * boss.lingshiDrop)
     * lingshiMul * goldMul * lingshiAwkMul * petGoldMul * codexGoldMul
-    * (1 + rmb.gold) * (1 + (titleBonus.goldMul ?? 0)) * trBonus.goldMul * afLingshi * lvlMilGold * gemGold
+    * (1 + rmb.gold) * (1 + (titleBonus.goldMul ?? 0)) * trBonus.goldMul * afLingshi * lvlMilGold * gemGold * pwrGold
   );
   const exp = Math.floor(
     (totalMinions * minion.expDrop + totalBosses * boss.expDrop)
     * expMul * expAwkMul * petExpMul * codexExpMul
-    * (1 + rmb.exp) * (1 + (titleBonus.expMul ?? 0)) * trBonus.expMul * afExp * lvlMilExp * gemExp
+    * (1 + rmb.exp) * (1 + (titleBonus.expMul ?? 0)) * trBonus.expMul * afExp * lvlMilExp * gemExp * pwrExp
   );
 
   // Pantao: use expected value (boss pantao chance × boss kills)

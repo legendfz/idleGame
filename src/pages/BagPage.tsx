@@ -27,6 +27,7 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
   const synthesizeEquip = useGameStore(s => s.synthesizeEquip);
   const reforgeEquip = useGameStore(s => s.reforgeEquip);
   const [filter, setFilter] = useState<EquipSlot | 'all'>('all');
+  const [qualityFilter, setQualityFilter] = useState<string>('all');
   const [decomposeMode, setDecomposeMode] = useState(false);
   const [synthMode, setSynthMode] = useState(false);
   const [synthSelected, setSynthSelected] = useState<string[]>([]);
@@ -61,6 +62,7 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
   const setBonuses = getActiveSetBonuses(weapon, armor, treasure);
   const filtered = inventory
     .filter(item => filter === 'all' || item.slot === filter)
+    .filter(item => qualityFilter === 'all' || item.quality === qualityFilter)
     .sort((a, b) => {
       const qi = Object.keys(QUALITY_INFO);
       return qi.indexOf(b.quality) - qi.indexOf(a.quality);
@@ -166,7 +168,16 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
       <div className="bag-filters">
         {([['all', '全部'], ['weapon', '武器'], ['armor', '护甲'], ['treasure', '法宝']] as const).map(([key, label]) => (
           <button key={key} className={`filter-btn ${filter === key ? 'active' : ''}`}
-            onClick={() => setFilter(key)}>{label}</button>
+            onClick={() => { setFilter(key); setPage(0); }}>{label}</button>
+        ))}
+      </div>
+      <div className="bag-filters" style={{ marginTop: 4 }}>
+        <button className={`filter-btn ${qualityFilter === 'all' ? 'active' : ''}`}
+          onClick={() => { setQualityFilter('all'); setPage(0); }}>全品质</button>
+        {(Object.entries(QUALITY_INFO) as [string, { label: string; color: string }][]).map(([key, qi]) => (
+          <button key={key} className={`filter-btn ${qualityFilter === key ? 'active' : ''}`}
+            style={qualityFilter === key ? { borderColor: qi.color, color: qi.color } : { color: qi.color }}
+            onClick={() => { setQualityFilter(key); setPage(0); }}>{qi.label.slice(0, 2)}</button>
         ))}
       </div>
 

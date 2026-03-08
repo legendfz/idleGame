@@ -18,6 +18,7 @@ import { getPetTotalBonus, PETS } from '../data/pets';
 import { getTranscendBonuses } from '../data/transcendence';
 import { getCodexBonuses } from '../data/codexPower';
 import { getLevelMilestoneBonuses } from '../data/levelMilestones';
+import { getPowerMilestoneBonuses } from '../data/powerMilestones';
 import { getGemBonuses } from '../data/gems';
 
 interface BuffSource {
@@ -33,6 +34,7 @@ export function BuffOverview() {
   const armor = useGameStore(s => s.equippedArmor);
   const treasure = useGameStore(s => s.equippedTreasure);
   const sanctuary = useSanctuaryStore(s => s.sanctuary);
+  const highestPower = useGameStore(s => s.highestPower) ?? 0;
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const sources = useMemo(() => {
@@ -192,6 +194,17 @@ export function BuffOverview() {
       if (gemBuffs.length > 0) result.push({ system: '宝石', icon: '💎', color: '#e0f2fe', buffs: gemBuffs });
     }
 
+    // v157.0: Power milestone bonuses (战力里程碑)
+    const pwrMilB = getPowerMilestoneBonuses(highestPower);
+    const pwrBuffs: { label: string; value: string }[] = [];
+    if (pwrMilB.atkMul) pwrBuffs.push({ label: '战力·攻击', value: `+${(pwrMilB.atkMul * 100).toFixed(0)}%` });
+    if (pwrMilB.hpMul) pwrBuffs.push({ label: '战力·生命', value: `+${(pwrMilB.hpMul * 100).toFixed(0)}%` });
+    if (pwrMilB.critRate) pwrBuffs.push({ label: '战力·暴击', value: `+${(pwrMilB.critRate * 100).toFixed(0)}%` });
+    if (pwrMilB.critDmg) pwrBuffs.push({ label: '战力·暴伤', value: `+${(pwrMilB.critDmg * 100).toFixed(0)}%` });
+    if (pwrMilB.expMul) pwrBuffs.push({ label: '战力·经验', value: `+${(pwrMilB.expMul * 100).toFixed(0)}%` });
+    if (pwrMilB.goldMul) pwrBuffs.push({ label: '战力·灵石', value: `+${(pwrMilB.goldMul * 100).toFixed(0)}%` });
+    if (pwrBuffs.length > 0) result.push({ system: '战力', icon: '⚡', color: '#ffd54f', buffs: pwrBuffs });
+
     // 11. Reincarnation count
     const reincCount = player.reincarnations ?? 0;
     if (reincCount > 0) {
@@ -199,7 +212,7 @@ export function BuffOverview() {
     }
 
     return result;
-  }, [player, weapon, armor, treasure, sanctuary]);
+  }, [player, weapon, armor, treasure, sanctuary, highestPower]);
 
   // Calculate total effective multipliers
   const getEffectiveStats = useGameStore(s => s.getEffectiveStats);

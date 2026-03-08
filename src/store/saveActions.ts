@@ -221,7 +221,7 @@ export function loadAction(get: () => any, set: (s: any) => void, addLog: (log: 
     const offline = calculateOfflineEarnings(
       offlineSec, save.player, weapon, armor, treasure,
       save.battle.chapterId, save.battle.stageNum, invSize, CHAPTERS,
-      save.equippedTitle,
+      save.equippedTitle, save.highestPower,
     );
 
     const player = {

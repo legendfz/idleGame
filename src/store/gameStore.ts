@@ -21,6 +21,7 @@ import {
 import { getCodexBonuses } from '../data/codexPower';
 import { getLevelMilestoneBonuses } from '../data/levelMilestones';
 import { getGemBonuses } from '../data/gems';
+import { getPowerMilestoneBonuses } from '../data/powerMilestones';
 import {
   equipItemAction, unequipSlotAction, enhanceEquipAction, refineItemAction,
   buyScrollAction, sellEquipAction, toggleLockAction, decomposeEquipAction,
@@ -409,6 +410,12 @@ export function calcEffectiveStats(
     if (gemB.critRate) s.critRate = Math.min(100, s.critRate + gemB.critRate);
     if (gemB.critDmg) s.critDmg += gemB.critDmg / 100;
   }
+  // v157.0: Power milestone bonuses (战力里程碑)
+  const pwrMil = getPowerMilestoneBonuses(gs.highestPower ?? 0);
+  if (pwrMil.atkMul) s.attack = Math.floor(s.attack * (1 + pwrMil.atkMul));
+  if (pwrMil.hpMul) s.maxHp = Math.floor(s.maxHp * (1 + pwrMil.hpMul));
+  if (pwrMil.critRate) s.critRate = Math.min(100, s.critRate + pwrMil.critRate);
+  if (pwrMil.critDmg) s.critDmg += pwrMil.critDmg;
   return s;
 }
 
