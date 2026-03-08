@@ -96,6 +96,7 @@ interface GameStore {
   autoDaoAlloc: boolean; // v105.0: auto-allocate dao points after reincarnation
   autoFarm: boolean; // v111.0: auto-retreat to optimal farming chapter
   autoEvent: boolean; // v133.0: auto-choose random events
+  autoWeeklyBoss: boolean; // v145.0: auto-complete weekly boss floors
   autoTranscend: boolean; // v117.0: auto-transcend when 10+ reincarnations
   autoBuyTranscendPerks: boolean; // v117.0: auto-buy transcendence perks
   lastWheelSpin: number; // v83.0: last wheel spin timestamp
@@ -160,6 +161,7 @@ interface GameStore {
   setAutoDaoAlloc: (v: boolean) => void; // v105.0
   setAutoFarm: (v: boolean) => void; // v111.0
   setAutoEvent: (v: boolean) => void; // v133.0
+  setAutoWeeklyBoss: (v: boolean) => void; // v145.0
   setAutoTranscend: (v: boolean) => void; // v117.0
   setAutoBuyTranscendPerks: (v: boolean) => void; // v117.0
   setWeeklyBoss: (data: { week: number; clearedFloors: number[]; claimed: number[] }) => void; // v118.0
@@ -416,6 +418,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   autoDaoAlloc: false, // v105.0
   autoFarm: false, // v111.0
   autoEvent: false, // v133.0: auto-choose safest random event option
+  autoWeeklyBoss: false, // v145.0
   autoTranscend: false, // v117.0
   autoBuyTranscendPerks: false, // v117.0
   lastWheelSpin: 0,
@@ -456,6 +459,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setAutoDaoAlloc: (v: boolean) => set({ autoDaoAlloc: v }),
   setAutoFarm: (v: boolean) => set({ autoFarm: v }),
   setAutoEvent: (v: boolean) => set({ autoEvent: v }),
+  setAutoWeeklyBoss: (v: boolean) => set({ autoWeeklyBoss: v }),
   setAutoTranscend: (v: boolean) => set({ autoTranscend: v }),
   setAutoBuyTranscendPerks: (v: boolean) => set({ autoBuyTranscendPerks: v }),
   // v118.0: Weekly Boss

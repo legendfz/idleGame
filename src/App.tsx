@@ -198,6 +198,7 @@ export default function App() {
   const tick = useGameStore(s => s.tick);
   const save = useGameStore(s => s.save);
   const load = useGameStore(s => s.load);
+  const playerLevel = useGameStore(s => s.player.level);
   const loaded = useRef(false);
   const [subPage, setSubPage] = useState<SubPage>({ type: 'none' });
   const [saveFlash, setSaveFlash] = useState(false);
@@ -310,6 +311,16 @@ export default function App() {
 
   // Reset sub-page on tab change
   useEffect(() => { setSubPage({ type: 'none' }); }, [activeTab]);
+
+  // v145.0: Document title with level
+  useEffect(() => {
+    const id = setInterval(() => {
+      const p = useGameStore.getState().player;
+      document.title = `Lv.${p.level} 西游·悟空传`;
+    }, 5000);
+    document.title = `Lv.${playerLevel} 西游·悟空传`;
+    return () => clearInterval(id);
+  }, [playerLevel]);
 
   const goBack = () => setSubPage({ type: 'none' });
 

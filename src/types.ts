@@ -305,6 +305,7 @@ export interface GameSave {
   autoDaoAlloc?: boolean;
   autoFarm?: boolean;
   autoEvent?: boolean;
+  autoWeeklyBoss?: boolean;
   autoTranscend?: boolean;
   autoBuyTranscendPerks?: boolean;
   lastWheelSpin?: number;

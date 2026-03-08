@@ -18,6 +18,7 @@ import { useAffinityStore } from './affinityStore';
 import { AFFINITY_NPCS as AFFINITY_NPCS_LIST } from '../engine/affinity';
 import { TITLES, type TitleCheckStats } from '../data/titles';
 import { STORIES as STORY_LIST } from '../data/story';
+import { WEEKLY_FLOORS, getWeekStart } from '../data/weeklyBoss';
 import { useExplorationStore } from './explorationStore';
 import { REALMS } from '../data/realms';
 import { sfx } from '../engine/audio';
@@ -496,6 +497,55 @@ export function autoBreakthrough(ctx: TickContext) {
 }
 
 /** Run all auto-actions in sequence. Returns true if tick should exit early (reincarnate/transcend). */
+/** Auto-complete weekly boss floors every 120 ticks */
+export function autoWeeklyBoss(ctx: TickContext) {
+  if (!ctx.state.autoWeeklyBoss || ctx.totalPlayTime % 120 !== 0 || ctx.totalPlayTime === 0) return;
+  const weekStart = getWeekStart();
+  const wb = ctx.state.weeklyBoss;
+  const current = (wb && wb.week === weekStart) ? wb : { week: weekStart, clearedFloors: [] as number[], claimed: [] as number[] };
+  const stats = ctx.get().getEffectiveStats();
+  const level = ctx.updatedPlayer.level;
+
+  let changed = false;
+  for (const floor of WEEKLY_FLOORS) {
+    if (current.clearedFloors.includes(floor.floor)) continue;
+    if (floor.floor > 1 && !current.clearedFloors.includes(floor.floor - 1)) break;
+
+    // Simulate combat: can we win?
+    const bossHp = Math.floor(floor.hpMul * level * (1 + level * 0.01));
+    const bossAtk = Math.floor(floor.atkMul * level * (1 + level * 0.005));
+    const bossDef = Math.floor(floor.defMul * level);
+
+    const defRate = bossDef / (bossDef + 100 + level * 5);
+    const playerDmg = Math.max(1, Math.floor(stats.attack * (1 - defRate)));
+    const avgDmg = playerDmg * (1 + stats.critRate * (stats.critDmg - 1));
+    const turnsToKill = Math.ceil(bossHp / avgDmg);
+
+    const bossDefRate = 0; // player has no defense
+    const bossDmgPerTurn = Math.max(1, Math.floor(bossAtk * (1 - bossDefRate)));
+    const turnsToSurvive = Math.ceil(stats.maxHp / bossDmgPerTurn);
+
+    if (turnsToKill > turnsToSurvive) break; // Can't win, stop
+
+    // Win — apply rewards
+    const rewards = floor.rewards;
+    const scaledLingshi = Math.floor(rewards.lingshi * Math.max(1, level / 10));
+    const scaledPantao = Math.floor(rewards.pantao * Math.max(1, level / 50));
+    ctx.updatedPlayer.lingshi = (ctx.updatedPlayer.lingshi ?? 0) + scaledLingshi;
+    ctx.updatedPlayer.pantao = (ctx.updatedPlayer.pantao ?? 0) + scaledPantao;
+    if (rewards.shards > 0) ctx.updatedPlayer.hongmengShards = (ctx.updatedPlayer.hongmengShards ?? 0) + rewards.shards;
+    if (rewards.daoPoints > 0) ctx.updatedPlayer.daoPoints = (ctx.updatedPlayer.daoPoints ?? 0) + rewards.daoPoints;
+    if (rewards.trialTokens > 0) ctx.updatedPlayer.trialTokens = (ctx.updatedPlayer.trialTokens ?? 0) + rewards.trialTokens;
+
+    current.clearedFloors = [...current.clearedFloors, floor.floor];
+    changed = true;
+  }
+
+  if (changed) {
+    ctx.set({ weeklyBoss: current });
+  }
+}
+
 export function runAllAutoActions(ctx: TickContext): boolean {
   autoUpgradeSanctuary(ctx);
   autoGiftAffinity(ctx);
@@ -518,5 +568,6 @@ export function runAllAutoActions(ctx: TickContext): boolean {
   checkStoryTriggers(ctx);
   autoDecompose(ctx);
   autoBreakthrough(ctx);
+  autoWeeklyBoss(ctx);
   return false;
 }
