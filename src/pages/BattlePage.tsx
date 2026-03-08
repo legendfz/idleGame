@@ -11,6 +11,8 @@ import { StatBreakdownModal } from '../components/StatBreakdown';
 import { useAutoWorldBoss } from '../components/WorldBossPanel';
 import { WorldBossBanner, WorldBossModal } from '../components/WorldBossPanel';
 import { SmartHints, PinnedAchievementTracker, SkillBar, ConsumableBar, OnlineRewardsBar, AbyssMilestoneBar } from '../components/battle';
+import { ACHIEVEMENTS } from '../data/achievements';
+import { useAchievementStore } from '../store/achievementStore';
 
 const SPEED_OPTIONS = [1, 2, 5, 10, 20, 50];
 type LogFilter = 'all' | 'drop' | 'levelup' | 'boss' | 'crit';
@@ -364,6 +366,7 @@ export function BattleView() {
             <span style={{ color: '#f87171' }}>💀{formatNumber(sessionKills)}</span>
             {sessionMinutes > 0 && <span style={{ color: '#60a5fa' }}>⚡{formatNumber(Math.floor(sessionKills / sessionMinutes))}/m</span>}
             {player.reincarnations > 0 && <span style={{ color: '#c084fc' }}>🔄{player.reincarnations}世</span>}
+            <span style={{ color: '#34d399' }}>🏆{Object.values(useAchievementStore.getState().states).filter(s => s?.completed).length}/{ACHIEVEMENTS.length}</span>
           </div>
         )}
         {/* v139.0: Offline earnings estimate */}

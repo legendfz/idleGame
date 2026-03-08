@@ -124,6 +124,137 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     conditionType: 'solo_boss', target: 1, dungeonId: 'lingshan',
     reward: { type: 'title', value: 0, title: '齐天大圣', description: '称号「齐天大圣」' },
   },
+
+  // === v146 新增成就 ===
+  // 等级里程碑
+  {
+    id: 'ach_level_200', name: '百炼成钢', icon: '🔥',
+    description: '达到等级 200', category: 'milestone',
+    conditionType: 'level', target: 200,
+    reward: { type: 'stat_boost', stat: 'attack', value: 10, description: '攻击 +10%' },
+  },
+  {
+    id: 'ach_level_500', name: '大乘圆满', icon: '🌟',
+    description: '达到等级 500', category: 'milestone',
+    conditionType: 'level', target: 500,
+    reward: { type: 'stat_boost', stat: 'all', value: 15, description: '全属性 +15%' },
+  },
+  {
+    id: 'ach_level_1000', name: '千秋万代', icon: '👑',
+    description: '达到等级 1,000', category: 'milestone',
+    conditionType: 'level', target: 1000,
+    reward: { type: 'stat_boost', stat: 'all', value: 20, description: '全属性 +20%' },
+  },
+  {
+    id: 'ach_level_5000', name: '万古长青', icon: '🏔️',
+    description: '达到等级 5,000', category: 'milestone',
+    conditionType: 'level', target: 5000,
+    reward: { type: 'stat_boost', stat: 'all', value: 30, description: '全属性 +30%' },
+  },
+
+  // 击杀里程碑
+  {
+    id: 'ach_kill_5000', name: '五千妖灭', icon: '⚔️',
+    description: '累计击杀 5,000 只妖怪', category: 'milestone',
+    conditionType: 'kill_count', target: 5000,
+    reward: { type: 'stat_boost', stat: 'attack', value: 8, description: '攻击 +8%' },
+  },
+  {
+    id: 'ach_kill_10000', name: '万妖之殇', icon: '💀',
+    description: '累计击杀 10,000 只妖怪', category: 'milestone',
+    conditionType: 'kill_count', target: 10000,
+    reward: { type: 'resource', value: 100000, description: '灵石 ×100,000' },
+  },
+  {
+    id: 'ach_kill_50000', name: '灭世天尊', icon: '🌋',
+    description: '累计击杀 50,000 只妖怪', category: 'milestone',
+    conditionType: 'kill_count', target: 50000,
+    reward: { type: 'stat_boost', stat: 'critRate', value: 5, description: '暴击率 +5%' },
+  },
+  {
+    id: 'ach_kill_100000', name: '十万大山', icon: '⛰️',
+    description: '累计击杀 100,000 只妖怪', category: 'milestone',
+    conditionType: 'kill_count', target: 100000,
+    reward: { type: 'title', value: 0, title: '妖灭天尊', description: '称号「妖灭天尊」' },
+  },
+
+  // 灵石里程碑
+  {
+    id: 'ach_gold_10m', name: '金玉满堂', icon: '💰',
+    description: '累计获得 10,000,000 灵石', category: 'milestone',
+    conditionType: 'gold_total', target: 10000000,
+    reward: { type: 'resource', value: 500000, description: '灵石 ×500,000' },
+  },
+  {
+    id: 'ach_gold_100m', name: '富可敌国', icon: '🏦',
+    description: '累计获得 100,000,000 灵石', category: 'milestone',
+    conditionType: 'gold_total', target: 100000000,
+    reward: { type: 'title', value: 0, title: '聚宝天尊', description: '称号「聚宝天尊」' },
+  },
+
+  // 收集里程碑
+  {
+    id: 'ach_collect_50_unique', name: '博览群器', icon: '📚',
+    description: '收集 50 种不同装备', category: 'milestone',
+    conditionType: 'collect_unique', target: 50,
+    reward: { type: 'resource', value: 50, description: '蟠桃 ×50' },
+  },
+  {
+    id: 'ach_collect_100_unique', name: '万器归心', icon: '🗡️',
+    description: '收集 100 种不同装备', category: 'milestone',
+    conditionType: 'collect_unique', target: 100,
+    reward: { type: 'title', value: 0, title: '万器之主', description: '称号「万器之主」' },
+  },
+
+  // 装备里程碑
+  {
+    id: 'ach_equip_200', name: '装备达人', icon: '🎒',
+    description: '累计获得 200 件装备', category: 'milestone',
+    conditionType: 'equipment_count', target: 200,
+    reward: { type: 'stat_boost', stat: 'critDmg', value: 10, description: '暴击伤害 +10%' },
+  },
+  {
+    id: 'ach_equip_500', name: '装备宗师', icon: '🏅',
+    description: '累计获得 500 件装备', category: 'milestone',
+    conditionType: 'equipment_count', target: 500,
+    reward: { type: 'stat_boost', stat: 'all', value: 8, description: '全属性 +8%' },
+  },
+
+  // 在线时长
+  {
+    id: 'ach_online_72h', name: '三日不眠', icon: '🌙',
+    description: '在线总时长达 72 小时', category: 'milestone',
+    conditionType: 'online_time', target: 259200,
+    reward: { type: 'stat_boost', stat: 'all', value: 12, description: '全属性 +12%' },
+  },
+  {
+    id: 'ach_online_168h', name: '七日苦修', icon: '🧘',
+    description: '在线总时长达 168 小时（一周）', category: 'milestone',
+    conditionType: 'online_time', target: 604800,
+    reward: { type: 'title', value: 0, title: '苦行僧', description: '称号「苦行僧」' },
+  },
+
+  // 强化成就
+  {
+    id: 'ach_enhance_10', name: '强化大师', icon: '🔨',
+    description: '强化任意装备至 +10', category: 'challenge',
+    conditionType: 'enhance_max', target: 10,
+    reward: { type: 'stat_boost', stat: 'attack', value: 5, description: '攻击 +5%' },
+  },
+
+  // 鸿蒙装备
+  {
+    id: 'ach_hongmeng_3', name: '鸿蒙三宝', icon: '🌌',
+    description: '获得 3 件鸿蒙品质装备', category: 'challenge',
+    conditionType: 'hongmeng_obtain', target: 3,
+    reward: { type: 'stat_boost', stat: 'all', value: 15, description: '全属性 +15%' },
+  },
+  {
+    id: 'ach_hongmeng_10', name: '鸿蒙十方', icon: '✨',
+    description: '获得 10 件鸿蒙品质装备', category: 'challenge',
+    conditionType: 'hongmeng_obtain', target: 10,
+    reward: { type: 'title', value: 0, title: '鸿蒙至尊', description: '称号「鸿蒙至尊」' },
+  },
 ];
 
 export function getAchievementDef(id: string): AchievementDef | undefined {
