@@ -318,6 +318,7 @@ export interface GameSave {
   autoFarm?: boolean;
   autoEvent?: boolean;
   autoWeeklyBoss?: boolean;
+  autoClaimChallenges?: boolean;
   autoTranscend?: boolean;
   autoBuyTranscendPerks?: boolean;
   lastWheelSpin?: number;

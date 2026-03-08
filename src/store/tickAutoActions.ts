@@ -8,7 +8,8 @@ import { REINC_PERKS, REINC_MIN_REALM, REINC_MIN_LEVEL } from '../data/reincarna
 import { TRANSCEND_PERKS, TRANSCEND_MIN_REINC } from '../data/transcendence';
 import { AWAKENING_PATHS, totalAwakeningPoints, AWAKENING_UNLOCK_REINC } from '../data/awakening';
 import { calcTrialRewards } from '../data/roguelikeTrial';
-import { getDailyChallenges, MODIFIERS as ASC_MODIFIERS } from '../data/ascensionChallenge';
+import { getDailyChallenges as getAscChallenges, MODIFIERS as ASC_MODIFIERS } from '../data/ascensionChallenge';
+import { getDailyChallenges as getDCChallenges } from '../data/dailyChallenge';
 import { getEnhanceCost, getMaxEnhanceLevel, EQUIPMENT_TEMPLATES } from '../data/equipment';
 import { getReforgeCost } from './equipmentActions';
 import { PETS as PETS_DATA, EVOLUTION_STAGES as EVOLUTION_STAGES_DATA } from '../data/pets';
@@ -20,6 +21,7 @@ import { TITLES, type TitleCheckStats } from '../data/titles';
 import { STORIES as STORY_LIST } from '../data/story';
 import { WEEKLY_FLOORS, getWeekStart } from '../data/weeklyBoss';
 import { useExplorationStore } from './explorationStore';
+import { useDailyChallengeStore } from './dailyChallengeStore';
 import { REALMS } from '../data/realms';
 import { sfx } from '../engine/audio';
 
@@ -148,7 +150,7 @@ export function autoAscensionChallenge(ctx: TickContext) {
   if (!ctx.state.autoAscension || ctx.totalPlayTime % 600 !== 0 || ctx.totalPlayTime === 0) return;
   const today = new Date().toDateString();
   const completed = ctx.state.completedChallengesDate === today ? [...(ctx.state.completedChallenges ?? [])] : [];
-  const challenges = getDailyChallenges();
+  const challenges = getAscChallenges();
   let changed = false;
   for (const ch of challenges) {
     if (completed.includes(ch.id)) continue;
@@ -635,6 +637,25 @@ export function autoWeeklyBoss(ctx: TickContext) {
   }
 }
 
+/** Auto-claim completed daily challenges every 30 ticks */
+export function autoClaimDailyChallenges(ctx: TickContext) {
+  if (!ctx.state.autoClaimChallenges || ctx.totalPlayTime % 30 !== 0 || ctx.totalPlayTime === 0) return;
+  const dcStore = useDailyChallengeStore.getState();
+  if (!dcStore.hasUnclaimed()) return;
+  const challenges = getDCChallenges();
+  for (const ch of challenges) {
+    const result = dcStore.claim(ch.id, ctx.updatedPlayer.level);
+    if (result) {
+      if (result.type === 'lingshi') ctx.updatedPlayer.lingshi += result.amount;
+      else if (result.type === 'pantao') ctx.updatedPlayer.pantao += result.amount;
+      else if (result.type === 'hongmengShards') ctx.updatedPlayer.hongmengShards += result.amount;
+      else if (result.type === 'trialTokens') ctx.updatedPlayer.trialTokens = (ctx.updatedPlayer.trialTokens || 0) + result.amount;
+      ctx.log = ctx.addLog(ctx.log, `🎯 自动领取每日挑战奖励: ${result.type} ×${result.amount}`, 'info');
+    }
+  }
+  dcStore.save();
+}
+
 export function runAllAutoActions(ctx: TickContext): boolean {
   autoUpgradeSanctuary(ctx);
   autoGiftAffinity(ctx);
@@ -659,5 +680,6 @@ export function runAllAutoActions(ctx: TickContext): boolean {
   autoDecompose(ctx);
   autoBreakthrough(ctx);
   autoWeeklyBoss(ctx);
+  autoClaimDailyChallenges(ctx);
   return false;
 }

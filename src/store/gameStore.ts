@@ -103,6 +103,7 @@ interface GameStore {
   autoFarm: boolean; // v111.0: auto-retreat to optimal farming chapter
   autoEvent: boolean; // v133.0: auto-choose random events
   autoWeeklyBoss: boolean; // v145.0: auto-complete weekly boss floors
+  autoClaimChallenges: boolean; // v169.0: auto-claim daily challenges
   autoTranscend: boolean; // v117.0: auto-transcend when 10+ reincarnations
   autoBuyTranscendPerks: boolean; // v117.0: auto-buy transcendence perks
   lastWheelSpin: number; // v83.0: last wheel spin timestamp
@@ -169,6 +170,7 @@ interface GameStore {
   setAutoFarm: (v: boolean) => void; // v111.0
   setAutoEvent: (v: boolean) => void; // v133.0
   setAutoWeeklyBoss: (v: boolean) => void; // v145.0
+  setAutoClaimChallenges: (v: boolean) => void; // v169.0
   setAutoTranscend: (v: boolean) => void; // v117.0
   setAutoBuyTranscendPerks: (v: boolean) => void; // v117.0
   setWeeklyBoss: (data: { week: number; clearedFloors: number[]; claimed: number[] }) => void; // v118.0
@@ -475,6 +477,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   autoFarm: false, // v111.0
   autoEvent: false, // v133.0: auto-choose safest random event option
   autoWeeklyBoss: false, // v145.0
+  autoClaimChallenges: false, // v169.0
   autoTranscend: false, // v117.0
   autoBuyTranscendPerks: false, // v117.0
   lastWheelSpin: 0,
@@ -516,6 +519,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setAutoFarm: (v: boolean) => set({ autoFarm: v }),
   setAutoEvent: (v: boolean) => set({ autoEvent: v }),
   setAutoWeeklyBoss: (v: boolean) => set({ autoWeeklyBoss: v }),
+  setAutoClaimChallenges: (v: boolean) => set({ autoClaimChallenges: v }),
   setAutoTranscend: (v: boolean) => set({ autoTranscend: v }),
   setAutoBuyTranscendPerks: (v: boolean) => set({ autoBuyTranscendPerks: v }),
   // v118.0: Weekly Boss
