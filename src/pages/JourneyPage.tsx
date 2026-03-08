@@ -1,17 +1,59 @@
 import { useState, useMemo } from 'react';
 import { useGameStore } from '../store/gameStore';
-import { CHAPTERS, ABYSS_CHAPTER_ID } from '../data/chapters';
+import { CHAPTERS, ABYSS_CHAPTER_ID, CHAPTER_ENEMIES } from '../data/chapters';
 import { EQUIPMENT_TEMPLATES } from '../data/equipment';
 import { QUALITY_INFO } from '../types';
+import { formatNumber } from '../utils/format';
 import { Card, SubPageHeader, SubPage } from './shared';
+import { calcEffectiveStats } from '../store/gameStore';
 
 export function ChapterSelectPage({ onBack }: { onBack: () => void }) {
   const battle = useGameStore(s => s.battle);
   const highestChapter = useGameStore(s => s.highestChapter);
   const goToChapter = useGameStore(s => s.goToChapter);
   const sweepChapter = useGameStore(s => s.sweepChapter);
+  const player = useGameStore(s => s.player);
   const [expandedChapter, setExpandedChapter] = useState<number | null>(null);
   const [sweepResult, setSweepResult] = useState<{ chId: number; gold: number; exp: number; items: string[] } | null>(null);
+
+  // v164.0: Calculate efficiency per chapter (gold/min, exp/min, kill speed)
+  const chapterEfficiency = useMemo(() => {
+    const state = useGameStore.getState();
+    const stats = calcEffectiveStats(player.stats, state.equippedWeapon, state.equippedArmor, state.equippedTreasure);
+    const atk = stats.attack;
+    const results: Record<number, { goldPerMin: number; expPerMin: number; killsPerMin: number; recommended: boolean }> = {};
+    let bestGoldPerMin = 0;
+    let bestChId = 0;
+
+    for (const ch of CHAPTERS) {
+      if (ch.id > highestChapter) continue;
+      const enemies = CHAPTER_ENEMIES[ch.id];
+      if (!enemies) continue;
+      // Use mid-stage for estimation
+      const midStage = Math.ceil(ch.stages / 2);
+      const scale = (1 + (midStage - 1) * 0.15) * Math.pow(1.02, midStage - 1);
+      // Average mob stats
+      const avgHp = enemies.mobs.reduce((s, m) => s + m.baseHp, 0) / enemies.mobs.length * scale;
+      const avgDef = enemies.mobs.reduce((s, m) => s + m.baseDefense, 0) / enemies.mobs.length * scale;
+      const avgGold = enemies.mobs.reduce((s, m) => s + m.baseLingshi, 0) / enemies.mobs.length * scale;
+      const avgExp = enemies.mobs.reduce((s, m) => s + m.baseExp, 0) / enemies.mobs.length * scale;
+      // Damage per hit (defense formula: def/(def+100+lv*5))
+      const defReduction = avgDef / (avgDef + 100 + player.level * 5);
+      const dmgPerHit = Math.max(1, atk * (1 - defReduction));
+      const hitsToKill = Math.max(1, Math.ceil(avgHp / dmgPerHit));
+      // 1 tick = 1 second, 1 hit per tick (speed 1x)
+      const killsPerMin = 60 / hitsToKill;
+      const goldPerMin = killsPerMin * avgGold;
+      const expPerMin = killsPerMin * avgExp;
+      results[ch.id] = { goldPerMin, expPerMin, killsPerMin, recommended: false };
+      if (goldPerMin > bestGoldPerMin) {
+        bestGoldPerMin = goldPerMin;
+        bestChId = ch.id;
+      }
+    }
+    if (bestChId && results[bestChId]) results[bestChId].recommended = true;
+    return results;
+  }, [highestChapter, player.level]);
 
   // v72.0: chapter drop preview
   const chapterDrops = useMemo(() => {
@@ -55,6 +97,15 @@ export function ChapterSelectPage({ onBack }: { onBack: () => void }) {
                 {ch.description} · Lv.{ch.levelRange[0]}-{ch.levelRange[1]}
                 {isCurrent && ` · 进度 ${battle.stageNum}/${ch.stages}`}
               </div>
+              {/* v164.0 章节效率预估 */}
+              {chapterEfficiency[ch.id] && (
+                <div style={{ display: 'flex', gap: 8, fontSize: 10, marginTop: 3, alignItems: 'center' }}>
+                  {chapterEfficiency[ch.id].recommended && <span style={{ color: '#ffd700', fontWeight: 700 }}>⭐推荐</span>}
+                  <span style={{ color: '#fbbf24' }}>💰{formatNumber(Math.floor(chapterEfficiency[ch.id].goldPerMin))}/m</span>
+                  <span style={{ color: '#34d399' }}>📖{formatNumber(Math.floor(chapterEfficiency[ch.id].expPerMin))}/m</span>
+                  <span style={{ color: '#60a5fa' }}>⚔️{chapterEfficiency[ch.id].killsPerMin >= 60 ? '秒杀' : `${Math.floor(chapterEfficiency[ch.id].killsPerMin)}/m`}</span>
+                </div>
+              )}
               {(isCurrent || isCleared) && (
                 <div className="chapter-progress-bg">
                   <div className="chapter-progress-fill" style={{ width: `${isCleared ? 100 : (battle.stageNum / ch.stages) * 100}%` }} />
