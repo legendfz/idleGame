@@ -1028,3 +1028,14 @@
 - Build: 636KB precache
 - Commit: a98fb0c
 - CEO直接实现（最高效）
+
+## v148.0「仙途永固」完成（2026-03-08 01:00）
+- 🔴 关键修复：离线收益缺失4大加成源
+- 超越加成（tr_atk/hp/exp/gold/crit/critDmg）接入offline.ts
+- 转世里程碑（atk/hp/exp/gold/crit/critDmg）接入offline.ts
+- 称号加成（attack/maxHp/critRate/critDmg/expMul/goldMul）接入offline.ts
+- 仙缘加成（lingshiMul/expMul）接入offline.ts
+- 影响：高等级玩家离线收益可能提升2-5倍
+- Build: 637KB precache
+- Commit: d7ccdf5
+- CEO直接实现（最高效）
