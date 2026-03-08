@@ -1,1 +1,0 @@
-import{j as s}from"./index-C68w_6LF.js";function l({tabs:a,activeId:c,onChange:n,scrollable:r}){return s.jsx("div",{className:`tab-bar ${r?"tab-bar-scroll":""}`,children:a.map(i=>s.jsxs("button",{className:`tab-item ${c===i.id?"active":""}`,onClick:()=>n(i.id),children:[i.icon&&s.jsx("span",{className:"tab-icon",children:i.icon}),i.label]},i.id))})}export{l as T};
