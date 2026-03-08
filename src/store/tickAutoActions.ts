@@ -11,7 +11,7 @@ import { calcTrialRewards } from '../data/roguelikeTrial';
 import { getDailyChallenges, MODIFIERS as ASC_MODIFIERS } from '../data/ascensionChallenge';
 import { getEnhanceCost, getMaxEnhanceLevel, EQUIPMENT_TEMPLATES } from '../data/equipment';
 import { getReforgeCost } from './equipmentActions';
-import { PETS as PETS_DATA } from '../data/pets';
+import { PETS as PETS_DATA, EVOLUTION_STAGES as EVOLUTION_STAGES_DATA } from '../data/pets';
 import { useSanctuaryStore } from './sanctuaryStore';
 import { BUILDINGS as SANCT_BUILDINGS, getUpgradeCost as getSanctUpgradeCost } from '../engine/sanctuary';
 import { useAffinityStore } from './affinityStore';
@@ -297,6 +297,24 @@ export function autoManagePets(ctx: TickContext) {
           ctx.updatedPlayer.lingshi -= cost;
           ctx.updatedPlayer.petLevels = { ...ctx.updatedPlayer.petLevels, [pet.id]: currentLv + 1 };
         }
+      }
+    }
+  }
+  // Auto-evolve pets every 60 ticks (v159.0)
+  if (ctx.totalPlayTime % 60 === 0) {
+    for (const pet of PETS_DATA) {
+      const lv = ctx.updatedPlayer.petLevels?.[pet.id] ?? 0;
+      if (lv < pet.maxLevel) continue;
+      const stage = ctx.updatedPlayer.petEvolutions?.[pet.id] ?? 0;
+      if (stage >= 3) continue;
+      const next = EVOLUTION_STAGES_DATA[stage + 1];
+      if (ctx.updatedPlayer.lingshi >= next.cost.lingshi && ctx.updatedPlayer.pantao >= next.cost.pantao && ctx.updatedPlayer.hongmengShards >= next.cost.hongmengShards) {
+        ctx.updatedPlayer.lingshi -= next.cost.lingshi;
+        ctx.updatedPlayer.pantao -= next.cost.pantao;
+        ctx.updatedPlayer.hongmengShards -= next.cost.hongmengShards;
+        ctx.updatedPlayer.petEvolutions = { ...(ctx.updatedPlayer.petEvolutions ?? {}), [pet.id]: stage + 1 };
+        ctx.log = ctx.addLog(ctx.log, `${pet.emoji}${pet.name} 自动进化为【${next.name}】！`, 'levelup');
+        break; // one per tick
       }
     }
   }
