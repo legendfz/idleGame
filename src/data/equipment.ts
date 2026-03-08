@@ -249,6 +249,16 @@ export function getEquipEffectiveStat(item: EquipmentItem): number {
   return Math.floor(item.baseStat * qMul * (1 + item.level * 0.15));
 }
 
+/** Equipment perfection score: how close baseStat is to template max (130%) */
+export function getEquipPerfection(item: EquipmentItem): number {
+  const template = EQUIPMENT_TEMPLATES.find(t => t.id === item.templateId);
+  if (!template) return 100;
+  const maxBase = Math.ceil(template.baseStat * 1.3);
+  const minBase = Math.max(1, Math.floor(template.baseStat * 0.7));
+  if (maxBase === minBase) return 100;
+  return Math.round(((item.baseStat - minBase) / (maxBase - minBase)) * 100);
+}
+
 // ─── Enhancement System ───
 
 /** Max enhance level: mythic(鸿蒙) can go to +15, others +10 */

@@ -6,7 +6,7 @@ import { Card, SubPageHeader, SubPage } from './shared';
 import { getResonanceBonus } from '../data/resonance';
 import { getActiveSetBonuses, EQUIP_SETS, EQUIPMENT_TEMPLATES } from '../data/equipment';
 import { QUALITY_INFO, EquipmentItem } from '../types';
-import { getEnhanceCost, getMaxEnhanceLevel, isHighEnhance, getHighEnhanceRate } from '../data/equipment';
+import { getEnhanceCost, getMaxEnhanceLevel, isHighEnhance, getHighEnhanceRate, getEquipPerfection, getEquipEffectiveStat } from '../data/equipment';
 import { getReforgeCost } from '../store/equipmentActions';
 
 export function CharacterDetailPage({ onBack }: { onBack: () => void }) {
@@ -181,7 +181,11 @@ export function TeamView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
           const qColor = QUALITY_INFO[item.quality].color;
           return (
             <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, fontSize: 12 }}>
-              <span style={{ color: qColor }}>{item.emoji} {item.name} +{item.level}</span>
+              <span style={{ color: qColor }}>{item.emoji} {item.name} +{item.level}
+                <span style={{ color: getEquipPerfection(item) >= 90 ? '#4ade80' : getEquipPerfection(item) >= 60 ? '#ffcc00' : '#ff6b6b', fontSize: 10, marginLeft: 4 }}>
+                  {getEquipPerfection(item)}%
+                </span>
+              </span>
               <span style={{ color: atMax ? '#4ade80' : '#ccc' }}>
                 {atMax ? '✅ 满级' : `💰${formatNumber(cost)} · ${rate}%`}
               </span>

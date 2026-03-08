@@ -296,6 +296,7 @@ export interface GameSave {
   autoTrial?: boolean;
   autoAscension?: boolean;
   autoEnhance?: boolean;
+  autoReforge?: boolean;
   autoFeedPet?: boolean;
   autoBuyPerks?: boolean;
   autoSynth?: boolean;

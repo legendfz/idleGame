@@ -9,7 +9,8 @@ import { TRANSCEND_PERKS, TRANSCEND_MIN_REINC } from '../data/transcendence';
 import { AWAKENING_PATHS, totalAwakeningPoints, AWAKENING_UNLOCK_REINC } from '../data/awakening';
 import { calcTrialRewards } from '../data/roguelikeTrial';
 import { getDailyChallenges, MODIFIERS as ASC_MODIFIERS } from '../data/ascensionChallenge';
-import { getEnhanceCost, getMaxEnhanceLevel } from '../data/equipment';
+import { getEnhanceCost, getMaxEnhanceLevel, EQUIPMENT_TEMPLATES } from '../data/equipment';
+import { getReforgeCost } from './equipmentActions';
 import { PETS as PETS_DATA } from '../data/pets';
 import { useSanctuaryStore } from './sanctuaryStore';
 import { BUILDINGS as SANCT_BUILDINGS, getUpgradeCost as getSanctUpgradeCost } from '../engine/sanctuary';
@@ -187,6 +188,35 @@ export function autoEnhanceGear(ctx: TickContext) {
       const enhanced = { ...item, level: item.level + 1 };
       ctx.set({ [key]: enhanced } as any);
     }
+  }
+}
+
+/** Auto-reforge equipped items every 60 ticks: only reforge if result would be better */
+export function autoReforgeGear(ctx: TickContext) {
+  if (!ctx.state.autoReforge || ctx.totalPlayTime % 60 !== 0 || ctx.totalPlayTime === 0) return;
+  const slots: Array<{ item: EquipmentItem | null; key: 'equippedWeapon' | 'equippedArmor' | 'equippedTreasure' }> = [
+    { item: ctx.state.equippedWeapon, key: 'equippedWeapon' },
+    { item: ctx.state.equippedArmor, key: 'equippedArmor' },
+    { item: ctx.state.equippedTreasure, key: 'equippedTreasure' },
+  ];
+  for (const { item, key } of slots) {
+    if (!item) continue;
+    const template = EQUIPMENT_TEMPLATES.find(t => t.id === item.templateId);
+    if (!template) continue;
+    // Only reforge if current baseStat < template max (130%)
+    const maxPossible = Math.ceil(template.baseStat * 1.3);
+    if (item.baseStat >= maxPossible) continue; // Already perfect
+    const cost = getReforgeCost(item);
+    if (ctx.updatedPlayer.lingshi < cost * 3) continue; // Keep buffer: only reforge if can afford 3x
+    // Roll
+    const min = Math.max(1, Math.floor(template.baseStat * 0.7));
+    const max = Math.ceil(template.baseStat * 1.3);
+    const newBaseStat = min + Math.floor(Math.random() * (max - min + 1));
+    if (newBaseStat <= item.baseStat) continue; // Only accept upgrades
+    ctx.updatedPlayer.lingshi -= cost;
+    const enhanced = { ...item, baseStat: newBaseStat };
+    ctx.set({ [key]: enhanced } as any);
+    break; // One reforge per tick
   }
 }
 
@@ -476,6 +506,7 @@ export function runAllAutoActions(ctx: TickContext): boolean {
   autoQuickTrial(ctx);
   autoAscensionChallenge(ctx);
   autoEnhanceGear(ctx);
+  autoReforgeGear(ctx);
   autoManagePets(ctx);
   autoBuyPerksAndAwakening(ctx);
   autoSynthEquip(ctx);
