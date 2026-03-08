@@ -17,6 +17,7 @@ import { AFFINITY_NPCS } from '../engine/affinity';
 import { getPetTotalBonus, PETS } from '../data/pets';
 import { getTranscendBonuses } from '../data/transcendence';
 import { getCodexBonuses } from '../data/codexPower';
+import { getLevelMilestoneBonuses } from '../data/levelMilestones';
 
 interface BuffSource {
   system: string;
@@ -164,6 +165,17 @@ export function BuffOverview() {
     if (codexB.expPct) codexBuffs.push({ label: '图鉴·经验', value: `+${codexB.expPct}%` });
     if (codexB.lingshiPct) codexBuffs.push({ label: '图鉴·灵石', value: `+${codexB.lingshiPct}%` });
     if (codexBuffs.length > 0) result.push({ system: '图鉴', icon: '📖', color: '#81d4fa', buffs: codexBuffs });
+
+    // 10.5 Level milestones (v154.0)
+    const lvlMilB = getLevelMilestoneBonuses(player.highestLevelEver ?? player.level);
+    const lvlMilBuffs: { label: string; value: string }[] = [];
+    if (lvlMilB.atkPct) lvlMilBuffs.push({ label: '等级·攻击', value: `+${lvlMilB.atkPct}%` });
+    if (lvlMilB.hpPct) lvlMilBuffs.push({ label: '等级·生命', value: `+${lvlMilB.hpPct}%` });
+    if (lvlMilB.critRate) lvlMilBuffs.push({ label: '等级·暴击', value: `+${lvlMilB.critRate}%` });
+    if (lvlMilB.critDmg) lvlMilBuffs.push({ label: '等级·暴伤', value: `+${(lvlMilB.critDmg * 100).toFixed(0)}%` });
+    if (lvlMilB.expPct) lvlMilBuffs.push({ label: '等级·经验', value: `+${lvlMilB.expPct}%` });
+    if (lvlMilB.lingshiPct) lvlMilBuffs.push({ label: '等级·灵石', value: `+${lvlMilB.lingshiPct}%` });
+    if (lvlMilBuffs.length > 0) result.push({ system: '等级里程碑', icon: '🏔️', color: '#ffd54f', buffs: lvlMilBuffs });
 
     // 11. Reincarnation count
     const reincCount = player.reincarnations ?? 0;

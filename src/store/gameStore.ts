@@ -19,6 +19,7 @@ import {
   getEquipEffectiveStat, getActiveSetBonuses, hasFullMythic15,
 } from '../data/equipment';
 import { getCodexBonuses } from '../data/codexPower';
+import { getLevelMilestoneBonuses } from '../data/levelMilestones';
 import {
   equipItemAction, unequipSlotAction, enhanceEquipAction, refineItemAction,
   buyScrollAction, sellEquipAction, toggleLockAction, decomposeEquipAction,
@@ -386,6 +387,12 @@ export function calcEffectiveStats(
   if (codex.hpPct) s.maxHp = Math.floor(s.maxHp * (1 + codex.hpPct / 100));
   if (codex.critRate) s.critRate = Math.min(100, s.critRate + codex.critRate);
   if (codex.critDmg) s.critDmg += codex.critDmg;
+  // v154.0: Level milestone bonuses (历史最高等级里程碑)
+  const lvlMil = getLevelMilestoneBonuses(gs.player.highestLevelEver ?? gs.player.level);
+  if (lvlMil.atkPct) s.attack = Math.floor(s.attack * (1 + lvlMil.atkPct / 100));
+  if (lvlMil.hpPct) s.maxHp = Math.floor(s.maxHp * (1 + lvlMil.hpPct / 100));
+  if (lvlMil.critRate) s.critRate = Math.min(100, s.critRate + lvlMil.critRate);
+  if (lvlMil.critDmg) s.critDmg += lvlMil.critDmg;
   return s;
 }
 

@@ -14,6 +14,7 @@ import { getTranscendBonuses } from '../data/transcendence';
 import { getAwakeningBonuses } from '../components/AwakeningPanel';
 import { getPetTotalBonus } from '../data/pets';
 import { getCodexBonuses } from '../data/codexPower';
+import { getLevelMilestoneBonuses } from '../data/levelMilestones';
 import { TITLES } from '../data/titles';
 import { useAffinityStore } from '../store/affinityStore';
 
@@ -196,15 +197,19 @@ export function calculateOfflineEarnings(
   // v148.0: Include transcendence, milestones, title, affinity in offline rewards
   const afLingshi = 1 + (afBuf.lingshiMul ?? 0) / 100;
   const afExp = 1 + (afBuf.expMul ?? 0) / 100;
+  // v154.0: Level milestone bonuses for offline
+  const lvlMilB = getLevelMilestoneBonuses(player.highestLevelEver ?? player.level);
+  const lvlMilGold = 1 + lvlMilB.lingshiPct / 100;
+  const lvlMilExp = 1 + lvlMilB.expPct / 100;
   const lingshi = Math.floor(
     (totalMinions * minion.lingshiDrop + totalBosses * boss.lingshiDrop)
     * lingshiMul * goldMul * lingshiAwkMul * petGoldMul * codexGoldMul
-    * (1 + rmb.gold) * (1 + (titleBonus.goldMul ?? 0)) * trBonus.goldMul * afLingshi
+    * (1 + rmb.gold) * (1 + (titleBonus.goldMul ?? 0)) * trBonus.goldMul * afLingshi * lvlMilGold
   );
   const exp = Math.floor(
     (totalMinions * minion.expDrop + totalBosses * boss.expDrop)
     * expMul * expAwkMul * petExpMul * codexExpMul
-    * (1 + rmb.exp) * (1 + (titleBonus.expMul ?? 0)) * trBonus.expMul * afExp
+    * (1 + rmb.exp) * (1 + (titleBonus.expMul ?? 0)) * trBonus.expMul * afExp * lvlMilExp
   );
 
   // Pantao: use expected value (boss pantao chance × boss kills)

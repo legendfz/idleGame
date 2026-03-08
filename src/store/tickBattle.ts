@@ -14,6 +14,7 @@ import { getAwakeningBonuses } from '../components/AwakeningPanel';
 import { getConsumable } from '../data/consumables';
 import { TITLES } from '../data/titles';
 import { getCodexBonuses } from '../data/codexPower';
+import { getLevelMilestoneBonuses } from '../data/levelMilestones';
 import {
   rollEquipDrop, createEquipFromTemplate, getEquipEffectiveStat,
   hasHiddenPassive,
@@ -306,8 +307,12 @@ export function executeBattleTick(get: () => any, set: (partial: any) => void): 
     const petB = getPetTotalBonus(player.petLevels ?? {}, player.activePetId);
     const codexLingshi = 1 + codexB.lingshiPct / 100;
     const codexExp = 1 + codexB.expPct / 100;
-    const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus) * (1 + (awk.gold_pct ?? 0) / 100) * afLingshi * (1 + rmb.gold) * fateMul * (1 + (titleBonus.goldMul ?? 0)) * (1 + (petB.goldPct ?? 0) / 100) * trBonusTick.goldMul * codexLingshi);
-    const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100) * afExp * (1 + rmb.exp) * fateMul * (1 + (titleBonus.expMul ?? 0)) * (1 + (petB.expPct ?? 0) / 100) * trBonusTick.expMul * codexExp);
+    // v154.0: Level milestone bonuses
+    const lvlMilB = getLevelMilestoneBonuses(updatedPlayer.highestLevelEver ?? updatedPlayer.level);
+    const lvlMilLingshi = 1 + lvlMilB.lingshiPct / 100;
+    const lvlMilExp = 1 + lvlMilB.expPct / 100;
+    const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus) * (1 + (awk.gold_pct ?? 0) / 100) * afLingshi * (1 + rmb.gold) * fateMul * (1 + (titleBonus.goldMul ?? 0)) * (1 + (petB.goldPct ?? 0) / 100) * trBonusTick.goldMul * codexLingshi * lvlMilLingshi);
+    const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100) * afExp * (1 + rmb.exp) * fateMul * (1 + (titleBonus.expMul ?? 0)) * (1 + (petB.expPct ?? 0) / 100) * trBonusTick.expMul * codexExp * lvlMilExp);
     updatedPlayer.lingshi += lingshiDrop;
     updatedPlayer.totalGoldEarned = (updatedPlayer.totalGoldEarned || 0) + lingshiDrop;
     updatedPlayer.allTimeLingshi = (updatedPlayer.allTimeLingshi ?? 0) + lingshiDrop;
