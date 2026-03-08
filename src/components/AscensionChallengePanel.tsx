@@ -10,8 +10,8 @@ export function AscensionChallengePanel() {
   const player = useGameStore(s => s.player);
   const updatePlayer = useGameStore(s => s.updatePlayer);
   const challenges = getDailyChallenges();
-  const completedToday = useGameStore(s => (s as any).completedChallenges) as string[] ?? [];
-  const setCompletedChallenges = useGameStore(s => (s as any).setCompletedChallenges) as ((ids: string[]) => void) | undefined;
+  const completedToday = useGameStore(s => s.completedChallenges) ?? [];
+  const setCompletedChallenges = useGameStore(s => s.setCompletedChallenges);
 
   const [activeChallengeIdx, setActiveChallengeIdx] = useState<number | null>(null);
   const [battleState, setBattleState] = useState<{ wave: number; enemyHp: number; enemyMaxHp: number; log: string[] } | null>(null);
@@ -61,7 +61,7 @@ export function AscensionChallengePanel() {
             daoPoints: p.daoPoints + Math.floor(r.daoPoints * scale),
           });
           
-          const newCompleted = [...(useGameStore.getState() as any).completedChallenges ?? [], ch.id];
+          const newCompleted = [...(useGameStore.getState().completedChallenges ?? []), ch.id];
           if (setCompletedChallenges) setCompletedChallenges(newCompleted);
           
           setBattleState(prev => prev ? { ...prev, wave, enemyHp: 0, log: [...prev.log.slice(-4), `✅ 天道考验完成！获得丰厚奖励`] } : null);

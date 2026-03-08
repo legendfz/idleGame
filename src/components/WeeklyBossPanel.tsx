@@ -17,8 +17,8 @@ interface BossState {
 export function WeeklyBossPanel() {
   const player = useGameStore(s => s.player);
   const getEffectiveStats = useGameStore(s => s.getEffectiveStats);
-  const weeklyBoss = useGameStore(s => (s as any).weeklyBoss);
-  const setWeeklyBoss = useGameStore(s => (s as any).setWeeklyBoss);
+  const weeklyBoss = useGameStore(s => s.weeklyBoss);
+  const setWeeklyBoss = useGameStore(s => s.setWeeklyBoss);
 
   const weekStart = getWeekStart();
   const currentWeek = weeklyBoss?.week === weekStart ? weeklyBoss : { week: weekStart, clearedFloors: [], claimed: [] };
@@ -85,7 +85,7 @@ export function WeeklyBossPanel() {
           const scaledPantao = Math.floor(rewards.pantao * Math.max(1, level / 50));
 
           // Apply rewards
-          const state = useGameStore.getState() as any;
+          const state = useGameStore.getState();
           const p = { ...state.player };
           p.lingshi = (p.lingshi ?? 0) + scaledLingshi;
           p.pantao = (p.pantao ?? 0) + scaledPantao;
@@ -114,7 +114,7 @@ export function WeeklyBossPanel() {
         }
 
         // Boss attacks player
-        const pDef = (stats as any).defense ?? 0;
+        const pDef = 0; // player has no defense stat
         const pDefRate = pDef ? pDef / (pDef + 100 + level * 5) : 0;
         const bossDmg = Math.max(1, Math.floor(prev.atk * (1 - pDefRate)));
 

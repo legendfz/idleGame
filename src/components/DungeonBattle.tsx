@@ -66,7 +66,7 @@ export default function DungeonBattle({ onEnd }: Props) {
         achStore.counters.bestDungeonSpeed = clearTime;
       }
       if (battle.totalDamageTaken === 0) {
-        achStore.incrementCounter('noDamageClear' as any);
+        achStore.incrementCounter('noDamageClear');
       }
       achStore.checkAchievements();
     }

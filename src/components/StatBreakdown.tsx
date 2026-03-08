@@ -2,6 +2,7 @@
 import { useMemo, useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { useAffinityStore } from '../store/affinityStore';
+import { useAchievementStore } from '../store/achievementStore';
 import { getEquipEffectiveStat, getActiveSetBonuses, hasFullMythic15 } from '../data/equipment';
 import { getResonanceBonus } from '../data/resonance';
 import { getTranscendBonuses } from '../data/transcendence';
@@ -26,7 +27,7 @@ export function useStatBreakdown() {
   const weapon = useGameStore(s => s.equippedWeapon);
   const armor = useGameStore(s => s.equippedArmor);
   const treasure = useGameStore(s => s.equippedTreasure);
-  const achCache = useGameStore(s => (s as any)._achStatesCache);
+  const achStates = useAchievementStore(s => s.states);
   const equippedTitle = useGameStore(s => s.equippedTitle);
   const affinityBuffs = useAffinityStore(s => s.getBuffs());
 

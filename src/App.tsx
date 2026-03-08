@@ -249,7 +249,7 @@ export default function App() {
       if (uniqueNames.size > c.collectUnique) achStore.incrementCounter('collectUnique', uniqueNames.size - c.collectUnique);
       achStore.checkAchievements();
       // v42.0: Sync achievement states cache for stat bonuses
-      setAchStatesCache(achStore.states as any);
+      setAchStatesCache(achStore.states as Record<string, { completed: boolean }>);
       // v42.0: Consume pending resource rewards
       const rewards = achStore.consumeRewards();
       if (rewards.length > 0) {

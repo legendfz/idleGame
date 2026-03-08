@@ -4,6 +4,7 @@
  */
 import { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
+import { useAchievementStore } from '../store/achievementStore';
 import { CHAPTERS } from '../data/chapters';
 import { REALMS } from '../data/realms';
 import { EQUIPMENT_TEMPLATES, EQUIP_SETS } from '../data/equipment';
@@ -48,19 +49,20 @@ export function ProgressPanel() {
 
   // 装备图鉴
   const totalEquipTemplates = EQUIPMENT_TEMPLATES.length;
-  const collectedEquips = (player as any).codexEquipIds?.length ?? 0;
+  const collectedEquips = player.codexEquipIds?.length ?? 0;
 
   // 妖怪图鉴
-  const collectedEnemies = (player as any).codexEnemyNames?.length ?? 0;
+  const collectedEnemies = player.codexEnemyNames?.length ?? 0;
   const totalEnemies = 45; // from data
 
   // 称号
   const totalTitles = TITLES.length;
-  const unlockedTitles = (state as any).unlockedTitles?.length ?? 0;
+  const unlockedTitles = state.unlockedTitles?.length ?? 0;
 
   // 成就
   const totalAchievements = ACHIEVEMENTS.length;
-  const completedAchievements = Object.values((state as any).achievementStates ?? {}).filter((s: any) => s?.completed).length;
+  const achStates = useAchievementStore(s => s.states);
+  const completedAchievements = Object.values(achStates).filter(s => s?.completed).length;
 
   // 套装
   const totalSets = EQUIP_SETS.length;
@@ -70,16 +72,16 @@ export function ProgressPanel() {
   const activeSets = equippedSetIds.size;
 
   // 转世次数
-  const reincCount = (state as any).reincarnationCount ?? 0;
+  const reincCount = player.reincarnations ?? 0;
 
   // 觉醒点
-  const awakeningSpent = Object.values((player as any).awakening ?? {}).reduce((sum: number, v: any) => sum + (v ?? 0), 0) as number;
+  const awakeningSpent = player.awakening?.unlockedNodes?.length ?? 0;
 
   // 深渊最高层
-  const abyssFloor = (state as any).highestAbyssFloor ?? 0;
+  const abyssFloor = state.highestAbyssFloor ?? 0;
 
   // 试炼最高层
-  const trialBest = (state as any).trialBestFloor ?? 0;
+  const trialBest = player.trialBestFloor ?? 0;
 
   // 计算整体进度
   const categories = [
@@ -147,7 +149,7 @@ export function ProgressPanel() {
           <div>⭐ 觉醒点数：<span style={{ color: '#fbbf24' }}>{awakeningSpent}</span></div>
           <div>🕳️ 深渊最高：<span style={{ color: '#ef4444' }}>{abyssFloor}层</span></div>
           <div>⚡ 试炼最高：<span style={{ color: '#3b82f6' }}>{trialBest}层</span></div>
-          <div>⚔️ 累计击杀：<span style={{ color: '#10b981' }}>{((state as any).allTimeKills ?? 0).toLocaleString()}</span></div>
+          <div>⚔️ 累计击杀：<span style={{ color: '#10b981' }}>{(state.allTimeKills ?? 0).toLocaleString()}</span></div>
           <div>🛡️ 套装激活：<span style={{ color: '#f59e0b' }}>{activeSets}/{totalSets}</span></div>
         </div>
       </div>
@@ -160,7 +162,7 @@ export function ProgressPanel() {
         reincCount={reincCount}
         abyssFloor={abyssFloor}
         trialBest={trialBest}
-        totalKills={(state as any).allTimeKills ?? 0}
+        totalKills={state.allTimeKills ?? 0}
         totalPlayTime={state.totalPlayTime ?? 0}
         combatPower={(() => { const s = state.getEffectiveStats(); return Math.round(s.attack * (1 + (s.critRate ?? 0) / 100 * (s.critDmg ?? 1)) + (s.hp ?? 0) * 0.05); })()}
         completedAchievements={completedAchievements}

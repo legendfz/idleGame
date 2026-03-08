@@ -255,6 +255,7 @@ export interface OfflineReport {
   kills: number;
   stagesCleared: number;
   levelsGained: number;
+  comebackMul?: number;
 }
 
 export interface GameSave {

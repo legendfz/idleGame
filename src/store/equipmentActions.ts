@@ -34,7 +34,7 @@ function applyEnhanceResult(
     newInv[invIdx] = newItem;
     set({ player: updatedPlayer, inventory: newInv, battle: { ...state.battle, log } });
   } else {
-    set({ player: updatedPlayer, [location]: newItem, battle: { ...state.battle, log } } as any);
+    set({ player: updatedPlayer, [location]: newItem, battle: { ...state.battle, log } } as any); // computed key
   }
 }
 

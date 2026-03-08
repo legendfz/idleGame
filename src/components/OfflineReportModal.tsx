@@ -18,9 +18,9 @@ export function OfflineReportModal() {
         <button onClick={dismiss} style={{ alignSelf: 'flex-end', marginBottom: 8, minWidth: 80 }}>领取</button>
         <h2 className="color-accent">离线修炼报告</h2>
         <div className="color-dim">离线时长：{formatDuration(report.duration)}</div>
-        {(report as any).comebackMul > 1 && (
+        {(report.comebackMul ?? 1) > 1 && (
           <div style={{ color: '#fbbf24', fontWeight: 'bold', fontSize: 14, margin: '4px 0', textAlign: 'center' }}>
-            🎉 回归加成 ×{(report as any).comebackMul} {(report as any).comebackMul >= 2 ? '（离线8h+）' : '（离线4h+）'}
+            🎉 回归加成 ×{report.comebackMul} {(report.comebackMul ?? 1) >= 2 ? '（离线8h+）' : '（离线4h+）'}
           </div>
         )}
         <Card className="offline-detail" style={{ overflow: 'auto', flex: 1 }}>

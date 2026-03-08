@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { useDailyStore } from '../store/dailyStore';
 import { formatNumber, expForLevel, formatTime } from '../utils/format';
+import type { TabId } from '../types';
 import { REALMS } from '../data/realms';
 import { getRandomEvent, resolveChoice, type RandomEvent, type EventChoice } from '../data/randomEvents';
 import { CHAPTERS, ABYSS_CHAPTER_ID } from '../data/chapters';
@@ -502,7 +503,7 @@ function SmartHints() {
   return (
     <div className="action-hints">
       {hints.map((h, i) => (
-        <span key={i} className="action-hint" onClick={() => setTab(h.tab as any)}>
+        <span key={i} className="action-hint" onClick={() => setTab(h.tab as TabId)}>
           {h.label}
         </span>
       ))}

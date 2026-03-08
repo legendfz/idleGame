@@ -56,11 +56,11 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
   const autoSynth = useGameStore(s => s.autoSynth);
   const setAutoSynth = useGameStore(s => s.setAutoSynth);
   const autoReincarnate = useGameStore(s => s.autoReincarnate);
-  const autoDaoAlloc = useGameStore(s => (s as any).autoDaoAlloc) ?? false;
-  const autoFarm = useGameStore(s => (s as any).autoFarm) ?? false;
-  const autoEvent = useGameStore(s => (s as any).autoEvent) ?? false;
-  const autoTranscend = useGameStore(s => (s as any).autoTranscend) ?? false;
-  const autoBuyTranscendPerks = useGameStore(s => (s as any).autoBuyTranscendPerks) ?? false;
+  const autoDaoAlloc = useGameStore(s => s.autoDaoAlloc) ?? false;
+  const autoFarm = useGameStore(s => s.autoFarm) ?? false;
+  const autoEvent = useGameStore(s => s.autoEvent) ?? false;
+  const autoTranscend = useGameStore(s => s.autoTranscend) ?? false;
+  const autoBuyTranscendPerks = useGameStore(s => s.autoBuyTranscendPerks) ?? false;
   const setAutoReincarnate = useGameStore(s => s.setAutoReincarnate);
   const DECOMP_LABELS = ['关闭', '凡品', '灵品以下', '仙品以下'];
 
@@ -175,11 +175,11 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
             if (allOn) {
               setAutoDecomp(0); setAutoEquip(false); setAutoSkill(false); setAutoConsume(false);
               setAutoWorldBoss(false); setAutoExplore(false); setAutoSanctuary(false); setAutoAffinity(false);
-              setAutoSweep(false); setAutoFate(false); setAutoWheel(false); setAutoTrial(false); setAutoAscension(false); setAutoEnhance(false); setAutoBuyPerks(false); setAutoSynth(false); (useGameStore.getState() as any).setAutoDaoAlloc(false); (useGameStore.getState() as any).setAutoFarm(false); (useGameStore.getState() as any).setAutoTranscend(false); (useGameStore.getState() as any).setAutoBuyTranscendPerks(false); (useGameStore.getState() as any).setAutoEvent(false);
+              setAutoSweep(false); setAutoFate(false); setAutoWheel(false); setAutoTrial(false); setAutoAscension(false); setAutoEnhance(false); setAutoBuyPerks(false); setAutoSynth(false); useGameStore.getState().setAutoDaoAlloc(false); useGameStore.getState().setAutoFarm(false); useGameStore.getState().setAutoTranscend(false); useGameStore.getState().setAutoBuyTranscendPerks(false); useGameStore.getState().setAutoEvent(false);
             } else {
               setAutoDecomp(2); setAutoEquip(true); setAutoSkill(true); setAutoConsume(true);
               setAutoWorldBoss(true); setAutoExplore(true); setAutoSanctuary(true); setAutoAffinity(true);
-              setAutoSweep(true); setAutoFate(true); setAutoWheel(true); setAutoTrial(true); setAutoAscension(true); setAutoEnhance(true); setAutoFeedPet(true); setAutoBuyPerks(true); setAutoSynth(true); setAutoReincarnate(true); (useGameStore.getState() as any).setAutoDaoAlloc(true); (useGameStore.getState() as any).setAutoFarm(true); (useGameStore.getState() as any).setAutoTranscend(true); (useGameStore.getState() as any).setAutoBuyTranscendPerks(true); (useGameStore.getState() as any).setAutoEvent(true);
+              setAutoSweep(true); setAutoFate(true); setAutoWheel(true); setAutoTrial(true); setAutoAscension(true); setAutoEnhance(true); setAutoFeedPet(true); setAutoBuyPerks(true); setAutoSynth(true); setAutoReincarnate(true); useGameStore.getState().setAutoDaoAlloc(true); useGameStore.getState().setAutoFarm(true); useGameStore.getState().setAutoTranscend(true); useGameStore.getState().setAutoBuyTranscendPerks(true); useGameStore.getState().setAutoEvent(true);
             }
           }}>
           <span style={{ fontWeight: 700, fontSize: 15 }}>🤖 一键全自动</span>
@@ -330,31 +330,31 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
             {autoReincarnate ? '✅ 开启' : '关闭'}
           </span>
         </div>
-        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => (useGameStore.getState() as any).setAutoDaoAlloc(!autoDaoAlloc)}>
+        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => useGameStore.getState().setAutoDaoAlloc(!autoDaoAlloc)}>
           <span className="stat-label">自动分配道点（转世后自动购买加成）</span>
           <span style={{ color: autoDaoAlloc ? 'var(--accent)' : 'var(--dim)' }}>
             {autoDaoAlloc ? '✅ 开启' : '关闭'}
           </span>
         </div>
-        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => (useGameStore.getState() as any).setAutoFarm(!autoFarm)}>
+        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => useGameStore.getState().setAutoFarm(!autoFarm)}>
           <span className="stat-label">自动回退刷怪（卡关时回退高效章节）</span>
           <span style={{ color: autoFarm ? 'var(--accent)' : 'var(--dim)' }}>
             {autoFarm ? '✅ 开启' : '关闭'}
           </span>
         </div>
-        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => (useGameStore.getState() as any).setAutoEvent(!autoEvent)}>
+        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => useGameStore.getState().setAutoEvent(!autoEvent)}>
           <span className="stat-label">自动处理随机事件（选择第一个选项）</span>
           <span style={{ color: autoEvent ? 'var(--accent)' : 'var(--dim)' }}>
             {autoEvent ? '✅ 开启' : '关闭'}
           </span>
         </div>
-        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => (useGameStore.getState() as any).setAutoTranscend(!autoTranscend)}>
+        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => useGameStore.getState().setAutoTranscend(!autoTranscend)}>
           <span className="stat-label">自动超越（10次转世后自动超越轮回）</span>
           <span style={{ color: autoTranscend ? 'var(--accent)' : 'var(--dim)' }}>
             {autoTranscend ? '✅ 开启' : '关闭'}
           </span>
         </div>
-        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => (useGameStore.getState() as any).setAutoBuyTranscendPerks(!autoBuyTranscendPerks)}>
+        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => useGameStore.getState().setAutoBuyTranscendPerks(!autoBuyTranscendPerks)}>
           <span className="stat-label">自动购买超越加成（自动分配超越点）</span>
           <span style={{ color: autoBuyTranscendPerks ? 'var(--accent)' : 'var(--dim)' }}>
             {autoBuyTranscendPerks ? '✅ 开启' : '关闭'}
@@ -380,7 +380,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
               `║ ❤️ 生命：${formatNumber(es.maxHp)}`,
               `║ ⭐ 战力：${formatNumber(es.attack * (1 + (es.critRate / 100) * (es.critDmg)) + es.maxHp * 0.05)}`,
               `║ 🔄 转世：${s.player.reincarnations ?? 0}次`,
-              `║ 💫 超越：${(s.player as any).transcendCount ?? 0}次`,
+              `║ 💫 超越：${s.player.transcendCount ?? 0}次`,
               `║ 🏆 最高战力：${formatNumber(s.highestPower ?? 0)}`,
               `║ ⏱️ 游戏时长：${formatTime(s.totalPlayTime)}`,
               '╚══════════════════════════╝',
