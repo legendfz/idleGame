@@ -958,3 +958,15 @@
 - Build: 428KB/135KB gzip, 625KB precache
 - Commit: 87ef471
 - CEO直接实现（最高效）
+
+## v141.0「天道守护」完成（2026-03-07 19:00）
+- 🔴🔴 发现并修复线上致命bug：tick()每秒抛TypeError崩溃
+- 错误：Cannot read properties of undefined (reading 'includes')
+- 根因：旧存档缺失新版本state字段(unlockedTitles/seenStories等)
+- 虽然load()有??[]默认值，但某些state路径仍可能undefined
+- 修复：5处state数组安全guard（tickAutoActions.ts + tickBattle.ts）
+- 影响：游戏tick完全停止=无法获得任何金币/经验/掉落=游戏不可玩
+- Build: 428KB/135KB gzip
+- Commit: fd12e26
+- CEO直接实现（最高效）
+- ⚠️ 教训：每次添加新state字段必须在所有tick路径加??[]保护
