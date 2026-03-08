@@ -1066,3 +1066,23 @@
 - Build: 443KB/140KB gzip, 640KB precache
 - Commit: b0be847 + f67d5b5
 - CEO直接实现（最高效）
+
+## v152.0「最速轮回」完成（2026-03-08 05:00）
+- 最速转世记录：fastestReincTime追踪每次转世用时，保留最快记录
+- 累计转世统计：totalReincarnations跨超越保留
+- reincStartTime追踪当前轮回开始时间
+- 统计页显示3个新指标
+- Commit: 89c44d2
+
+## v153.0「历史巅峰」完成（2026-03-08 05:00）
+- highestLevelEver：历史最高等级追踪，跨转世/超越保留
+- 每次升级时更新，统计页显示
+- Commit: c72e007
+
+## v154.0「登峰造极」完成（2026-03-08 05:00）
+- 等级里程碑系统：7级永久加成（Lv.100/200/500/1K/2K/5K/9999）
+- 攻击+5~80%/生命+5~80%/暴击率0~8%/暴伤0~0.8/经验0~30%/灵石0~30%
+- 接入：calcEffectiveStats(战斗) + tickBattle(经验/灵石) + offline(离线收益) + BuffOverview(加成总览)
+- 新文件：src/data/levelMilestones.ts
+- Commit: 673fe11
+- CEO直接实现（最高效）
