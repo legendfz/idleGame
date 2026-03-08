@@ -12,6 +12,7 @@ import { expForLevel } from '../utils/format';
 import { REINC_PERKS } from '../data/reincarnation';
 import { getAwakeningBonuses } from '../components/AwakeningPanel';
 import { getPetTotalBonus } from '../data/pets';
+import { getCodexBonuses } from '../data/codexPower';
 
 export interface OfflineResult {
   duration: number;       // capped seconds
@@ -170,10 +171,17 @@ export function calculateOfflineEarnings(
   // v108.0: Pet gold/exp multipliers for offline
   const petGoldMul = 1 + (petBonus.goldPct ?? 0) / 100;
   const petExpMul = 1 + (petBonus.expPct ?? 0) / 100;
-  const lingshi = Math.floor(
-    (totalMinions * minion.lingshiDrop + totalBosses * boss.lingshiDrop) * lingshiMul * goldMul * lingshiAwkMul * petGoldMul
+  // v147.0: Codex power offline bonuses
+  const codexB = getCodexBonuses(
+    (player.codexEquipIds ?? []).length,
+    (player.codexEnemyNames ?? []).length,
   );
-  const exp = Math.floor((totalMinions * minion.expDrop + totalBosses * boss.expDrop) * expMul * expAwkMul * petExpMul);
+  const codexGoldMul = 1 + codexB.lingshiPct / 100;
+  const codexExpMul = 1 + codexB.expPct / 100;
+  const lingshi = Math.floor(
+    (totalMinions * minion.lingshiDrop + totalBosses * boss.lingshiDrop) * lingshiMul * goldMul * lingshiAwkMul * petGoldMul * codexGoldMul
+  );
+  const exp = Math.floor((totalMinions * minion.expDrop + totalBosses * boss.expDrop) * expMul * expAwkMul * petExpMul * codexExpMul);
 
   // Pantao: use expected value (boss pantao chance × boss kills)
   const pantao = Math.floor(totalBosses * (boss.pantaoDrop || 0));

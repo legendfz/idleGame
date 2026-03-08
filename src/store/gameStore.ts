@@ -18,6 +18,7 @@ import { AWAKENING_PATHS, totalAwakeningPoints, AWAKENING_UNLOCK_REINC } from '.
 import {
   getEquipEffectiveStat, getActiveSetBonuses, hasFullMythic15,
 } from '../data/equipment';
+import { getCodexBonuses } from '../data/codexPower';
 import {
   equipItemAction, unequipSlotAction, enhanceEquipAction, refineItemAction,
   buyScrollAction, sellEquipAction, toggleLockAction, decomposeEquipAction,
@@ -372,6 +373,15 @@ export function calcEffectiveStats(
   if (petBonus.hpPct) s.maxHp = Math.floor(s.maxHp * (1 + petBonus.hpPct / 100));
   if (petBonus.critRate) s.critRate = Math.min(100, s.critRate + petBonus.critRate);
   if (petBonus.critDmg) s.critDmg += petBonus.critDmg / 100;
+  // v147.0: Codex power (图鉴之力)
+  const codex = getCodexBonuses(
+    (gs.player.codexEquipIds ?? []).length,
+    (gs.player.codexEnemyNames ?? []).length,
+  );
+  if (codex.atkPct) s.attack = Math.floor(s.attack * (1 + codex.atkPct / 100));
+  if (codex.hpPct) s.maxHp = Math.floor(s.maxHp * (1 + codex.hpPct / 100));
+  if (codex.critRate) s.critRate = Math.min(100, s.critRate + codex.critRate);
+  if (codex.critDmg) s.critDmg += codex.critDmg;
   return s;
 }
 

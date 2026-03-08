@@ -16,6 +16,7 @@ import { getResonanceBonus } from '../data/resonance';
 import { AFFINITY_NPCS } from '../engine/affinity';
 import { getPetTotalBonus, PETS } from '../data/pets';
 import { getTranscendBonuses } from '../data/transcendence';
+import { getCodexBonuses } from '../data/codexPower';
 
 interface BuffSource {
   system: string;
@@ -150,7 +151,21 @@ export function BuffOverview() {
     if (petB.dropRate) petBuffs.push({ label: '灵兽·掉率', value: `+${petB.dropRate.toFixed(0)}%` });
     if (petBuffs.length > 0) result.push({ system: '灵兽', icon: '🐾', color: '#4dd0e1', buffs: petBuffs });
 
-    // 10. Reincarnation count
+    // 10. Codex power (图鉴之力) v147.0
+    const codexB = getCodexBonuses(
+      (player.codexEquipIds ?? []).length,
+      (player.codexEnemyNames ?? []).length,
+    );
+    const codexBuffs: { label: string; value: string }[] = [];
+    if (codexB.atkPct) codexBuffs.push({ label: '图鉴·攻击', value: `+${codexB.atkPct}%` });
+    if (codexB.hpPct) codexBuffs.push({ label: '图鉴·生命', value: `+${codexB.hpPct}%` });
+    if (codexB.critRate) codexBuffs.push({ label: '图鉴·暴击', value: `+${codexB.critRate}%` });
+    if (codexB.critDmg) codexBuffs.push({ label: '图鉴·暴伤', value: `+${(codexB.critDmg * 100).toFixed(0)}%` });
+    if (codexB.expPct) codexBuffs.push({ label: '图鉴·经验', value: `+${codexB.expPct}%` });
+    if (codexB.lingshiPct) codexBuffs.push({ label: '图鉴·灵石', value: `+${codexB.lingshiPct}%` });
+    if (codexBuffs.length > 0) result.push({ system: '图鉴', icon: '📖', color: '#81d4fa', buffs: codexBuffs });
+
+    // 11. Reincarnation count
     const reincCount = player.reincarnations ?? 0;
     if (reincCount > 0) {
       result.push({ system: '轮回', icon: '♾️', color: '#ce93d8', buffs: [{ label: `转世 ${reincCount} 次`, value: `道点可用` }] });

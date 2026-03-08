@@ -13,6 +13,7 @@ import { ACTIVE_SKILLS } from '../data/skills';
 import { getAwakeningBonuses } from '../components/AwakeningPanel';
 import { getConsumable } from '../data/consumables';
 import { TITLES } from '../data/titles';
+import { getCodexBonuses } from '../data/codexPower';
 import {
   rollEquipDrop, createEquipFromTemplate, getEquipEffectiveStat,
   hasHiddenPassive,
@@ -88,6 +89,11 @@ export function executeBattleTick(get: () => any, set: (partial: any) => void): 
   const awk = getAwakeningBonuses(player);
   // v67.0 转世里程碑加成
   const rmb = getReincMilestoneBonus(player.reincarnations);
+  // v147.0 图鉴之力
+  const codexB = getCodexBonuses(
+    (player.codexEquipIds ?? []).length,
+    (player.codexEnemyNames ?? []).length,
+  );
   // v81.0 称号加成
   const titleId = get().equippedTitle;
   const titleBonus: any = titleId ? TITLES.find(t => t.id === titleId)?.bonuses ?? {} : {};
@@ -280,8 +286,10 @@ export function executeBattleTick(get: () => any, set: (partial: any) => void): 
     const afExp = 1 + (afBuf.expMul ?? 0) / 100;
     const fateMul = (state.fateBlessing.active && state.fateBlessing.expiresAt > Date.now()) ? 2 : 1;
     const petB = getPetTotalBonus(player.petLevels ?? {}, player.activePetId);
-    const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus) * (1 + (awk.gold_pct ?? 0) / 100) * afLingshi * (1 + rmb.gold) * fateMul * (1 + (titleBonus.goldMul ?? 0)) * (1 + (petB.goldPct ?? 0) / 100) * trBonusTick.goldMul);
-    const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100) * afExp * (1 + rmb.exp) * fateMul * (1 + (titleBonus.expMul ?? 0)) * (1 + (petB.expPct ?? 0) / 100) * trBonusTick.expMul);
+    const codexLingshi = 1 + codexB.lingshiPct / 100;
+    const codexExp = 1 + codexB.expPct / 100;
+    const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus) * (1 + (awk.gold_pct ?? 0) / 100) * afLingshi * (1 + rmb.gold) * fateMul * (1 + (titleBonus.goldMul ?? 0)) * (1 + (petB.goldPct ?? 0) / 100) * trBonusTick.goldMul * codexLingshi);
+    const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100) * afExp * (1 + rmb.exp) * fateMul * (1 + (titleBonus.expMul ?? 0)) * (1 + (petB.expPct ?? 0) / 100) * trBonusTick.expMul * codexExp);
     updatedPlayer.lingshi += lingshiDrop;
     updatedPlayer.totalGoldEarned = (updatedPlayer.totalGoldEarned || 0) + lingshiDrop;
     updatedPlayer.allTimeLingshi = (updatedPlayer.allTimeLingshi ?? 0) + lingshiDrop;

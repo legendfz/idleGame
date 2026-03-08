@@ -3,6 +3,7 @@ import { useGameStore } from '../store/gameStore';
 import { EQUIPMENT_TEMPLATES } from '../data/equipment';
 import { CHAPTERS, CHAPTER_ENEMIES, ABYSS_CHAPTER_ID } from '../data/chapters';
 import { QUALITY_INFO } from '../types';
+import { CODEX_MILESTONES, getCodexBonuses } from '../data/codexPower';
 
 type Tab = 'equip' | 'enemy';
 
@@ -65,6 +66,9 @@ export function CodexPanel() {
         </span>
       </div>
 
+      {/* Codex Power Milestones */}
+      <CodexMilestones equipCount={collectedEquip} enemyCount={collectedEnemy} />
+
       {tab === 'equip' ? (
         <EquipCodex codexIds={codexEquipIds} />
       ) : (
@@ -108,6 +112,45 @@ function EquipCodex({ codexIds }: { codexIds: string[] }) {
           </div>
         );
       })}
+    </div>
+  );
+}
+
+function CodexMilestones({ equipCount, enemyCount }: { equipCount: number; enemyCount: number }) {
+  const bonuses = getCodexBonuses(equipCount, enemyCount);
+  const hasAny = bonuses.atkPct > 0 || bonuses.hpPct > 0;
+  
+  return (
+    <div style={{ marginBottom: 12, padding: '8px 10px', background: '#1a1a2e', borderRadius: 8, border: '1px solid #333' }}>
+      <div style={{ fontSize: 13, color: '#81d4fa', fontWeight: 700, marginBottom: 6 }}>
+        📖 图鉴之力 {hasAny && <span style={{ color: '#4caf50', fontSize: 11 }}>已激活</span>}
+      </div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: hasAny ? 6 : 0 }}>
+        {CODEX_MILESTONES.map((m, i) => {
+          const count = m.type === 'equip' ? equipCount : enemyCount;
+          const unlocked = count >= m.count;
+          return (
+            <div key={i} style={{
+              padding: '3px 8px', borderRadius: 4, fontSize: 11,
+              background: unlocked ? '#1b5e20' : '#222',
+              border: `1px solid ${unlocked ? '#4caf50' : '#444'}`,
+              color: unlocked ? '#a5d6a7' : '#666',
+            }}>
+              {m.type === 'equip' ? '⚔️' : '👹'}{m.count} {m.name} {unlocked ? '✅' : `(${count}/${m.count})`}
+            </div>
+          );
+        })}
+      </div>
+      {hasAny && (
+        <div style={{ fontSize: 11, color: '#aaa', display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+          {bonuses.atkPct > 0 && <span>⚔️+{bonuses.atkPct}%</span>}
+          {bonuses.hpPct > 0 && <span>❤️+{bonuses.hpPct}%</span>}
+          {bonuses.critRate > 0 && <span>💥+{bonuses.critRate}%</span>}
+          {bonuses.critDmg > 0 && <span>🔥+{(bonuses.critDmg * 100).toFixed(0)}%</span>}
+          {bonuses.expPct > 0 && <span>📈+{bonuses.expPct}%</span>}
+          {bonuses.lingshiPct > 0 && <span>💰+{bonuses.lingshiPct}%</span>}
+        </div>
+      )}
     </div>
   );
 }
