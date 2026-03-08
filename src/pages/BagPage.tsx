@@ -3,6 +3,7 @@ import { useGameStore } from '../store/gameStore';
 import { formatNumber } from '../utils/format';
 import { EquipmentItem, EquipSlot, QUALITY_INFO } from '../types';
 import { getInventoryMax } from '../store/gameStore';
+import { getReforgeCost } from '../store/equipmentActions';
 import {
   getEquipEffectiveStat, getEnhanceCost, getMaxEnhanceLevel, getActiveSetBonuses,
   hasFullMythic15,
@@ -24,6 +25,7 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
   const autoEquipBest = useGameStore(s => s.autoEquipBest);
   const quickDecompose = useGameStore(s => s.quickDecompose);
   const synthesizeEquip = useGameStore(s => s.synthesizeEquip);
+  const reforgeEquip = useGameStore(s => s.reforgeEquip);
   const [filter, setFilter] = useState<EquipSlot | 'all'>('all');
   const [decomposeMode, setDecomposeMode] = useState(false);
   const [synthMode, setSynthMode] = useState(false);
@@ -258,6 +260,9 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
                 <button className="small-btn accent" onClick={() => equipItem(item)}>装备</button>
                 <button className="small-btn" onClick={() => toggleLock(item.uid)}>{item.locked ? '🔓解锁' : '🔒锁定'}</button>
                 <button className="small-btn" onClick={() => setSubPage({ type: 'equipDetail', item, location: 'inventory' })}>详情</button>
+                <button className="small-btn" style={{background:'linear-gradient(135deg,#9c27b0,#e040fb)',color:'#fff'}}
+                  onClick={() => { const cost = getReforgeCost(item); if (player.lingshi < cost) { alert(`需要 ${formatNumber(cost)} 灵石`); return; } reforgeEquip(item.uid); }}
+                  title={`洗炼 ${formatNumber(getReforgeCost(item))} 灵石`}>🔮洗炼</button>
                 <button className="small-btn" onClick={() => {
                   if (item.locked) { alert('装备已锁定，无法分解'); return; }
                   if (confirm(`确定分解 ${qi.symbol}${item.name}？获得 ${decompLingshi} 灵石`)) decomposeEquip(item.uid);

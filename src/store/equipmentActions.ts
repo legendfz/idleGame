@@ -428,3 +428,52 @@ export function feedPetAction(get: GetFn, set: SetFn, petId: string) {
 export function setActivePetAction(get: GetFn, set: SetFn, petId: string | null) {
   set({ player: { ...get().player, activePetId: petId } });
 }
+
+// v142.0「洗炼乾坤」— Reforge equipment baseStat
+const REFORGE_COST_MULT: Record<string, number> = {
+  common: 500, spirit: 2000, immortal: 8000, divine: 30000, legendary: 100000, mythic: 500000,
+};
+
+export function getReforgeCost(item: EquipmentItem): number {
+  return REFORGE_COST_MULT[item.quality] || 10000;
+}
+
+export function reforgeEquipAction(get: GetFn, set: SetFn, uid: string) {
+  const state = get();
+  let eq: EquipmentItem | null = null;
+  let location: 'equippedWeapon' | 'equippedArmor' | 'equippedTreasure' | 'inventory' = 'inventory';
+  let invIdx = -1;
+  for (const key of ['equippedWeapon', 'equippedArmor', 'equippedTreasure'] as const) {
+    if (state[key]?.uid === uid) { eq = state[key]; location = key; break; }
+  }
+  if (!eq) {
+    invIdx = state.inventory.findIndex((i: EquipmentItem) => i.uid === uid);
+    if (invIdx === -1) return;
+    eq = state.inventory[invIdx];
+  }
+  const item = eq!;
+  // Find template to get original baseStat
+  const template = EQUIPMENT_TEMPLATES.find(t => t.id === item.templateId);
+  if (!template) return;
+  const cost = getReforgeCost(item);
+  if (state.player.lingshi < cost) return;
+  // Reroll baseStat: ±30% of template baseStat, minimum 1
+  const min = Math.max(1, Math.floor(template.baseStat * 0.7));
+  const max = Math.ceil(template.baseStat * 1.3);
+  const newBaseStat = min + Math.floor(Math.random() * (max - min + 1));
+  const oldStat = item.baseStat;
+  const newItem = { ...item, baseStat: newBaseStat };
+  const updatedPlayer = { ...state.player, lingshi: state.player.lingshi - cost };
+  const diff = newBaseStat - oldStat;
+  const diffStr = diff >= 0 ? `+${diff}` : `${diff}`;
+  const emoji = diff > 0 ? '🔥' : diff < 0 ? '💨' : '➖';
+  let log = [...state.battle.log];
+  log = addLog(log, `${emoji}洗炼 ${QUALITY_INFO[item.quality].symbol}${item.name}: ${oldStat}→${newBaseStat}(${diffStr})`, diff > 0 ? 'levelup' : 'info');
+  if (location === 'inventory') {
+    const newInv = [...state.inventory];
+    newInv[invIdx] = newItem;
+    set({ player: updatedPlayer, inventory: newInv, battle: { ...state.battle, log } });
+  } else {
+    set({ player: updatedPlayer, [location]: newItem, battle: { ...state.battle, log } } as any);
+  }
+}

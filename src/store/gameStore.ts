@@ -23,7 +23,7 @@ import {
   buyScrollAction, sellEquipAction, toggleLockAction, decomposeEquipAction,
   batchDecomposeAction, autoEquipBestAction, quickDecomposeAction,
   goToChapterAction, sweepChapterAction, sweepAllAction, batchEnhanceEquippedAction,
-  synthesizeEquipAction, feedPetAction, setActivePetAction,
+  synthesizeEquipAction, feedPetAction, setActivePetAction, reforgeEquipAction, getReforgeCost,
 } from './equipmentActions';
 import {
   saveAction, loadAction, resetAction, saveToSlotAction,
@@ -193,6 +193,7 @@ interface GameStore {
   updatePlayer: (partial: Partial<PlayerState>) => void;
   // v97.0 Equipment synthesis
   synthesizeEquip: (uids: string[]) => { success: boolean; result?: EquipmentItem; message: string };
+  reforgeEquip: (uid: string) => void;
   // v137.0: Equipment loadouts
   saveLoadout: (slotIndex: number, name: string) => void;
   applyLoadout: (slotIndex: number) => { applied: number; message: string };
@@ -526,6 +527,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   synthesizeEquip: (uids: string[]) => synthesizeEquipAction(get, set, uids),
 
   // v107.0: Pet system (delegated to equipmentActions.ts)
+  reforgeEquip: (uid: string) => reforgeEquipAction(get, set, uid),
   feedPet: (petId: string) => feedPetAction(get, set, petId),
 
   setActivePet: (petId: string | null) => setActivePetAction(get, set, petId),

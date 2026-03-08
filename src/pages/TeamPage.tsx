@@ -7,6 +7,7 @@ import { getResonanceBonus } from '../data/resonance';
 import { getActiveSetBonuses, EQUIP_SETS, EQUIPMENT_TEMPLATES } from '../data/equipment';
 import { QUALITY_INFO, EquipmentItem } from '../types';
 import { getEnhanceCost, getMaxEnhanceLevel, isHighEnhance, getHighEnhanceRate } from '../data/equipment';
+import { getReforgeCost } from '../store/equipmentActions';
 
 export function CharacterDetailPage({ onBack }: { onBack: () => void }) {
   const player = useGameStore(s => s.player);
@@ -117,6 +118,7 @@ export function TeamView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
   const player = useGameStore(s => s.player);
   const getEffectiveStats = useGameStore(s => s.getEffectiveStats);
   const batchEnhanceEquipped = useGameStore(s => s.batchEnhanceEquipped);
+  const reforgeEquip = useGameStore(s => s.reforgeEquip);
   const eStats = getEffectiveStats();
   const currentRealm = REALMS[player.realmIndex];
   const [enhanceMsg, setEnhanceMsg] = useState<string | null>(null);
@@ -191,6 +193,24 @@ export function TeamView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
         ⚒ 一键强化已装备
       </button>
       {enhanceMsg && <div style={{ textAlign: 'center', color: '#ffcc00', fontSize: 13, marginBottom: 8 }}>{enhanceMsg}</div>}
+      {/* v142.0: Reforge equipped */}
+      <Card title="🔮 装备洗炼" titleColor="#e040fb">
+        <div style={{ fontSize: 11, color: '#aaa', marginBottom: 8 }}>重置基础属性（±30%），消耗灵石</div>
+        {([['武器', weapon], ['护甲', armor], ['法宝', treasure]] as const).map(([label, item]) => {
+          if (!item) return <div key={label} style={{ fontSize: 12, color: '#555', marginBottom: 6 }}>{label}：未装备</div>;
+          const cost = getReforgeCost(item);
+          const canAfford = player.lingshi >= cost;
+          return (
+            <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, fontSize: 12 }}>
+              <span style={{ color: QUALITY_INFO[item.quality].color }}>{item.emoji} {item.name} (基础:{item.baseStat})</span>
+              <button className="small-btn" style={{ background: canAfford ? 'linear-gradient(135deg,#9c27b0,#e040fb)' : '#333', color: '#fff', fontSize: 11 }}
+                onClick={() => reforgeEquip(item.uid)} disabled={!canAfford}>
+                🔮 {formatNumber(cost)}
+              </button>
+            </div>
+          );
+        })}
+      </Card>
       {/* v137.0: Equipment Loadouts */}
       <LoadoutPanel />
     </div>
