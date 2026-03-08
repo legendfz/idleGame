@@ -477,3 +477,52 @@ export function reforgeEquipAction(get: GetFn, set: SetFn, uid: string) {
     set({ player: updatedPlayer, [location]: newItem, battle: { ...state.battle, log } } as any);
   }
 }
+
+// ═══════════════════════════════════════════
+// v155.0 宝石镶嵌/拆卸/合成
+// ═══════════════════════════════════════════
+import { gemSlotsForQuality, GEM_TYPES, GEM_MERGE_COUNT, GEM_MAX_LEVEL, type GemItem } from '../data/gems';
+
+/** Socket a gem from inventory into an equipped item */
+export function socketGemAction(get: () => any, set: (s: any) => void, equipUid: string, gemIndex: number) {
+  const state = get();
+  const gemInv: GemItem[] = [...(state.player.gemInventory ?? [])];
+  if (gemIndex < 0 || gemIndex >= gemInv.length) return;
+  // Find the equipped item
+  const equipped = [state.equippedWeapon, state.equippedArmor, state.equippedTreasure].find((e: any) => e?.uid === equipUid);
+  if (!equipped) return;
+  const maxSlots = gemSlotsForQuality(equipped.quality);
+  const current: GemItem[] = [...(state.player.equippedGems?.[equipUid] ?? [])];
+  if (current.length >= maxSlots) return;
+  const gem = gemInv.splice(gemIndex, 1)[0];
+  current.push(gem);
+  const equippedGems = { ...(state.player.equippedGems ?? {}), [equipUid]: current };
+  set({ player: { ...state.player, gemInventory: gemInv, equippedGems } });
+}
+
+/** Unsocket a gem from equipped item back to inventory */
+export function unsocketGemAction(get: () => any, set: (s: any) => void, equipUid: string, slotIndex: number) {
+  const state = get();
+  const current: GemItem[] = [...(state.player.equippedGems?.[equipUid] ?? [])];
+  if (slotIndex < 0 || slotIndex >= current.length) return;
+  const gem = current.splice(slotIndex, 1)[0];
+  const gemInv = [...(state.player.gemInventory ?? []), gem];
+  const equippedGems = { ...(state.player.equippedGems ?? {}), [equipUid]: current };
+  set({ player: { ...state.player, gemInventory: gemInv, equippedGems } });
+}
+
+/** Merge 3 same-type same-level gems into 1 higher level gem */
+export function mergeGemsAction(get: () => any, set: (s: any) => void, typeId: string, level: number) {
+  const state = get();
+  const gemInv: GemItem[] = [...(state.player.gemInventory ?? [])];
+  const matching = gemInv.filter(g => g.typeId === typeId && g.level === level);
+  if (matching.length < GEM_MERGE_COUNT || level >= GEM_MAX_LEVEL) return;
+  let removed = 0;
+  const newInv = gemInv.filter(g => {
+    if (removed >= GEM_MERGE_COUNT) return true;
+    if (g.typeId === typeId && g.level === level) { removed++; return false; }
+    return true;
+  });
+  newInv.push({ typeId, level: level + 1 });
+  set({ player: { ...state.player, gemInventory: newInv } });
+}

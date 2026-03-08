@@ -20,12 +20,14 @@ import {
 } from '../data/equipment';
 import { getCodexBonuses } from '../data/codexPower';
 import { getLevelMilestoneBonuses } from '../data/levelMilestones';
+import { getGemBonuses } from '../data/gems';
 import {
   equipItemAction, unequipSlotAction, enhanceEquipAction, refineItemAction,
   buyScrollAction, sellEquipAction, toggleLockAction, decomposeEquipAction,
   batchDecomposeAction, autoEquipBestAction, quickDecomposeAction,
   goToChapterAction, sweepChapterAction, sweepAllAction, batchEnhanceEquippedAction,
   synthesizeEquipAction, feedPetAction, setActivePetAction, reforgeEquipAction, getReforgeCost,
+  socketGemAction, unsocketGemAction, mergeGemsAction,
 } from './equipmentActions';
 import {
   saveAction, loadAction, resetAction, saveToSlotAction,
@@ -200,6 +202,9 @@ interface GameStore {
   // v97.0 Equipment synthesis
   synthesizeEquip: (uids: string[]) => { success: boolean; result?: EquipmentItem; message: string };
   reforgeEquip: (uid: string) => void;
+  socketGem: (equipUid: string, gemIndex: number) => void;
+  unsocketGem: (equipUid: string, slotIndex: number) => void;
+  mergeGems: (typeId: string, level: number) => void;
   // v137.0: Equipment loadouts
   saveLoadout: (slotIndex: number, name: string) => void;
   applyLoadout: (slotIndex: number) => { applied: number; message: string };
@@ -257,6 +262,8 @@ export function makeInitialPlayer(): PlayerState {
     reincStartTime: 0,
     highestLevelEver: 0,
     pinnedAchievement: null,
+    gemInventory: [],
+    equippedGems: {},
     transcendCount: 0,
     transcendPoints: 0,
     totalTranscendPoints: 0,
@@ -393,6 +400,15 @@ export function calcEffectiveStats(
   if (lvlMil.hpPct) s.maxHp = Math.floor(s.maxHp * (1 + lvlMil.hpPct / 100));
   if (lvlMil.critRate) s.critRate = Math.min(100, s.critRate + lvlMil.critRate);
   if (lvlMil.critDmg) s.critDmg += lvlMil.critDmg;
+  // v155.0: Gem bonuses (宝石加成)
+  const allEquippedGems = Object.values(gs.player.equippedGems ?? {}).flat();
+  if (allEquippedGems.length > 0) {
+    const gemB = getGemBonuses(allEquippedGems);
+    if (gemB.atkPct) s.attack = Math.floor(s.attack * (1 + gemB.atkPct / 100));
+    if (gemB.hpPct) s.maxHp = Math.floor(s.maxHp * (1 + gemB.hpPct / 100));
+    if (gemB.critRate) s.critRate = Math.min(100, s.critRate + gemB.critRate);
+    if (gemB.critDmg) s.critDmg += gemB.critDmg / 100;
+  }
   return s;
 }
 
@@ -558,6 +574,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   // v107.0: Pet system (delegated to equipmentActions.ts)
   reforgeEquip: (uid: string) => reforgeEquipAction(get, set, uid),
+  socketGem: (equipUid: string, gemIndex: number) => socketGemAction(get, set, equipUid, gemIndex),
+  unsocketGem: (equipUid: string, slotIndex: number) => unsocketGemAction(get, set, equipUid, slotIndex),
+  mergeGems: (typeId: string, level: number) => mergeGemsAction(get, set, typeId, level),
   feedPet: (petId: string) => feedPetAction(get, set, petId),
 
   setActivePet: (petId: string | null) => setActivePetAction(get, set, petId),

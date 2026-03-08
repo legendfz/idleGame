@@ -3,6 +3,7 @@ import { useGameStore } from '../store/gameStore';
 import { REALMS } from '../data/realms';
 import { formatNumber } from '../utils/format';
 import { Card, SubPageHeader, SubPage } from './shared';
+import { GemPanel } from '../components/GemPanel';
 import { getResonanceBonus } from '../data/resonance';
 import { getActiveSetBonuses, EQUIP_SETS, EQUIPMENT_TEMPLATES } from '../data/equipment';
 import { QUALITY_INFO, EquipmentItem } from '../types';
@@ -217,6 +218,8 @@ export function TeamView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
       </Card>
       {/* v137.0: Equipment Loadouts */}
       <LoadoutPanel />
+      {/* v155.0: Gem System */}
+      <Card><GemPanel /></Card>
     </div>
   );
 }

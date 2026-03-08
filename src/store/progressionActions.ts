@@ -33,6 +33,8 @@ export function reincarnateAction(get: () => any, set: (s: any) => void) {
   newPlayer.bestKillStreak = player.bestKillStreak;
   newPlayer.pinnedAchievement = player.pinnedAchievement;
   newPlayer.consumableInventory = { ...player.consumableInventory };
+  newPlayer.gemInventory = [...(player.gemInventory ?? [])];
+  newPlayer.equippedGems = {};
   newPlayer.activeConsumables = [];
   newPlayer.allTimeLingshi = player.allTimeLingshi ?? 0;
   newPlayer.fastestReincTime = bestReincTime;
@@ -153,6 +155,8 @@ export function transcendAction(get: () => any, set: (s: any) => void) {
   newPlayer.bestKillStreak = player.bestKillStreak;
   newPlayer.pinnedAchievement = player.pinnedAchievement;
   newPlayer.consumableInventory = { ...player.consumableInventory };
+  newPlayer.gemInventory = [...(player.gemInventory ?? [])];
+  newPlayer.equippedGems = {};
   newPlayer.allTimeLingshi = player.allTimeLingshi ?? 0;
   newPlayer.fastestReincTime = player.fastestReincTime ?? 0;
   newPlayer.totalReincarnations = player.totalReincarnations ?? 0;

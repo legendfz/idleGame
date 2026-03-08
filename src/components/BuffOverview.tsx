@@ -18,6 +18,7 @@ import { getPetTotalBonus, PETS } from '../data/pets';
 import { getTranscendBonuses } from '../data/transcendence';
 import { getCodexBonuses } from '../data/codexPower';
 import { getLevelMilestoneBonuses } from '../data/levelMilestones';
+import { getGemBonuses } from '../data/gems';
 
 interface BuffSource {
   system: string;
@@ -176,6 +177,20 @@ export function BuffOverview() {
     if (lvlMilB.expPct) lvlMilBuffs.push({ label: '等级·经验', value: `+${lvlMilB.expPct}%` });
     if (lvlMilB.lingshiPct) lvlMilBuffs.push({ label: '等级·灵石', value: `+${lvlMilB.lingshiPct}%` });
     if (lvlMilBuffs.length > 0) result.push({ system: '等级里程碑', icon: '🏔️', color: '#ffd54f', buffs: lvlMilBuffs });
+
+    // 10.6 Gem bonuses (v155.0)
+    const allGems = Object.values(player.equippedGems ?? {}).flat();
+    if (allGems.length > 0) {
+      const gemB = getGemBonuses(allGems);
+      const gemBuffs: { label: string; value: string }[] = [];
+      if (gemB.atkPct) gemBuffs.push({ label: '宝石·攻击', value: `+${gemB.atkPct}%` });
+      if (gemB.hpPct) gemBuffs.push({ label: '宝石·生命', value: `+${gemB.hpPct}%` });
+      if (gemB.critRate) gemBuffs.push({ label: '宝石·暴击', value: `+${gemB.critRate}%` });
+      if (gemB.critDmg) gemBuffs.push({ label: '宝石·暴伤', value: `+${gemB.critDmg}%` });
+      if (gemB.expMul) gemBuffs.push({ label: '宝石·经验', value: `+${gemB.expMul}%` });
+      if (gemB.goldMul) gemBuffs.push({ label: '宝石·灵石', value: `+${gemB.goldMul}%` });
+      if (gemBuffs.length > 0) result.push({ system: '宝石', icon: '💎', color: '#e0f2fe', buffs: gemBuffs });
+    }
 
     // 11. Reincarnation count
     const reincCount = player.reincarnations ?? 0;

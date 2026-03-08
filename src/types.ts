@@ -60,6 +60,9 @@ export interface PlayerState {
   reincStartTime: number;              // v152.0: totalPlayTime when current reincarnation started
   highestLevelEver: number;            // v153.0: highest level ever reached (across all reincarnations)
   pinnedAchievement: string | null;    // pinned achievement id for battle page
+  // v155.0 宝石系统
+  gemInventory: { typeId: string; level: number }[];  // unequipped gems
+  equippedGems: Record<string, { typeId: string; level: number }[]>; // equipUid → gems[]
   // v116.0
   transcendCount: number;
   transcendPoints: number;

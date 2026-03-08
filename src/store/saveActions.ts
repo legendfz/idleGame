@@ -176,6 +176,8 @@ export function loadAction(get: () => any, set: (s: any) => void, addLog: (log: 
       save.player.transcendPoints = save.player.transcendPoints ?? 0;
       save.player.totalTranscendPoints = save.player.totalTranscendPoints ?? 0;
       save.player.transcendPerks = save.player.transcendPerks ?? {};
+      save.player.gemInventory = save.player.gemInventory ?? [];
+      save.player.equippedGems = save.player.equippedGems ?? {};
       save.player.trialShopPurchases = save.player.trialShopPurchases ?? {};
       save.player.reincPerks = save.player.reincPerks ?? {};
       // Ensure all dynamic fields have safe defaults

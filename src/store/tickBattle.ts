@@ -12,6 +12,7 @@ import { getTranscendBonuses } from '../data/transcendence';
 import { ACTIVE_SKILLS } from '../data/skills';
 import { getAwakeningBonuses } from '../components/AwakeningPanel';
 import { getConsumable } from '../data/consumables';
+import { GEM_TYPES, gemDropChance, getGemBonuses } from '../data/gems';
 import { TITLES } from '../data/titles';
 import { getCodexBonuses } from '../data/codexPower';
 import { getLevelMilestoneBonuses } from '../data/levelMilestones';
@@ -311,8 +312,13 @@ export function executeBattleTick(get: () => any, set: (partial: any) => void): 
     const lvlMilB = getLevelMilestoneBonuses(updatedPlayer.highestLevelEver ?? updatedPlayer.level);
     const lvlMilLingshi = 1 + lvlMilB.lingshiPct / 100;
     const lvlMilExp = 1 + lvlMilB.expPct / 100;
-    const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus) * (1 + (awk.gold_pct ?? 0) / 100) * afLingshi * (1 + rmb.gold) * fateMul * (1 + (titleBonus.goldMul ?? 0)) * (1 + (petB.goldPct ?? 0) / 100) * trBonusTick.goldMul * codexLingshi * lvlMilLingshi);
-    const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100) * afExp * (1 + rmb.exp) * fateMul * (1 + (titleBonus.expMul ?? 0)) * (1 + (petB.expPct ?? 0) / 100) * trBonusTick.expMul * codexExp * lvlMilExp);
+    // v155.0: Gem bonuses for gold/exp
+    const allGems = Object.values(updatedPlayer.equippedGems ?? {}).flat() as { typeId: string; level: number }[];
+    const gemB = allGems.length > 0 ? getGemBonuses(allGems) : { goldMul: 0, expMul: 0 };
+    const gemGold = 1 + gemB.goldMul / 100;
+    const gemExp = 1 + gemB.expMul / 100;
+    const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus) * (1 + (awk.gold_pct ?? 0) / 100) * afLingshi * (1 + rmb.gold) * fateMul * (1 + (titleBonus.goldMul ?? 0)) * (1 + (petB.goldPct ?? 0) / 100) * trBonusTick.goldMul * codexLingshi * lvlMilLingshi * gemGold);
+    const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100) * afExp * (1 + rmb.exp) * fateMul * (1 + (titleBonus.expMul ?? 0)) * (1 + (petB.expPct ?? 0) / 100) * trBonusTick.expMul * codexExp * lvlMilExp * gemExp);
     updatedPlayer.lingshi += lingshiDrop;
     updatedPlayer.totalGoldEarned = (updatedPlayer.totalGoldEarned || 0) + lingshiDrop;
     updatedPlayer.allTimeLingshi = (updatedPlayer.allTimeLingshi ?? 0) + lingshiDrop;
@@ -352,6 +358,16 @@ export function executeBattleTick(get: () => any, set: (partial: any) => void): 
         updatedPlayer.consumableInventory = cInv;
         log = addLog(log, `  精英掉落 ${def.emoji}${def.name} ×1！`, 'drop');
       }
+    }
+
+    // v155.0: Gem drop from boss/elite kills
+    if ((enemy.isBoss || enemy.elite) && Math.random() < gemDropChance(updatedPlayer.level)) {
+      const gemType = GEM_TYPES[Math.floor(Math.random() * GEM_TYPES.length)];
+      const gemLv = Math.min(10, 1 + Math.floor(updatedPlayer.level / 500));
+      const gemInv = [...(updatedPlayer.gemInventory ?? [])];
+      gemInv.push({ typeId: gemType.id, level: gemLv });
+      updatedPlayer.gemInventory = gemInv;
+      log = addLog(log, `  获得 ${gemType.emoji}${gemType.name} Lv.${gemLv}！`, 'drop');
     }
 
     // Equipment drop (elite = guaranteed)
