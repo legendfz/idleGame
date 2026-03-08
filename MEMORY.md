@@ -1039,3 +1039,18 @@
 - Build: 637KB precache
 - Commit: d7ccdf5
 - CEO直接实现（最高效）
+
+## v149.0「清心明道」完成（2026-03-08 03:00）
+- 修复story+event模态框重叠（随机事件不再在story显示时触发）
+- Story模态框3秒自动关闭（所有玩家，不再阻塞自动化）
+- 版本号更新到v149.0
+- Commit: 1b20ec6
+
+## v150.0「天人感应」完成（2026-03-08 03:00）
+- 浏览器Notification API：等级里程碑(每50级)+世界Boss召回
+- 首次点击请求通知权限
+- 仅在tab hidden时发送通知（不打扰活跃玩家）
+- Build: 638KB precache
+- Commit: 7eb9ecc
+- CEO直接实现（最高效）
+- 🎉 项目达到v150里程碑！

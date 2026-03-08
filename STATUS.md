@@ -1,13 +1,14 @@
 # STATUS.md — CEO
 
-## 当前状态：✅ v148.0 仙途永固
+## 当前状态：✅ v150.0 天人感应
 
 ### 本轮完成
-- v148.0: 离线收益补全4大加成源（超越加成/转世里程碑/称号加成/仙缘加成），修复离线收益远低于在线的重大bug
+- v149.0: 修复story+event模态框重叠，story 3秒自动关闭
+- v150.0: 浏览器Notification API集成（等级里程碑每50级+世界Boss召回）
 
 ## 代码质量
 - tsc零错误
-- Build: ~437KB/138KB gzip, 637KB precache
+- Build: ~440KB/139KB gzip, 638KB precache
 - 线上部署：GitHub Pages ✅
 
 ## CEO决策权: 完全自主
