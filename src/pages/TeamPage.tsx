@@ -215,6 +215,10 @@ export function TeamView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
             </div>
           );
         })}
+        <button className="small-btn" style={{ width: '100%', marginTop: 8, padding: '8px', background: 'linear-gradient(135deg,#7c3aed,#e040fb)', color: '#fff', fontSize: 12, borderRadius: 8 }}
+          onClick={() => { const n = useGameStore.getState().batchReforgeEquipped(); setEnhanceMsg(n > 0 ? `✨ ${n}件装备属性提升！` : '💨 本次未获提升'); setTimeout(() => setEnhanceMsg(''), 2000); }}>
+          🔮 一键洗炼（仅保留提升）
+        </button>
       </Card>
       {/* v137.0: Equipment Loadouts */}
       <LoadoutPanel />

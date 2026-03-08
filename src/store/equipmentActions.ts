@@ -499,6 +499,44 @@ export function reforgeEquipAction(get: GetFn, set: SetFn, uid: string) {
   }
 }
 
+/** v160.0: Batch reforge all equipped items (only accept upgrades) */
+export function batchReforgeEquippedAction(get: GetFn, set: SetFn) {
+  const state = get();
+  const slots = ['equippedWeapon', 'equippedArmor', 'equippedTreasure'] as const;
+  let lingshi = state.player.lingshi;
+  let log = [...state.battle.log];
+  const changes: Record<string, EquipmentItem> = {};
+  let totalUpgrades = 0;
+
+  for (const slot of slots) {
+    const item: EquipmentItem | null = state[slot];
+    if (!item) continue;
+    const template = EQUIPMENT_TEMPLATES.find(t => t.id === item.templateId);
+    if (!template) continue;
+    const cost = getReforgeCost(item);
+    if (lingshi < cost * 3) continue; // Need 3x buffer (same as auto-reforge)
+    const min = Math.max(1, Math.floor(template.baseStat * 0.7));
+    const max = Math.ceil(template.baseStat * 1.3);
+    const newBaseStat = min + Math.floor(Math.random() * (max - min + 1));
+    if (newBaseStat > item.baseStat) {
+      lingshi -= cost;
+      const diff = newBaseStat - item.baseStat;
+      log = addLog(log, `🔥洗炼 ${QUALITY_INFO[item.quality].symbol}${item.name}: ${item.baseStat}→${newBaseStat}(+${diff})`, 'levelup');
+      changes[slot] = { ...item, baseStat: newBaseStat };
+      totalUpgrades++;
+    } else {
+      lingshi -= cost;
+      log = addLog(log, `💨洗炼 ${QUALITY_INFO[item.quality].symbol}${item.name}: 未提升，已回滚`, 'info');
+    }
+  }
+  if (totalUpgrades > 0 || Object.keys(changes).length === 0) {
+    set({ player: { ...state.player, lingshi }, battle: { ...state.battle, log }, ...changes });
+  } else {
+    set({ player: { ...state.player, lingshi }, battle: { ...state.battle, log } });
+  }
+  return totalUpgrades;
+}
+
 // ═══════════════════════════════════════════
 // v155.0 宝石镶嵌/拆卸/合成
 // ═══════════════════════════════════════════

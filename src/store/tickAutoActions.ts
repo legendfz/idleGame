@@ -375,17 +375,26 @@ export function autoBuyPerksAndAwakening(ctx: TickContext) {
     let avail = totalPts - spentPts;
     let changed = false;
     let found = true;
+    // Prefer selected path first, then cheapest across all paths
+    const preferredPathId = awState.selectedPath;
+    const sortedPaths = preferredPathId
+      ? [AWAKENING_PATHS.find(p => p.id === preferredPathId)!, ...AWAKENING_PATHS.filter(p => p.id !== preferredPathId)]
+      : AWAKENING_PATHS;
     while (found && avail > 0) {
       found = false;
       let cheapestNode: { id: string; cost: number } | null = null;
-      for (const path of AWAKENING_PATHS) {
+      for (const path of sortedPaths) {
+        if (!path) continue;
         for (const node of path.nodes) {
           if (unlocked.has(node.id)) continue;
           if (node.requires && !unlocked.has(node.requires)) continue;
           if (node.cost <= avail && (!cheapestNode || node.cost < cheapestNode.cost)) {
             cheapestNode = { id: node.id, cost: node.cost };
+            // If this is on the preferred path, prioritize it immediately
+            if (preferredPathId && path.id === preferredPathId) break;
           }
         }
+        if (cheapestNode && preferredPathId && path.id === preferredPathId) break;
       }
       if (cheapestNode) {
         unlocked.add(cheapestNode.id);

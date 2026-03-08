@@ -27,7 +27,7 @@ import {
   buyScrollAction, sellEquipAction, toggleLockAction, decomposeEquipAction,
   batchDecomposeAction, autoEquipBestAction, quickDecomposeAction,
   goToChapterAction, sweepChapterAction, sweepAllAction, batchEnhanceEquippedAction,
-  synthesizeEquipAction, feedPetAction, setActivePetAction, evolvePetAction, reforgeEquipAction, getReforgeCost,
+  synthesizeEquipAction, feedPetAction, setActivePetAction, evolvePetAction, reforgeEquipAction, batchReforgeEquippedAction, getReforgeCost,
   socketGemAction, unsocketGemAction, mergeGemsAction,
 } from './equipmentActions';
 import {
@@ -204,6 +204,7 @@ interface GameStore {
   // v97.0 Equipment synthesis
   synthesizeEquip: (uids: string[]) => { success: boolean; result?: EquipmentItem; message: string };
   reforgeEquip: (uid: string) => void;
+  batchReforgeEquipped: () => number;
   socketGem: (equipUid: string, gemIndex: number) => void;
   unsocketGem: (equipUid: string, slotIndex: number) => void;
   mergeGems: (typeId: string, level: number) => void;
@@ -583,6 +584,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   // v107.0: Pet system (delegated to equipmentActions.ts)
   reforgeEquip: (uid: string) => reforgeEquipAction(get, set, uid),
+  batchReforgeEquipped: () => batchReforgeEquippedAction(get, set),
   socketGem: (equipUid: string, gemIndex: number) => socketGemAction(get, set, equipUid, gemIndex),
   unsocketGem: (equipUid: string, slotIndex: number) => unsocketGemAction(get, set, equipUid, slotIndex),
   mergeGems: (typeId: string, level: number) => mergeGemsAction(get, set, typeId, level),
