@@ -23,6 +23,7 @@ import {
 } from '../data/equipment';
 import { getPetTotalBonus } from '../data/pets';
 import { rollElite, type EliteModifier } from '../data/eliteEnemies';
+import { getSubstatBonuses } from '../data/substats';
 import { useAffinityStore } from './affinityStore';
 import { useSanctuaryStore } from './sanctuaryStore';
 import { calcEffectiveStats, addLog, getInventoryMax } from './gameStore';
@@ -322,8 +323,13 @@ export function executeBattleTick(get: () => any, set: (partial: any) => void): 
     const pwrMilB = getPowerMilestoneBonuses(state.highestPower ?? 0);
     const pwrGold = 1 + (pwrMilB.goldMul ?? 0);
     const pwrExp = 1 + (pwrMilB.expMul ?? 0);
-    const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus) * (1 + (awk.gold_pct ?? 0) / 100) * afLingshi * (1 + rmb.gold) * fateMul * (1 + (titleBonus.goldMul ?? 0)) * (1 + (petB.goldPct ?? 0) / 100) * trBonusTick.goldMul * codexLingshi * lvlMilLingshi * gemGold * pwrGold);
-    const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100) * afExp * (1 + rmb.exp) * fateMul * (1 + (titleBonus.expMul ?? 0)) * (1 + (petB.expPct ?? 0) / 100) * trBonusTick.expMul * codexExp * lvlMilExp * gemExp * pwrExp);
+    // v162.0: Substat exp/gold multipliers
+    const subArrays = [state.equippedWeapon, state.equippedArmor, state.equippedTreasure].filter(Boolean).map(e => e!.substats ?? []);
+    const subB = getSubstatBonuses(subArrays);
+    const subGold = 1 + subB.goldPct / 100;
+    const subExp = 1 + subB.expPct / 100;
+    const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus) * (1 + (awk.gold_pct ?? 0) / 100) * afLingshi * (1 + rmb.gold) * fateMul * (1 + (titleBonus.goldMul ?? 0)) * (1 + (petB.goldPct ?? 0) / 100) * trBonusTick.goldMul * codexLingshi * lvlMilLingshi * gemGold * pwrGold * subGold);
+    const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100) * afExp * (1 + rmb.exp) * fateMul * (1 + (titleBonus.expMul ?? 0)) * (1 + (petB.expPct ?? 0) / 100) * trBonusTick.expMul * codexExp * lvlMilExp * gemExp * pwrExp * subExp);
     updatedPlayer.lingshi += lingshiDrop;
     updatedPlayer.totalGoldEarned = (updatedPlayer.totalGoldEarned || 0) + lingshiDrop;
     updatedPlayer.allTimeLingshi = (updatedPlayer.allTimeLingshi ?? 0) + lingshiDrop;

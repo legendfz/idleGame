@@ -9,6 +9,7 @@ import { getActiveSetBonuses, EQUIP_SETS, EQUIPMENT_TEMPLATES } from '../data/eq
 import { QUALITY_INFO, EquipmentItem } from '../types';
 import { getEnhanceCost, getMaxEnhanceLevel, isHighEnhance, getHighEnhanceRate, getEquipPerfection, getEquipEffectiveStat } from '../data/equipment';
 import { getReforgeCost } from '../store/equipmentActions';
+import { SUBSTAT_INFO, type Substat } from '../data/substats';
 
 export function CharacterDetailPage({ onBack }: { onBack: () => void }) {
   const player = useGameStore(s => s.player);
@@ -170,6 +171,27 @@ export function TeamView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
         </Card>
       )}
       <SetBonusPanel weapon={weapon} armor={armor} treasure={treasure} />
+      {/* v162.0: Equipment substats */}
+      {[weapon, armor, treasure].some(e => e?.substats?.length) && (
+        <Card title="📜 副属性" titleColor="#64b5f6">
+          {([['武器', weapon], ['护甲', armor], ['法宝', treasure]] as const).map(([label, item]) => {
+            if (!item?.substats?.length) return null;
+            return (
+              <div key={label} style={{ marginBottom: 8 }}>
+                <div style={{ fontSize: 12, color: QUALITY_INFO[item.quality].color, marginBottom: 4 }}>{item.emoji} {item.name}</div>
+                {item.substats.map((s: { type: string; value: number }, i: number) => {
+                  const info = SUBSTAT_INFO[s.type as keyof typeof SUBSTAT_INFO];
+                  return info ? (
+                    <div key={i} style={{ fontSize: 11, color: '#b0bec5', marginLeft: 12, lineHeight: 1.6 }}>
+                      {info.emoji} {info.name} {info.format(s.value)}
+                    </div>
+                  ) : null;
+                })}
+              </div>
+            );
+          })}
+        </Card>
+      )}
       {/* Equipment enhance info */}
       <Card title="装备强化" titleColor="#e2c97e">
         {([['武器', weapon], ['护甲', armor], ['法宝', treasure]] as const).map(([label, item]) => {

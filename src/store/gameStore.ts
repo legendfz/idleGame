@@ -22,6 +22,7 @@ import { getCodexBonuses } from '../data/codexPower';
 import { getLevelMilestoneBonuses } from '../data/levelMilestones';
 import { getGemBonuses } from '../data/gems';
 import { getPowerMilestoneBonuses } from '../data/powerMilestones';
+import { getSubstatBonuses } from '../data/substats';
 import {
   equipItemAction, unequipSlotAction, enhanceEquipAction, refineItemAction,
   buyScrollAction, sellEquipAction, toggleLockAction, decomposeEquipAction,
@@ -419,6 +420,14 @@ export function calcEffectiveStats(
   if (pwrMil.hpMul) s.maxHp = Math.floor(s.maxHp * (1 + pwrMil.hpMul));
   if (pwrMil.critRate) s.critRate = Math.min(100, s.critRate + pwrMil.critRate);
   if (pwrMil.critDmg) s.critDmg += pwrMil.critDmg;
+  // v162.0: Equipment substats (装备副属性)
+  const substatArrays = [weapon, armor, treasure].filter(Boolean).map(e => e!.substats ?? []);
+  const subB = getSubstatBonuses(substatArrays);
+  if (subB.atkPct) s.attack = Math.floor(s.attack * (1 + subB.atkPct / 100));
+  if (subB.hpPct) s.maxHp = Math.floor(s.maxHp * (1 + subB.hpPct / 100));
+  if (subB.critRate) s.critRate = Math.min(100, s.critRate + subB.critRate);
+  if (subB.critDmg) s.critDmg += subB.critDmg / 100;
+  if (subB.speedPct) s.speed += subB.speedPct / 100;
   return s;
 }
 

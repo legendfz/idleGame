@@ -1,4 +1,5 @@
 import { EquipmentTemplate, EquipSet, EquipmentItem, QUALITY_INFO } from '../types';
+import { rollSubstats } from './substats';
 
 // === Equipment Templates ===
 
@@ -240,6 +241,7 @@ export function createEquipFromTemplate(template: EquipmentTemplate): EquipmentI
     level: 0,
     passive: template.passive,
     setId: template.setId,
+    substats: rollSubstats(template.quality), // v162.0 随机副属性
   };
 }
 

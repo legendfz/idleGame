@@ -264,6 +264,7 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
                 </>;
               })()}
               {item.passive && <span className="color-passive">{item.passive.description}</span>}
+              {item.substats?.length ? <span style={{ color: '#64b5f6', fontSize: 10 }}>📜{item.substats.length}词缀</span> : null}
               {item.setId && <span className="color-set" style={{ fontSize: 11 }}>套装</span>}
             </div>
             {!decomposeMode && (

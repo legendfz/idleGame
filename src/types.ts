@@ -216,6 +216,7 @@ export interface EquipmentItem {
   passive?: EquipPassive;
   setId?: string;
   locked?: boolean;
+  substats?: { type: string; value: number }[]; // v162.0 副属性
 }
 
 export interface EquipSet {
