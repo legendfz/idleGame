@@ -242,6 +242,34 @@ export function TeamView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
           🔮 一键洗炼（仅保留提升）
         </button>
       </Card>
+      {/* v167.0: Equipment Score Summary */}
+      {(() => {
+        const equipped = [weapon, armor, treasure].filter(Boolean) as EquipmentItem[];
+        if (equipped.length === 0) return null;
+        const perfs = equipped.map(e => getEquipPerfection(e));
+        const avg = Math.round(perfs.reduce((a, b) => a + b, 0) / perfs.length);
+        const avgColor = avg >= 90 ? '#4ade80' : avg >= 70 ? '#fbbf24' : avg >= 50 ? '#fb923c' : '#ef4444';
+        const grade = avg >= 95 ? 'SSS' : avg >= 90 ? 'SS' : avg >= 80 ? 'S' : avg >= 70 ? 'A' : avg >= 50 ? 'B' : 'C';
+        return (
+          <Card>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: 13, fontWeight: 600 }}>📊 装备总评</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 18, fontWeight: 800, color: avgColor }}>{grade}</span>
+                <span style={{ fontSize: 12, color: avgColor }}>{avg}%</span>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 6, fontSize: 10 }}>
+              {(['武器', '护甲', '法宝'] as const).map((label, i) => {
+                const item = [weapon, armor, treasure][i];
+                if (!item) return <span key={label} style={{ color: '#555' }}>{label}: —</span>;
+                const p = perfs[i];
+                return <span key={label} style={{ color: p >= 90 ? '#4ade80' : p >= 60 ? '#fbbf24' : '#ef4444' }}>{label}: {p}%</span>;
+              })}
+            </div>
+          </Card>
+        );
+      })()}
       {/* v137.0: Equipment Loadouts */}
       <LoadoutPanel />
       {/* v155.0: Gem System */}

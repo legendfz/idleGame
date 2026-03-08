@@ -14,7 +14,7 @@ import { SmartHints, PinnedAchievementTracker, SkillBar, ConsumableBar, OnlineRe
 import { ACHIEVEMENTS } from '../data/achievements';
 import { useAchievementStore } from '../store/achievementStore';
 
-const SPEED_OPTIONS = [1, 2, 5, 10, 20, 50];
+const SPEED_OPTIONS = [1, 2, 5, 10, 20, 50, 100];
 type LogFilter = 'all' | 'drop' | 'levelup' | 'boss' | 'crit';
 
 const TIPS = [
@@ -67,9 +67,18 @@ export function BattleView() {
   });
   const visibleLog = filteredLog.slice(-10);
 
+  const availableSpeeds = useMemo(() => {
+    return SPEED_OPTIONS.filter(s => {
+      if (s <= 10) return true;
+      if (s === 20) return player.level >= 100;
+      if (s === 50) return player.level >= 300;
+      if (s === 100) return player.level >= 1000;
+      return true;
+    });
+  }, [player.level]);
   const cycleSpeed = () => {
-    const idx = SPEED_OPTIONS.indexOf(battleSpeed);
-    setBattleSpeed(SPEED_OPTIONS[(idx + 1) % SPEED_OPTIONS.length]);
+    const idx = availableSpeeds.indexOf(battleSpeed);
+    setBattleSpeed(availableSpeeds[(idx + 1) % availableSpeeds.length]);
   };
 
   const tip = useMemo(() => TIPS[Math.floor(Math.random() * TIPS.length)], []);
@@ -256,7 +265,7 @@ export function BattleView() {
             <div className="battle-chapter-fill" style={{ width: `${chapterProgress}%` }} />
           </div>
         )}
-        <button className={`battle-speed-btn${battleSpeed === 2 ? ' active' : battleSpeed === 5 ? ' speed-5' : battleSpeed >= 10 ? ' speed-10' : ''}`} onClick={cycleSpeed}>
+        <button className={`battle-speed-btn${battleSpeed === 100 ? ' speed-100' : battleSpeed === 2 ? ' active' : battleSpeed === 5 ? ' speed-5' : battleSpeed >= 10 ? ' speed-10' : ''}`} onClick={cycleSpeed}>
           {battleSpeed}x
         </button>
       </div>
@@ -337,6 +346,8 @@ export function BattleView() {
           {'  '}<span className="color-exp">📖+{formatNumber(Math.floor(idleStats.expPerSec))}/s</span>
           {'  '}<span className="color-crit">⚔DPS {formatNumber(Math.floor(idleStats.dps))}</span>
           {'  '}<span className="color-dim">⏱{formatTime(idleStats.sessionTime)}</span>
+          {battleSpeed > 1 && <span style={{color: battleSpeed >= 100 ? '#ff6b6b' : battleSpeed >= 10 ? '#ffc107' : '#a78bfa', fontSize:10, fontWeight: 700}}>⚡{battleSpeed}x</span>}
+          {fateBlessing.active && fateBlessing.expiresAt > Date.now() && <span style={{color:'#ffd700',fontSize:10,fontWeight:700}}>✨×2</span>}
           {idleStats.sessionTime > 60 && <>
             {'  '}<span style={{color:'#a78bfa',fontSize:10}}>💎{formatNumber(Math.floor(idleStats.goldPerSec * 60))}/m</span>
           </>}
