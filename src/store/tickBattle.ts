@@ -19,6 +19,7 @@ import {
   hasHiddenPassive,
 } from '../data/equipment';
 import { getPetTotalBonus } from '../data/pets';
+import { rollElite, type EliteModifier } from '../data/eliteEnemies';
 import { useAffinityStore } from './affinityStore';
 import { useSanctuaryStore } from './sanctuaryStore';
 import { calcEffectiveStats, addLog, getInventoryMax } from './gameStore';
@@ -28,6 +29,23 @@ import { runAllAutoActions } from './tickAutoActions';
 // Counters — shared mutable state (same as gameStore originals)
 let floatIdCounter = 1000000;
 let _lastBackpackFullWarn = 0;
+
+/** Apply elite modifier to a non-boss enemy */
+function applyElite(enemy: import('../types').Enemy, level: number): import('../types').Enemy {
+  const mod = rollElite(level);
+  if (!mod) return enemy;
+  return {
+    ...enemy,
+    name: `${mod.emoji}${mod.name}·${enemy.name}`,
+    hp: Math.floor(enemy.hp * mod.hpMul),
+    maxHp: Math.floor(enemy.maxHp * mod.hpMul),
+    defense: Math.floor(enemy.defense * 1.5),
+    lingshiDrop: Math.floor(enemy.lingshiDrop * mod.rewardMul),
+    expDrop: Math.floor(enemy.expDrop * mod.rewardMul),
+    pantaoDrop: Math.min(1, enemy.pantaoDrop * 2),
+    elite: { id: mod.id, name: mod.name, emoji: mod.emoji, color: mod.color, rewardMul: mod.rewardMul },
+  };
+}
 
 function getLingshiBonusMulLocal(weapon: EquipmentItem | null, armor: EquipmentItem | null, treasure: EquipmentItem | null): number {
   let mul = 1;
@@ -318,11 +336,24 @@ export function executeBattleTick(get: () => any, set: (partial: any) => void): 
       }
     }
 
-    // Equipment drop
+    // v151.0: Elite consumable drop (50% chance)
+    if (enemy.elite && Math.random() < 0.5) {
+      const pillIds = ['exp_pill', 'gold_pill', 'drop_pill', 'atk_pill', 'crit_pill', 'mega_pill'];
+      const pillId = pillIds[Math.floor(Math.random() * pillIds.length)];
+      const def = getConsumable(pillId);
+      if (def) {
+        const cInv = { ...(updatedPlayer.consumableInventory ?? {}) };
+        cInv[pillId] = (cInv[pillId] ?? 0) + 1;
+        updatedPlayer.consumableInventory = cInv;
+        log = addLog(log, `  精英掉落 ${def.emoji}${def.name} ×1！`, 'drop');
+      }
+    }
+
+    // Equipment drop (elite = guaranteed)
     if (updatedInventory.length < getInventoryMax(updatedPlayer.reincarnations)) {
       const globalStage = getGlobalStageLocal(updatedBattle.chapterId, updatedBattle.stageNum);
       const dropMul = REINC_PERKS.find(p => p.id === 'drop_mult')!.effect(updatedPlayer.reincPerks?.['drop_mult'] ?? 0) - 1 + rmb.drop;
-      const eqDrop = rollEquipDrop(globalStage, enemy.isBoss, dropMul);
+      const eqDrop = enemy.elite ? rollEquipDrop(globalStage, true, dropMul + 2) : rollEquipDrop(globalStage, enemy.isBoss, dropMul);
       if (eqDrop) {
         const newItem = createEquipFromTemplate(eqDrop);
         updatedInventory.push(newItem);
@@ -383,6 +414,11 @@ export function executeBattleTick(get: () => any, set: (partial: any) => void): 
       const resumeEnemy = createEnemy(updatedBattle.chapterId, updatedBattle.stageNum, false)!;
       updatedBattle = { ...updatedBattle, wave: 1, isBossWave: false, currentEnemy: resumeEnemy, log, tribulation: undefined };
     } else
+    // v151.0: Track elite kills
+    if (enemy.elite) {
+      updatedPlayer.totalEliteKills = (updatedPlayer.totalEliteKills ?? 0) + 1;
+    }
+
     // Next wave / stage
     if (updatedBattle.isBossWave) {
       updatedPlayer.totalBossKills = (updatedPlayer.totalBossKills || 0) + 1;
@@ -404,12 +440,12 @@ export function executeBattleTick(get: () => any, set: (partial: any) => void): 
         }
       }
 
-      const newEnemy = createEnemy(newChapterId, newStageNum, false)!;
+      const newEnemy = applyElite(createEnemy(newChapterId, newStageNum, false)!, updatedPlayer.level);
       updatedBattle = {
         ...updatedBattle, chapterId: newChapterId, stageNum: newStageNum,
         wave: 1, isBossWave: false, currentEnemy: newEnemy, log,
       };
-      log = addLog(log, `${newEnemy.name} 出现了！`, 'info');
+      log = addLog(log, newEnemy.elite ? `⚡ 精英 ${newEnemy.name} 降临！` : `${newEnemy.name} 出现了！`, newEnemy.elite ? 'boss' : 'info');
 
       const hc = newChapterId > state.highestChapter ? newChapterId : state.highestChapter;
       const hs = newChapterId > state.highestChapter ? newStageNum :
@@ -425,7 +461,8 @@ export function executeBattleTick(get: () => any, set: (partial: any) => void): 
         sfx.bossAppear();
         updatedBattle = { ...updatedBattle, wave: nextWave, isBossWave: true, currentEnemy: boss, log };
       } else {
-        const newEnemy = createEnemy(updatedBattle.chapterId, updatedBattle.stageNum, false)!;
+        const newEnemy = applyElite(createEnemy(updatedBattle.chapterId, updatedBattle.stageNum, false)!, updatedPlayer.level);
+        if (newEnemy.elite) log = addLog(log, `⚡ 精英 ${newEnemy.name} 降临！`, 'boss');
         updatedBattle = { ...updatedBattle, wave: nextWave, isBossWave: false, currentEnemy: newEnemy, log };
       }
     }

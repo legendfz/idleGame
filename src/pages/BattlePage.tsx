@@ -265,13 +265,14 @@ export function BattleView() {
 
       {/* Enemy display */}
       {enemy && (
-        <Card className={`enemy-section${battle.isBossWave ? ' boss-active' : ''}`} style={{ textAlign: 'center', padding: '8px 12px' }}>
-          <div className={`enemy-emoji${battle.isBossWave ? ' boss-glow' : ''}`}>
+        <Card className={`enemy-section${battle.isBossWave ? ' boss-active' : ''}${enemy.elite ? ' elite-active' : ''}`} style={{ textAlign: 'center', padding: '8px 12px' }}>
+          <div className={`enemy-emoji${battle.isBossWave ? ' boss-glow' : ''}${enemy.elite ? ' elite-glow' : ''}`}>
             {enemy.emoji || '👾'}
           </div>
           <div className="enemy-name">
             {battle.isBossWave && <span className="color-boss">⚠ </span>}
-            <span>{enemy.name}</span>
+            {enemy.elite && <span style={{ color: enemy.elite.color, fontWeight: 700 }}>⚡ </span>}
+            <span style={enemy.elite ? { color: enemy.elite.color } : undefined}>{enemy.name}</span>
           </div>
           <div className="hp-bar-bg" style={{ marginTop: 6 }}>
             <div className={`hp-bar-fill${battle.isBossWave ? ' boss' : ''} ${hpPct > 60 ? 'hp-high' : hpPct > 25 ? 'hp-mid' : 'hp-low'}${hpPct < 25 ? ' low' : ''}`} style={{ width: `${hpPct}%` }} />

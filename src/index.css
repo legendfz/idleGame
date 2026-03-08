@@ -430,6 +430,15 @@ body {
   0%, 100% { filter: drop-shadow(0 0 8px rgba(255,68,68,0.5)); }
   50%      { filter: drop-shadow(0 0 20px rgba(255,68,68,0.9)); }
 }
+.enemy-emoji.elite-glow {
+  filter: drop-shadow(0 0 12px rgba(168,85,247,0.7));
+  animation: eliteEmojiPulse 1.2s ease-in-out infinite;
+}
+@keyframes eliteEmojiPulse {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(168,85,247,0.5)); }
+  50%      { filter: drop-shadow(0 0 22px rgba(255,200,50,0.9)); }
+}
+.elite-active { border: 1px solid rgba(168,85,247,0.5) !important; }
 .enemy-name { font-size: 16px; margin-bottom: var(--space-xs); color: var(--text); font-weight: 700; }
 .enemy-sub-stats {
   font-size: 11px;

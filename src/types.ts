@@ -21,6 +21,7 @@ export interface PlayerState {
   totalKills: number;
   totalGoldEarned: number;
   totalBossKills: number;
+  totalEliteKills?: number; // v151.0
   totalCrits: number;
   totalEnhances: number;
   totalBreakthroughs: number;
@@ -109,6 +110,8 @@ export interface Enemy {
   expDrop: number;
   pantaoDrop: number; // chance 0-1
   isBoss: boolean;
+  // v151.0 精英敌人
+  elite?: { id: string; name: string; emoji: string; color: string; rewardMul: number };
 }
 
 export interface Chapter {
