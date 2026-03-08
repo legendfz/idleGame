@@ -49,6 +49,12 @@ const LazyFallback = () => <div style={{ padding: 40, textAlign: 'center', color
 
 function StoryModal() {
   const story = useGameStore(s => s.activeStory);
+  // v149.0: Auto-dismiss story after 3s for automated players
+  useEffect(() => {
+    if (!story) return;
+    const timer = setTimeout(() => useGameStore.setState({ activeStory: null }), 3000);
+    return () => clearTimeout(timer);
+  }, [story]);
   if (!story) return null;
   return (
     <div style={{

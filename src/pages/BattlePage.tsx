@@ -131,15 +131,16 @@ export function BattleView() {
   const lastEventKills = useRef(0);
   const totalKills = player.totalKills;
 
+  const activeStory = useGameStore(s => s.activeStory);
   useEffect(() => {
-    if (totalKills > 0 && totalKills - lastEventKills.current >= 80 && !activeEvent) {
+    if (totalKills > 0 && totalKills - lastEventKills.current >= 80 && !activeEvent && !activeStory) {
       const evt = getRandomEvent(player.level);
       if (evt) {
         setActiveEvent(evt);
         lastEventKills.current = totalKills;
       }
     }
-  }, [totalKills, player.level, activeEvent]);
+  }, [totalKills, player.level, activeEvent, activeStory]);
 
   const handleEventChoice = useCallback((choice: EventChoice) => {
     const result = resolveChoice(choice, player.level);
