@@ -145,7 +145,7 @@ export function autoQuickTrial(ctx: TickContext) {
 export function autoAscensionChallenge(ctx: TickContext) {
   if (!ctx.state.autoAscension || ctx.totalPlayTime % 600 !== 0 || ctx.totalPlayTime === 0) return;
   const today = new Date().toDateString();
-  const completed = ctx.state.completedChallengesDate === today ? [...ctx.state.completedChallenges] : [];
+  const completed = ctx.state.completedChallengesDate === today ? [...(ctx.state.completedChallenges ?? [])] : [];
   const challenges = getDailyChallenges();
   let changed = false;
   for (const ch of challenges) {
@@ -390,7 +390,7 @@ export function checkTitleUnlocks(ctx: TickContext) {
     totalPlayTimeSec: ctx.state.totalPlayTime,
     awakeningPoints: ctx.updatedPlayer.awakeningPoints ?? 0,
   };
-  const current = ctx.state.unlockedTitles;
+  const current = ctx.state.unlockedTitles ?? [];
   const newUnlocked = TITLES.filter(t => t.condition(titleStats)).map(t => t.id);
   if (newUnlocked.length > current.length) {
     const newlyEarned = newUnlocked.filter((id: string) => !current.includes(id));
@@ -403,7 +403,7 @@ export function checkTitleUnlocks(ctx: TickContext) {
 /** Story triggers every 10 ticks */
 export function checkStoryTriggers(ctx: TickContext) {
   if (ctx.totalPlayTime % 10 !== 0) return;
-  const seen = ctx.state.seenStories;
+  const seen = ctx.state.seenStories ?? [];
   for (const story of STORY_LIST) {
     if (seen.includes(story.id)) continue;
     let triggered = false;

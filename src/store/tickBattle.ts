@@ -242,8 +242,8 @@ export function executeBattleTick(get: () => any, set: (partial: any) => void): 
   if (enemy.hp <= 0) {
     updatedPlayer.totalKills++;
     set({ allTimeKills: state.allTimeKills + 1 });
-    if (!updatedPlayer.codexEnemyNames.includes(enemy.name)) {
-      updatedPlayer.codexEnemyNames = [...updatedPlayer.codexEnemyNames, enemy.name];
+    if (!(updatedPlayer.codexEnemyNames ?? []).includes(enemy.name)) {
+      updatedPlayer.codexEnemyNames = [...(updatedPlayer.codexEnemyNames ?? []), enemy.name];
     }
     // v49.0: Kill streak
     updatedBattle.killStreak = (updatedBattle.killStreak || 0) + 1;
@@ -318,8 +318,8 @@ export function executeBattleTick(get: () => any, set: (partial: any) => void): 
         const newItem = createEquipFromTemplate(eqDrop);
         updatedInventory.push(newItem);
         updatedPlayer.totalEquipDrops++;
-        if (!updatedPlayer.codexEquipIds.includes(eqDrop.id)) {
-          updatedPlayer.codexEquipIds = [...updatedPlayer.codexEquipIds, eqDrop.id];
+        if (!(updatedPlayer.codexEquipIds ?? []).includes(eqDrop.id)) {
+          updatedPlayer.codexEquipIds = [...(updatedPlayer.codexEquipIds ?? []), eqDrop.id];
         }
         const qi = QUALITY_INFO[eqDrop.quality];
         log = addLog(log, `  获得 ${qi.symbol}${eqDrop.name}`, 'drop');
