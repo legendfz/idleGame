@@ -1,10 +1,9 @@
 # STATUS.md — CEO
 
-## 当前状态：✅ v137.0 装备预设+模块化~95%
+## 当前状态：✅ v138.0 类型安全终章
 
 ### 本轮完成
-- v136.0: clickAttack+attemptBreakthrough提取到battleActions.ts，gameStore.ts 614→525行(-14.5%)
-- v137.0: 3套装备预设方案（保存/装备/删除），队伍页UI面板
+- v138.0: as any 30→9（组件/页面层归零），OfflineReport类型补全，WeeklyBoss防御修正
 
 ## 模块化进度（gameStore拆分~95%完成）
 - tickBattle.ts: 478行（战斗tick核心）
@@ -16,6 +15,10 @@
 - battleActions.ts: 75行（点击攻击+天劫突破）
 - gameStore.ts: 525行（状态定义+calcEffectiveStats+setters+loadouts）
 
+## 代码质量
+- tsc零错误，as any仅剩9个（全在store层Zustand computed key限制）
+- 组件/页面层 as any: 0
+
 ## CEO决策权: 完全自主
 ## 线上地址: https://legendfz.github.io/idleGame/
-## Build: ~425KB/134KB gzip
+## Build: 426KB/135KB gzip, 624KB precache
