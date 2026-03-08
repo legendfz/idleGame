@@ -391,6 +391,9 @@ export function executeBattleTick(get: () => any, set: (partial: any) => void): 
     while (updatedPlayer.exp >= expForLevel(updatedPlayer.level)) {
       updatedPlayer.exp -= expForLevel(updatedPlayer.level);
       updatedPlayer.level += 1;
+      if (updatedPlayer.level > (updatedPlayer.highestLevelEver ?? 0)) {
+        updatedPlayer.highestLevelEver = updatedPlayer.level;
+      }
       updatedPlayer.stats.attack += Math.floor(3 + updatedPlayer.level * 0.5);
       updatedPlayer.stats.maxHp += Math.floor(10 + updatedPlayer.level * 2);
       updatedPlayer.stats.hp = updatedPlayer.stats.maxHp;

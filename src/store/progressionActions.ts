@@ -38,6 +38,7 @@ export function reincarnateAction(get: () => any, set: (s: any) => void) {
   newPlayer.fastestReincTime = bestReincTime;
   newPlayer.totalReincarnations = (player.totalReincarnations ?? 0) + 1;
   newPlayer.reincStartTime = state.totalPlayTime ?? 0;
+  newPlayer.highestLevelEver = player.highestLevelEver ?? 0;
 
   if (startLevel > 0) {
     newPlayer.level = Math.max(1, startLevel);
@@ -156,6 +157,7 @@ export function transcendAction(get: () => any, set: (s: any) => void) {
   newPlayer.fastestReincTime = player.fastestReincTime ?? 0;
   newPlayer.totalReincarnations = player.totalReincarnations ?? 0;
   newPlayer.reincStartTime = state.totalPlayTime ?? 0;
+  newPlayer.highestLevelEver = player.highestLevelEver ?? 0;
   newPlayer.reincarnations = 0;
   newPlayer.daoPoints = 0;
   newPlayer.totalDaoPoints = 0;

@@ -58,6 +58,7 @@ export interface PlayerState {
   fastestReincTime: number;            // v152.0: fastest reincarnation time in seconds (0=never)
   totalReincarnations: number;         // v152.0: all-time reincarnation count (across transcends)
   reincStartTime: number;              // v152.0: totalPlayTime when current reincarnation started
+  highestLevelEver: number;            // v153.0: highest level ever reached (across all reincarnations)
   pinnedAchievement: string | null;    // pinned achievement id for battle page
   // v116.0
   transcendCount: number;

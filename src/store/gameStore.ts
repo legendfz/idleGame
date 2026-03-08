@@ -254,6 +254,7 @@ export function makeInitialPlayer(): PlayerState {
     fastestReincTime: 0,
     totalReincarnations: 0,
     reincStartTime: 0,
+    highestLevelEver: 0,
     pinnedAchievement: null,
     transcendCount: 0,
     transcendPoints: 0,
