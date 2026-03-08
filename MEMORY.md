@@ -950,3 +950,11 @@
 - Build: ~425KB/134KB gzip
 - Commit: 3efffad
 - CEO直接实现（最高效）
+
+## v139.0「战场重铸」完成（2026-03-07 17:01）
+- BattlePage模块化拆分：713→483行（-32%）
+- 6个子组件提取到src/components/battle/：SmartHints/PinnedAchievementTracker/SkillBar/ConsumableBar/OnlineRewardsBar/AbyssMilestoneBar
+- 新功能：离线收益预估面板（点击展开，显示1h/4h/8h预估灵石+经验）
+- Build: 428KB/135KB gzip, 625KB precache
+- Commit: 87ef471
+- CEO直接实现（最高效）
