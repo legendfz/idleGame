@@ -27,7 +27,7 @@ import {
   buyScrollAction, sellEquipAction, toggleLockAction, decomposeEquipAction,
   batchDecomposeAction, autoEquipBestAction, quickDecomposeAction,
   goToChapterAction, sweepChapterAction, sweepAllAction, batchEnhanceEquippedAction,
-  synthesizeEquipAction, feedPetAction, setActivePetAction, reforgeEquipAction, getReforgeCost,
+  synthesizeEquipAction, feedPetAction, setActivePetAction, evolvePetAction, reforgeEquipAction, getReforgeCost,
   socketGemAction, unsocketGemAction, mergeGemsAction,
 } from './equipmentActions';
 import {
@@ -125,6 +125,7 @@ interface GameStore {
   attemptBreakthrough: () => void;
   reincarnate: () => void;
   feedPet: (petId: string) => void;
+  evolvePet: (petId: string) => void;
   setActivePet: (petId: string | null) => void;
   buyReincPerk: (perkId: string, maxBuy?: boolean) => void;
   getReincMultiplier: (perkId: string) => number;
@@ -254,6 +255,7 @@ export function makeInitialPlayer(): PlayerState {
     trialTokens: 0,
     trialBestFloor: 0,
     petLevels: {},
+    petEvolutions: {},
     activePetId: null,
     trialShopPurchases: {},
     bestKillStreak: 0,
@@ -381,7 +383,7 @@ export function calcEffectiveStats(
   s.critRate = Math.min(100, s.critRate + trBonus.critFlat);
   s.critDmg += trBonus.critDmg;
   // v107.0: Pet bonuses (灵兽加成)
-  const petBonus = getPetTotalBonus(gs.player.petLevels ?? {}, gs.player.activePetId);
+  const petBonus = getPetTotalBonus(gs.player.petLevels ?? {}, gs.player.activePetId, gs.player.petEvolutions);
   if (petBonus.atkPct) s.attack = Math.floor(s.attack * (1 + petBonus.atkPct / 100));
   if (petBonus.hpPct) s.maxHp = Math.floor(s.maxHp * (1 + petBonus.hpPct / 100));
   if (petBonus.critRate) s.critRate = Math.min(100, s.critRate + petBonus.critRate);
@@ -585,6 +587,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   unsocketGem: (equipUid: string, slotIndex: number) => unsocketGemAction(get, set, equipUid, slotIndex),
   mergeGems: (typeId: string, level: number) => mergeGemsAction(get, set, typeId, level),
   feedPet: (petId: string) => feedPetAction(get, set, petId),
+  evolvePet: (petId: string) => evolvePetAction(get, set, petId),
 
   setActivePet: (petId: string | null) => setActivePetAction(get, set, petId),
 

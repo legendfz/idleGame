@@ -63,15 +63,49 @@ export const PETS: PetDef[] = [
   },
 ];
 
-export function getPetTotalBonus(petLevels: Record<string, number> | undefined, activePetId: string | null): PetBonus {
+// v158.0: 灵兽进化系统
+export interface PetEvolution {
+  stage: number;      // 0=base, 1=觉醒, 2=化形, 3=通灵
+  name: string;
+  emoji: string;
+  bonusMul: number;   // multiplier on base bonuses
+  cost: { lingshi: number; pantao: number; hongmengShards: number };
+}
+
+export const EVOLUTION_STAGES: PetEvolution[] = [
+  { stage: 0, name: '幼生', emoji: '🥚', bonusMul: 1, cost: { lingshi: 0, pantao: 0, hongmengShards: 0 } },
+  { stage: 1, name: '觉醒', emoji: '✨', bonusMul: 2, cost: { lingshi: 500000, pantao: 200, hongmengShards: 50 } },
+  { stage: 2, name: '化形', emoji: '🌟', bonusMul: 4, cost: { lingshi: 5000000, pantao: 1000, hongmengShards: 200 } },
+  { stage: 3, name: '通灵', emoji: '👑', bonusMul: 8, cost: { lingshi: 50000000, pantao: 5000, hongmengShards: 1000 } },
+];
+
+export function getEvolutionStage(petEvolutions: Record<string, number> | undefined, petId: string): number {
+  return petEvolutions?.[petId] ?? 0;
+}
+
+export function canEvolvePet(
+  petId: string, petLevels: Record<string, number> | undefined,
+  petEvolutions: Record<string, number> | undefined,
+  lingshi: number, pantao: number, hongmengShards: number
+): boolean {
+  const lv = petLevels?.[petId] ?? 0;
+  const stage = getEvolutionStage(petEvolutions, petId);
+  if (lv < 50 || stage >= 3) return false; // must be max level, max evolution = 3
+  const next = EVOLUTION_STAGES[stage + 1];
+  return lingshi >= next.cost.lingshi && pantao >= next.cost.pantao && hongmengShards >= next.cost.hongmengShards;
+}
+
+export function getPetTotalBonus(petLevels: Record<string, number> | undefined, activePetId: string | null, petEvolutions?: Record<string, number>): PetBonus {
   const total: PetBonus = {};
   if (!petLevels) return total;
-  // Active pet gets full bonus, others get 30%
+  // Active pet gets full bonus, others get 30%; evolution multiplies all bonuses
   for (const pet of PETS) {
     const lv = petLevels[pet.id] ?? 0;
     if (lv <= 0) continue;
     const b = pet.bonuses(lv);
-    const mult = pet.id === activePetId ? 1 : 0.3;
+    const evoStage = getEvolutionStage(petEvolutions, pet.id);
+    const evoMul = EVOLUTION_STAGES[evoStage]?.bonusMul ?? 1;
+    const mult = (pet.id === activePetId ? 1 : 0.3) * evoMul;
     total.atkPct = (total.atkPct ?? 0) + (b.atkPct ?? 0) * mult;
     total.hpPct = (total.hpPct ?? 0) + (b.hpPct ?? 0) * mult;
     total.expPct = (total.expPct ?? 0) + (b.expPct ?? 0) * mult;

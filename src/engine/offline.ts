@@ -134,7 +134,7 @@ export function calculateOfflineEarnings(
   // v64.0: Apply awakening bonuses
   const awk = getAwakeningBonuses(player);
   // v108.0: Apply pet bonuses
-  const petBonus = getPetTotalBonus(player.petLevels ?? {}, player.activePetId ?? null);
+  const petBonus = getPetTotalBonus(player.petLevels ?? {}, player.activePetId ?? null, player.petEvolutions);
   // v148.0: Apply transcendence, milestones, title, affinity (previously missing!)
   const trBonus = getTranscendBonuses(player.transcendPerks ?? {});
   const rmb = getReincMilestoneBonus(player.reincarnations ?? 0);

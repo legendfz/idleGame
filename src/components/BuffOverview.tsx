@@ -144,7 +144,7 @@ export function BuffOverview() {
     }
 
     // 9. Pet bonuses (v108.0)
-    const petB = getPetTotalBonus(player.petLevels ?? {}, player.activePetId ?? null);
+    const petB = getPetTotalBonus(player.petLevels ?? {}, player.activePetId ?? null, player.petEvolutions);
     const petBuffs: { label: string; value: string }[] = [];
     if (petB.atkPct) petBuffs.push({ label: '灵兽·攻击', value: `+${petB.atkPct.toFixed(0)}%` });
     if (petB.hpPct) petBuffs.push({ label: '灵兽·生命', value: `+${petB.hpPct.toFixed(0)}%` });

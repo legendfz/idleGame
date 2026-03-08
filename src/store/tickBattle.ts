@@ -306,7 +306,7 @@ export function executeBattleTick(get: () => any, set: (partial: any) => void): 
     const afLingshi = 1 + (afBuf.lingshiMul ?? 0) / 100;
     const afExp = 1 + (afBuf.expMul ?? 0) / 100;
     const fateMul = (state.fateBlessing.active && state.fateBlessing.expiresAt > Date.now()) ? 2 : 1;
-    const petB = getPetTotalBonus(player.petLevels ?? {}, player.activePetId);
+    const petB = getPetTotalBonus(player.petLevels ?? {}, player.activePetId, player.petEvolutions);
     const codexLingshi = 1 + codexB.lingshiPct / 100;
     const codexExp = 1 + codexB.expPct / 100;
     // v154.0: Level milestone bonuses

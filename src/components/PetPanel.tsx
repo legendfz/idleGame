@@ -1,4 +1,4 @@
-import { PETS, type PetDef } from '../data/pets';
+import { PETS, type PetDef, EVOLUTION_STAGES, getEvolutionStage, canEvolvePet } from '../data/pets';
 import { useGameStore } from '../store/gameStore';
 import { formatNumber } from '../utils/format';
 import { useMemo } from 'react';
@@ -7,6 +7,7 @@ export function PetPanel() {
   const player = useGameStore(s => s.player);
   const feedPet = useGameStore(s => s.feedPet);
   const setActivePet = useGameStore(s => s.setActivePet);
+  const evolvePet = useGameStore(s => s.evolvePet);
 
   // Calculate total pet bonuses
   const totalBonuses = useMemo(() => {
@@ -55,20 +56,24 @@ export function PetPanel() {
       )}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {PETS.map(pet => (
-          <PetCard key={pet.id} pet={pet} player={player} feedPet={feedPet} setActivePet={setActivePet} />
+          <PetCard key={pet.id} pet={pet} player={player} feedPet={feedPet} setActivePet={setActivePet} evolvePet={evolvePet} />
         ))}
       </div>
     </div>
   );
 }
 
-function PetCard({ pet, player, feedPet, setActivePet }: {
-  pet: PetDef; player: any; feedPet: (id: string) => void; setActivePet: (id: string | null) => void;
+function PetCard({ pet, player, feedPet, setActivePet, evolvePet }: {
+  pet: PetDef; player: any; feedPet: (id: string) => void; setActivePet: (id: string | null) => void; evolvePet: (id: string) => void;
 }) {
   const level = player.petLevels?.[pet.id] ?? 0;
   const unlocked = player.level >= pet.unlockLevel;
   const isActive = player.activePetId === pet.id;
   const maxed = level >= pet.maxLevel;
+  const evoStage = getEvolutionStage(player.petEvolutions, pet.id);
+  const evo = EVOLUTION_STAGES[evoStage];
+  const canEvolve = canEvolvePet(pet.id, player.petLevels, player.petEvolutions, player.lingshi, player.pantao, player.hongmengShards);
+  const nextEvo = evoStage < 3 ? EVOLUTION_STAGES[evoStage + 1] : null;
   const cost = maxed ? 0 : pet.feedCost(level);
   const canFeed = unlocked && !maxed && player.lingshi >= cost;
   const bonuses = pet.bonuses(Math.max(level, 1));
@@ -127,7 +132,9 @@ function PetCard({ pet, player, feedPet, setActivePet }: {
         <div>
           <span style={{ fontSize: 20, marginRight: 6 }}>{pet.emoji}</span>
           <span style={{ fontWeight: 'bold', color: unlocked ? '#fbbf24' : 'var(--text-dim)' }}>{pet.name}</span>
+          {evoStage > 0 && <span style={{ fontSize: 11, marginLeft: 4, color: evoStage >= 3 ? '#fbbf24' : '#a78bfa' }}>{evo.emoji}{evo.name}</span>}
           {level > 0 && <span style={{ color: '#a78bfa', fontSize: 12, marginLeft: 6 }}>Lv.{level}/{pet.maxLevel}</span>}
+          {evoStage > 0 && <span style={{ fontSize: 10, marginLeft: 4, color: '#c084fc' }}>×{evo.bonusMul}</span>}
           {isActive && <span style={{ color: '#fbbf24', fontSize: 11, marginLeft: 6 }}>⭐出战</span>}
         </div>
         {!unlocked && <span style={{ fontSize: 11, color: 'var(--text-dim)' }}>🔒 Lv.{pet.unlockLevel}解锁</span>}
@@ -203,6 +210,39 @@ function PetCard({ pet, player, feedPet, setActivePet }: {
               {isActive ? '收回' : '出战'}
             </button>
           )}
+        </div>
+      )}
+      {/* Evolution section */}
+      {unlocked && maxed && nextEvo && (
+        <div style={{
+          marginTop: 8, padding: '8px 10px', borderRadius: 8,
+          background: canEvolve ? 'linear-gradient(135deg, rgba(251,191,36,0.15), rgba(167,139,250,0.15))' : 'rgba(255,255,255,0.04)',
+          border: `1px solid ${canEvolve ? '#fbbf2444' : 'rgba(255,255,255,0.08)'}`,
+        }}>
+          <div style={{ fontSize: 11, color: '#fbbf24', fontWeight: 'bold', marginBottom: 4 }}>
+            {nextEvo.emoji} 进化至【{nextEvo.name}】— 加成×{nextEvo.bonusMul}
+          </div>
+          <div style={{ fontSize: 10, color: 'var(--text-dim)', marginBottom: 6, display: 'flex', gap: 8 }}>
+            <span>💰{formatNumber(nextEvo.cost.lingshi)}</span>
+            <span>🍑{formatNumber(nextEvo.cost.pantao)}</span>
+            <span>💎{formatNumber(nextEvo.cost.hongmengShards)}</span>
+          </div>
+          <button
+            onClick={() => evolvePet(pet.id)}
+            disabled={!canEvolve}
+            style={{
+              width: '100%', padding: '6px 0', borderRadius: 8, border: 'none', fontSize: 12, cursor: canEvolve ? 'pointer' : 'default',
+              background: canEvolve ? 'linear-gradient(135deg,#fbbf24,#f59e0b)' : 'rgba(255,255,255,0.08)',
+              color: canEvolve ? '#000' : 'var(--text-dim)', fontWeight: 'bold',
+            }}
+          >
+            {canEvolve ? '🌟 进化！' : '材料不足'}
+          </button>
+        </div>
+      )}
+      {unlocked && maxed && !nextEvo && (
+        <div style={{ marginTop: 6, fontSize: 11, color: '#22c55e', textAlign: 'center' }}>
+          👑 已达最终进化
         </div>
       )}
     </div>

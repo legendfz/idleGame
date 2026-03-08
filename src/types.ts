@@ -51,6 +51,7 @@ export interface PlayerState {
   trialShopPurchases: Record<string, number>; // shopItemId → count
   // v107.0 灵兽
   petLevels: Record<string, number>;   // petId → level
+  petEvolutions: Record<string, number>; // petId → evolution stage (0-3)
   activePetId: string | null;          // currently summoned pet
   // v115.0
   bestKillStreak: number;              // highest kill streak ever

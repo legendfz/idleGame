@@ -165,6 +165,7 @@ export function loadAction(get: () => any, set: (s: any) => void, addLog: (log: 
       save.player.consumableInventory = save.player.consumableInventory ?? {};
       save.player.activeConsumables = save.player.activeConsumables ?? [];
       save.player.petLevels = save.player.petLevels ?? {};
+      save.player.petEvolutions = save.player.petEvolutions ?? {};
       save.player.activePetId = save.player.activePetId ?? null;
       save.player.bestKillStreak = save.player.bestKillStreak ?? 0;
       save.player.pinnedAchievement = save.player.pinnedAchievement ?? null;

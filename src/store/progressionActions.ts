@@ -29,6 +29,7 @@ export function reincarnateAction(get: () => any, set: (s: any) => void) {
   newPlayer.codexEnemyNames = [...player.codexEnemyNames];
   newPlayer.activeSkills = { cooldowns: {}, buffs: {} };
   newPlayer.petLevels = { ...player.petLevels };
+  newPlayer.petEvolutions = { ...(player.petEvolutions ?? {}) };
   newPlayer.activePetId = player.activePetId;
   newPlayer.bestKillStreak = player.bestKillStreak;
   newPlayer.pinnedAchievement = player.pinnedAchievement;
@@ -151,6 +152,7 @@ export function transcendAction(get: () => any, set: (s: any) => void) {
   newPlayer.codexEquipIds = [...player.codexEquipIds];
   newPlayer.codexEnemyNames = [...player.codexEnemyNames];
   newPlayer.petLevels = { ...player.petLevels };
+  newPlayer.petEvolutions = { ...(player.petEvolutions ?? {}) };
   newPlayer.activePetId = player.activePetId;
   newPlayer.bestKillStreak = player.bestKillStreak;
   newPlayer.pinnedAchievement = player.pinnedAchievement;

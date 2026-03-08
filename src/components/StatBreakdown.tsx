@@ -115,7 +115,7 @@ export function useStatBreakdown() {
     }
 
     // 9. Pets
-    const pet = getPetTotalBonus(player.petLevels ?? {}, player.activePetId);
+    const pet = getPetTotalBonus(player.petLevels ?? {}, player.activePetId, player.petEvolutions);
     if (pet.atkPct || pet.hpPct || pet.critRate || pet.critDmg) {
       sources.push({
         name: '灵兽', emoji: '🐉',

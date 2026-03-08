@@ -13,7 +13,7 @@ import {
   REFINE_TIANMING_BONUS, REFINE_SHARD_PITY, hasHiddenPassive,
   SCROLL_PRICES, EQUIPMENT_TEMPLATES,
 } from '../data/equipment';
-import { PETS as PETS_DATA } from '../data/pets';
+import { PETS as PETS_DATA, canEvolvePet, EVOLUTION_STAGES, getEvolutionStage } from '../data/pets';
 import { getInventoryMax } from './gameStore';
 
 type GetFn = () => any;
@@ -427,6 +427,27 @@ export function feedPetAction(get: GetFn, set: SetFn, petId: string) {
 
 export function setActivePetAction(get: GetFn, set: SetFn, petId: string | null) {
   set({ player: { ...get().player, activePetId: petId } });
+}
+
+// v158.0: 灵兽进化
+export function evolvePetAction(get: GetFn, set: SetFn, petId: string) {
+  const state = get();
+  const pet = PETS_DATA.find(p => p.id === petId);
+  if (!pet) return;
+  const p = state.player;
+  if (!canEvolvePet(petId, p.petLevels, p.petEvolutions, p.lingshi, p.pantao, p.hongmengShards)) return;
+  const stage = getEvolutionStage(p.petEvolutions, petId);
+  const next = EVOLUTION_STAGES[stage + 1];
+  set({
+    player: {
+      ...p,
+      lingshi: p.lingshi - next.cost.lingshi,
+      pantao: p.pantao - next.cost.pantao,
+      hongmengShards: p.hongmengShards - next.cost.hongmengShards,
+      petEvolutions: { ...(p.petEvolutions ?? {}), [petId]: stage + 1 },
+    },
+    battle: { ...state.battle, log: addLog(state.battle.log, `${pet.emoji}${pet.name} 进化为【${next.name}】！加成×${next.bonusMul}！`, 'levelup') },
+  });
 }
 
 // v142.0「洗炼乾坤」— Reforge equipment baseStat
