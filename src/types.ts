@@ -53,6 +53,7 @@ export interface PlayerState {
   activePetId: string | null;          // currently summoned pet
   // v115.0
   bestKillStreak: number;              // highest kill streak ever
+  allTimeLingshi: number;              // v144.0: total lingshi earned all time
   pinnedAchievement: string | null;    // pinned achievement id for battle page
   // v116.0
   transcendCount: number;

@@ -247,6 +247,7 @@ export function makeInitialPlayer(): PlayerState {
     activePetId: null,
     trialShopPurchases: {},
     bestKillStreak: 0,
+    allTimeLingshi: 0,
     pinnedAchievement: null,
     transcendCount: 0,
     transcendPoints: 0,

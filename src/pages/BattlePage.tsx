@@ -12,7 +12,7 @@ import { useAutoWorldBoss } from '../components/WorldBossPanel';
 import { WorldBossBanner, WorldBossModal } from '../components/WorldBossPanel';
 import { SmartHints, PinnedAchievementTracker, SkillBar, ConsumableBar, OnlineRewardsBar, AbyssMilestoneBar } from '../components/battle';
 
-const SPEED_OPTIONS = [1, 2, 5, 10];
+const SPEED_OPTIONS = [1, 2, 5, 10, 20, 50];
 type LogFilter = 'all' | 'drop' | 'levelup' | 'boss' | 'crit';
 
 const TIPS = [
@@ -253,7 +253,7 @@ export function BattleView() {
             <div className="battle-chapter-fill" style={{ width: `${chapterProgress}%` }} />
           </div>
         )}
-        <button className={`battle-speed-btn${battleSpeed === 2 ? ' active' : battleSpeed === 5 ? ' speed-5' : battleSpeed === 10 ? ' speed-10' : ''}`} onClick={cycleSpeed}>
+        <button className={`battle-speed-btn${battleSpeed === 2 ? ' active' : battleSpeed === 5 ? ' speed-5' : battleSpeed >= 10 ? ' speed-10' : ''}`} onClick={cycleSpeed}>
           {battleSpeed}x
         </button>
       </div>

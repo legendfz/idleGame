@@ -29,6 +29,7 @@ export function reincarnateAction(get: () => any, set: (s: any) => void) {
   newPlayer.pinnedAchievement = player.pinnedAchievement;
   newPlayer.consumableInventory = { ...player.consumableInventory };
   newPlayer.activeConsumables = [];
+  newPlayer.allTimeLingshi = player.allTimeLingshi ?? 0;
 
   if (startLevel > 0) {
     newPlayer.level = Math.max(1, startLevel);
@@ -143,6 +144,7 @@ export function transcendAction(get: () => any, set: (s: any) => void) {
   newPlayer.bestKillStreak = player.bestKillStreak;
   newPlayer.pinnedAchievement = player.pinnedAchievement;
   newPlayer.consumableInventory = { ...player.consumableInventory };
+  newPlayer.allTimeLingshi = player.allTimeLingshi ?? 0;
   newPlayer.reincarnations = 0;
   newPlayer.daoPoints = 0;
   newPlayer.totalDaoPoints = 0;

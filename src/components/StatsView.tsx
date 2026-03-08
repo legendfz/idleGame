@@ -26,6 +26,7 @@ export function StatsView() {
     { icon: '▸', label: '蟠桃', value: formatNumber(player.pantao ?? 0) },
     { icon: '▸', label: '击杀数', value: (player.totalKills || 0).toLocaleString() },
     { icon: '▸', label: '累计击杀', value: (useGameStore.getState().allTimeKills || 0).toLocaleString() },
+    { icon: '▸', label: '累计灵石', value: (useGameStore.getState().player?.allTimeLingshi || 0).toLocaleString() },
     { icon: '▸', label: '深渊最高层', value: `${useGameStore.getState().highestAbyssFloor || 0}层` },
     { icon: '▸', label: '最高连杀', value: `🔥${player.bestKillStreak || 0}` },
     { icon: '▸', label: '最高伤害', value: formatNumber(player.maxDamage || 0) },

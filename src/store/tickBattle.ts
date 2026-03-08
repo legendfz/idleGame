@@ -284,6 +284,7 @@ export function executeBattleTick(get: () => any, set: (partial: any) => void): 
     const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100) * afExp * (1 + rmb.exp) * fateMul * (1 + (titleBonus.expMul ?? 0)) * (1 + (petB.expPct ?? 0) / 100) * trBonusTick.expMul);
     updatedPlayer.lingshi += lingshiDrop;
     updatedPlayer.totalGoldEarned = (updatedPlayer.totalGoldEarned || 0) + lingshiDrop;
+    updatedPlayer.allTimeLingshi = (updatedPlayer.allTimeLingshi ?? 0) + lingshiDrop;
     updatedPlayer.exp += expDrop;
     tickGold += lingshiDrop;
     tickExp += expDrop;
