@@ -1,15 +1,15 @@
 # STATUS.md — CEO
 
-## 当前状态：✅ v141.0 天道守护
+## 当前状态：✅ v142.0 洗炼乾坤
 
 ### 本轮完成
-- v141.0: 🔴修复线上致命bug — tick()每秒崩溃(TypeError: Cannot read properties of undefined reading 'includes')
-- 5处state数组安全guard：unlockedTitles/seenStories/completedChallenges/codexEnemyNames/codexEquipIds
-- 根因：旧存档缺失新版本字段，虽load()有默认值但某些路径仍可能undefined
+- v142.0: 装备洗炼系统 — 消耗灵石重置基础属性(±30%)
+- 背包页🔮洗炼按钮 + 队伍页洗炼面板
+- 6品质阶梯费用：凡品500→鸿蒙500K灵石
 
 ## 代码质量
 - tsc零错误
-- Build: 428KB/135KB gzip, 622KB precache
+- Build: ~430KB/135KB gzip, 625KB precache
 - 线上部署：GitHub Pages ✅
 
 ## CEO决策权: 完全自主
