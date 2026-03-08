@@ -980,3 +980,21 @@
 - Build: ~625KB precache
 - Commit: b49a6bf
 - CEO直接实现（最高效）
+
+## v143.0「洗炼自如」完成（2026-03-07 21:00）
+- 自动洗炼：每60 tick洗炼已装备装备（只接受提升，需3x费用缓冲）
+- 装备评分百分比：队伍页显示baseStat占模板max的百分比（绿≥90%/黄≥60%/红<60%）
+- 一键全自动从24项扩展到25项（+autoReforge）
+- SettingsPage allOn逻辑重构（IIFE消除重复表达式）
+- Build: 626KB precache
+- Commit: 0ca440a
+- CEO直接实现（最高效）
+
+## v144.0「极速修仙」完成（2026-03-07 21:00）
+- 战斗速度扩展：1x/2x/5x/10x/20x/50x（endgame玩家需求）
+- 累计灵石统计：allTimeLingshi字段加入PlayerState，跨转世/超越保留
+- 统计页显示累计灵石
+- 装备评分函数：getEquipPerfection()（equipment.ts）
+- Build: 626KB precache
+- Commit: f597063
+- CEO直接实现（最高效）
