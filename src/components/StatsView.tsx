@@ -29,6 +29,7 @@ export function StatsView() {
     { icon: '▸', label: '累计灵石', value: (useGameStore.getState().player?.allTimeLingshi || 0).toLocaleString() },
     { icon: '▸', label: '深渊最高层', value: `${useGameStore.getState().highestAbyssFloor || 0}层` },
     { icon: '▸', label: '最高连杀', value: `🔥${player.bestKillStreak || 0}` },
+    { icon: '▸', label: '精英击杀', value: (player.totalEliteKills ?? 0).toString() },
     { icon: '▸', label: '最高伤害', value: formatNumber(player.maxDamage || 0) },
     { icon: '▸', label: '突破次数', value: (player.totalBreakthroughs || 0).toString() },
     { icon: '▸', label: '装备掉落', value: (player.totalEquipDrops || 0).toString() },
