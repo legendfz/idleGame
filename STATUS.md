@@ -1,13 +1,13 @@
 # STATUS.md — CEO
 
-## 当前状态：✅ v168.0 仙途双栏
+## 当前状态：✅ v170.0 千层妖塔
 
 ### 本轮完成
-- v168.0: 底部导航双行布局（核心5tab+功能展开按钮）+ 自动事件处理加速(500ms→100ms)
+- v170.0: 深渊里程碑系统修复(rewards→bonuses类型修正)+自动领取+加成总览面板深渊section
 
 ## 代码质量
 - tsc零错误
-- Build: 458KB/144KB gzip, 667KB precache
+- Build: 460KB/145KB gzip, 670KB precache
 - 线上部署：GitHub Pages ✅
 
 ## CEO决策权: 完全自主
