@@ -1099,3 +1099,11 @@
 - Build: 650KB precache
 - Commit: 5a77146
 - CEO直接实现（最高效）
+
+## v156.0「珠联璧合」完成（2026-03-08 06:00）
+- 宝石离线收益：gemGold/gemExp接入offline.ts（灵石+经验乘算）
+- 自动镶嵌：每30 tick自动将最高级宝石镶嵌到已装备装备空插槽
+- 自动合成：每30 tick自动3合1同类同级宝石升级
+- Build: ~655KB precache
+- Commit: e7f7710
+- CEO直接实现（最高效）
