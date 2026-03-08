@@ -2,22 +2,15 @@ import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { useDailyStore } from '../store/dailyStore';
 import { formatNumber, expForLevel, formatTime } from '../utils/format';
-import type { TabId } from '../types';
 import { REALMS } from '../data/realms';
 import { getRandomEvent, resolveChoice, type RandomEvent, type EventChoice } from '../data/randomEvents';
 import { CHAPTERS, ABYSS_CHAPTER_ID } from '../data/chapters';
 import { TITLES } from '../data/titles';
-import { ACTIVE_SKILLS } from '../data/skills';
-import { CONSUMABLE_BUFFS } from '../data/consumables';
 import { Card, FloatingDamage, BossToast } from './shared';
 import { StatBreakdownModal } from '../components/StatBreakdown';
 import { useAutoWorldBoss } from '../components/WorldBossPanel';
 import { WorldBossBanner, WorldBossModal } from '../components/WorldBossPanel';
-import { BUILDINGS, getUpgradeCost } from '../engine/sanctuary';
-import { ABYSS_MILESTONES } from '../data/abyssMilestones';
-import { ACHIEVEMENTS } from '../data/achievements';
-import { useSanctuaryStore } from '../store/sanctuaryStore';
-import { useExplorationStore } from '../store/explorationStore';
+import { SmartHints, PinnedAchievementTracker, SkillBar, ConsumableBar, OnlineRewardsBar, AbyssMilestoneBar } from '../components/battle';
 
 const SPEED_OPTIONS = [1, 2, 5, 10];
 type LogFilter = 'all' | 'drop' | 'levelup' | 'boss' | 'crit';
@@ -40,8 +33,6 @@ export function BattleView() {
   const battle = useGameStore(s => s.battle);
   const clickAttack = useGameStore(s => s.clickAttack);
   const player = useGameStore(s => s.player);
-  const highestChapter = useGameStore(s => s.highestChapter);
-  const highestStage = useGameStore(s => s.highestStage);
   const getEffectiveStats = useGameStore(s => s.getEffectiveStats);
   const idleStats = useGameStore(s => s.idleStats);
   const battleSpeed = useGameStore(s => s.battleSpeed) || 1;
@@ -55,17 +46,14 @@ export function BattleView() {
   const hpPct = enemy ? Math.max(0, (enemy.hp / enemy.maxHp) * 100) : 0;
   const expPct = Math.min(100, (player.exp / expForLevel(player.level)) * 100);
 
-  // Chapter progress
   const chapter = CHAPTERS.find(c => c.id === battle.chapterId);
   const chapterProgress = chapter ? Math.min(100, (battle.stageNum / chapter.stages) * 100) : 0;
   const isAbyss = battle.chapterId >= ABYSS_CHAPTER_ID;
 
-  // Breakthrough check
   const nextRealm = REALMS[player.realmIndex + 1];
   const canBreakthrough = nextRealm && player.level >= nextRealm.levelReq && player.pantao >= nextRealm.pantaoReq;
   const currentRealm = REALMS[player.realmIndex];
 
-  // Log filter
   const [logFilter, setLogFilter] = useState<LogFilter>('all');
   const filteredLog = battle.log.filter(e => {
     if (logFilter === 'all') return true;
@@ -84,12 +72,9 @@ export function BattleView() {
 
   const tip = useMemo(() => TIPS[Math.floor(Math.random() * TIPS.length)], []);
 
-  const useSkill = useGameStore(s => s.useSkill);
-  const activeSkills = useGameStore(s => s.player.activeSkills);
   const [showWorldBoss, setShowWorldBoss] = useState(false);
   const [showBreakdown, setShowBreakdown] = useState(false);
   const sessionMinutes = Math.floor(idleStats.sessionTime / 60);
-  // v75.0: Track session earnings
   const sessionStartRef = useRef({ gold: player.totalGoldEarned, kills: player.totalKills });
   const sessionGold = player.totalGoldEarned - sessionStartRef.current.gold;
   const sessionKills = player.totalKills - sessionStartRef.current.kills;
@@ -103,17 +88,14 @@ export function BattleView() {
   const dailySignIn = useDailyStore(s => s.signIn);
   const dailyCheckCanSignIn = useDailyStore(s => s.checkCanSignIn);
 
-  // v58.0: one-click collect all pending rewards
   const collectAll = useCallback(() => {
     const msgs: string[] = [];
-    // 1) Daily sign-in
     dailyCheckCanSignIn();
     const dailyResult = dailySignIn();
     if (dailyResult) {
       const r = dailyResult.reward;
-      // Apply daily rewards to game store
       const state = useGameStore.getState();
-      const updates: any = {};
+      const updates: Record<string, number> = {};
       if (r.lingshi) updates.lingshi = state.player.lingshi + r.lingshi;
       if (r.pantao) updates.pantao = state.player.pantao + r.pantao;
       if (r.shards) updates.hongmengShards = state.player.hongmengShards + r.shards;
@@ -122,7 +104,6 @@ export function BattleView() {
       }
       msgs.push(`📅签到: ${r.desc}`);
     }
-    // 2) Online milestones
     const milestones = [10, 30, 60, 120, 240];
     for (const m of milestones) {
       const r = claimOnlineReward(m);
@@ -137,13 +118,12 @@ export function BattleView() {
     }
   }, [claimOnlineReward, dailySignIn, dailyCheckCanSignIn]);
 
-  // Check if there are unclaimed rewards
   const hasUnclaimedRewards = useMemo(() => {
     const unclaimedMilestones = [10, 30, 60, 120, 240].some(m => sessionMinutes >= m && !onlineRewardsClaimed.includes(m));
     return unclaimedMilestones || dailyCanSignIn;
   }, [sessionMinutes, onlineRewardsClaimed, dailyCanSignIn]);
 
-  // v66.0: Random events every ~80 kills
+  // Random events
   const [activeEvent, setActiveEvent] = useState<RandomEvent | null>(null);
   const [eventResult, setEventResult] = useState<{ success: boolean; rewards: Record<string, number>; message: string } | null>(null);
   const lastEventKills = useRef(0);
@@ -162,7 +142,6 @@ export function BattleView() {
   const handleEventChoice = useCallback((choice: EventChoice) => {
     const result = resolveChoice(choice, player.level);
     setEventResult(result);
-    // Apply rewards
     const state = useGameStore.getState();
     const p = { ...state.player };
     if (result.rewards.lingshi) p.lingshi = Math.max(0, p.lingshi + result.rewards.lingshi);
@@ -179,7 +158,7 @@ export function BattleView() {
     setEventResult(null);
   }, []);
 
-  // v133.0: Auto-event — choose first (safest) option automatically
+  // Auto-event
   const autoEvent = useGameStore(s => s.autoEvent);
   useEffect(() => {
     if (autoEvent && activeEvent && !eventResult) {
@@ -196,12 +175,11 @@ export function BattleView() {
 
   return (
     <div className="main-content fade-in">
-      {/* World Boss Banner — hide for new players */}
       {player.level >= 50 && <WorldBossBanner onOpen={() => setShowWorldBoss(true)} />}
       {showWorldBoss && player.level >= 50 && <WorldBossModal onClose={() => setShowWorldBoss(false)} />}
       {showBreakdown && <StatBreakdownModal onClose={() => setShowBreakdown(false)} />}
 
-      {/* v66.0: Random Event Modal */}
+      {/* Random Event Modal */}
       {activeEvent && (
         <div className="event-modal-overlay" onClick={eventResult ? dismissEvent : undefined}>
           <div className="event-modal" onClick={e => e.stopPropagation()}>
@@ -239,14 +217,13 @@ export function BattleView() {
         </div>
       )}
 
-      {/* Smart Action Hints */}
       <SmartHints />
-      {/* v115.0: Pinned Achievement Tracker */}
       <PinnedAchievementTracker />
-      {/* Scrolling tip */}
+
       <div className="battle-tip-marquee">
         <span className="battle-tip-text">{tip}</span>
       </div>
+
       {/* Realm & Level bar */}
       <div className="battle-realm-bar">
         <span className="battle-realm-name">{currentRealm?.name ?? '练气'} Lv.{player.level}{equippedTitle && <span style={{ marginLeft: 6, fontSize: 11, color: equippedTitle.color, fontWeight: 600 }}>「{equippedTitle.name}」</span>}</span>
@@ -255,7 +232,8 @@ export function BattleView() {
         </div>
         <span className="battle-exp-pct">{Math.floor(expPct)}%</span>
       </div>
-      {/* v75.0: Realm breakthrough progress */}
+
+      {/* Breakthrough progress */}
       {nextRealm && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 12px', fontSize: 10, color: '#aaa' }}>
           <span>→{nextRealm.name}</span>
@@ -267,7 +245,7 @@ export function BattleView() {
         </div>
       )}
 
-      {/* Chapter progress bar */}
+      {/* Chapter progress */}
       <div className="battle-chapter-bar">
         <span className="color-dim">{isAbyss ? `深渊·${battle.stageNum}层 (最高${useGameStore.getState().highestAbyssFloor}层)` : `${chapter?.name ?? ''} ${battle.stageNum}/${chapter?.stages ?? '?'}关`}</span>
         {!isAbyss && (
@@ -280,7 +258,6 @@ export function BattleView() {
         </button>
       </div>
 
-      {/* v86.0: Abyss Milestones */}
       {isAbyss && <AbyssMilestoneBar />}
 
       {/* Enemy display */}
@@ -304,14 +281,13 @@ export function BattleView() {
         </Card>
       )}
 
-      {/* Wukong click area — enhanced */}
+      {/* Click attack area */}
       <div className="click-area" onClick={clickAttack}>
         <div className="wukong-icon">🐵</div>
         <div className="wukong-name">悟空</div>
         <div className="wukong-hint">点击攻击 · 攻击力 {formatNumber(player.clickPower)}</div>
       </div>
 
-      {/* v52.0: Active Skills Bar */}
       <SkillBar />
       <ConsumableBar />
 
@@ -334,6 +310,7 @@ export function BattleView() {
         </div>
       )}
 
+      {/* Stats card */}
       <Card className="stats-card">
         <div className="stats-row">
           <span className="color-attack">⚔ {formatNumber(eStats.attack)}</span>
@@ -348,6 +325,8 @@ export function BattleView() {
           )}
         </div>
       </Card>
+
+      {/* Idle stats */}
       <Card className="idle-stats-card">
         <div className="idle-stats">
           <span className="color-gold">💰+{formatNumber(Math.floor(idleStats.goldPerSec))}/s</span>
@@ -364,23 +343,22 @@ export function BattleView() {
               <>{'  '}<span style={{color:'#34d399',fontSize:10}}>⏳ 升级 {secsToLevel < 60 ? `${secsToLevel}s` : secsToLevel < 3600 ? `${Math.floor(secsToLevel/60)}m${secsToLevel%60>0?`${secsToLevel%60}s`:''}` : `${Math.floor(secsToLevel/3600)}h${Math.floor((secsToLevel%3600)/60)}m`}</span></>
             ) : null;
           })()}
-          {/* v105.0: Breakthrough ETA */}
+          {/* Breakthrough ETA */}
           {idleStats.expPerSec > 0 && nextRealm && !canBreakthrough && (() => {
-            // Calculate total exp needed to reach next realm's level
             let totalExpNeeded = 0;
             for (let lv = player.level; lv < nextRealm.levelReq; lv++) {
               totalExpNeeded += expForLevel(lv);
             }
-            totalExpNeeded -= player.exp; // subtract current progress
+            totalExpNeeded -= player.exp;
             const secsToBreak = Math.ceil(totalExpNeeded / idleStats.expPerSec);
             return secsToBreak > 0 && secsToBreak < 86400 * 7 ? (
               <>{'  '}<span style={{color:'#f59e0b',fontSize:10}}>🔱 突破 {secsToBreak < 60 ? `${secsToBreak}s` : secsToBreak < 3600 ? `${Math.floor(secsToBreak/60)}m` : secsToBreak < 86400 ? `${Math.floor(secsToBreak/3600)}h${Math.floor((secsToBreak%3600)/60)}m` : `${Math.floor(secsToBreak/86400)}d`}</span></>
             ) : null;
           })()}
         </div>
-        {/* v75.0: Session earnings summary */}
+        {/* Session earnings + offline estimate */}
         {sessionKills > 0 && (
-          <div style={{ display: 'flex', gap: 8, justifyContent: 'center', fontSize: 10, color: '#888', marginTop: 2 }}>
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'center', fontSize: 10, color: '#888', marginTop: 2, flexWrap: 'wrap' }}>
             <span>本次：</span>
             <span style={{ color: '#fbbf24' }}>💰{formatNumber(sessionGold)}</span>
             <span style={{ color: '#f87171' }}>💀{formatNumber(sessionKills)}</span>
@@ -388,9 +366,13 @@ export function BattleView() {
             {player.reincarnations > 0 && <span style={{ color: '#c084fc' }}>🔄{player.reincarnations}世</span>}
           </div>
         )}
+        {/* v139.0: Offline earnings estimate */}
+        {idleStats.goldPerSec > 0 && idleStats.sessionTime > 30 && (
+          <OfflineEstimate goldPerSec={idleStats.goldPerSec} expPerSec={idleStats.expPerSec} />
+        )}
       </Card>
 
-      {/* v73.0: Fate Blessing */}
+      {/* Fate Blessing */}
       <div style={{ display: 'flex', gap: 6, alignItems: 'center', justifyContent: 'center', padding: '2px 0' }}>
         {fateBlessing.active && fateBlessing.expiresAt > Date.now() ? (
           <span style={{ color: '#ffd700', fontSize: 12, fontWeight: 700, background: 'rgba(255,215,0,0.1)', padding: '2px 8px', borderRadius: 8, border: '1px solid rgba(255,215,0,0.3)' }}>
@@ -408,6 +390,7 @@ export function BattleView() {
         )}
       </div>
 
+      {/* Battle log */}
       <Card className="battle-log-card">
         <div className="log-filter-tabs">
           {([['all','全部'],['drop','掉落'],['levelup','升级'],['crit','暴击'],['boss','Boss']] as const).map(([k,l]) => (
@@ -420,7 +403,8 @@ export function BattleView() {
           ))}
         </div>
       </Card>
-      {/* v58.0: One-click collect all */}
+
+      {/* One-click collect */}
       {hasUnclaimedRewards && (
         <div style={{ textAlign: 'center', margin: '6px 0' }}>
           <button onClick={collectAll} style={{
@@ -433,6 +417,7 @@ export function BattleView() {
           </button>
         </div>
       )}
+
       <OnlineRewardsBar
         sessionMinutes={sessionMinutes}
         claimed={onlineRewardsClaimed}
@@ -444,6 +429,7 @@ export function BattleView() {
           }
         }}
       />
+
       {rewardToast && (
         <div style={{
           position: 'fixed', top: 60, left: '50%', transform: 'translateX(-50%)',
@@ -458,256 +444,40 @@ export function BattleView() {
   );
 }
 
-function SmartHints() {
-  const player = useGameStore(s => s.player);
-  const setTab = useGameStore(s => s.setTab);
-  const dailyCanSignIn = useDailyStore(s => s.canSignIn);
-  const sanctuaryLevels = useSanctuaryStore(s => s.sanctuary.levels);
-  const explorationFreeRuns = useExplorationStore(s => s.exploration.dailyFree);
-
-  const hints = useMemo(() => {
-    const h: { label: string; tab: string }[] = [];
-    // Breakthrough available?
-    const nextRealm = REALMS[player.realmIndex + 1];
-    if (nextRealm && player.level >= nextRealm.levelReq && player.pantao >= nextRealm.pantaoReq) {
-      h.push({ label: '⚡ 可突破境界', tab: 'battle' });
-    }
-    // Reincarnation available? (level >= 500, reincarnation tab)
-    if (player.level >= 500) {
-      h.push({ label: '🔄 可转世', tab: 'reincarnation' });
-    }
-    // Daily sign-in
-    if (dailyCanSignIn) {
-      h.push({ label: '📅 签到可领', tab: 'settings' });
-    }
-    // Sanctuary upgradeable
-    if (sanctuaryLevels && BUILDINGS.some(b => {
-      const lv = sanctuaryLevels[b.id] ?? 0;
-      return lv < 10 && player.lingshi >= getUpgradeCost(b, lv);
-    })) {
-      h.push({ label: '🏠 洞天可升级', tab: 'sanctuary' });
-    }
-    // Free exploration
-    if (explorationFreeRuns > 0) {
-      h.push({ label: '🗺️ 免费秘境', tab: 'exploration' });
-    }
-    // Awakening available (3+ reincarnations)
-    if (player.reincarnations >= 3 && player.level >= 80) {
-      h.push({ label: '✨ 觉醒可点', tab: 'awakening' });
-    }
-    return h.slice(0, 4); // max 4 hints
-  }, [player.level, player.realmIndex, player.pantao, player.lingshi, player.reincarnations, dailyCanSignIn, sanctuaryLevels, explorationFreeRuns]);
-
-  if (hints.length === 0 || !player.tutorialDone) return null;
-
-  return (
-    <div className="action-hints">
-      {hints.map((h, i) => (
-        <span key={i} className="action-hint" onClick={() => setTab(h.tab as TabId)}>
-          {h.label}
+/** v139.0: Show estimated offline earnings for 1h/4h/8h */
+function OfflineEstimate({ goldPerSec, expPerSec }: { goldPerSec: number; expPerSec: number }) {
+  const [show, setShow] = useState(false);
+  if (!show) {
+    return (
+      <div style={{ textAlign: 'center', marginTop: 2 }}>
+        <span onClick={() => setShow(true)} style={{ fontSize: 10, color: '#666', cursor: 'pointer', textDecoration: 'underline dotted' }}>
+          💤 离线收益预估
         </span>
-      ))}
-    </div>
-  );
-}
-
-function PinnedAchievementTracker() {
-  const pinnedId = useGameStore(s => s.player.pinnedAchievement);
-  const player = useGameStore(s => s.player);
-  if (!pinnedId) return null;
-  const ach = ACHIEVEMENTS.find(a => a.id === pinnedId);
-  if (!ach) return null;
-
-  // Calculate progress based on condition type
-  let current = 0;
-  const target = ach.target;
-  switch (ach.conditionType) {
-    case 'level': current = player.level; break;
-    case 'kill_count': current = player.totalKills; break;
-    case 'equipment_count': current = player.totalEquipDrops; break;
-    case 'gold_total': current = player.totalGoldEarned; break;
-    case 'online_time': current = player.totalCultivateTime; break;
-    case 'enhance_max': current = 0; break; // hard to track generically
-    case 'collect_unique': current = player.codexEquipIds?.length ?? 0; break;
-    case 'realm_reach': current = player.realmIndex >= 7 ? 1 : 0; break;
-    default: current = 0;
-  }
-  const pct = Math.min(100, Math.floor((current / target) * 100));
-  const completed = current >= target;
-
-  return (
-    <div style={{
-      margin: '4px 12px', padding: '6px 10px', borderRadius: 8,
-      background: completed ? 'rgba(76,175,80,0.15)' : 'rgba(128,90,213,0.12)',
-      border: `1px solid ${completed ? '#4caf50' : '#805ad5'}44`,
-      display: 'flex', alignItems: 'center', gap: 8, fontSize: 11,
-    }}>
-      <span>{ach.icon}</span>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ color: completed ? '#4caf50' : '#c4b5fd', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          📌 {ach.name} {completed ? '✅' : `${formatNumber(current)}/${formatNumber(target)}`}
-        </div>
-        {!completed && (
-          <div style={{ height: 3, background: '#333', borderRadius: 2, marginTop: 2 }}>
-            <div style={{ height: '100%', borderRadius: 2, background: 'linear-gradient(90deg, #805ad5, #c4b5fd)', width: `${pct}%`, transition: 'width 0.3s' }} />
-          </div>
-        )}
       </div>
-      <span style={{ color: '#888', fontSize: 10 }}>{pct}%</span>
-    </div>
-  );
-}
-
-function SkillBar() {
-  const player = useGameStore(s => s.player);
-  const useSkill = useGameStore(s => s.useSkill);
-  const skills = ACTIVE_SKILLS.filter(s => player.level >= s.unlockLevel);
-
-  if (skills.length === 0) return null;
-
+    );
+  }
+  const periods = [
+    { label: '1小时', secs: 3600 },
+    { label: '4小时', secs: 14400 },
+    { label: '8小时', secs: 28800 },
+  ];
+  // Offline efficiency is typically 50% of online
+  const offlineRate = 0.5;
   return (
-    <div className="skill-bar">
-      {skills.map(skill => {
-        const cd = player.activeSkills?.cooldowns?.[skill.id] ?? 0;
-        const buffActive = (player.activeSkills?.buffs?.[skill.id] ?? 0) > 0;
-        const buffTime = player.activeSkills?.buffs?.[skill.id] ?? 0;
-        const onCooldown = cd > 0;
-        const cdPct = onCooldown ? (cd / skill.cooldown) * 100 : 0;
-
-        return (
-          <button
-            key={skill.id}
-            className={`skill-btn${buffActive ? ' skill-active' : ''}${onCooldown ? ' skill-cd' : ''}`}
-            onClick={() => useSkill(skill.id)}
-            disabled={onCooldown}
-            title={skill.description}
-          >
-            <span className="skill-emoji">{skill.emoji}</span>
-            <span className="skill-name">{skill.name}</span>
-            {onCooldown && (
-              <>
-                <div className="skill-cd-overlay" style={{ height: `${cdPct}%` }} />
-                <span className="skill-cd-text">{cd}s</span>
-              </>
-            )}
-            {buffActive && <span className="skill-buff-text">{buffTime}s</span>}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-const ONLINE_MILESTONES = [10, 30, 60, 120, 240];
-const MILESTONE_LABELS: Record<number, string> = { 10: '10分', 30: '30分', 60: '1时', 120: '2时', 240: '4时' };
-
-function OnlineRewardsBar({ sessionMinutes, claimed, onClaim }: {
-  sessionMinutes: number;
-  claimed: number[];
-  onClaim: (min: number) => void;
-}) {
-  const unclaimed = ONLINE_MILESTONES.filter(m => sessionMinutes >= m && !claimed.includes(m));
-  if (unclaimed.length === 0 && !ONLINE_MILESTONES.some(m => !claimed.includes(m))) return null;
-
-  return (
-    <div style={{ display: 'flex', gap: 4, justifyContent: 'center', margin: '6px 0', flexWrap: 'wrap' }}>
-      {ONLINE_MILESTONES.map(m => {
-        const canClaim = sessionMinutes >= m && !claimed.includes(m);
-        const done = claimed.includes(m);
-        const locked = sessionMinutes < m;
-        return (
-          <button key={m} onClick={() => canClaim && onClaim(m)} disabled={!canClaim}
-            style={{
-              fontSize: 11, padding: '3px 8px', borderRadius: 8, cursor: canClaim ? 'pointer' : 'default',
-              background: canClaim ? 'linear-gradient(135deg, #f59e0b, #ef4444)' : done ? 'rgba(34,197,94,0.2)' : 'rgba(100,100,100,0.2)',
-              border: canClaim ? '1px solid #f59e0b' : '1px solid rgba(100,100,100,0.3)',
-              color: canClaim ? '#fff' : done ? '#4ade80' : '#666',
-              animation: canClaim ? 'levelUpGlow 1.5s ease-in-out infinite' : 'none',
-              fontWeight: canClaim ? 700 : 400,
-            }}>
-            {done ? '✅' : canClaim ? '🎁' : '🔒'} {MILESTONE_LABELS[m]}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-function ConsumableBar() {
-  const player = useGameStore(s => s.player);
-  const useConsumable = useGameStore(s => s.useConsumable);
-  const inv = player.consumableInventory ?? {};
-  const actives = player.activeConsumables ?? [];
-  const available = CONSUMABLE_BUFFS.filter(b => (inv[b.id] ?? 0) > 0);
-
-  if (available.length === 0 && actives.length === 0) return null;
-
-  const fmtTime = (s: number) => s >= 60 ? `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}` : `${s}s`;
-
-  return (
-    <div style={{ margin: '6px 0' }}>
-      {actives.length > 0 && (
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 6, justifyContent: 'center' }}>
-          {actives.map(ac => {
-            const def = CONSUMABLE_BUFFS.find(b => b.id === ac.buffId);
-            if (!def) return null;
-            return (
-              <span key={ac.buffId} style={{
-                fontSize: 11, padding: '2px 8px', borderRadius: 10,
-                background: 'linear-gradient(135deg, rgba(255,200,50,0.2), rgba(255,100,50,0.2))',
-                border: '1px solid rgba(255,200,50,0.4)', color: '#ffd700',
-              }}>
-                {def.emoji} {def.name} {fmtTime(ac.remainingSec)}
-              </span>
-            );
-          })}
-        </div>
-      )}
-      {available.length > 0 && (
-        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', justifyContent: 'center' }}>
-          {available.map(buff => (
-            <button key={buff.id} onClick={() => useConsumable(buff.id)}
-              title={buff.description}
-              style={{
-                fontSize: 11, padding: '3px 8px', borderRadius: 8, cursor: 'pointer',
-                background: 'rgba(100,50,200,0.2)', border: '1px solid rgba(150,100,255,0.4)',
-                color: '#ccc',
-              }}>
-              {buff.emoji} {buff.name} ×{inv[buff.id]}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function AbyssMilestoneBar() {
-  const highestFloor = useGameStore(s => s.highestAbyssFloor);
-  const claimed = useGameStore(s => s.claimedAbyssMilestones);
-  const claimMilestone = useGameStore(s => s.claimAbyssMilestone);
-  const unclaimed = ABYSS_MILESTONES.filter(m => highestFloor >= m.floor && !claimed.includes(m.floor));
-  const nextMilestone = ABYSS_MILESTONES.find(m => highestFloor < m.floor);
-
-  if (unclaimed.length === 0 && !nextMilestone) return null;
-
-  return (
-    <div style={{ display: 'flex', gap: 4, padding: '2px 8px', flexWrap: 'wrap', justifyContent: 'center' }}>
-      {unclaimed.map(m => (
-        <button key={m.floor} onClick={() => claimMilestone(m.floor)}
-          style={{
-            fontSize: 10, padding: '2px 8px', borderRadius: 8, cursor: 'pointer',
-            background: 'linear-gradient(135deg, #7c3aed, #ec4899)', border: '1px solid #a855f7',
-            color: '#fff', fontWeight: 700, animation: 'levelUpGlow 1.5s ease-in-out infinite',
-          }}>
-          🎁 {m.floor}层·{m.label}
-        </button>
-      ))}
-      {nextMilestone && unclaimed.length === 0 && (
-        <span style={{ fontSize: 10, color: '#888' }}>
-          下一里程碑: {nextMilestone.floor}层·{nextMilestone.label}
-        </span>
-      )}
+    <div style={{ marginTop: 4, padding: '4px 8px', background: 'rgba(59,130,246,0.08)', borderRadius: 6, border: '1px solid rgba(59,130,246,0.15)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+        <span style={{ fontSize: 10, color: '#60a5fa', fontWeight: 600 }}>💤 离线收益预估（约50%效率）</span>
+        <span onClick={() => setShow(false)} style={{ fontSize: 10, color: '#666', cursor: 'pointer' }}>✕</span>
+      </div>
+      <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+        {periods.map(p => (
+          <div key={p.label} style={{ textAlign: 'center', fontSize: 10 }}>
+            <div style={{ color: '#93c5fd', fontWeight: 600 }}>{p.label}</div>
+            <div style={{ color: '#fbbf24' }}>💰{formatNumber(Math.floor(goldPerSec * p.secs * offlineRate))}</div>
+            <div style={{ color: '#34d399' }}>📖{formatNumber(Math.floor(expPerSec * p.secs * offlineRate))}</div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
