@@ -62,6 +62,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
   const autoTranscend = useGameStore(s => s.autoTranscend) ?? false;
   const autoBuyTranscendPerks = useGameStore(s => s.autoBuyTranscendPerks) ?? false;
   const setAutoReincarnate = useGameStore(s => s.setAutoReincarnate);
+  const [showAutoDetails, setShowAutoDetails] = useState(false);
   const DECOMP_LABELS = ['关闭', '凡品', '灵品以下', '仙品以下'];
 
   const toggleAnim = () => {
@@ -193,7 +194,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
       </Card>
 
       {/* Preferences */}
-      <Card title="偏好设置">
+      <Card title="⚙️ 基础设置">
         <div className="stat-row" style={{ cursor: 'pointer' }} onClick={toggleAnim}>
           <span className="stat-label">动画效果</span>
           <span style={{ color: animEnabled ? 'var(--accent)' : 'var(--dim)' }}>
@@ -222,144 +223,62 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
             <span style={{ marginLeft: 8, minWidth: 32 }}>{Math.round(sfxVol * 100)}%</span>
           </div>
         )}
-        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoDecomp((autoDecomp + 1) % 4)}>
-          <span className="stat-label">自动分解</span>
-          <span style={{ color: autoDecomp > 0 ? 'var(--accent)' : 'var(--dim)' }}>
-            {DECOMP_LABELS[autoDecomp]}
-          </span>
+      </Card>
+
+      {/* Auto-actions: grouped & collapsible */}
+      <Card>
+        <div style={{ cursor: 'pointer', marginBottom: showAutoDetails ? 12 : 0 }}
+          onClick={() => setShowAutoDetails(!showAutoDetails)}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontWeight: 700, fontSize: 14 }}>🤖 自动操作 <span style={{ fontSize: 12, color: 'var(--dim)' }}>（{showAutoDetails ? '收起' : '展开详情'}）</span></span>
+            <span style={{ fontSize: 12, color: 'var(--dim)' }}>{showAutoDetails ? '▲' : '▼'}</span>
+          </div>
         </div>
-        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoEquip(!autoEquip)}>
-          <span className="stat-label">掉落自动装备</span>
-          <span style={{ color: autoEquip ? 'var(--accent)' : 'var(--dim)' }}>
-            {autoEquip ? '✅ 开启' : '关闭'}
-          </span>
-        </div>
-        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoSkill(!autoSkill)}>
-          <span className="stat-label">自动释放技能</span>
-          <span style={{ color: autoSkill ? 'var(--accent)' : 'var(--dim)' }}>
-            {autoSkill ? '✅ 开启' : '关闭'}
-          </span>
-        </div>
-        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoConsume(!autoConsume)}>
-          <span className="stat-label">自动使用丹药</span>
-          <span style={{ color: autoConsume ? 'var(--accent)' : 'var(--dim)' }}>
-            {autoConsume ? '✅ 开启' : '关闭'}
-          </span>
-        </div>
-        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoWorldBoss(!autoWorldBoss)}>
-          <span className="stat-label">自动挑战世界Boss</span>
-          <span style={{ color: autoWorldBoss ? 'var(--accent)' : 'var(--dim)' }}>
-            {autoWorldBoss ? '✅ 开启' : '关闭'}
-          </span>
-        </div>
-        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoExplore(!autoExplore)}>
-          <span className="stat-label">自动秘境探索</span>
-          <span style={{ color: autoExplore ? 'var(--accent)' : 'var(--dim)' }}>
-            {autoExplore ? '✅ 开启' : '关闭'}
-          </span>
-        </div>
-        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoSanctuary(!autoSanctuary)}>
-          <span className="stat-label">自动洞天升级</span>
-          <span style={{ color: autoSanctuary ? 'var(--accent)' : 'var(--dim)' }}>
-            {autoSanctuary ? '✅ 开启' : '关闭'}
-          </span>
-        </div>
-        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoAffinity(!autoAffinity)}>
-          <span className="stat-label">自动仙缘赠礼</span>
-          <span style={{ color: autoAffinity ? 'var(--accent)' : 'var(--dim)' }}>
-            {autoAffinity ? '✅ 开启' : '关闭'}
-          </span>
-        </div>
-        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoSweep(!autoSweep)}>
-          <span className="stat-label">自动扫荡（60秒）</span>
-          <span style={{ color: autoSweep ? 'var(--accent)' : 'var(--dim)' }}>
-            {autoSweep ? '✅ 开启' : '关闭'}
-          </span>
-        </div>
-        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoFate(!autoFate)}>
-          <span className="stat-label">自动天命符（双倍）</span>
-          <span style={{ color: autoFate ? 'var(--accent)' : 'var(--dim)' }}>
-            {autoFate ? '✅ 开启' : '关闭'}
-          </span>
-        </div>
-        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoWheel(!autoWheel)}>
-          <span className="stat-label">自动转盘（每小时）</span>
-          <span style={{ color: autoWheel ? 'var(--accent)' : 'var(--dim)' }}>
-            {autoWheel ? '✅ 开启' : '关闭'}
-          </span>
-        </div>
-        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoTrial(!autoTrial)}>
-          <span className="stat-label">自动试炼（每5分钟快速）</span>
-          <span style={{ color: autoTrial ? 'var(--accent)' : 'var(--dim)' }}>
-            {autoTrial ? '✅ 开启' : '关闭'}
-          </span>
-        </div>
-        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoAscension(!autoAscension)}>
-          <span className="stat-label">自动天道考验（每日）</span>
-          <span style={{ color: autoAscension ? 'var(--accent)' : 'var(--dim)' }}>
-            {autoAscension ? '✅ 开启' : '关闭'}
-          </span>
-        </div>
-        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoEnhance(!autoEnhance)}>
-          <span className="stat-label">自动强化已装备（+1~+10）</span>
-          <span style={{ color: autoEnhance ? 'var(--accent)' : 'var(--dim)' }}>
-            {autoEnhance ? '✅ 开启' : '关闭'}
-          </span>
-        </div>
-        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoFeedPet(!autoFeedPet)}>
-          <span className="stat-label">自动喂养出战灵兽</span>
-          <span style={{ color: autoFeedPet ? 'var(--accent)' : 'var(--dim)' }}>
-            {autoFeedPet ? '✅ 开启' : '关闭'}
-          </span>
-        </div>
-        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoBuyPerks(!autoBuyPerks)}>
-          <span className="stat-label">自动购买道点加成</span>
-          <span style={{ color: autoBuyPerks ? 'var(--accent)' : 'var(--dim)' }}>
-            {autoBuyPerks ? '✅ 开启' : '关闭'}
-          </span>
-        </div>
-        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoSynth(!autoSynth)}>
-          <span className="stat-label">自动合成装备（低→高品质）</span>
-          <span style={{ color: autoSynth ? 'var(--accent)' : 'var(--dim)' }}>
-            {autoSynth ? '✅ 开启' : '关闭'}
-          </span>
-        </div>
-        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoReincarnate(!autoReincarnate)}>
-          <span className="stat-label">自动转世（达到大乘境界自动轮回）</span>
-          <span style={{ color: autoReincarnate ? 'var(--accent)' : 'var(--dim)' }}>
-            {autoReincarnate ? '✅ 开启' : '关闭'}
-          </span>
-        </div>
-        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => useGameStore.getState().setAutoDaoAlloc(!autoDaoAlloc)}>
-          <span className="stat-label">自动分配道点（转世后自动购买加成）</span>
-          <span style={{ color: autoDaoAlloc ? 'var(--accent)' : 'var(--dim)' }}>
-            {autoDaoAlloc ? '✅ 开启' : '关闭'}
-          </span>
-        </div>
-        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => useGameStore.getState().setAutoFarm(!autoFarm)}>
-          <span className="stat-label">自动回退刷怪（卡关时回退高效章节）</span>
-          <span style={{ color: autoFarm ? 'var(--accent)' : 'var(--dim)' }}>
-            {autoFarm ? '✅ 开启' : '关闭'}
-          </span>
-        </div>
-        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => useGameStore.getState().setAutoEvent(!autoEvent)}>
-          <span className="stat-label">自动处理随机事件（选择第一个选项）</span>
-          <span style={{ color: autoEvent ? 'var(--accent)' : 'var(--dim)' }}>
-            {autoEvent ? '✅ 开启' : '关闭'}
-          </span>
-        </div>
-        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => useGameStore.getState().setAutoTranscend(!autoTranscend)}>
-          <span className="stat-label">自动超越（10次转世后自动超越轮回）</span>
-          <span style={{ color: autoTranscend ? 'var(--accent)' : 'var(--dim)' }}>
-            {autoTranscend ? '✅ 开启' : '关闭'}
-          </span>
-        </div>
-        <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => useGameStore.getState().setAutoBuyTranscendPerks(!autoBuyTranscendPerks)}>
-          <span className="stat-label">自动购买超越加成（自动分配超越点）</span>
-          <span style={{ color: autoBuyTranscendPerks ? 'var(--accent)' : 'var(--dim)' }}>
-            {autoBuyTranscendPerks ? '✅ 开启' : '关闭'}
-          </span>
-        </div>
+        {showAutoDetails && (<>
+          {/* ⚔️ 战斗组 */}
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#ef4444', margin: '8px 0 4px', borderTop: '1px solid var(--border)', paddingTop: 8 }}>⚔️ 战斗</div>
+          <AutoRow label="自动释放技能" on={autoSkill} toggle={() => setAutoSkill(!autoSkill)} />
+          <AutoRow label="自动使用丹药" on={autoConsume} toggle={() => setAutoConsume(!autoConsume)} />
+          <AutoRow label="自动挑战世界Boss" on={autoWorldBoss} toggle={() => setAutoWorldBoss(!autoWorldBoss)} />
+          <AutoRow label="自动回退/推进刷怪" on={autoFarm} toggle={() => useGameStore.getState().setAutoFarm(!autoFarm)} />
+          <AutoRow label="自动处理随机事件" on={autoEvent} toggle={() => useGameStore.getState().setAutoEvent(!autoEvent)} />
+
+          {/* 🎒 装备组 */}
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#8b5cf6', margin: '12px 0 4px', borderTop: '1px solid var(--border)', paddingTop: 8 }}>🎒 装备</div>
+          <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoDecomp((autoDecomp + 1) % 4)}>
+            <span className="stat-label" style={{ fontSize: 13 }}>自动分解</span>
+            <span style={{ color: autoDecomp > 0 ? 'var(--accent)' : 'var(--dim)', fontSize: 13 }}>{DECOMP_LABELS[autoDecomp]}</span>
+          </div>
+          <AutoRow label="掉落自动装备" on={autoEquip} toggle={() => setAutoEquip(!autoEquip)} />
+          <AutoRow label="自动强化已装备(+1~+10)" on={autoEnhance} toggle={() => setAutoEnhance(!autoEnhance)} />
+          <AutoRow label="自动合成装备(低→高)" on={autoSynth} toggle={() => setAutoSynth(!autoSynth)} />
+
+          {/* 🌍 探索组 */}
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#10b981', margin: '12px 0 4px', borderTop: '1px solid var(--border)', paddingTop: 8 }}>🌍 探索</div>
+          <AutoRow label="自动秘境探索" on={autoExplore} toggle={() => setAutoExplore(!autoExplore)} />
+          <AutoRow label="自动洞天升级" on={autoSanctuary} toggle={() => setAutoSanctuary(!autoSanctuary)} />
+          <AutoRow label="自动仙缘赠礼" on={autoAffinity} toggle={() => setAutoAffinity(!autoAffinity)} />
+          <AutoRow label="自动喂养灵兽" on={autoFeedPet} toggle={() => setAutoFeedPet(!autoFeedPet)} />
+          <AutoRow label="自动扫荡(60秒)" on={autoSweep} toggle={() => setAutoSweep(!autoSweep)} />
+
+          {/* 💰 经济组 */}
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#f59e0b', margin: '12px 0 4px', borderTop: '1px solid var(--border)', paddingTop: 8 }}>💰 经济</div>
+          <AutoRow label="自动天命符(双倍)" on={autoFate} toggle={() => setAutoFate(!autoFate)} />
+          <AutoRow label="自动转盘(每小时)" on={autoWheel} toggle={() => setAutoWheel(!autoWheel)} />
+          <AutoRow label="自动购买道点加成" on={autoBuyPerks} toggle={() => setAutoBuyPerks(!autoBuyPerks)} />
+
+          {/* 🏆 挑战组 */}
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#ec4899', margin: '12px 0 4px', borderTop: '1px solid var(--border)', paddingTop: 8 }}>🏆 挑战</div>
+          <AutoRow label="自动试炼(每5分钟)" on={autoTrial} toggle={() => setAutoTrial(!autoTrial)} />
+          <AutoRow label="自动天道考验(每日)" on={autoAscension} toggle={() => setAutoAscension(!autoAscension)} />
+
+          {/* 🔄 轮回组 */}
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#6366f1', margin: '12px 0 4px', borderTop: '1px solid var(--border)', paddingTop: 8 }}>🔄 轮回</div>
+          <AutoRow label="自动转世(大乘境界)" on={autoReincarnate} toggle={() => setAutoReincarnate(!autoReincarnate)} />
+          <AutoRow label="自动分配道点" on={autoDaoAlloc} toggle={() => useGameStore.getState().setAutoDaoAlloc(!autoDaoAlloc)} />
+          <AutoRow label="自动超越(10次转世)" on={autoTranscend} toggle={() => useGameStore.getState().setAutoTranscend(!autoTranscend)} />
+          <AutoRow label="自动购买超越加成" on={autoBuyTranscendPerks} toggle={() => useGameStore.getState().setAutoBuyTranscendPerks(!autoBuyTranscendPerks)} />
+        </>)}
       </Card>
 
       {/* v117.0: Player Card */}
@@ -425,11 +344,20 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
 
       {/* About */}
       <Card title="关于">
-        <div className="stat-row"><span className="stat-label">版本</span><span>v84.0</span></div>
+        <div className="stat-row"><span className="stat-label">版本</span><span>v140.0</span></div>
         <div className="stat-row"><span className="stat-label">引擎</span><span>React + Zustand + Vite</span></div>
       </Card>
 
       <FeedbackForm />
+    </div>
+  );
+}
+
+function AutoRow({ label, on, toggle }: { label: string; on: boolean; toggle: () => void }) {
+  return (
+    <div className="stat-row" style={{ cursor: 'pointer', padding: '3px 0' }} onClick={toggle}>
+      <span className="stat-label" style={{ fontSize: 13 }}>{label}</span>
+      <span style={{ color: on ? 'var(--accent)' : 'var(--dim)', fontSize: 13 }}>{on ? '✅' : '关闭'}</span>
     </div>
   );
 }
