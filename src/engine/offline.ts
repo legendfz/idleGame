@@ -9,10 +9,13 @@ import { createEnemy } from '../data/chapters';
 import { rollEquipDrop, createEquipFromTemplate, getEquipEffectiveStat, getActiveSetBonuses, EQUIPMENT_TEMPLATES } from '../data/equipment';
 import { getResonanceBonus } from '../data/resonance';
 import { expForLevel } from '../utils/format';
-import { REINC_PERKS } from '../data/reincarnation';
+import { REINC_PERKS, getReincMilestoneBonus } from '../data/reincarnation';
+import { getTranscendBonuses } from '../data/transcendence';
 import { getAwakeningBonuses } from '../components/AwakeningPanel';
 import { getPetTotalBonus } from '../data/pets';
 import { getCodexBonuses } from '../data/codexPower';
+import { TITLES } from '../data/titles';
+import { useAffinityStore } from '../store/affinityStore';
 
 export interface OfflineResult {
   duration: number;       // capped seconds
@@ -106,6 +109,7 @@ export function calculateOfflineEarnings(
   stageNum: number,
   existingInventorySize: number,
   chapters: { id: number; stages: number }[],
+  equippedTitle?: string | null,
 ): OfflineResult {
   const MAX_OFFLINE = 86400; // 24h cap
   const cappedSec = Math.min(offlineSeconds, MAX_OFFLINE);
@@ -127,11 +131,22 @@ export function calculateOfflineEarnings(
   const awk = getAwakeningBonuses(player);
   // v108.0: Apply pet bonuses
   const petBonus = getPetTotalBonus(player.petLevels ?? {}, player.activePetId ?? null);
+  // v148.0: Apply transcendence, milestones, title, affinity (previously missing!)
+  const trBonus = getTranscendBonuses(player.transcendPerks ?? {});
+  const rmb = getReincMilestoneBonus(player.reincarnations ?? 0);
+  const titleBonus: any = equippedTitle ? TITLES.find(t => t.id === equippedTitle)?.bonuses ?? {} : {};
+  const afBuf = useAffinityStore.getState().getBuffs();
 
-  eStats.attack = Math.floor(eStats.attack * atkMul * (1 + (awk.atk_pct ?? 0) / 100) * (1 + (petBonus.atkPct ?? 0) / 100));
-  eStats.maxHp = Math.floor(eStats.maxHp * (1 + (awk.hp_pct ?? 0) / 100) * (1 + (petBonus.hpPct ?? 0) / 100));
-  eStats.critRate = Math.min(100, eStats.critRate + (awk.crit_rate ?? 0) + (petBonus.critRate ?? 0));
-  eStats.critDmg += (awk.crit_dmg ?? 0) / 100 + (petBonus.critDmg ?? 0) / 100;
+  eStats.attack = Math.floor(eStats.attack * atkMul
+    * (1 + (awk.atk_pct ?? 0) / 100) * (1 + (petBonus.atkPct ?? 0) / 100)
+    * (1 + rmb.atk) * (1 + (titleBonus.attack ?? 0)) * trBonus.atkMul);
+  eStats.maxHp = Math.floor(eStats.maxHp
+    * (1 + (awk.hp_pct ?? 0) / 100) * (1 + (petBonus.hpPct ?? 0) / 100)
+    * (1 + rmb.hp) * (1 + (titleBonus.maxHp ?? 0)) * trBonus.hpMul);
+  eStats.critRate = Math.min(100, eStats.critRate + (awk.crit_rate ?? 0) + (petBonus.critRate ?? 0)
+    + rmb.crit + (titleBonus.critRate ?? 0) + trBonus.critFlat);
+  eStats.critDmg += (awk.crit_dmg ?? 0) / 100 + (petBonus.critDmg ?? 0) / 100
+    + rmb.critDmg + (titleBonus.critDmg ?? 0) + trBonus.critDmg / 100;
 
   // Average DPS including crit expectation
   const avgCritMul = 1 + (eStats.critRate / 100) * (eStats.critDmg - 1);
@@ -178,10 +193,19 @@ export function calculateOfflineEarnings(
   );
   const codexGoldMul = 1 + codexB.lingshiPct / 100;
   const codexExpMul = 1 + codexB.expPct / 100;
+  // v148.0: Include transcendence, milestones, title, affinity in offline rewards
+  const afLingshi = 1 + (afBuf.lingshiMul ?? 0) / 100;
+  const afExp = 1 + (afBuf.expMul ?? 0) / 100;
   const lingshi = Math.floor(
-    (totalMinions * minion.lingshiDrop + totalBosses * boss.lingshiDrop) * lingshiMul * goldMul * lingshiAwkMul * petGoldMul * codexGoldMul
+    (totalMinions * minion.lingshiDrop + totalBosses * boss.lingshiDrop)
+    * lingshiMul * goldMul * lingshiAwkMul * petGoldMul * codexGoldMul
+    * (1 + rmb.gold) * (1 + (titleBonus.goldMul ?? 0)) * trBonus.goldMul * afLingshi
   );
-  const exp = Math.floor((totalMinions * minion.expDrop + totalBosses * boss.expDrop) * expMul * expAwkMul * petExpMul * codexExpMul);
+  const exp = Math.floor(
+    (totalMinions * minion.expDrop + totalBosses * boss.expDrop)
+    * expMul * expAwkMul * petExpMul * codexExpMul
+    * (1 + rmb.exp) * (1 + (titleBonus.expMul ?? 0)) * trBonus.expMul * afExp
+  );
 
   // Pantao: use expected value (boss pantao chance × boss kills)
   const pantao = Math.floor(totalBosses * (boss.pantaoDrop || 0));
