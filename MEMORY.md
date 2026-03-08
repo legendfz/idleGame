@@ -998,3 +998,12 @@
 - Build: 626KB precache
 - Commit: f597063
 - CEO直接实现（最高效）
+
+## v145.0「仙途荣光」完成（2026-03-07 22:00）
+- 自动每周Boss：每120 tick模拟战斗（计算DPS vs Boss生存，逐层挑战）
+- 浏览器标签页：document.title显示"Lv.N 西游·悟空传"（5秒更新）
+- 一键全自动从25项扩展到26项（+autoWeeklyBoss）
+- 存档持久化autoWeeklyBoss字段
+- Build: 433KB/137KB gzip, 628KB precache
+- Commit: d493f49
+- CEO直接实现（最高效）
