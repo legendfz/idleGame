@@ -15,6 +15,7 @@ import { getAwakeningBonuses } from '../components/AwakeningPanel';
 import { getPetTotalBonus } from '../data/pets';
 import { getCodexBonuses } from '../data/codexPower';
 import { getLevelMilestoneBonuses } from '../data/levelMilestones';
+import { getGemBonuses } from '../data/gems';
 import { TITLES } from '../data/titles';
 import { useAffinityStore } from '../store/affinityStore';
 
@@ -201,15 +202,20 @@ export function calculateOfflineEarnings(
   const lvlMilB = getLevelMilestoneBonuses(player.highestLevelEver ?? player.level);
   const lvlMilGold = 1 + lvlMilB.lingshiPct / 100;
   const lvlMilExp = 1 + lvlMilB.expPct / 100;
+  // v155.0: Gem bonuses for offline
+  const allGems = Object.values(player.equippedGems ?? {}).flat() as { typeId: string; level: number }[];
+  const gemB = allGems.length > 0 ? getGemBonuses(allGems) : { goldMul: 0, expMul: 0 };
+  const gemGold = 1 + gemB.goldMul / 100;
+  const gemExp = 1 + gemB.expMul / 100;
   const lingshi = Math.floor(
     (totalMinions * minion.lingshiDrop + totalBosses * boss.lingshiDrop)
     * lingshiMul * goldMul * lingshiAwkMul * petGoldMul * codexGoldMul
-    * (1 + rmb.gold) * (1 + (titleBonus.goldMul ?? 0)) * trBonus.goldMul * afLingshi * lvlMilGold
+    * (1 + rmb.gold) * (1 + (titleBonus.goldMul ?? 0)) * trBonus.goldMul * afLingshi * lvlMilGold * gemGold
   );
   const exp = Math.floor(
     (totalMinions * minion.expDrop + totalBosses * boss.expDrop)
     * expMul * expAwkMul * petExpMul * codexExpMul
-    * (1 + rmb.exp) * (1 + (titleBonus.expMul ?? 0)) * trBonus.expMul * afExp * lvlMilExp
+    * (1 + rmb.exp) * (1 + (titleBonus.expMul ?? 0)) * trBonus.expMul * afExp * lvlMilExp * gemExp
   );
 
   // Pantao: use expected value (boss pantao chance × boss kills)

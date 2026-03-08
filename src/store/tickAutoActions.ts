@@ -221,6 +221,68 @@ export function autoReforgeGear(ctx: TickContext) {
   }
 }
 
+/** v155.0: Auto-socket gems into equipped items every 30 ticks */
+export function autoSocketGems(ctx: TickContext) {
+  if (ctx.totalPlayTime % 30 !== 0 || ctx.totalPlayTime === 0) return;
+  const gemInv = ctx.updatedPlayer.gemInventory ?? [];
+  if (gemInv.length === 0) return;
+  const slots = [
+    { item: ctx.state.equippedWeapon },
+    { item: ctx.state.equippedArmor },
+    { item: ctx.state.equippedTreasure },
+  ];
+  const equippedGems = { ...(ctx.updatedPlayer.equippedGems ?? {}) };
+  const remaining = [...gemInv];
+  let changed = false;
+  for (const { item } of slots) {
+    if (!item) continue;
+    const maxSlots = QUALITY_GEM_SLOTS[item.quality] ?? 0;
+    const current = [...(equippedGems[item.uid] ?? [])];
+    while (current.length < maxSlots && remaining.length > 0) {
+      // Pick highest level gem
+      let bestIdx = 0;
+      for (let i = 1; i < remaining.length; i++) {
+        if (remaining[i].level > remaining[bestIdx].level) bestIdx = i;
+      }
+      current.push(remaining.splice(bestIdx, 1)[0]);
+      changed = true;
+    }
+    if (current.length > 0) equippedGems[item.uid] = current;
+  }
+  if (changed) {
+    ctx.updatedPlayer.gemInventory = remaining;
+    ctx.updatedPlayer.equippedGems = equippedGems;
+  }
+  // Auto-merge: combine 3 same-type same-level gems
+  let inv = ctx.updatedPlayer.gemInventory ?? [];
+  let merged = true;
+  while (merged) {
+    merged = false;
+    const counts: Record<string, number> = {};
+    for (const g of inv) { const k = `${g.typeId}_${g.level}`; counts[k] = (counts[k] ?? 0) + 1; }
+    for (const [key, count] of Object.entries(counts)) {
+      if (count < 3) continue;
+      const [typeId, lvStr] = key.split('_');
+      const lv = parseInt(lvStr);
+      if (lv >= 10) continue;
+      let removed = 0;
+      inv = inv.filter(g => {
+        if (removed >= 3) return true;
+        if (g.typeId === typeId && g.level === lv) { removed++; return false; }
+        return true;
+      });
+      inv.push({ typeId, level: lv + 1 });
+      merged = true;
+      break;
+    }
+  }
+  ctx.updatedPlayer.gemInventory = inv;
+}
+
+const QUALITY_GEM_SLOTS: Record<string, number> = {
+  common: 0, spirit: 1, immortal: 1, divine: 2, legendary: 2, mythic: 3,
+};
+
 /** Auto-feed active pet every 20 ticks + auto-switch best pet every 60 ticks */
 export function autoManagePets(ctx: TickContext) {
   if (!ctx.state.autoFeedPet || ctx.totalPlayTime === 0) return;
@@ -557,6 +619,7 @@ export function runAllAutoActions(ctx: TickContext): boolean {
   autoAscensionChallenge(ctx);
   autoEnhanceGear(ctx);
   autoReforgeGear(ctx);
+  autoSocketGems(ctx);
   autoManagePets(ctx);
   autoBuyPerksAndAwakening(ctx);
   autoSynthEquip(ctx);
