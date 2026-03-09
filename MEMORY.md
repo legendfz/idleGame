@@ -1289,3 +1289,11 @@
 - Build: 482KB/152KB gzip, 720KB precache
 - Commit: 09abf91
 - CEO直接实现（最高效）
+
+## v192.0「仙途双修」完成（2026-03-09 12:00）
+- 转世后自动跳转对应等级章节（基于start_level道点加成计算最佳起始章节）
+- 道点自动分配后chapter更新（start_level提升时重新计算章节）
+- CHAPTERS import到progressionActions.ts
+- Build: 482KB/152KB gzip, 721KB precache
+- Commit: 18f8437
+- CEO直接实现（最高效）
