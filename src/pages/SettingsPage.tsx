@@ -9,6 +9,7 @@ import { useDailyStore } from '../store/dailyStore';
 import { DailyChallengePanel } from '../components/DailyChallengePanel';
 import { getReferralUrl } from '../data/referral';
 const ShareCard = lazy(() => import('../components/ShareCard').then(m => ({ default: m.ShareCard })));
+const SeasonPassPanel = lazy(() => import('../components/SeasonPassPanel').then(m => ({ default: m.SeasonPassPanel })));
 
 export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
   const save = useGameStore(s => s.save);
@@ -24,6 +25,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
   const [copied, setCopied] = useState(false);
   const [showStats, setShowStats] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  const [showSeason, setShowSeason] = useState(false);
   const autoDecomp = useGameStore(s => s.autoDecomposeQuality) ?? 0;
   const setAutoDecomp = useGameStore(s => s.setAutoDecomposeQuality);
   const autoEquip = useGameStore(s => s.autoEquipOnDrop);
@@ -366,6 +368,17 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
         </div>
       </Card>
 
+      {/* Season Pass */}
+      <Card title="🏅 赛季通行证">
+        <button className="action-btn" style={{
+          width: '100%', padding: '10px 0', fontWeight: 'bold',
+          background: 'linear-gradient(135deg, #d97706, #fbbf24)', color: '#1a0a2e', border: 'none', borderRadius: 8,
+        }} onClick={() => setShowSeason(true)}>
+          🏅 查看赛季进度
+        </button>
+      </Card>
+      {showSeason && <Suspense fallback={null}><SeasonPassPanel onClose={() => setShowSeason(false)} /></Suspense>}
+
       {/* Share & Invite */}
       <Card title="📜 分享与邀请">
         <button className="action-btn" style={{
@@ -391,7 +404,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
 
       {/* About */}
       <Card title="关于">
-        <div className="stat-row"><span className="stat-label">版本</span><span>v179.0</span></div>
+        <div className="stat-row"><span className="stat-label">版本</span><span>v180.0</span></div>
         <div className="stat-row"><span className="stat-label">引擎</span><span>React + Zustand + Vite</span></div>
       </Card>
 

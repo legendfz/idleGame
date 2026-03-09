@@ -41,6 +41,7 @@ const EquipDetailPageLazy = lazy(() => import('./pages/EquipmentPage').then(m =>
 const RefinePageLazy = lazy(() => import('./pages/EquipmentPage').then(m => ({ default: m.RefinePage })));
 import { useDailyStore } from './store/dailyStore';
 import { useDailyChallengeStore } from './store/dailyChallengeStore';
+import { useSeasonStore } from './store/seasonStore';
 import { useSanctuaryStore } from './store/sanctuaryStore';
 import { useExplorationStore } from './store/explorationStore';
 import { BUILDINGS, getUpgradeCost } from './engine/sanctuary';
@@ -265,6 +266,7 @@ export default function App() {
       useLeaderboardStore.getState().load();
       useDailyStore.getState().load();
       useDailyChallengeStore.getState().load();
+      useSeasonStore.getState().load();
       // v179.0: Referral bonus
       import('./data/referral').then(({ hasReferralParam, isReferralClaimed, markReferralClaimed, REFERRAL_REWARD }) => {
         if (hasReferralParam() && !isReferralClaimed()) {
@@ -295,9 +297,12 @@ export default function App() {
       if (!_init) { _pk = _p.totalKills||0; _pg = _p.totalGoldEarned||0; _pd = _p.totalEquipDrops||0; _pb = _p.totalBossKills||0; _pc = _p.totalCrits||0; _pe = _p.totalEnhances||0; _init = true; }
       else {
         const nk=_p.totalKills||0, ng=_p.totalGoldEarned||0, nd=_p.totalEquipDrops||0, nb=_p.totalBossKills||0, nc=_p.totalCrits||0, ne=_p.totalEnhances||0;
-        if(nk>_pk){dcStore.track('kills',nk-_pk);_pk=nk;} if(ng>_pg){dcStore.track('gold',ng-_pg);_pg=ng;}
-        if(nd>_pd){dcStore.track('equips',nd-_pd);_pd=nd;} if(nb>_pb){dcStore.track('boss',nb-_pb);_pb=nb;}
-        if(nc>_pc){dcStore.track('crit',nc-_pc);_pc=nc;} if(ne>_pe){dcStore.track('enhance',ne-_pe);_pe=ne;}
+        if(nk>_pk){dcStore.track('kills',nk-_pk); useSeasonStore.getState().trackQuest('kills',nk-_pk); _pk=nk;}
+        if(ng>_pg){dcStore.track('gold',ng-_pg); useSeasonStore.getState().trackQuest('gold',ng-_pg); _pg=ng;}
+        if(nd>_pd){dcStore.track('equips',nd-_pd); useSeasonStore.getState().trackQuest('equips',nd-_pd); _pd=nd;}
+        if(nb>_pb){dcStore.track('boss',nb-_pb); useSeasonStore.getState().trackQuest('boss',nb-_pb); _pb=nb;}
+        if(nc>_pc){dcStore.track('crit',nc-_pc); useSeasonStore.getState().trackQuest('crit',nc-_pc); _pc=nc;}
+        if(ne>_pe){dcStore.track('enhance',ne-_pe); useSeasonStore.getState().trackQuest('enhance',ne-_pe); _pe=ne;}
       }
       const achStore = useAchievementStore.getState();
       achStore.updateProgress('ach_level_50', gs.player.level);
