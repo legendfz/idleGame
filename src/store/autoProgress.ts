@@ -32,11 +32,19 @@ function autoFarmPush(ctx: TickContext) {
   } else if (curChapter < ctx.state.highestChapter && curChapter < ABYSS_CHAPTER_ID) {
     const curEnemy = ctx.updatedBattle.currentEnemy;
     if (curEnemy && curEnemy.hp <= 0) {
-      const pushCh = CHAPTERS.find(c => c.id === ctx.state.highestChapter);
-      if (pushCh) {
-        const pushEnemy = createEnemy(ctx.state.highestChapter, ctx.state.highestStage, false)!;
-        ctx.log = ctx.addLog(ctx.log, `⚔️ 实力提升！自动推进至「${pushCh.name}」`, 'info');
-        ctx.updatedBattle = { ...ctx.updatedBattle, chapterId: ctx.state.highestChapter, stageNum: ctx.state.highestStage, wave: 1, isBossWave: false, currentEnemy: pushEnemy, log: ctx.log, tribulation: undefined };
+      // If highestChapter is abyss (9+), push to abyss directly
+      if (ctx.state.highestChapter >= ABYSS_CHAPTER_ID) {
+        const abyssFloor = ctx.state.highestStage || 1;
+        const abyssEnemy = createEnemy(ABYSS_CHAPTER_ID, abyssFloor, false)!;
+        ctx.log = ctx.addLog(ctx.log, `🌀 实力提升！自动推进至「无尽深渊」第${abyssFloor}层`, 'info');
+        ctx.updatedBattle = { ...ctx.updatedBattle, chapterId: ABYSS_CHAPTER_ID, stageNum: abyssFloor, wave: 1, isBossWave: false, currentEnemy: abyssEnemy, log: ctx.log, tribulation: undefined };
+      } else {
+        const pushCh = CHAPTERS.find(c => c.id === ctx.state.highestChapter);
+        if (pushCh) {
+          const pushEnemy = createEnemy(ctx.state.highestChapter, ctx.state.highestStage, false)!;
+          ctx.log = ctx.addLog(ctx.log, `⚔️ 实力提升！自动推进至「${pushCh.name}」`, 'info');
+          ctx.updatedBattle = { ...ctx.updatedBattle, chapterId: ctx.state.highestChapter, stageNum: ctx.state.highestStage, wave: 1, isBossWave: false, currentEnemy: pushEnemy, log: ctx.log, tribulation: undefined };
+        }
       }
     }
   }

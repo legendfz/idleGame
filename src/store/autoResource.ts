@@ -46,16 +46,22 @@ function autoGiftAffinity(ctx: TickContext) {
 
 function autoManagePets(ctx: TickContext) {
   if (!ctx.state.autoFeedPet || ctx.totalPlayTime === 0) return;
-  if (ctx.totalPlayTime % 20 === 0 && ctx.updatedPlayer.activePetId) {
-    const pet = PETS_DATA.find(p => p.id === ctx.updatedPlayer.activePetId);
-    if (pet) {
-      const currentLv = ctx.updatedPlayer.petLevels?.[pet.id] ?? 0;
+  if (ctx.totalPlayTime % 20 === 0) {
+    // Feed all pets (active first, then others for passive bonuses)
+    const petOrder = ctx.updatedPlayer.activePetId
+      ? [ctx.updatedPlayer.activePetId, ...PETS_DATA.filter(p => p.id !== ctx.updatedPlayer.activePetId).map(p => p.id)]
+      : PETS_DATA.map(p => p.id);
+    for (const petId of petOrder) {
+      const pet = PETS_DATA.find(p => p.id === petId);
+      if (!pet) continue;
+      const currentLv = ctx.updatedPlayer.petLevels?.[petId] ?? 0;
       if (currentLv < pet.maxLevel) {
         const cost = pet.feedCost(currentLv);
         if (ctx.updatedPlayer.lingshi >= cost) {
           ctx.updatedPlayer.lingshi -= cost;
-          ctx.updatedPlayer.petLevels = { ...ctx.updatedPlayer.petLevels, [pet.id]: currentLv + 1 };
+          ctx.updatedPlayer.petLevels = { ...ctx.updatedPlayer.petLevels, [petId]: currentLv + 1 };
         }
+        break; // one feed per tick to avoid draining all lingshi
       }
     }
   }

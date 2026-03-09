@@ -409,6 +409,7 @@ export function BattleView() {
             <span style={{ color: '#fbbf24' }}>💰{formatNumber(sessionGold)}</span>
             <span style={{ color: '#f87171' }}>💀{formatNumber(sessionKills)}</span>
             {sessionMinutes > 0 && <span style={{ color: '#60a5fa' }}>⚡{formatNumber(Math.floor(sessionKills / sessionMinutes))}/m</span>}
+            {sessionMinutes > 0 && <span style={{ color: '#fcd34d' }}>💰{formatNumber(Math.floor(sessionGold / sessionMinutes))}/m</span>}
             {player.reincarnations > 0 && <span style={{ color: '#c084fc' }}>🔄{player.reincarnations}世</span>}
             <span style={{ color: '#34d399' }}>🏆{Object.values(useAchievementStore.getState().states).filter(s => s?.completed).length}/{ACHIEVEMENTS.length}</span>
           </div>
