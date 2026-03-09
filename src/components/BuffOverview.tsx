@@ -18,6 +18,7 @@ import { getPetTotalBonus, PETS } from '../data/pets';
 import { getTranscendBonuses } from '../data/transcendence';
 import { getCodexBonuses } from '../data/codexPower';
 import { getLevelMilestoneBonuses } from '../data/levelMilestones';
+import { getMasteryLevel } from '../data/chapterMastery';
 import { getPowerMilestoneBonuses } from '../data/powerMilestones';
 import { getAbyssMilestoneBonuses } from '../data/abyssMilestones';
 import { getGemBonuses } from '../data/gems';
@@ -223,6 +224,17 @@ export function BuffOverview() {
     if (reincCount > 0) {
       result.push({ system: '轮回', icon: '♾️', color: '#ce93d8', buffs: [{ label: `转世 ${reincCount} 次`, value: `道点可用` }] });
     }
+
+    // 12. Chapter mastery (v174.0)
+    const ck = player.chapterKills ?? {};
+    const masteryBuffs: { label: string; value: string }[] = [];
+    for (const [chId, kills] of Object.entries(ck)) {
+      const ml = getMasteryLevel(kills);
+      if (ml.goldBonus > 0 || ml.expBonus > 0) {
+        masteryBuffs.push({ label: `Ch${chId}·${ml.label}`, value: `💰+${Math.round(ml.goldBonus*100)}% 📖+${Math.round(ml.expBonus*100)}%` });
+      }
+    }
+    if (masteryBuffs.length > 0) result.push({ system: '章节精通', icon: '🏅', color: '#f59e0b', buffs: masteryBuffs });
 
     return result;
   }, [player, weapon, armor, treasure, sanctuary, highestPower]);

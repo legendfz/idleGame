@@ -22,6 +22,7 @@ export interface PlayerState {
   totalGoldEarned: number;
   totalBossKills: number;
   totalEliteKills?: number; // v151.0
+  chapterKills?: Record<number, number>; // v174.0: kills per chapter for mastery
   tribulationWins?: number; // v171.0: 天劫通关次数
   worldBossKills?: number; // v171.0: 世界Boss击杀数
   weeklyBossKills?: number; // v171.0: 周天Boss击杀数

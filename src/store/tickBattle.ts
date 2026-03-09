@@ -25,6 +25,7 @@ import {
 import { getPetTotalBonus } from '../data/pets';
 import { rollElite, type EliteModifier } from '../data/eliteEnemies';
 import { getSubstatBonuses } from '../data/substats';
+import { getMasteryLevel } from '../data/chapterMastery';
 import { useAffinityStore } from './affinityStore';
 import { useSanctuaryStore } from './sanctuaryStore';
 import { calcEffectiveStats, addLog, getInventoryMax } from './gameStore';
@@ -271,6 +272,10 @@ export function executeBattleTick(get: () => any, set: (partial: any) => void): 
   if (enemy.hp <= 0) {
     updatedPlayer.totalKills++;
     set({ allTimeKills: state.allTimeKills + 1 });
+    // v174.0: Track chapter kills for mastery
+    const ck = { ...(updatedPlayer.chapterKills ?? {}) };
+    ck[updatedBattle.chapterId] = (ck[updatedBattle.chapterId] ?? 0) + 1;
+    updatedPlayer.chapterKills = ck;
     if (!(updatedPlayer.codexEnemyNames ?? []).includes(enemy.name)) {
       updatedPlayer.codexEnemyNames = [...(updatedPlayer.codexEnemyNames ?? []), enemy.name];
     }
@@ -332,8 +337,12 @@ export function executeBattleTick(get: () => any, set: (partial: any) => void): 
     const subB = getSubstatBonuses(subArrays);
     const subGold = 1 + subB.goldPct / 100;
     const subExp = 1 + subB.expPct / 100;
-    const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus) * (1 + (awk.gold_pct ?? 0) / 100) * afLingshi * (1 + rmb.gold) * fateMul * (1 + (titleBonus.goldMul ?? 0)) * (1 + (petB.goldPct ?? 0) / 100) * trBonusTick.goldMul * codexLingshi * lvlMilLingshi * gemGold * pwrGold * subGold * abyssGold);
-    const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100) * afExp * (1 + rmb.exp) * fateMul * (1 + (titleBonus.expMul ?? 0)) * (1 + (petB.expPct ?? 0) / 100) * trBonusTick.expMul * codexExp * lvlMilExp * gemExp * pwrExp * subExp * abyssExp);
+    // v174.0: Chapter mastery bonus
+    const masteryB = getMasteryLevel(updatedPlayer.chapterKills?.[updatedBattle.chapterId] ?? 0);
+    const masteryGold = 1 + masteryB.goldBonus;
+    const masteryExp = 1 + masteryB.expBonus;
+    const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus) * (1 + (awk.gold_pct ?? 0) / 100) * afLingshi * (1 + rmb.gold) * fateMul * (1 + (titleBonus.goldMul ?? 0)) * (1 + (petB.goldPct ?? 0) / 100) * trBonusTick.goldMul * codexLingshi * lvlMilLingshi * gemGold * pwrGold * subGold * abyssGold * masteryGold);
+    const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100) * afExp * (1 + rmb.exp) * fateMul * (1 + (titleBonus.expMul ?? 0)) * (1 + (petB.expPct ?? 0) / 100) * trBonusTick.expMul * codexExp * lvlMilExp * gemExp * pwrExp * subExp * abyssExp * masteryExp);
     updatedPlayer.lingshi += lingshiDrop;
     updatedPlayer.totalGoldEarned = (updatedPlayer.totalGoldEarned || 0) + lingshiDrop;
     updatedPlayer.allTimeLingshi = (updatedPlayer.allTimeLingshi ?? 0) + lingshiDrop;
@@ -388,7 +397,7 @@ export function executeBattleTick(get: () => any, set: (partial: any) => void): 
     // Equipment drop (elite = guaranteed)
     if (updatedInventory.length < getInventoryMax(updatedPlayer.reincarnations)) {
       const globalStage = getGlobalStageLocal(updatedBattle.chapterId, updatedBattle.stageNum);
-      const dropMul = REINC_PERKS.find(p => p.id === 'drop_mult')!.effect(updatedPlayer.reincPerks?.['drop_mult'] ?? 0) - 1 + rmb.drop;
+      const dropMul = REINC_PERKS.find(p => p.id === 'drop_mult')!.effect(updatedPlayer.reincPerks?.['drop_mult'] ?? 0) - 1 + rmb.drop + masteryB.dropBonus;
       const eqDrop = enemy.elite ? rollEquipDrop(globalStage, true, dropMul + 2) : rollEquipDrop(globalStage, enemy.isBoss, dropMul);
       if (eqDrop) {
         const newItem = createEquipFromTemplate(eqDrop);

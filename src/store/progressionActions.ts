@@ -27,6 +27,7 @@ export function reincarnateAction(get: () => any, set: (s: any) => void) {
   newPlayer.systemTutorials = [...player.systemTutorials];
   newPlayer.codexEquipIds = [...player.codexEquipIds];
   newPlayer.codexEnemyNames = [...player.codexEnemyNames];
+  newPlayer.chapterKills = { ...(player.chapterKills ?? {}) }; // v174.0: preserve mastery
   newPlayer.activeSkills = { cooldowns: {}, buffs: {} };
   newPlayer.petLevels = { ...player.petLevels };
   newPlayer.petEvolutions = { ...(player.petEvolutions ?? {}) };
@@ -151,6 +152,7 @@ export function transcendAction(get: () => any, set: (s: any) => void) {
   newPlayer.systemTutorials = [...player.systemTutorials];
   newPlayer.codexEquipIds = [...player.codexEquipIds];
   newPlayer.codexEnemyNames = [...player.codexEnemyNames];
+  newPlayer.chapterKills = { ...(player.chapterKills ?? {}) }; // v174.0
   newPlayer.petLevels = { ...player.petLevels };
   newPlayer.petEvolutions = { ...(player.petEvolutions ?? {}) };
   newPlayer.activePetId = player.activePetId;

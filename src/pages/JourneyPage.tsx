@@ -6,6 +6,7 @@ import { QUALITY_INFO } from '../types';
 import { formatNumber } from '../utils/format';
 import { Card, SubPageHeader, SubPage } from './shared';
 import { calcEffectiveStats } from '../store/gameStore';
+import { getMasteryLevel, getNextMastery, MASTERY_LEVELS } from '../data/chapterMastery';
 
 export function ChapterSelectPage({ onBack }: { onBack: () => void }) {
   const battle = useGameStore(s => s.battle);
@@ -106,6 +107,27 @@ export function ChapterSelectPage({ onBack }: { onBack: () => void }) {
                   <span style={{ color: '#60a5fa' }}>⚔️{chapterEfficiency[ch.id].killsPerMin >= 60 ? '秒杀' : `${Math.floor(chapterEfficiency[ch.id].killsPerMin)}/m`}</span>
                 </div>
               )}
+              {/* v174.0: Chapter mastery */}
+              {(() => {
+                const kills = player.chapterKills?.[ch.id] ?? 0;
+                if (kills === 0 && isLocked) return null;
+                const ml = getMasteryLevel(kills);
+                const next = getNextMastery(kills);
+                const mlIdx = MASTERY_LEVELS.indexOf(ml);
+                const colors = ['#666','#4ade80','#60a5fa','#a78bfa','#f59e0b','#ef4444'];
+                return (
+                  <div style={{ display: 'flex', gap: 6, fontSize: 10, marginTop: 3, alignItems: 'center' }}>
+                    <span style={{ color: colors[mlIdx] ?? '#aaa', fontWeight: 700 }}>🏅{ml.label}</span>
+                    {ml.goldBonus > 0 && <span style={{ color: '#fbbf24' }}>💰+{Math.round(ml.goldBonus*100)}%</span>}
+                    {ml.expBonus > 0 && <span style={{ color: '#34d399' }}>📖+{Math.round(ml.expBonus*100)}%</span>}
+                    {ml.dropBonus > 0 && <span style={{ color: '#60a5fa' }}>🎁+{Math.round(ml.dropBonus*100)}%</span>}
+                    {next && (
+                      <span style={{ color: '#888' }}>→{next.label}({formatNumber(kills)}/{formatNumber(next.kills)})</span>
+                    )}
+                    {!next && <span style={{ color: '#ffd700' }}>MAX</span>}
+                  </div>
+                );
+              })()}
               {(isCurrent || isCleared) && (
                 <div className="chapter-progress-bg">
                   <div className="chapter-progress-fill" style={{ width: `${isCleared ? 100 : (battle.stageNum / ch.stages) * 100}%` }} />
