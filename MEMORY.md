@@ -1224,3 +1224,10 @@
 - 新文件：src/data/seasonPass.ts, src/store/seasonStore.ts, src/components/SeasonPassPanel.tsx
 - Commit: 61fc6f2
 - CEO直接实现（最高效）
+
+## v182.0「赛季璀璨」完成（2026-03-09 02:00）
+- 设置页红点增强：签到+每日挑战+赛季任务+赛季奖励四合一触发
+- 性能优化：5秒轮询替代reactive store订阅（避免questProgress变化导致re-render）
+- Build: 710KB precache
+- Commit: a85f438 + 7eed3c9
+- CEO直接实现（最高效）
