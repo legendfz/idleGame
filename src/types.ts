@@ -334,6 +334,7 @@ export interface GameSave {
   unlockedTitles?: string[];
   seenStories?: string[];
   fateBlessing?: { active: boolean; expiresAt: number };
+  luckyMoment?: { active: boolean; expiresAt: number };
   onlineRewardsClaimed?: number[];
   completedChallenges?: string[];
   completedChallengesDate?: string;

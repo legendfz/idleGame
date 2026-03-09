@@ -726,7 +726,26 @@ export function autoRefineEquipped(ctx: TickContext) {
   }
 }
 
+/** v187.0: Lucky moment — random 10min 1.5x all gains, triggers every ~2h (7200 ticks) */
+export function checkLuckyMoment(ctx: TickContext) {
+  const now = Date.now();
+  const lm = ctx.state.luckyMoment ?? { active: false, expiresAt: 0 };
+  // Expire if active and past time
+  if (lm.active && now > lm.expiresAt) {
+    ctx.set({ luckyMoment: { active: false, expiresAt: 0 } });
+    ctx.log = ctx.addLog(ctx.log, '⏳ 幸运时刻结束', 'info');
+    return;
+  }
+  // Try trigger every 600 ticks (~10min), 3% chance = avg ~every 2h
+  if (!lm.active && ctx.totalPlayTime % 600 === 0 && ctx.totalPlayTime > 0 && Math.random() < 0.03) {
+    const duration = 10 * 60 * 1000; // 10 minutes
+    ctx.set({ luckyMoment: { active: true, expiresAt: now + duration } });
+    ctx.log = ctx.addLog(ctx.log, '🍀 幸运时刻降临！全收益×1.5 持续10分钟', 'levelup');
+  }
+}
+
 export function runAllAutoActions(ctx: TickContext): boolean {
+  checkLuckyMoment(ctx);
   autoUpgradeSanctuary(ctx);
   autoGiftAffinity(ctx);
   autoFarmPush(ctx);

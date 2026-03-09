@@ -322,6 +322,7 @@ export function executeBattleTick(get: () => any, set: (partial: any) => void): 
     const afLingshi = 1 + (afBuf.lingshiMul ?? 0) / 100;
     const afExp = 1 + (afBuf.expMul ?? 0) / 100;
     const fateMul = (state.fateBlessing.active && state.fateBlessing.expiresAt > Date.now()) ? 2 : 1;
+    const luckyMul = (state.luckyMoment?.active && state.luckyMoment.expiresAt > Date.now()) ? 1.5 : 1;
     const petB = getPetTotalBonus(player.petLevels ?? {}, player.activePetId, player.petEvolutions);
     const codexLingshi = 1 + codexB.lingshiPct / 100;
     const codexExp = 1 + codexB.expPct / 100;
@@ -355,8 +356,8 @@ export function executeBattleTick(get: () => any, set: (partial: any) => void): 
     const weatherGold = 1 + (weatherB.goldMul ?? 0);
     const weatherExp = 1 + (weatherB.expMul ?? 0);
     const weatherDrop = 1 + (weatherB.dropMul ?? 0);
-    const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus) * (1 + (awk.gold_pct ?? 0) / 100) * afLingshi * (1 + rmb.gold) * fateMul * (1 + (titleBonus.goldMul ?? 0)) * (1 + (petB.goldPct ?? 0) / 100) * trBonusTick.goldMul * codexLingshi * lvlMilLingshi * gemGold * pwrGold * subGold * abyssGold * masteryGold * weatherGold);
-    const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100) * afExp * (1 + rmb.exp) * fateMul * (1 + (titleBonus.expMul ?? 0)) * (1 + (petB.expPct ?? 0) / 100) * trBonusTick.expMul * codexExp * lvlMilExp * gemExp * pwrExp * subExp * abyssExp * masteryExp * weatherExp);
+    const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus) * (1 + (awk.gold_pct ?? 0) / 100) * afLingshi * (1 + rmb.gold) * fateMul * luckyMul * (1 + (titleBonus.goldMul ?? 0)) * (1 + (petB.goldPct ?? 0) / 100) * trBonusTick.goldMul * codexLingshi * lvlMilLingshi * gemGold * pwrGold * subGold * abyssGold * masteryGold * weatherGold);
+    const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100) * afExp * (1 + rmb.exp) * fateMul * luckyMul * (1 + (titleBonus.expMul ?? 0)) * (1 + (petB.expPct ?? 0) / 100) * trBonusTick.expMul * codexExp * lvlMilExp * gemExp * pwrExp * subExp * abyssExp * masteryExp * weatherExp);
     updatedPlayer.lingshi += lingshiDrop;
     updatedPlayer.totalGoldEarned = (updatedPlayer.totalGoldEarned || 0) + lingshiDrop;
     updatedPlayer.allTimeLingshi = (updatedPlayer.allTimeLingshi ?? 0) + lingshiDrop;

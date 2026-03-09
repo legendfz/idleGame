@@ -97,6 +97,7 @@ export function BattleView() {
   const [rewardToast, setRewardToast] = useState<string | null>(null);
   const highestPower = useGameStore(s => s.highestPower);
   const fateBlessing = useGameStore(s => s.fateBlessing);
+  const luckyMoment = useGameStore(s => s.luckyMoment);
   const activateFateBlessing = useGameStore(s => s.activateFateBlessing);
   const dailyCanSignIn = useDailyStore(s => s.canSignIn);
   const dailySignIn = useDailyStore(s => s.signIn);
@@ -376,6 +377,7 @@ export function BattleView() {
           {'  '}<span className="color-dim">⏱{formatTime(idleStats.sessionTime)}</span>
           {battleSpeed > 1 && <span style={{color: battleSpeed >= 100 ? '#ff6b6b' : battleSpeed >= 10 ? '#ffc107' : '#a78bfa', fontSize:10, fontWeight: 700}}>⚡{battleSpeed}x</span>}
           {fateBlessing.active && fateBlessing.expiresAt > Date.now() && <span style={{color:'#ffd700',fontSize:10,fontWeight:700}}>✨×2</span>}
+          {luckyMoment?.active && luckyMoment.expiresAt > Date.now() && <span style={{color:'#4ade80',fontSize:10,fontWeight:700}}>🍀×1.5</span>}
           {idleStats.sessionTime > 60 && <>
             {'  '}<span style={{color:'#a78bfa',fontSize:10}}>💎{formatNumber(Math.floor(idleStats.goldPerSec * 60))}/m</span>
           </>}
@@ -433,6 +435,15 @@ export function BattleView() {
           )
         )}
       </div>
+
+      {/* Lucky Moment */}
+      {luckyMoment?.active && luckyMoment.expiresAt > Date.now() && (
+        <div style={{ textAlign: 'center', padding: '2px 0' }}>
+          <span style={{ color: '#4ade80', fontSize: 12, fontWeight: 700, background: 'rgba(74,222,128,0.1)', padding: '2px 8px', borderRadius: 8, border: '1px solid rgba(74,222,128,0.3)', animation: 'levelUpGlow 2s infinite' }}>
+            🍀 幸运时刻 ×1.5 — {formatTime(Math.max(0, Math.floor((luckyMoment.expiresAt - Date.now()) / 1000)))}
+          </span>
+        </div>
+      )}
 
       {/* Battle log */}
       <Card className="battle-log-card">

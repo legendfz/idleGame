@@ -116,6 +116,7 @@ interface GameStore {
   unlockedTitles: string[]; // v81.0: unlocked title ids
   onlineRewardsClaimed: number[]; // v57.0: claimed milestone minutes
   fateBlessing: { active: boolean; expiresAt: number }; // v73.0: double gains buff
+  luckyMoment: { active: boolean; expiresAt: number }; // v187.0: random 1.5x buff
   completedChallenges: string[]; // v87.0: completed ascension challenge ids today
   completedChallengesDate: string; // v87.0: date string for daily reset
   titleToast: string | null; // v89.0: title unlock toast
@@ -513,6 +514,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   unlockedTitles: [],
   onlineRewardsClaimed: [],
   fateBlessing: { active: false, expiresAt: 0 },
+  luckyMoment: { active: false, expiresAt: 0 },
   weeklyBoss: { week: 0, clearedFloors: [] as number[], claimed: [] as number[] },
   equipLoadouts: [] as { name: string; weapon: string | null; armor: string | null; treasure: string | null }[],
 
