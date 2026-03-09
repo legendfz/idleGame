@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { REINC_PERKS, REINC_MIN_REALM, REINC_MIN_LEVEL, calcDaoPoints, REINC_MILESTONES } from '../data/reincarnation';
 import { REALMS } from '../data/realms';
 import { TranscendencePanel } from './TranscendencePanel';
 import { TRANSCEND_MIN_REINC } from '../data/transcendence';
+import { formatNumber, formatTime } from '../utils/format';
 
 export function ReincarnationPanel() {
   const player = useGameStore(s => s.player);
@@ -138,6 +140,9 @@ export function ReincarnationPanel() {
         );
       })}
 
+      {/* v194.0: Reincarnation History */}
+      {(player.reincHistory ?? []).length > 0 && <ReincHistorySection history={player.reincHistory!} />}
+
       {/* v116.0: Transcendence section */}
       {(player.reincarnations >= TRANSCEND_MIN_REINC || (player.transcendCount ?? 0) > 0) && (
         <>
@@ -146,5 +151,42 @@ export function ReincarnationPanel() {
         </>
       )}
     </div>
+  );
+}
+
+function ReincHistorySection({ history }: { history: { world: number; level: number; realm: number; daoGained: number; kills: number; gold: number; duration: number; timestamp: number }[] }) {
+  const [expanded, setExpanded] = useState(false);
+  const sorted = [...history].reverse(); // newest first
+  const display = expanded ? sorted : sorted.slice(0, 5);
+
+  return (
+    <>
+      <h3 className="section-title" style={{ marginTop: 20, cursor: 'pointer' }} onClick={() => setExpanded(!expanded)}>
+        轮回记忆 {expanded ? '▼' : '▶'} <span style={{ fontSize: 11, color: 'var(--text-dim)', marginLeft: 6 }}>{history.length}条</span>
+      </h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 }}>
+        {display.map((h, i) => {
+          const realm = REALMS[h.realm]?.name ?? '未知';
+          return (
+            <div key={i} className="card" style={{ padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12 }}>
+              <div>
+                <span style={{ color: 'var(--accent)', fontWeight: 'bold' }}>第{h.world}世</span>
+                <span style={{ marginLeft: 8, color: 'var(--text-dim)' }}>Lv.{h.level} {realm}</span>
+              </div>
+              <div style={{ textAlign: 'right', display: 'flex', gap: 10, color: 'var(--text-dim)' }}>
+                <span style={{ color: '#8af' }}>+{h.daoGained}道</span>
+                <span>⚔{formatNumber(h.kills)}</span>
+                <span>⏱{h.duration > 0 ? formatTime(h.duration) : '-'}</span>
+              </div>
+            </div>
+          );
+        })}
+        {!expanded && sorted.length > 5 && (
+          <div style={{ textAlign: 'center', color: 'var(--accent)', fontSize: 12, cursor: 'pointer', padding: 4 }} onClick={() => setExpanded(true)}>
+            展开全部 ({sorted.length}条) ▼
+          </div>
+        )}
+      </div>
+    </>
   );
 }

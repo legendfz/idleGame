@@ -18,6 +18,21 @@ export function reincarnateAction(get: () => any, set: (s: any) => void) {
   const prevBest = player.fastestReincTime ?? 0;
   const bestReincTime = (prevBest === 0 || (reincTime > 0 && reincTime < prevBest)) ? reincTime : prevBest;
 
+  // v194.0: Track reincarnation history
+  const reincHistory = [...(player.reincHistory ?? [])];
+  reincHistory.push({
+    world: player.reincarnations + 1,
+    level: player.level,
+    realm: player.realmIndex,
+    daoGained: daoGain,
+    kills: player.totalKills ?? 0,
+    gold: player.totalGoldEarned ?? 0,
+    duration: reincTime,
+    timestamp: Date.now(),
+  });
+  // Keep last 50 entries
+  if (reincHistory.length > 50) reincHistory.splice(0, reincHistory.length - 50);
+
   const newPlayer = makeInitialPlayer();
   newPlayer.reincarnations = player.reincarnations + 1;
   newPlayer.daoPoints = player.daoPoints + daoGain;
@@ -44,6 +59,7 @@ export function reincarnateAction(get: () => any, set: (s: any) => void) {
   newPlayer.totalReincarnations = (player.totalReincarnations ?? 0) + 1;
   newPlayer.reincStartTime = state.totalPlayTime ?? 0;
   newPlayer.highestLevelEver = player.highestLevelEver ?? 0;
+  newPlayer.reincHistory = reincHistory;
 
   if (startLevel > 0) {
     newPlayer.level = Math.max(1, startLevel);
@@ -185,6 +201,7 @@ export function transcendAction(get: () => any, set: (s: any) => void) {
   newPlayer.totalReincarnations = player.totalReincarnations ?? 0;
   newPlayer.reincStartTime = state.totalPlayTime ?? 0;
   newPlayer.highestLevelEver = player.highestLevelEver ?? 0;
+  newPlayer.reincHistory = [...(player.reincHistory ?? [])]; // v194.0: preserve across transcend
   newPlayer.reincarnations = 0;
   newPlayer.daoPoints = 0;
   newPlayer.totalDaoPoints = 0;

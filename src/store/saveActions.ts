@@ -186,6 +186,7 @@ export function loadAction(get: () => any, set: (s: any) => void, addLog: (log: 
       save.player.equippedGems = save.player.equippedGems ?? {};
       save.player.trialShopPurchases = save.player.trialShopPurchases ?? {};
       save.player.reincPerks = save.player.reincPerks ?? {};
+      save.player.reincHistory = save.player.reincHistory ?? [];
       // Ensure all dynamic fields have safe defaults
       const p = save.player as any;
       p.reincCount = p.reincCount ?? 0;
