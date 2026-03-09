@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { REALMS } from '../data/realms';
 import { formatNumber, formatTime } from '../utils/format';
@@ -7,6 +7,8 @@ import { Card, SubPage } from './shared';
 import { getSfxEnabled, setSfxEnabled, getSfxVolume, setSfxVolume, sfx } from '../engine/audio';
 import { useDailyStore } from '../store/dailyStore';
 import { DailyChallengePanel } from '../components/DailyChallengePanel';
+import { getReferralUrl } from '../data/referral';
+const ShareCard = lazy(() => import('../components/ShareCard').then(m => ({ default: m.ShareCard })));
 
 export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
   const save = useGameStore(s => s.save);
@@ -21,6 +23,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
   const [showImport, setShowImport] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showStats, setShowStats] = useState(false);
+  const [showShare, setShowShare] = useState(false);
   const autoDecomp = useGameStore(s => s.autoDecomposeQuality) ?? 0;
   const setAutoDecomp = useGameStore(s => s.setAutoDecomposeQuality);
   const autoEquip = useGameStore(s => s.autoEquipOnDrop);
@@ -363,9 +366,32 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
         </div>
       </Card>
 
+      {/* Share & Invite */}
+      <Card title="📜 分享与邀请">
+        <button className="action-btn" style={{
+          width: '100%', padding: '10px 0', fontWeight: 'bold', marginBottom: 8,
+          background: 'linear-gradient(135deg, #7c3aed, #a78bfa)', color: '#fff', border: 'none', borderRadius: 8,
+        }} onClick={() => setShowShare(true)}>
+          🏆 生成战绩卡
+        </button>
+        <div style={{ fontSize: 13, color: 'var(--dim)', marginBottom: 6 }}>邀请链接（好友获得新手礼包）：</div>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <input readOnly value={getReferralUrl()} style={{
+            flex: 1, background: 'var(--bg-card)', color: 'var(--fg)', border: '1px solid var(--border)',
+            borderRadius: 6, padding: '6px 8px', fontSize: 12,
+          }} />
+          <button className="action-btn accent" style={{ fontSize: 12, padding: '6px 10px' }}
+            onClick={() => { navigator.clipboard.writeText(getReferralUrl()); }}>
+            复制
+          </button>
+        </div>
+      </Card>
+
+      {showShare && <Suspense fallback={null}><ShareCard onClose={() => setShowShare(false)} /></Suspense>}
+
       {/* About */}
       <Card title="关于">
-        <div className="stat-row"><span className="stat-label">版本</span><span>v178.0</span></div>
+        <div className="stat-row"><span className="stat-label">版本</span><span>v179.0</span></div>
         <div className="stat-row"><span className="stat-label">引擎</span><span>React + Zustand + Vite</span></div>
       </Card>
 

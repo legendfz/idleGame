@@ -265,6 +265,19 @@ export default function App() {
       useLeaderboardStore.getState().load();
       useDailyStore.getState().load();
       useDailyChallengeStore.getState().load();
+      // v179.0: Referral bonus
+      import('./data/referral').then(({ hasReferralParam, isReferralClaimed, markReferralClaimed, REFERRAL_REWARD }) => {
+        if (hasReferralParam() && !isReferralClaimed()) {
+          const gs = useGameStore.getState();
+          gs.updatePlayer({
+            lingshi: gs.player.lingshi + REFERRAL_REWARD.lingshi,
+            pantao: gs.player.pantao + REFERRAL_REWARD.pantao,
+            hongmengShards: gs.player.hongmengShards + REFERRAL_REWARD.hongmengShards,
+            tianmingScrolls: gs.player.tianmingScrolls + REFERRAL_REWARD.tianmingScrolls,
+          });
+          markReferralClaimed();
+        }
+      });
     }
   }, [load]);
 
