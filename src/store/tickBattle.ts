@@ -446,6 +446,7 @@ export function executeBattleTick(get: () => any, set: (partial: any) => void): 
       log = addLog(log, `🎆 天劫已渡！突破「${nextRealm.name}」— ${nextRealm.bonus}`, 'levelup');
       updatedPlayer.realmIndex = tri.realmIndex;
       updatedPlayer.totalBreakthroughs = (updatedPlayer.totalBreakthroughs || 0) + 1;
+      updatedPlayer.tribulationWins = (updatedPlayer.tribulationWins ?? 0) + 1;
       updatedPlayer.stats.attack = Math.floor(updatedPlayer.stats.attack * 1.5);
       updatedPlayer.stats.maxHp = Math.floor(updatedPlayer.stats.maxHp * 1.5);
       updatedPlayer.stats.hp = updatedPlayer.stats.maxHp;

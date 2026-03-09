@@ -92,6 +92,7 @@ export function WeeklyBossPanel() {
           if (rewards.shards > 0) p.hongmengShards = (p.hongmengShards ?? 0) + rewards.shards;
           if (rewards.daoPoints > 0) p.daoPoints = (p.daoPoints ?? 0) + rewards.daoPoints;
           if (rewards.trialTokens > 0) p.trialTokens = (p.trialTokens ?? 0) + rewards.trialTokens;
+          p.weeklyBossKills = (p.weeklyBossKills ?? 0) + 1;
           useGameStore.setState({ player: p });
 
           // Record cleared floor

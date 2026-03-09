@@ -240,6 +240,7 @@ export function WorldBossModal({ onClose }: { onClose: () => void }) {
       hongmengShards: player.hongmengShards + Math.floor(r.hongmengShards * scale),
       daoPoints: player.daoPoints + r.daoPoints,
       trialTokens: player.trialTokens + r.trialTokens,
+      worldBossKills: (player.worldBossKills ?? 0) + 1,
     });
     const cycleId = getCycleId(Date.now());
     const saved = loadWorldBossSave();

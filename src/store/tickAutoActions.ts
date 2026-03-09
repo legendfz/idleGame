@@ -3,6 +3,7 @@
  * Each function operates on mutable player/battle state and returns void.
  */
 import { PlayerState, BattleState, EquipmentItem, Quality, QUALITY_INFO } from '../types';
+import { useDailyStore } from './dailyStore';
 import { CHAPTERS, createEnemy, ABYSS_CHAPTER_ID } from '../data/chapters';
 import { ABYSS_MILESTONES } from '../data/abyssMilestones';
 import { REINC_PERKS, REINC_MIN_REALM, REINC_MIN_LEVEL } from '../data/reincarnation';
@@ -698,5 +699,32 @@ export function runAllAutoActions(ctx: TickContext): boolean {
   autoWeeklyBoss(ctx);
   autoClaimDailyChallenges(ctx);
   autoClaimAbyssMilestones(ctx);
+  autoSignIn(ctx);
   return false;
+}
+
+/** Auto daily sign-in: check every 60 ticks */
+export function autoSignIn(ctx: TickContext) {
+  if (ctx.totalPlayTime % 60 !== 0 || ctx.totalPlayTime === 0) return;
+  try {
+    const daily = useDailyStore.getState();
+    daily.checkCanSignIn();
+    if (daily.canSignIn) {
+      const result = daily.signIn();
+      if (result) {
+        const r = result.reward;
+        if (r.lingshi) ctx.updatedPlayer.lingshi += r.lingshi;
+        if (r.pantao) ctx.updatedPlayer.pantao = (ctx.updatedPlayer.pantao ?? 0) + r.pantao;
+        if (r.shards) ctx.updatedPlayer.hongmengShards = (ctx.updatedPlayer.hongmengShards ?? 0) + r.shards;
+        if (r.consumable) {
+          const inv: Record<string, number> = (ctx.updatedPlayer as any).consumables ?? {};
+          inv[r.consumable.id] = (inv[r.consumable.id] ?? 0) + r.consumable.count;
+          (ctx.updatedPlayer as any).consumables = inv;
+        }
+        if (r.scrollType === 'tianming') ctx.updatedPlayer.tianmingScrolls = (ctx.updatedPlayer.tianmingScrolls ?? 0) + 1;
+        if (r.scrollType === 'lucky') ctx.updatedPlayer.luckyScrolls = (ctx.updatedPlayer.luckyScrolls ?? 0) + 1;
+        ctx.log = ctx.addLog(ctx.log, `📅 自动签到：${r.desc}`, 'info');
+      }
+    }
+  } catch {}
 }
