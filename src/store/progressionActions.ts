@@ -1,6 +1,7 @@
 // v129.0: Reincarnation + Transcendence actions extracted from gameStore.ts
 import { calcDaoPoints, REINC_PERKS, REINC_MIN_REALM, REINC_MIN_LEVEL } from '../data/reincarnation';
 import { TRANSCEND_PERKS, TRANSCEND_MIN_REINC, calcTranscendPoints } from '../data/transcendence';
+import { CHAPTERS } from '../data/chapters';
 import { makeInitialPlayer, makeInitialBattle } from './gameStore';
 import { sfx } from '../engine/audio';
 
@@ -54,14 +55,21 @@ export function reincarnateAction(get: () => any, set: (s: any) => void) {
   const critBonus = REINC_PERKS.find((p: any) => p.id === 'crit_flat')!.effect(player.reincPerks['crit_flat'] ?? 0);
   newPlayer.stats.critRate += critBonus;
 
+  // v192.0: Calculate starting chapter based on start level
+  const effectiveStartLevel = newPlayer.level;
+  let startChapter = 1;
+  for (const ch of CHAPTERS) {
+    if (effectiveStartLevel >= ch.levelRange[0]) startChapter = ch.id;
+  }
+
   set({
     player: newPlayer,
-    battle: makeInitialBattle(),
+    battle: { ...makeInitialBattle(), chapterId: startChapter },
     inventory: [],
     equippedWeapon: null,
     equippedArmor: null,
     equippedTreasure: null,
-    highestChapter: 1,
+    highestChapter: startChapter,
     highestStage: 1,
     floatingTexts: [],
     idleStats: { goldPerSec: 0, expPerSec: 0, dps: 0, sessionTime: 0 },
@@ -99,6 +107,17 @@ export function reincarnateAction(get: () => any, set: (s: any) => void) {
     const newCritBonus = REINC_PERKS.find((p: any) => p.id === 'crit_flat')!.effect(perks['crit_flat'] ?? 0);
     if (newCritBonus > critBonus) {
       newPlayer.stats.critRate = makeInitialPlayer().stats.critRate + newCritBonus;
+    }
+    // v192.0: Update chapter after dao allocation may increase start_level
+    let newStartChapter = 1;
+    for (const ch of CHAPTERS) {
+      if (newPlayer.level >= ch.levelRange[0]) newStartChapter = ch.id;
+    }
+    if (newStartChapter > 1) {
+      set({
+        highestChapter: newStartChapter,
+        battle: { ...get().battle, chapterId: newStartChapter },
+      });
     }
   }
 
