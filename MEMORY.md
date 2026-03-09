@@ -1247,3 +1247,12 @@
 - Build: 476KB/150KB gzip, 714KB precache
 - Commit: 72d5ee8
 - CEO直接实现（最高效）
+
+## v185.0「离线觉醒·补全」完成（2026-03-09 05:00）
+- 🔴 修复：离线收益缺失天气加成和章节精通加成
+- offline.ts接入getCurrentWeather().buffs（goldMul/expMul）
+- offline.ts接入getChapterMasteryBonus（goldBonus/expBonus）
+- 影响：有天气buff和高精通章节的玩家离线收益显著提升
+- Build: 714KB precache
+- Commit: 988a6b0
+- CEO直接实现（最高效）
