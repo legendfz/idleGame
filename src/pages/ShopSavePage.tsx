@@ -1,12 +1,24 @@
 import { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
-import { formatTime } from '../utils/format';
+import { formatTime, formatNumber } from '../utils/format';
 import { SCROLL_PRICES } from '../data/equipment';
 import { Card, SubPageHeader, SubPage } from './shared';
+
+// v176.0: Resource exchange rates
+const EXCHANGE_RATES = [
+  { from: 'lingshi', to: 'pantao', fromName: '灵石', toName: '蟠桃', rate: 1000, amount: 1, icon: '💰→🍑' },
+  { from: 'pantao', to: 'lingshi', fromName: '蟠桃', toName: '灵石', rate: 1, amount: 500, icon: '🍑→💰' },
+  { from: 'lingshi', to: 'hongmengShards', fromName: '灵石', toName: '鸿蒙碎片', rate: 5000, amount: 1, icon: '💰→💎' },
+  { from: 'hongmengShards', to: 'lingshi', fromName: '鸿蒙碎片', toName: '灵石', rate: 1, amount: 2000, icon: '💎→💰' },
+  { from: 'pantao', to: 'hongmengShards', fromName: '蟠桃', toName: '鸿蒙碎片', rate: 10, amount: 1, icon: '🍑→💎' },
+  { from: 'hongmengShards', to: 'pantao', fromName: '鸿蒙碎片', toName: '蟠桃', rate: 1, amount: 5, icon: '💎→🍑' },
+];
 
 export function ShopPage({ onBack }: { onBack: () => void }) {
   const player = useGameStore(s => s.player);
   const buyScroll = useGameStore(s => s.buyScroll);
+  const exchangeResource = useGameStore(s => s.exchangeResource);
+  const [exchangeMsg, setExchangeMsg] = useState('');
 
   const scrolls = [
     { type: 'tianming' as const, name: '天命符', desc: '精炼成功率+5%', price: SCROLL_PRICES.tianming, count: player.tianmingScrolls },
@@ -46,6 +58,35 @@ export function ShopPage({ onBack }: { onBack: () => void }) {
             </div>
           </Card>
         ))}
+      </Card>
+
+      {/* v176.0: Resource Exchange */}
+      <Card>
+        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>🔄 资源转换</div>
+        <div className="color-dim" style={{ fontSize: 11, marginBottom: 8 }}>
+          灵石: {formatNumber(player.lingshi)} · 蟠桃: {formatNumber(player.pantao)} · 碎片: {formatNumber(player.hongmengShards)}
+        </div>
+        {exchangeMsg && <div style={{ color: '#34d399', fontSize: 11, marginBottom: 6 }}>{exchangeMsg}</div>}
+        {EXCHANGE_RATES.map((ex, i) => {
+          const fromVal = (player as any)[ex.from] ?? 0;
+          const canExchange = fromVal >= ex.rate;
+          const maxTimes = Math.floor(fromVal / ex.rate);
+          return (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+              <span style={{ fontSize: 12, minWidth: 40 }}>{ex.icon}</span>
+              <span className="color-dim" style={{ fontSize: 11, flex: 1 }}>{ex.rate}{ex.fromName} → {ex.amount}{ex.toName}</span>
+              <button className="small-btn accent" disabled={!canExchange}
+                onClick={() => { exchangeResource(ex.from, ex.to, ex.rate, ex.amount, 1); setExchangeMsg(`${ex.amount}${ex.toName} 已到账`); setTimeout(() => setExchangeMsg(''), 1500); }}
+                style={{ fontSize: 10, padding: '2px 6px' }}>×1</button>
+              <button className="small-btn" disabled={maxTimes < 10}
+                onClick={() => { exchangeResource(ex.from, ex.to, ex.rate, ex.amount, 10); setExchangeMsg(`${ex.amount * 10}${ex.toName} 已到账`); setTimeout(() => setExchangeMsg(''), 1500); }}
+                style={{ fontSize: 10, padding: '2px 6px', background: maxTimes >= 10 ? 'linear-gradient(135deg,#7c3aed,#6d28d9)' : 'rgba(255,255,255,0.08)', color: maxTimes >= 10 ? '#fff' : 'var(--text-dim)', border: 'none', borderRadius: 6 }}>×10</button>
+              {maxTimes > 0 && <button className="small-btn"
+                onClick={() => { exchangeResource(ex.from, ex.to, ex.rate, ex.amount, maxTimes); setExchangeMsg(`${formatNumber(ex.amount * maxTimes)}${ex.toName} 已到账`); setTimeout(() => setExchangeMsg(''), 1500); }}
+                style={{ fontSize: 10, padding: '2px 6px', background: 'linear-gradient(135deg,#f59e0b,#d97706)', color: '#fff', border: 'none', borderRadius: 6 }}>全换({maxTimes})</button>}
+            </div>
+          );
+        })}
       </Card>
     </div>
   );

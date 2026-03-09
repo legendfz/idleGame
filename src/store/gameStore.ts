@@ -147,6 +147,7 @@ interface GameStore {
   toggleLock: (uid: string) => void;
   refineItem: (targetUid: string, materialUids: string[], useTianming?: boolean, usePity?: boolean) => void;
   buyScroll: (type: 'tianming' | 'protect' | 'lucky') => void;
+  exchangeResource: (from: string, to: string, rate: number, amount: number, times: number) => void;
   clearFloatingText: (id: number) => void;
   getEffectiveStats: () => Stats;
   setBattleSpeed: (speed: number) => void;
@@ -577,6 +578,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
   enhanceEquip: (uid, useProtect = false, useLucky = false) => enhanceEquipAction(get, set, uid, useProtect, useLucky),
   refineItem: (targetUid, materialUids, useTianming = false, usePity = false) => refineItemAction(get, set, targetUid, materialUids, useTianming, usePity),
   buyScroll: (type) => buyScrollAction(get, set, type),
+  exchangeResource: (from, to, rate, amount, times) => {
+    const p = { ...get().player };
+    const cost = rate * times;
+    if ((p as any)[from] < cost) return;
+    (p as any)[from] -= cost;
+    (p as any)[to] = ((p as any)[to] ?? 0) + amount * times;
+    set({ player: p });
+  },
   sellEquip: (uid) => sellEquipAction(get, set, uid),
   toggleLock: (uid) => toggleLockAction(get, set, uid),
   decomposeEquip: (uid) => decomposeEquipAction(get, set, uid),
