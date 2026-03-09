@@ -1281,3 +1281,11 @@
 - Build: 720KB precache
 - Commit: 2fe7515
 - CEO直接实现（最高效）
+
+## v190.0「仙途清源」完成（2026-03-09 10:01）
+- 🔴 修复 autoAwaken 存档丢失bug（saveActions.ts 未保存/加载）
+- 🔴 修复 autoBuyScrolls 存档丢失bug（同上）
+- 版本号更新 v190.0
+- Build: 482KB/152KB gzip, 720KB precache
+- Commit: 09abf91
+- CEO直接实现（最高效）
