@@ -7,7 +7,7 @@ import { ELEMENTS, ElementType } from '../data/elements';
 import { getReforgeCost } from '../store/equipmentActions';
 import {
   getEquipEffectiveStat, getEnhanceCost, getMaxEnhanceLevel, getActiveSetBonuses,
-  hasFullMythic15,
+  hasFullMythic15, EQUIP_SETS,
 } from '../data/equipment';
 import { Card, SubPage } from './shared';
 import { EquipSlotDisplay } from './EquipmentPage';
@@ -35,7 +35,7 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const PAGE_SIZE = 20;
   const [page, setPage] = useState(0);
-  const [sortMode, setSortMode] = useState<'quality' | 'stat' | 'level'>('quality');
+  const [sortMode, setSortMode] = useState<'quality' | 'stat' | 'level' | 'upgrade'>('quality');
 
   const toggleSelect = (uid: string) => {
     setSelected(prev => { const next = new Set(prev); if (next.has(uid)) next.delete(uid); else next.add(uid); return next; });
@@ -68,6 +68,15 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
     .sort((a, b) => {
       if (sortMode === 'stat') return getEquipEffectiveStat(b) - getEquipEffectiveStat(a);
       if (sortMode === 'level') return (b.level ?? 0) - (a.level ?? 0);
+      if (sortMode === 'upgrade') {
+        // Sort by improvement over currently equipped item (highest upgrade first)
+        const getDiff = (item: EquipmentItem) => {
+          const stat = getEquipEffectiveStat(item);
+          const equipped = item.slot === 'weapon' ? weapon : item.slot === 'armor' ? armor : treasure;
+          return stat - (equipped ? getEquipEffectiveStat(equipped) : 0);
+        };
+        return getDiff(b) - getDiff(a);
+      }
       const qi = Object.keys(QUALITY_INFO);
       return qi.indexOf(b.quality) - qi.indexOf(a.quality);
     });
@@ -187,7 +196,7 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
 
       <div style={{ display: 'flex', gap: 4, padding: '0 8px 4px', fontSize: 11 }}>
         <span className="color-dim" style={{ lineHeight: '24px' }}>排序:</span>
-        {([['quality', '品质'], ['stat', '属性'], ['level', '强化']] as const).map(([key, label]) => (
+        {([['quality', '品质'], ['stat', '属性'], ['level', '强化'], ['upgrade', '提升']] as const).map(([key, label]) => (
           <button key={key} className={`filter-btn ${sortMode === key ? 'active' : ''}`}
             style={{ fontSize: 11, padding: '2px 8px' }}
             onClick={() => setSortMode(key)}>{label}</button>
@@ -279,7 +288,13 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
               })()}
               {item.passive && <span className="color-passive">{item.passive.description}</span>}
               {item.substats?.length ? <span style={{ color: '#64b5f6', fontSize: 10 }}>📜{item.substats.length}词缀</span> : null}
-              {item.setId && <span className="color-set" style={{ fontSize: 11 }}>套装</span>}
+              {item.setId && (() => {
+                const set = EQUIP_SETS.find(s => s.pieces.includes(item.templateId));
+                if (!set) return <span className="color-set" style={{ fontSize: 11 }}>套装</span>;
+                const allItems = [...inventory, ...[weapon, armor, treasure].filter(Boolean)] as EquipmentItem[];
+                const owned = set.pieces.filter(pid => allItems.some(it => it.templateId === pid)).length;
+                return <span className="color-set" style={{ fontSize: 11 }}>🔗{set.name} {owned}/{set.pieces.length}</span>;
+              })()}
             </div>
             {!decomposeMode && (
               <div className="equip-actions">
