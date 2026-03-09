@@ -40,6 +40,12 @@ export function ReincarnationPanel() {
             <div style={{ color: '#8af', marginBottom: 10 }}>
               转世将获得 <strong style={{ fontSize: 18 }}>+{daoPreview}</strong> 道点
             </div>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 12, fontSize: 11, color: '#aaa', marginBottom: 6, flexWrap: 'wrap' }}>
+              <span>转世后道点: <span style={{ color: '#8af' }}>{player.daoPoints + daoPreview}</span></span>
+              <span>第{player.reincarnations + 1}世</span>
+              {player.reincarnations + 1 >= 3 && <span>觉醒点: <span style={{ color: '#c084fc' }}>+{Math.floor(((player.reincarnations + 1) - 2) * 2)}</span></span>}
+              {player.fastestReincTime && player.fastestReincTime > 0 && <span>最速: <span style={{ color: '#34d399' }}>{Math.floor(player.fastestReincTime / 60)}m</span></span>}
+            </div>
             <div style={{ color: 'var(--text-dim)', fontSize: 12, marginBottom: 10 }}>
               [注意] 等级、灵石、装备、境界将重置。道点和永久加成保留。
             </div>

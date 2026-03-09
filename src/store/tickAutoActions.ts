@@ -25,6 +25,7 @@ import { WEEKLY_FLOORS, getWeekStart } from '../data/weeklyBoss';
 import { useExplorationStore } from './explorationStore';
 import { useDailyChallengeStore } from './dailyChallengeStore';
 import { REALMS } from '../data/realms';
+import { SCROLL_PRICES } from '../data/equipment';
 import { sfx } from '../engine/audio';
 
 // Helper type for tick context
@@ -700,7 +701,34 @@ export function runAllAutoActions(ctx: TickContext): boolean {
   autoClaimDailyChallenges(ctx);
   autoClaimAbyssMilestones(ctx);
   autoSignIn(ctx);
+  autoBuyScrolls(ctx);
   return false;
+}
+
+/** v172.0: Auto-buy scrolls with excess pantao every 120 ticks */
+export function autoBuyScrolls(ctx: TickContext) {
+  if (!ctx.state.autoBuyScrolls || ctx.totalPlayTime % 120 !== 0 || ctx.totalPlayTime === 0) return;
+  // Only buy if pantao > 500 (keep a buffer)
+  const scrollTypes: Array<{ key: 'tianming' | 'protect' | 'lucky'; field: 'tianmingScrolls' | 'protectScrolls' | 'luckyScrolls' }> = [
+    { key: 'lucky', field: 'luckyScrolls' },
+    { key: 'protect', field: 'protectScrolls' },
+    { key: 'tianming', field: 'tianmingScrolls' },
+  ];
+  let bought = 0;
+  for (const s of scrollTypes) {
+    const price = SCROLL_PRICES[s.key];
+    // Buy up to 5 per cycle, keep 200 pantao buffer
+    let count = 0;
+    while (count < 5 && ctx.updatedPlayer.pantao >= price + 200) {
+      ctx.updatedPlayer.pantao -= price;
+      (ctx.updatedPlayer as any)[s.field] = ((ctx.updatedPlayer as any)[s.field] ?? 0) + 1;
+      count++;
+      bought++;
+    }
+  }
+  if (bought > 0) {
+    ctx.log = ctx.addLog(ctx.log, `📜 自动购买 ${bought} 张卷轴`, 'info');
+  }
 }
 
 /** Auto daily sign-in: check every 60 ticks */

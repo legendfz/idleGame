@@ -64,6 +64,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
   const autoWeeklyBoss = useGameStore(s => s.autoWeeklyBoss) ?? false;
   const autoClaimChallenges = useGameStore(s => s.autoClaimChallenges) ?? false;
   const autoTranscend = useGameStore(s => s.autoTranscend) ?? false;
+  const autoBuyScrolls = useGameStore(s => s.autoBuyScrolls) ?? false;
   const autoBuyTranscendPerks = useGameStore(s => s.autoBuyTranscendPerks) ?? false;
   const setAutoReincarnate = useGameStore(s => s.setAutoReincarnate);
   const [showAutoDetails, setShowAutoDetails] = useState(false);
@@ -174,18 +175,18 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
 
       {/* Master Auto Toggle */}
       {(() => {
-        const allOn = autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoReforge && autoFeedPet && autoBuyPerks && autoSynth && autoReincarnate && autoDaoAlloc && autoFarm && autoTranscend && autoBuyTranscendPerks && autoEvent && autoWeeklyBoss && autoClaimChallenges;
+        const allOn = autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoReforge && autoFeedPet && autoBuyPerks && autoSynth && autoReincarnate && autoDaoAlloc && autoFarm && autoTranscend && autoBuyTranscendPerks && autoEvent && autoWeeklyBoss && autoClaimChallenges && autoBuyScrolls;
         return (<Card>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
           onClick={() => {
             if (allOn) {
               setAutoDecomp(0); setAutoEquip(false); setAutoSkill(false); setAutoConsume(false);
               setAutoWorldBoss(false); setAutoExplore(false); setAutoSanctuary(false); setAutoAffinity(false);
-              setAutoSweep(false); setAutoFate(false); setAutoWheel(false); setAutoTrial(false); setAutoAscension(false); setAutoEnhance(false); setAutoReforge(false); setAutoBuyPerks(false); setAutoSynth(false); useGameStore.getState().setAutoDaoAlloc(false); useGameStore.getState().setAutoFarm(false); useGameStore.getState().setAutoTranscend(false); useGameStore.getState().setAutoBuyTranscendPerks(false); useGameStore.getState().setAutoEvent(false); useGameStore.getState().setAutoWeeklyBoss(false); useGameStore.getState().setAutoClaimChallenges(false);
+              setAutoSweep(false); setAutoFate(false); setAutoWheel(false); setAutoTrial(false); setAutoAscension(false); setAutoEnhance(false); setAutoReforge(false); setAutoBuyPerks(false); setAutoSynth(false); useGameStore.getState().setAutoDaoAlloc(false); useGameStore.getState().setAutoFarm(false); useGameStore.getState().setAutoTranscend(false); useGameStore.getState().setAutoBuyTranscendPerks(false); useGameStore.getState().setAutoEvent(false); useGameStore.getState().setAutoWeeklyBoss(false); useGameStore.getState().setAutoClaimChallenges(false); useGameStore.getState().setAutoBuyScrolls(false);
             } else {
               setAutoDecomp(2); setAutoEquip(true); setAutoSkill(true); setAutoConsume(true);
               setAutoWorldBoss(true); setAutoExplore(true); setAutoSanctuary(true); setAutoAffinity(true);
-              setAutoSweep(true); setAutoFate(true); setAutoWheel(true); setAutoTrial(true); setAutoAscension(true); setAutoEnhance(true); setAutoReforge(true); setAutoFeedPet(true); setAutoBuyPerks(true); setAutoSynth(true); setAutoReincarnate(true); useGameStore.getState().setAutoDaoAlloc(true); useGameStore.getState().setAutoFarm(true); useGameStore.getState().setAutoTranscend(true); useGameStore.getState().setAutoBuyTranscendPerks(true); useGameStore.getState().setAutoEvent(true); useGameStore.getState().setAutoWeeklyBoss(true); useGameStore.getState().setAutoClaimChallenges(true);
+              setAutoSweep(true); setAutoFate(true); setAutoWheel(true); setAutoTrial(true); setAutoAscension(true); setAutoEnhance(true); setAutoReforge(true); setAutoFeedPet(true); setAutoBuyPerks(true); setAutoSynth(true); setAutoReincarnate(true); useGameStore.getState().setAutoDaoAlloc(true); useGameStore.getState().setAutoFarm(true); useGameStore.getState().setAutoTranscend(true); useGameStore.getState().setAutoBuyTranscendPerks(true); useGameStore.getState().setAutoEvent(true); useGameStore.getState().setAutoWeeklyBoss(true); useGameStore.getState().setAutoClaimChallenges(true); useGameStore.getState().setAutoBuyScrolls(true);
             }
           }}>
           <span style={{ fontWeight: 700, fontSize: 15 }}>🤖 一键全自动</span>
@@ -285,6 +286,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
           <div style={{ fontSize: 12, fontWeight: 700, color: '#6366f1', margin: '12px 0 4px', borderTop: '1px solid var(--border)', paddingTop: 8 }}>🔄 轮回</div>
           <AutoRow label="自动转世(大乘境界)" on={autoReincarnate} toggle={() => setAutoReincarnate(!autoReincarnate)} />
           <AutoRow label="自动分配道点" on={autoDaoAlloc} toggle={() => useGameStore.getState().setAutoDaoAlloc(!autoDaoAlloc)} />
+          <AutoRow label="自动购买卷轴" on={autoBuyScrolls} toggle={() => useGameStore.getState().setAutoBuyScrolls(!autoBuyScrolls)} />
           <AutoRow label="自动超越(10次转世)" on={autoTranscend} toggle={() => useGameStore.getState().setAutoTranscend(!autoTranscend)} />
           <AutoRow label="自动购买超越加成" on={autoBuyTranscendPerks} toggle={() => useGameStore.getState().setAutoBuyTranscendPerks(!autoBuyTranscendPerks)} />
         </>)}
@@ -353,7 +355,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
 
       {/* About */}
       <Card title="关于">
-        <div className="stat-row"><span className="stat-label">版本</span><span>v171.0</span></div>
+        <div className="stat-row"><span className="stat-label">版本</span><span>v172.0</span></div>
         <div className="stat-row"><span className="stat-label">引擎</span><span>React + Zustand + Vite</span></div>
       </Card>
 

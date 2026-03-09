@@ -289,6 +289,11 @@ export function BattleView() {
           </div>
           <div className="enemy-sub-stats">
             防御 {formatNumber(enemy.defense)} · 经验 {formatNumber(enemy.expDrop)} · 灵石 {formatNumber(enemy.lingshiDrop)}
+            {(() => {
+              const ratio = eStats.attack > 0 ? enemy.maxHp / eStats.attack : 999;
+              const diff = ratio > 50 ? { label: '🔴极难', color: '#ef4444' } : ratio > 20 ? { label: '🟠困难', color: '#f59e0b' } : ratio > 5 ? { label: '🟡普通', color: '#eab308' } : { label: '🟢轻松', color: '#22c55e' };
+              return <span style={{ marginLeft: 6, color: diff.color, fontWeight: 600, fontSize: 10 }}>{diff.label}</span>;
+            })()}
           </div>
           <FloatingDamage />
         </Card>
