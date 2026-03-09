@@ -1,12 +1,11 @@
-import { useEffect, useRef, useState, lazy, Suspense, memo, useCallback } from 'react';
-import { useGameStore, setAchStatesCache } from './store/gameStore';
+import { useEffect, useRef, useState, lazy, Suspense } from 'react';
+import { useGameStore } from './store/gameStore';
 import { useDungeonStore } from './store/dungeonStore';
-import { useAchievementStore } from './store/achievementStore';
-import { useLeaderboardStore } from './store/leaderboardStore';
 import AchievementToast from './components/AchievementToast';
 import { TutorialOverlay } from './components/TutorialOverlay';
+import { useLoadGame, useTickLoop, useAutoSave, useDocumentTitle, useNotifications, useKeyboardShortcuts } from './hooks/useGameLoop';
 
-// Lazy-loaded panels (not needed on first render)
+// Lazy-loaded panels
 const StatsView = lazy(() => import('./components/StatsView').then(m => ({ default: m.StatsView })));
 const SanctuaryPanel = lazy(() => import('./components/SanctuaryPanel').then(m => ({ default: m.SanctuaryPanel })));
 const ExplorationPanel = lazy(() => import('./components/ExplorationPanel').then(m => ({ default: m.ExplorationPanel })));
@@ -52,7 +51,6 @@ const LazyFallback = () => <div style={{ padding: 40, textAlign: 'center', color
 
 function StoryModal() {
   const story = useGameStore(s => s.activeStory);
-  // v149.0: Auto-dismiss story after 3s for automated players
   useEffect(() => {
     if (!story) return;
     const timer = setTimeout(() => useGameStore.setState({ activeStory: null }), 3000);
@@ -119,7 +117,6 @@ const PRIMARY_TABS = [
   { id: 'bag' as const, icon: '包', label: '背包', unlockLevel: 5 },
   { id: 'settings' as const, icon: '设', label: '更多', unlockLevel: 0 },
 ];
-// Secondary tabs (shown in expandable row)
 const SECONDARY_TABS = [
   { id: 'pets' as const, icon: '兽', label: '灵兽', unlockLevel: 10 },
   { id: 'achievement' as const, icon: '勋', label: '成就', unlockLevel: 10 },
@@ -142,7 +139,7 @@ function useUnlockedTabs() {
   useEffect(() => {
     if (prevCountRef.current > 0 && tabs.length > prevCountRef.current) {
       const newTabs = ALL_TABS.filter(t => t.unlockLevel > 0 && level >= t.unlockLevel)
-        .slice(prevCountRef.current - 4); // minus the 4 initial tabs
+        .slice(prevCountRef.current - 4);
       if (newTabs.length > 0) {
         setToast(`★ 新功能解锁：${newTabs[newTabs.length - 1].label}`);
         setTimeout(() => setToast(null), 3000);
@@ -158,7 +155,6 @@ function BottomNav() {
   const activeTab = useGameStore(s => s.activeTab);
   const setTab = useGameStore(s => s.setTab);
   const dailyCanSignIn = useDailyStore(s => s.canSignIn);
-  // v182: settings red dot = sign-in OR daily challenge OR season quest/reward claimable
   const [settingsHasClaimable, setSettingsHasClaimable] = useState(dailyCanSignIn);
   useEffect(() => {
     const check = () => {
@@ -185,21 +181,17 @@ function BottomNav() {
   const explorationFree = useExplorationStore(s => s.exploration.dailyFree);
   const explorationRun = useExplorationStore(s => s.exploration.currentRun);
 
-  // Red dot: sanctuary has affordable upgrade
   const sanctuaryRedDot = BUILDINGS.some(b => {
     const lv = sanctuaryLevels[b.id] ?? 0;
     return lv < 10 && lingshi >= getUpgradeCost(b, lv);
   });
-  // Red dot: exploration has free runs available
   const explorationRedDot = explorationFree > 0 && (!explorationRun || explorationRun.completed);
-  // Red dot: world boss is active
   const [worldBossActive, setWorldBossActive] = useState(false);
   useEffect(() => {
     let wasActive = false;
     const check = () => {
       const active = !!getCurrentWorldBoss(Date.now());
       setWorldBossActive(active);
-      // v150.0: Notify idle players when world boss spawns
       if (active && !wasActive && document.hidden && 'Notification' in window && Notification.permission === 'granted') {
         new Notification('⚔️ 世界Boss来袭！', { body: '快来挑战世界Boss，赢取丰厚奖励！', icon: '/pwa-192x192.svg' });
       }
@@ -217,7 +209,6 @@ function BottomNav() {
   const secondaryTabs = SECONDARY_TABS.filter(t => level >= t.unlockLevel);
   const isSecondaryActive = secondaryTabs.some(t => t.id === activeTab);
 
-  // Auto-show secondary row when a secondary tab is active
   useEffect(() => {
     if (isSecondaryActive) setShowSecondary(true);
   }, [isSecondaryActive]);
@@ -233,7 +224,6 @@ function BottomNav() {
           animation: 'fadeInUp 0.3s ease'
         }}>{toast}</div>
       )}
-      {/* Secondary row (expandable) */}
       {showSecondary && secondaryTabs.length > 0 && (
         <div className="bottom-nav secondary-nav">
           {secondaryTabs.map(tab => (
@@ -246,7 +236,6 @@ function BottomNav() {
           ))}
         </div>
       )}
-      {/* Primary row (always visible) */}
       <div className="bottom-nav primary-nav">
         {secondaryTabs.length > 0 && (
           <button onClick={() => setShowSecondary(!showSecondary)}
@@ -257,7 +246,7 @@ function BottomNav() {
           </button>
         )}
         {primaryTabs.map(tab => (
-          <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); if (!PRIMARY_TABS.some(t => t.id === tab.id)) return; }}
+          <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); }}
             style={{ position: 'relative' }}>
             <span className="icon">{tab.icon}</span><span>{tab.label}</span>
             {tab.id === 'settings' && settingsHasClaimable && <span className="nav-red-dot" />}
@@ -271,175 +260,21 @@ function BottomNav() {
 
 export default function App() {
   const activeTab = useGameStore(s => s.activeTab);
-  const tick = useGameStore(s => s.tick);
-  const save = useGameStore(s => s.save);
-  const load = useGameStore(s => s.load);
-  const playerLevel = useGameStore(s => s.player.level);
-  const loaded = useRef(false);
   const [subPage, setSubPage] = useState<SubPage>({ type: 'none' });
-  const [saveFlash, setSaveFlash] = useState(false);
-
-  // Load
-  useEffect(() => {
-    if (!loaded.current) {
-      loaded.current = true;
-      load();
-      useDungeonStore.getState().load();
-      useAchievementStore.getState().load();
-      useLeaderboardStore.getState().load();
-      useDailyStore.getState().load();
-      useDailyChallengeStore.getState().load();
-      useSeasonStore.getState().load();
-      // v179.0: Referral bonus
-      import('./data/referral').then(({ hasReferralParam, isReferralClaimed, markReferralClaimed, REFERRAL_REWARD }) => {
-        if (hasReferralParam() && !isReferralClaimed()) {
-          const gs = useGameStore.getState();
-          gs.updatePlayer({
-            lingshi: gs.player.lingshi + REFERRAL_REWARD.lingshi,
-            pantao: gs.player.pantao + REFERRAL_REWARD.pantao,
-            hongmengShards: gs.player.hongmengShards + REFERRAL_REWARD.hongmengShards,
-            tianmingScrolls: gs.player.tianmingScrolls + REFERRAL_REWARD.tianmingScrolls,
-          });
-          markReferralClaimed();
-        }
-      });
-    }
-  }, [load]);
-
-  // Tick (throttle when tab hidden)
-  useEffect(() => {
-    let id: ReturnType<typeof setInterval>;
-    let _pk = 0, _pg = 0, _pd = 0, _pb = 0, _pc = 0, _pe = 0, _plv = 0, _init = false;
-    const doTick = () => {
-      const speed = useGameStore.getState().battleSpeed || 1;
-      for (let i = 0; i < speed; i++) tick();
-      const gs = useGameStore.getState();
-      // v70.0: Track daily challenge deltas
-      const dcStore = useDailyChallengeStore.getState();
-      const _p = gs.player;
-      if (!_init) { _pk = _p.totalKills||0; _pg = _p.totalGoldEarned||0; _pd = _p.totalEquipDrops||0; _pb = _p.totalBossKills||0; _pc = _p.totalCrits||0; _pe = _p.totalEnhances||0; _plv = _p.level||1; _init = true; }
-      else {
-        const nk=_p.totalKills||0, ng=_p.totalGoldEarned||0, nd=_p.totalEquipDrops||0, nb=_p.totalBossKills||0, nc=_p.totalCrits||0, ne=_p.totalEnhances||0;
-        if(nk>_pk){dcStore.track('kills',nk-_pk); useSeasonStore.getState().trackQuest('kills',nk-_pk); _pk=nk;}
-        if(ng>_pg){dcStore.track('gold',ng-_pg); useSeasonStore.getState().trackQuest('gold',ng-_pg); _pg=ng;}
-        if(nd>_pd){dcStore.track('equips',nd-_pd); useSeasonStore.getState().trackQuest('equips',nd-_pd); _pd=nd;}
-        if(nb>_pb){dcStore.track('boss',nb-_pb); useSeasonStore.getState().trackQuest('boss',nb-_pb); _pb=nb;}
-        if(nc>_pc){dcStore.track('crit',nc-_pc); useSeasonStore.getState().trackQuest('crit',nc-_pc); _pc=nc;}
-        if(ne>_pe){dcStore.track('enhance',ne-_pe); useSeasonStore.getState().trackQuest('enhance',ne-_pe); _pe=ne;}
-        const nlv=_p.level||1; if(nlv>_plv){dcStore.track('levelUp',nlv-_plv); useSeasonStore.getState().trackQuest('levelUp',nlv-_plv); _plv=nlv;}
-      }
-      const achStore = useAchievementStore.getState();
-      achStore.updateProgress('ach_level_50', gs.player.level);
-      achStore.updateProgress('ach_level_100', gs.player.level);
-      achStore.updateProgress('ach_online_24h', gs.totalPlayTime);
-      // Sync game stats → achievement counters
-      const c = achStore.counters;
-      const p = gs.player;
-      if (p.totalKills > c.totalKills) achStore.incrementCounter('totalKills', p.totalKills - c.totalKills);
-      if (p.totalEquipDrops > c.totalEquipObtained) achStore.incrementCounter('totalEquipObtained', p.totalEquipDrops - c.totalEquipObtained);
-      const pGold = p.totalGoldEarned || 0;
-      if (pGold > c.totalGoldEarned) achStore.incrementCounter('totalGoldEarned', pGold - c.totalGoldEarned);
-      // Track unique equipment names
-      const uniqueNames = new Set(gs.inventory.map((e: any) => e.name));
-      if (uniqueNames.size > c.collectUnique) achStore.incrementCounter('collectUnique', uniqueNames.size - c.collectUnique);
-      achStore.checkAchievements();
-      // v42.0: Sync achievement states cache for stat bonuses
-      setAchStatesCache(achStore.states as Record<string, { completed: boolean }>);
-      // v42.0: Consume pending resource rewards
-      const rewards = achStore.consumeRewards();
-      if (rewards.length > 0) {
-        const gs2 = useGameStore.getState();
-        const up = { ...gs2.player };
-        for (const r of rewards) {
-          if (r.description.includes('灵石')) up.lingshi += r.value;
-          else if (r.description.includes('蟠桃')) up.pantao += r.value;
-        }
-        useGameStore.setState({ player: up });
-      }
-    };
-    const startLoop = () => {
-      clearInterval(id);
-      id = setInterval(doTick, document.hidden ? 5000 : 1000);
-    };
-    startLoop();
-    document.addEventListener('visibilitychange', startLoop);
-    return () => { clearInterval(id); document.removeEventListener('visibilitychange', startLoop); };
-  }, [tick]);
-
-  // Auto-save
-  useEffect(() => {
-    const id = setInterval(() => {
-      save();
-      useDungeonStore.getState().save();
-      useAchievementStore.getState().save();
-      useLeaderboardStore.getState().save();
-      useDailyChallengeStore.getState().save();
-      setSaveFlash(true);
-      setTimeout(() => setSaveFlash(false), 1500);
-    }, 30000);
-    return () => clearInterval(id);
-  }, [save]);
-
-  // v130.0: Keyboard shortcuts
-  const setTab = useGameStore(s => s.setTab);
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      const key = e.key;
-      // Number keys 1-9 for tabs
-      if (key >= '1' && key <= '9') {
-        const tabs: import('./types').TabId[] = ['battle', 'team', 'journey', 'bag', 'achievement', 'stats', 'sanctuary', 'exploration', 'affinity', 'settings'];
-        const idx = parseInt(key) - 1;
-        if (idx < tabs.length) { e.preventDefault(); setTab(tabs[idx]); }
-      }
-      // Space = click attack
-      if (key === ' ' && activeTab === 'battle') { e.preventDefault(); useGameStore.getState().clickAttack(); }
-      // B = auto equip best
-      if (key === 'b' || key === 'B') { useGameStore.getState().autoEquipBest(); }
-      // R = reincarnate (with shift)
-      if (key === 'R' && e.shiftKey) { useGameStore.getState().reincarnate(); }
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [activeTab, setTab]);
+  
+  // v191.0: Extracted hooks
+  useLoadGame();
+  useTickLoop();
+  const saveFlash = useAutoSave();
+  useDocumentTitle();
+  useNotifications();
+  useKeyboardShortcuts(activeTab);
 
   // Reset sub-page on tab change
   useEffect(() => { setSubPage({ type: 'none' }); }, [activeTab]);
 
-  // v145.0: Document title with level
-  useEffect(() => {
-    const id = setInterval(() => {
-      const p = useGameStore.getState().player;
-      document.title = `Lv.${p.level} 西游·悟空传`;
-    }, 5000);
-    document.title = `Lv.${playerLevel} 西游·悟空传`;
-    return () => clearInterval(id);
-  }, [playerLevel]);
-
-  // v150.0: Browser notifications for idle players (tab hidden)
-  const lastNotifLevel = useRef(playerLevel);
-  useEffect(() => {
-    if (!document.hidden || Notification.permission !== 'granted') return;
-    if (playerLevel > lastNotifLevel.current && playerLevel % 50 === 0) {
-      new Notification('🎉 西游·悟空传', { body: `恭喜突破 Lv.${playerLevel}！`, icon: '/pwa-192x192.svg' });
-    }
-    lastNotifLevel.current = playerLevel;
-  }, [playerLevel]);
-  // Request notification permission on first interaction
-  useEffect(() => {
-    const ask = () => {
-      if ('Notification' in window && Notification.permission === 'default') {
-        Notification.requestPermission();
-      }
-      window.removeEventListener('click', ask);
-    };
-    window.addEventListener('click', ask);
-    return () => window.removeEventListener('click', ask);
-  }, []);
-
   const goBack = () => setSubPage({ type: 'none' });
 
-  // ─── Sub-page routing ───
   const renderSubPage = () => {
     switch (subPage.type) {
       case 'equipDetail': return <EquipDetailPageLazy item={subPage.item} onBack={goBack} />;
@@ -484,17 +319,16 @@ export default function App() {
       case 'weeklyBoss': return (
         <div className="main-content fade-in"><SubPageHeader title="周天秘境" onBack={goBack} /><Suspense fallback={<LazyFallback />}><WeeklyBossPanel /></Suspense></div>
       );
-    if (subPage.type === 'guide') return (
+      case 'guide': return (
         <div className="main-content fade-in"><SubPageHeader title="仙途百科" onBack={goBack} /><Suspense fallback={<LazyFallback />}><GuidePanel /></Suspense></div>
       );
-    if (subPage.type === 'handbook') return (
+      case 'handbook': return (
         <div className="main-content fade-in"><Suspense fallback={<LazyFallback />}><HandbookPanel onClose={goBack} /></Suspense></div>
       );
       default: return null;
     }
   };
 
-  // ─── Main tab routing ───
   const renderTab = () => {
     switch (activeTab) {
       case 'battle': return <BattleView />;
