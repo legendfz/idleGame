@@ -25,6 +25,8 @@ import { getGemBonuses } from '../data/gems';
 import { getPowerMilestoneBonuses } from '../data/powerMilestones';
 import { getAbyssMilestoneBonuses } from '../data/abyssMilestones';
 import { getSubstatBonuses } from '../data/substats';
+import { REINC_PERKS, getReincMilestoneBonus } from '../data/reincarnation';
+import { getAwakeningBonuses } from '../components/AwakeningPanel';
 import {
   equipItemAction, unequipSlotAction, enhanceEquipAction, refineItemAction,
   buyScrollAction, sellEquipAction, toggleLockAction, decomposeEquipAction,
@@ -451,6 +453,41 @@ export function calcEffectiveStats(
   if (weather.buffs.atkMul) s.attack = Math.floor(s.attack * (1 + weather.buffs.atkMul));
   if (weather.buffs.hpMul) s.maxHp = Math.floor(s.maxHp * (1 + weather.buffs.hpMul));
   if (weather.buffs.critRate) s.critRate = Math.min(100, s.critRate + weather.buffs.critRate * 100);
+  // v196.0: Title bonuses (称号加成) — previously only in tickBattle
+  const titleId = gs.equippedTitle;
+  if (titleId) {
+    const titleDef = TITLES.find(t => t.id === titleId);
+    if (titleDef?.bonuses) {
+      if (titleDef.bonuses.attack) s.attack = Math.floor(s.attack * (1 + titleDef.bonuses.attack));
+      if (titleDef.bonuses.maxHp) s.maxHp = Math.floor(s.maxHp * (1 + titleDef.bonuses.maxHp));
+      if (titleDef.bonuses.critRate) s.critRate = Math.min(100, s.critRate + titleDef.bonuses.critRate);
+      if (titleDef.bonuses.critDmg) s.critDmg += titleDef.bonuses.critDmg * 100;
+    }
+  }
+  // v196.0: Reincarnation dao perks (道点加成) — previously only in tickBattle
+  const reincPerks = gs.player.reincPerks ?? {};
+  for (const perk of REINC_PERKS) {
+    const lv = reincPerks[perk.id] ?? 0;
+    if (lv <= 0) continue;
+    const val = perk.effect(lv);
+    switch (perk.id) {
+      case 'atk_mult': s.attack = Math.floor(s.attack * val); break;
+      case 'hp_mult': s.maxHp = Math.floor(s.maxHp * val); break;
+      case 'crit_flat': s.critRate = Math.min(100, s.critRate + val); break;
+    }
+  }
+  // v196.0: Reincarnation milestones (转世里程碑加成) — previously only in tickBattle
+  const rmb = getReincMilestoneBonus(gs.player.reincarnations ?? 0);
+  if (rmb.atk) s.attack = Math.floor(s.attack * (1 + rmb.atk));
+  if (rmb.hp) s.maxHp = Math.floor(s.maxHp * (1 + rmb.hp));
+  if (rmb.crit) s.critRate = Math.min(100, s.critRate + rmb.crit);
+  if (rmb.critDmg) s.critDmg += rmb.critDmg * 100;
+  // v196.0: Awakening bonuses (觉醒加成) — previously only in tickBattle
+  const awk = getAwakeningBonuses(gs.player);
+  if (awk.atk_pct) s.attack = Math.floor(s.attack * (1 + awk.atk_pct / 100));
+  if (awk.hp_pct) s.maxHp = Math.floor(s.maxHp * (1 + awk.hp_pct / 100));
+  if (awk.crit_rate) s.critRate = Math.min(100, s.critRate + awk.crit_rate);
+  if (awk.crit_dmg) s.critDmg += awk.crit_dmg;
   return s;
 }
 
