@@ -90,9 +90,14 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
       const data = localStorage.getItem('idle-game-save');
       if (!data) { alert('无存档'); return; }
       const b64 = btoa(data);
-      navigator.clipboard.writeText(b64).then(() => alert('存档已复制到剪贴板！'));
+      navigator.clipboard.writeText(b64).then(() => {
+        localStorage.setItem('idle-game-last-export', String(Date.now()));
+        alert('存档已复制到剪贴板！');
+      });
     } catch { alert('导出失败'); }
   };
+  const lastExportTs = parseInt(localStorage.getItem('idle-game-last-export') ?? '0');
+  const daysSinceExport = lastExportTs ? Math.floor((Date.now() - lastExportTs) / 86400000) : -1;
 
   const importSave = () => {
     try {
@@ -351,6 +356,17 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
             多槽位管理
           </button>
           <button className="action-btn" onClick={exportSave}>导出存档</button>
+          {daysSinceExport >= 7 && (
+            <div style={{ fontSize: 11, color: '#f59e0b', marginTop: 2, padding: '4px 8px', background: 'rgba(245,158,11,0.1)', borderRadius: 6 }}>
+              ⚠️ 已{daysSinceExport}天未导出存档，建议定期备份！
+            </div>
+          )}
+          {daysSinceExport >= 0 && daysSinceExport < 7 && (
+            <div style={{ fontSize: 11, color: '#4ade80', marginTop: 2 }}>✅ {daysSinceExport === 0 ? '今日已导出' : `${daysSinceExport}天前导出`}</div>
+          )}
+          {daysSinceExport < 0 && (
+            <div style={{ fontSize: 11, color: '#f87171', marginTop: 2 }}>⚠️ 从未导出存档，建议立即备份！</div>
+          )}
           <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>💾 自动备份已开启（保留最近3次存档）</div>
           <button className="action-btn" onClick={() => setShowImport(!showImport)}>导入存档</button>
           {showImport && (
@@ -407,7 +423,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
 
       {/* About */}
       <Card title="关于">
-        <div className="stat-row"><span className="stat-label">版本</span><span>v192.0</span></div>
+        <div className="stat-row"><span className="stat-label">版本</span><span>v193.0</span></div>
         <div className="stat-row"><span className="stat-label">引擎</span><span>React + Zustand + Vite</span></div>
       </Card>
 
