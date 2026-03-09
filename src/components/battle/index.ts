@@ -4,3 +4,4 @@ export { SkillBar } from './SkillBar';
 export { ConsumableBar } from './ConsumableBar';
 export { OnlineRewardsBar } from './OnlineRewardsBar';
 export { AbyssMilestoneBar } from './AbyssMilestoneBar';
+export { QuickActions } from './QuickActions';

@@ -10,7 +10,7 @@ import { Card, FloatingDamage, BossToast } from './shared';
 import { StatBreakdownModal } from '../components/StatBreakdown';
 import { useAutoWorldBoss } from '../components/WorldBossPanel';
 import { WorldBossBanner, WorldBossModal } from '../components/WorldBossPanel';
-import { SmartHints, PinnedAchievementTracker, SkillBar, ConsumableBar, OnlineRewardsBar, AbyssMilestoneBar } from '../components/battle';
+import { SmartHints, PinnedAchievementTracker, SkillBar, ConsumableBar, OnlineRewardsBar, AbyssMilestoneBar, QuickActions } from '../components/battle';
 import { ACHIEVEMENTS } from '../data/achievements';
 import { useAchievementStore } from '../store/achievementStore';
 import { getEnemyElement, getElementMultiplier, ELEMENTS, ElementType } from '../data/elements';
@@ -321,6 +321,7 @@ export function BattleView() {
 
       <SkillBar />
       <ConsumableBar />
+      <QuickActions />
 
       {/* Tribulation timer */}
       {battle.tribulation?.active && (
