@@ -8,6 +8,8 @@ import { CHAPTERS, createEnemy, ABYSS_CHAPTER_ID } from '../data/chapters';
 import { ABYSS_MILESTONES } from '../data/abyssMilestones';
 import { REINC_PERKS, REINC_MIN_REALM, REINC_MIN_LEVEL } from '../data/reincarnation';
 import { TRANSCEND_PERKS, TRANSCEND_MIN_REINC } from '../data/transcendence';
+import { useSeasonStore } from './seasonStore';
+import { getSeasonQuests, SEASON_REWARDS } from '../data/seasonPass';
 import { AWAKENING_PATHS, totalAwakeningPoints, AWAKENING_UNLOCK_REINC } from '../data/awakening';
 import { calcTrialRewards } from '../data/roguelikeTrial';
 import { getDailyChallenges as getAscChallenges, MODIFIERS as ASC_MODIFIERS } from '../data/ascensionChallenge';
@@ -703,6 +705,7 @@ export function runAllAutoActions(ctx: TickContext): boolean {
   autoSignIn(ctx);
   autoBuyScrolls(ctx);
   autoAwaken(ctx);
+  autoClaimSeasonPass(ctx);
   return false;
 }
 
@@ -801,4 +804,26 @@ export function autoAwaken(ctx: TickContext) {
     ctx.updatedPlayer.awakening = { unlockedNodes, selectedPath: awState.selectedPath };
     ctx.log = ctx.addLog(ctx.log, `✨ 自动觉醒 ${allocated} 个节点`, 'info');
   }
+}
+
+/** v181.0: Auto-claim completed season quests & level rewards every 30 ticks */
+export function autoClaimSeasonPass(_ctx: TickContext) {
+  if (_ctx.totalPlayTime % 30 !== 0 || _ctx.totalPlayTime === 0) return;
+  try {
+    const state = useSeasonStore.getState();
+    // Auto-claim completed quests
+    const quests = getSeasonQuests();
+    for (const q of quests) {
+      if (!state.questClaimed.includes(q.id) && (state.questProgress[q.id] ?? 0) >= q.target) {
+        state.claimQuest(q.id);
+      }
+    }
+    // Auto-claim level rewards
+    const updated = useSeasonStore.getState();
+    for (const r of SEASON_REWARDS) {
+      if (r.level <= updated.level && !updated.claimedRewards.includes(r.level)) {
+        updated.claimReward(r.level);
+      }
+    }
+  } catch { /* ignore */ }
 }
