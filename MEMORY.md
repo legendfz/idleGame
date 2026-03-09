@@ -1306,3 +1306,14 @@
 - Build: 724KB precache
 - Commit: f595ad4
 - CEO直接实现（最高效）
+
+## v196.0「战力精算」完成（2026-03-09 16:00）
+- 🔴 修复：calcEffectiveStats缺失4大加成源
+- 称号加成（attack/maxHp/critRate/critDmg）接入calcEffectiveStats
+- 道点加成（atk_mult/hp_mult/crit_flat）接入calcEffectiveStats
+- 转世里程碑加成（atk/hp/crit/critDmg）接入calcEffectiveStats
+- 觉醒加成（atk_pct/hp_pct/crit_rate/crit_dmg）接入calcEffectiveStats
+- 影响：战力值/名片/排行/智能提示全部更精确
+- Build: 725KB precache
+- Commit: e8a8b43
+- CEO直接实现（最高效）
