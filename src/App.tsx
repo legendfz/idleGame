@@ -158,28 +158,28 @@ function BottomNav() {
   const activeTab = useGameStore(s => s.activeTab);
   const setTab = useGameStore(s => s.setTab);
   const dailyCanSignIn = useDailyStore(s => s.canSignIn);
-  // v182: season/challenge red dots on settings
-  const seasonQuestClaimed = useSeasonStore(s => s.questClaimed);
-  const seasonQuestProgress = useSeasonStore(s => s.questProgress);
-  const seasonLevel = useSeasonStore(s => s.level);
-  const seasonClaimedRewards = useSeasonStore(s => s.claimedRewards);
-  const settingsHasClaimable = (() => {
-    if (dailyCanSignIn) return true;
-    // unclaimed daily challenges
-    try { if (useDailyChallengeStore.getState().hasUnclaimed()) return true; } catch { /* */ }
-    // season quests claimable
-    try {
-      const quests = getSeasonQuests();
-      for (const q of quests) {
-        if (!seasonQuestClaimed.includes(q.id) && (seasonQuestProgress[q.id] ?? 0) >= q.target) return true;
-      }
-      // season level rewards claimable
-      for (const r of SEASON_REWARDS) {
-        if (r.level <= seasonLevel && !seasonClaimedRewards.includes(r.level)) return true;
-      }
-    } catch { /* ignore */ }
-    return false;
-  })();
+  // v182: settings red dot = sign-in OR daily challenge OR season quest/reward claimable
+  const [settingsHasClaimable, setSettingsHasClaimable] = useState(dailyCanSignIn);
+  useEffect(() => {
+    const check = () => {
+      if (useDailyStore.getState().canSignIn) return true;
+      try { if (useDailyChallengeStore.getState().hasUnclaimed()) return true; } catch { /* */ }
+      try {
+        const ss = useSeasonStore.getState();
+        const quests = getSeasonQuests();
+        for (const q of quests) {
+          if (!ss.questClaimed.includes(q.id) && (ss.questProgress[q.id] ?? 0) >= q.target) return true;
+        }
+        for (const r of SEASON_REWARDS) {
+          if (r.level <= ss.level && !ss.claimedRewards.includes(r.level)) return true;
+        }
+      } catch { /* */ }
+      return false;
+    };
+    setSettingsHasClaimable(check());
+    const iv = setInterval(() => setSettingsHasClaimable(check()), 5000);
+    return () => clearInterval(iv);
+  }, [dailyCanSignIn]);
   const lingshi = useGameStore(s => s.player.lingshi);
   const sanctuaryLevels = useSanctuaryStore(s => s.sanctuary.levels);
   const explorationFree = useExplorationStore(s => s.exploration.dailyFree);
