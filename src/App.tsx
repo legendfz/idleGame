@@ -42,6 +42,7 @@ const RefinePageLazy = lazy(() => import('./pages/EquipmentPage').then(m => ({ d
 import { useDailyStore } from './store/dailyStore';
 import { useDailyChallengeStore } from './store/dailyChallengeStore';
 import { useSeasonStore } from './store/seasonStore';
+import { getSeasonQuests, SEASON_REWARDS } from './data/seasonPass';
 import { useSanctuaryStore } from './store/sanctuaryStore';
 import { useExplorationStore } from './store/explorationStore';
 import { BUILDINGS, getUpgradeCost } from './engine/sanctuary';
@@ -157,6 +158,28 @@ function BottomNav() {
   const activeTab = useGameStore(s => s.activeTab);
   const setTab = useGameStore(s => s.setTab);
   const dailyCanSignIn = useDailyStore(s => s.canSignIn);
+  // v182: season/challenge red dots on settings
+  const seasonQuestClaimed = useSeasonStore(s => s.questClaimed);
+  const seasonQuestProgress = useSeasonStore(s => s.questProgress);
+  const seasonLevel = useSeasonStore(s => s.level);
+  const seasonClaimedRewards = useSeasonStore(s => s.claimedRewards);
+  const settingsHasClaimable = (() => {
+    if (dailyCanSignIn) return true;
+    // unclaimed daily challenges
+    try { if (useDailyChallengeStore.getState().hasUnclaimed()) return true; } catch { /* */ }
+    // season quests claimable
+    try {
+      const quests = getSeasonQuests();
+      for (const q of quests) {
+        if (!seasonQuestClaimed.includes(q.id) && (seasonQuestProgress[q.id] ?? 0) >= q.target) return true;
+      }
+      // season level rewards claimable
+      for (const r of SEASON_REWARDS) {
+        if (r.level <= seasonLevel && !seasonClaimedRewards.includes(r.level)) return true;
+      }
+    } catch { /* ignore */ }
+    return false;
+  })();
   const lingshi = useGameStore(s => s.player.lingshi);
   const sanctuaryLevels = useSanctuaryStore(s => s.sanctuary.levels);
   const explorationFree = useExplorationStore(s => s.exploration.dailyFree);
@@ -237,7 +260,7 @@ function BottomNav() {
           <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => { setTab(tab.id); if (!PRIMARY_TABS.some(t => t.id === tab.id)) return; }}
             style={{ position: 'relative' }}>
             <span className="icon">{tab.icon}</span><span>{tab.label}</span>
-            {tab.id === 'settings' && dailyCanSignIn && <span className="nav-red-dot" />}
+            {tab.id === 'settings' && settingsHasClaimable && <span className="nav-red-dot" />}
             {tab.id === 'battle' && worldBossActive && <span className="nav-red-dot" style={{ background: '#ff4500' }} />}
           </button>
         ))}
