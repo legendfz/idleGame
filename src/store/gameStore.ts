@@ -18,6 +18,7 @@ import { AWAKENING_PATHS, totalAwakeningPoints, AWAKENING_UNLOCK_REINC } from '.
 import {
   getEquipEffectiveStat, getActiveSetBonuses, hasFullMythic15,
 } from '../data/equipment';
+import { getCurrentWeather } from '../data/weather';
 import { getCodexBonuses } from '../data/codexPower';
 import { getLevelMilestoneBonuses } from '../data/levelMilestones';
 import { getGemBonuses } from '../data/gems';
@@ -442,6 +443,11 @@ export function calcEffectiveStats(
   if (abyssB.hpPct) s.maxHp = Math.floor(s.maxHp * (1 + abyssB.hpPct));
   if (abyssB.critRate) s.critRate = Math.min(100, s.critRate + abyssB.critRate);
   if (abyssB.critDmg) s.critDmg += abyssB.critDmg;
+  // v178.0: Weather buffs (天气加成)
+  const weather = getCurrentWeather();
+  if (weather.buffs.atkMul) s.attack = Math.floor(s.attack * (1 + weather.buffs.atkMul));
+  if (weather.buffs.hpMul) s.maxHp = Math.floor(s.maxHp * (1 + weather.buffs.hpMul));
+  if (weather.buffs.critRate) s.critRate = Math.min(100, s.critRate + weather.buffs.critRate * 100);
   return s;
 }
 

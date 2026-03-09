@@ -3,6 +3,7 @@
  * 显示所有系统的加成来源和数值
  */
 import { useMemo, useState } from 'react';
+import { getCurrentWeather } from '../data/weather';
 import { useGameStore } from '../store/gameStore';
 import { useSanctuaryStore } from '../store/sanctuaryStore';
 import { getActiveSetBonuses, getEquipEffectiveStat } from '../data/equipment';
@@ -235,6 +236,15 @@ export function BuffOverview() {
       }
     }
     if (masteryBuffs.length > 0) result.push({ system: '章节精通', icon: '🏅', color: '#f59e0b', buffs: masteryBuffs });
+
+    // 13. Weather (v178.0)
+    const weather = getCurrentWeather();
+    const weatherBuffs: { label: string; value: string }[] = [];
+    const bNames: Record<string,string> = {atkMul:'攻击',hpMul:'生命',expMul:'经验',goldMul:'灵石',dropMul:'掉率',critRate:'暴击'};
+    for (const [k,v] of Object.entries(weather.buffs)) {
+      if (v) weatherBuffs.push({ label: `${weather.name}·${bNames[k]??k}`, value: `+${Math.round((v as number)*100)}%` });
+    }
+    if (weatherBuffs.length > 0) result.push({ system: weather.name, icon: weather.emoji, color: weather.color, buffs: weatherBuffs });
 
     return result;
   }, [player, weapon, armor, treasure, sanctuary, highestPower]);

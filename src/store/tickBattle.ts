@@ -27,6 +27,7 @@ import { getPetTotalBonus } from '../data/pets';
 import { rollElite, type EliteModifier } from '../data/eliteEnemies';
 import { getSubstatBonuses } from '../data/substats';
 import { getMasteryLevel } from '../data/chapterMastery';
+import { getCurrentWeather } from '../data/weather';
 import { useAffinityStore } from './affinityStore';
 import { useSanctuaryStore } from './sanctuaryStore';
 import { calcEffectiveStats, addLog, getInventoryMax } from './gameStore';
@@ -349,8 +350,13 @@ export function executeBattleTick(get: () => any, set: (partial: any) => void): 
     const masteryB = getMasteryLevel(updatedPlayer.chapterKills?.[updatedBattle.chapterId] ?? 0);
     const masteryGold = 1 + masteryB.goldBonus;
     const masteryExp = 1 + masteryB.expBonus;
-    const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus) * (1 + (awk.gold_pct ?? 0) / 100) * afLingshi * (1 + rmb.gold) * fateMul * (1 + (titleBonus.goldMul ?? 0)) * (1 + (petB.goldPct ?? 0) / 100) * trBonusTick.goldMul * codexLingshi * lvlMilLingshi * gemGold * pwrGold * subGold * abyssGold * masteryGold);
-    const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100) * afExp * (1 + rmb.exp) * fateMul * (1 + (titleBonus.expMul ?? 0)) * (1 + (petB.expPct ?? 0) / 100) * trBonusTick.expMul * codexExp * lvlMilExp * gemExp * pwrExp * subExp * abyssExp * masteryExp);
+    // v178.0: Weather buffs
+    const weatherB = getCurrentWeather().buffs;
+    const weatherGold = 1 + (weatherB.goldMul ?? 0);
+    const weatherExp = 1 + (weatherB.expMul ?? 0);
+    const weatherDrop = 1 + (weatherB.dropMul ?? 0);
+    const lingshiDrop = Math.floor(enemy.lingshiDrop * lingshiMul * goldMul * (1 + (cEffect.goldMult ?? 0)) * (1 + streakBonus) * (1 + (awk.gold_pct ?? 0) / 100) * afLingshi * (1 + rmb.gold) * fateMul * (1 + (titleBonus.goldMul ?? 0)) * (1 + (petB.goldPct ?? 0) / 100) * trBonusTick.goldMul * codexLingshi * lvlMilLingshi * gemGold * pwrGold * subGold * abyssGold * masteryGold * weatherGold);
+    const expDrop = Math.floor(enemy.expDrop * expMul * (1 + (cEffect.expMult ?? 0)) * (1 + streakBonus) * (1 + (awk.exp_pct ?? 0) / 100) * afExp * (1 + rmb.exp) * fateMul * (1 + (titleBonus.expMul ?? 0)) * (1 + (petB.expPct ?? 0) / 100) * trBonusTick.expMul * codexExp * lvlMilExp * gemExp * pwrExp * subExp * abyssExp * masteryExp * weatherExp);
     updatedPlayer.lingshi += lingshiDrop;
     updatedPlayer.totalGoldEarned = (updatedPlayer.totalGoldEarned || 0) + lingshiDrop;
     updatedPlayer.allTimeLingshi = (updatedPlayer.allTimeLingshi ?? 0) + lingshiDrop;
@@ -405,7 +411,7 @@ export function executeBattleTick(get: () => any, set: (partial: any) => void): 
     // Equipment drop (elite = guaranteed)
     if (updatedInventory.length < getInventoryMax(updatedPlayer.reincarnations)) {
       const globalStage = getGlobalStageLocal(updatedBattle.chapterId, updatedBattle.stageNum);
-      const dropMul = REINC_PERKS.find(p => p.id === 'drop_mult')!.effect(updatedPlayer.reincPerks?.['drop_mult'] ?? 0) - 1 + rmb.drop + masteryB.dropBonus;
+      const dropMul = REINC_PERKS.find(p => p.id === 'drop_mult')!.effect(updatedPlayer.reincPerks?.['drop_mult'] ?? 0) - 1 + rmb.drop + masteryB.dropBonus + (weatherB.dropMul ?? 0);
       const eqDrop = enemy.elite ? rollEquipDrop(globalStage, true, dropMul + 2) : rollEquipDrop(globalStage, enemy.isBoss, dropMul);
       if (eqDrop) {
         const newItem = createEquipFromTemplate(eqDrop);
