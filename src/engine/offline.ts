@@ -21,6 +21,8 @@ import { getAbyssMilestoneBonuses } from '../data/abyssMilestones';
 import { TITLES } from '../data/titles';
 import { getSubstatBonuses } from '../data/substats';
 import { useAffinityStore } from '../store/affinityStore';
+import { getCurrentWeather } from '../data/weather';
+import { getChapterMasteryBonus } from '../data/chapterMastery';
 
 export interface OfflineResult {
   duration: number;       // capped seconds
@@ -224,15 +226,25 @@ export function calculateOfflineEarnings(
   const subB = getSubstatBonuses(subArrays);
   const subGold = 1 + subB.goldPct / 100;
   const subExp = 1 + subB.expPct / 100;
+  // v185.0: Weather bonuses for offline (averaged since weather changes hourly)
+  const weatherB = getCurrentWeather().buffs;
+  const weatherGold = 1 + (weatherB.goldMul ?? 0);
+  const weatherExp = 1 + (weatherB.expMul ?? 0);
+  // v185.0: Chapter mastery bonuses for offline
+  const masteryB = getChapterMasteryBonus(player.chapterKills ?? {}, chapterId);
+  const masteryGold = 1 + masteryB.goldBonus;
+  const masteryExp = 1 + masteryB.expBonus;
   const lingshi = Math.floor(
     (totalMinions * minion.lingshiDrop + totalBosses * boss.lingshiDrop)
     * lingshiMul * goldMul * lingshiAwkMul * petGoldMul * codexGoldMul
     * (1 + rmb.gold) * (1 + (titleBonus.goldMul ?? 0)) * trBonus.goldMul * afLingshi * lvlMilGold * gemGold * pwrGold * subGold * abyssGold
+    * weatherGold * masteryGold
   );
   const exp = Math.floor(
     (totalMinions * minion.expDrop + totalBosses * boss.expDrop)
     * expMul * expAwkMul * petExpMul * codexExpMul
     * (1 + rmb.exp) * (1 + (titleBonus.expMul ?? 0)) * trBonus.expMul * afExp * lvlMilExp * gemExp * pwrExp * subExp * abyssExp
+    * weatherExp * masteryExp
   );
 
   // Pantao: use expected value (boss pantao chance × boss kills)
