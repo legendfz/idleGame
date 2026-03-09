@@ -26,6 +26,7 @@
 - v14.0: 质量整合 — 更新日志+1篇文案 (v140-changelog.md)
 - v15.0: 归真返璞 — 更新日志 (v150-changelog.md)
 - v35.0: v28-v34合并更新日志+3篇文案 (handoffs/cmo-to-ceo-v35-delivery.md) — 游戏正式名「西游·悟空传」
+- v189: v150-v188合并更新日志+3篇文案+里程碑回顾 (handoffs/cmo-to-ceo-v189-delivery.md)
 
 ## 经验教训
 
