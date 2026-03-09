@@ -1,5 +1,12 @@
 import { EquipmentTemplate, EquipSet, EquipmentItem, QUALITY_INFO } from '../types';
 import { rollSubstats } from './substats';
+import { rollEquipmentElement, ElementType } from './elements';
+
+// v175.0: Roll element based on chapter (stage → chapter approximation)
+function rollEquipmentElementForDrop(dropFromStage: number): string | undefined {
+  const approxChapter = Math.max(1, Math.ceil(dropFromStage / 50));
+  return rollEquipmentElement(approxChapter);
+}
 
 // === Equipment Templates ===
 
@@ -242,6 +249,7 @@ export function createEquipFromTemplate(template: EquipmentTemplate): EquipmentI
     passive: template.passive,
     setId: template.setId,
     substats: rollSubstats(template.quality), // v162.0 随机副属性
+    element: rollEquipmentElementForDrop(template.dropFromStage), // v175.0 五行属性
   };
 }
 

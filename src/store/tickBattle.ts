@@ -8,6 +8,7 @@ import { CHAPTERS, createEnemy, ABYSS_CHAPTER_ID } from '../data/chapters';
 import { expForLevel, formatNumber } from '../utils/format';
 import { sfx } from '../engine/audio';
 import { REINC_PERKS, getReincMilestoneBonus } from '../data/reincarnation';
+import { getEnemyElement, getElementMultiplier, ELEMENTS, ElementType } from '../data/elements';
 import { getTranscendBonuses } from '../data/transcendence';
 import { ACTIVE_SKILLS } from '../data/skills';
 import { getAwakeningBonuses } from '../components/AwakeningPanel';
@@ -236,6 +237,13 @@ export function executeBattleTick(get: () => any, set: (partial: any) => void): 
   const shieldActive = (skillState.buffs['jingang'] ?? 0) > 0;
   const defReduction = shieldActive ? 0 : enemy.defense / (enemy.defense + 100 + updatedPlayer.level * 5);
   let dmg = Math.max(1, Math.floor(effectiveStats.attack * (1 - defReduction)));
+
+  // v175.0: 五行克制
+  const playerElement = equippedWeapon?.element as ElementType | undefined;
+  const enemyElement = getEnemyElement(battle.chapterId, enemy.name);
+  const elemMul = getElementMultiplier(playerElement, enemyElement);
+  dmg = Math.floor(dmg * elemMul);
+
   if (isCrit) dmg = Math.floor(dmg * effectiveStats.critDmg);
 
   // v1.2: Weapon +15 hidden passive — 鸿蒙一击

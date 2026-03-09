@@ -221,6 +221,7 @@ export interface EquipmentItem {
   setId?: string;
   locked?: boolean;
   substats?: { type: string; value: number }[]; // v162.0 副属性
+  element?: string; // v175.0 五行属性 (metal/wood/water/fire/earth)
 }
 
 export interface EquipSet {

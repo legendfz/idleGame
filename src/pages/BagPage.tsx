@@ -3,6 +3,7 @@ import { useGameStore } from '../store/gameStore';
 import { formatNumber } from '../utils/format';
 import { EquipmentItem, EquipSlot, QUALITY_INFO } from '../types';
 import { getInventoryMax } from '../store/gameStore';
+import { ELEMENTS, ElementType } from '../data/elements';
 import { getReforgeCost } from '../store/equipmentActions';
 import {
   getEquipEffectiveStat, getEnhanceCost, getMaxEnhanceLevel, getActiveSetBonuses,
@@ -240,6 +241,7 @@ export function BagView({ setSubPage }: { setSubPage: (p: SubPage) => void }) {
                 {item.locked ? '🔒' : ''}{qi.symbol} {item.name} {item.level > 0 ? `+${item.level}` : ''}
               </span>
               <span style={{ color: qi.color, fontSize: 11 }}>{qi.label}</span>
+              {item.element && (() => { const el = ELEMENTS[item.element as ElementType]; return el ? <span style={{ color: el.color, fontSize: 11, marginLeft: 4 }}>{el.emoji}{el.name}</span> : null; })()}
             </div>
             <div className="equip-stats">
               {item.slot === 'weapon' && (() => {

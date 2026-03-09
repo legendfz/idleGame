@@ -13,6 +13,7 @@ import { WorldBossBanner, WorldBossModal } from '../components/WorldBossPanel';
 import { SmartHints, PinnedAchievementTracker, SkillBar, ConsumableBar, OnlineRewardsBar, AbyssMilestoneBar } from '../components/battle';
 import { ACHIEVEMENTS } from '../data/achievements';
 import { useAchievementStore } from '../store/achievementStore';
+import { getEnemyElement, getElementMultiplier, ELEMENTS, ElementType } from '../data/elements';
 
 const SPEED_OPTIONS = [1, 2, 5, 10, 20, 50, 100];
 type LogFilter = 'all' | 'drop' | 'levelup' | 'boss' | 'crit';
@@ -41,6 +42,7 @@ export function BattleView() {
   const setBattleSpeed = useGameStore(s => s.setBattleSpeed);
   const killStreak = useGameStore(s => s.battle.killStreak) || 0;
   const attemptBreakthrough = useGameStore(s => s.attemptBreakthrough);
+  const equippedWeapon = useGameStore(s => s.equippedWeapon);
   const equippedTitleId = useGameStore(s => s.equippedTitle);
   const equippedTitle = equippedTitleId ? TITLES.find(t => t.id === equippedTitleId) : null;
   const eStats = getEffectiveStats();
@@ -282,6 +284,15 @@ export function BattleView() {
             {battle.isBossWave && <span className="color-boss">⚠ </span>}
             {enemy.elite && <span style={{ color: enemy.elite.color, fontWeight: 700 }}>⚡ </span>}
             <span style={enemy.elite ? { color: enemy.elite.color } : undefined}>{enemy.name}</span>
+            {(() => {
+              const eElem = getEnemyElement(battle.chapterId, enemy.name);
+              const eInfo = ELEMENTS[eElem];
+              const pElem = equippedWeapon?.element as ElementType | undefined;
+              const mul = getElementMultiplier(pElem, eElem);
+              const mulLabel = mul > 1 ? ' 克制!' : mul < 1 ? ' 被克' : '';
+              const mulColor = mul > 1 ? '#22c55e' : mul < 1 ? '#ef4444' : eInfo.color;
+              return <span style={{ marginLeft: 4, color: mulColor, fontSize: 11 }}>{eInfo.emoji}{eInfo.name}{mulLabel}</span>;
+            })()}
           </div>
           <div className="hp-bar-bg" style={{ marginTop: 6 }}>
             <div className={`hp-bar-fill${battle.isBossWave ? ' boss' : ''} ${hpPct > 60 ? 'hp-high' : hpPct > 25 ? 'hp-mid' : 'hp-low'}${hpPct < 25 ? ' low' : ''}`} style={{ width: `${hpPct}%` }} />
