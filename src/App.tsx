@@ -25,6 +25,7 @@ const DungeonBattle = lazy(() => import('./components/DungeonBattle'));
 const AchievementList = lazy(() => import('./components/AchievementList'));
 const Leaderboard = lazy(() => import('./components/Leaderboard'));
 const TitlePanel = lazy(() => import('./components/TitlePanel').then(m => ({ default: m.TitlePanel })));
+const HandbookPanel = lazy(() => import('./components/HandbookPanel').then(m => ({ default: m.HandbookPanel })));
 const BagView = lazy(() => import('./pages/BagPage').then(m => ({ default: m.BagView })));
 const SettingsView = lazy(() => import('./pages/SettingsPage').then(m => ({ default: m.SettingsView })));
 const ShopPage = lazy(() => import('./pages/ShopSavePage').then(m => ({ default: m.ShopPage })));
@@ -443,6 +444,9 @@ export default function App() {
       );
     if (subPage.type === 'guide') return (
         <div className="main-content fade-in"><SubPageHeader title="仙途百科" onBack={goBack} /><Suspense fallback={<LazyFallback />}><GuidePanel /></Suspense></div>
+      );
+    if (subPage.type === 'handbook') return (
+        <div className="main-content fade-in"><Suspense fallback={<LazyFallback />}><HandbookPanel onClose={goBack} /></Suspense></div>
       );
       default: return null;
     }

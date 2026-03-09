@@ -26,7 +26,8 @@ export type SubPage =
   | { type: 'titles' }
   | { type: 'ascension' }
   | { type: 'guide' }
-  | { type: 'weeklyBoss' };
+  | { type: 'weeklyBoss' }
+  | { type: 'handbook' };
 
 // ─── Card ───
 export function Card({ title, titleColor, children, className, style, borderColor, onClick }: {

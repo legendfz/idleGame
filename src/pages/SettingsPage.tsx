@@ -156,6 +156,14 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
         </div>
       </Card>
 
+      <Card style={{ cursor: 'pointer', border: '1px solid rgba(168,130,255,0.3)' }}
+        onClick={() => setSubPage({ type: 'handbook' })}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontWeight: 600 }}>📜 仙途秘典</span>
+          <span className="color-dim" style={{ fontSize: 12 }}>系统攻略指南</span>
+        </div>
+      </Card>
+
       {/* Statistics */}
       <Card title="游戏统计" onClick={() => setShowStats(!showStats)}>
         <div className="stat-row"><span className="stat-label">总游戏时间</span><span>{formatTime(totalPlayTime)}</span></div>
@@ -357,7 +365,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
 
       {/* About */}
       <Card title="关于">
-        <div className="stat-row"><span className="stat-label">版本</span><span>v176.0</span></div>
+        <div className="stat-row"><span className="stat-label">版本</span><span>v177.0</span></div>
         <div className="stat-row"><span className="stat-label">引擎</span><span>React + Zustand + Vite</span></div>
       </Card>
 
