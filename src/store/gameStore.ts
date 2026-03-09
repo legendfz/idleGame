@@ -102,6 +102,7 @@ interface GameStore {
   autoReincarnate: boolean; // v102.0: auto-reincarnate when conditions met
   autoDaoAlloc: boolean; // v105.0: auto-allocate dao points after reincarnation
   autoBuyScrolls: boolean; // v172.0: auto-buy scrolls with excess pantao
+  autoAwaken: boolean; // v173.0: auto-allocate awakening points
   autoFarm: boolean; // v111.0: auto-retreat to optimal farming chapter
   autoEvent: boolean; // v133.0: auto-choose random events
   autoWeeklyBoss: boolean; // v145.0: auto-complete weekly boss floors
@@ -170,6 +171,7 @@ interface GameStore {
   setAutoReincarnate: (v: boolean) => void;
   setAutoDaoAlloc: (v: boolean) => void; // v105.0
   setAutoBuyScrolls: (v: boolean) => void; // v172.0
+  setAutoAwaken: (v: boolean) => void; // v173.0
   setAutoFarm: (v: boolean) => void; // v111.0
   setAutoEvent: (v: boolean) => void; // v133.0
   setAutoWeeklyBoss: (v: boolean) => void; // v145.0
@@ -484,6 +486,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   autoReincarnate: false,
   autoDaoAlloc: false, // v105.0
   autoBuyScrolls: false, // v172.0
+  autoAwaken: false, // v173.0
   autoFarm: false, // v111.0
   autoEvent: false, // v133.0: auto-choose safest random event option
   autoWeeklyBoss: false, // v145.0
@@ -527,6 +530,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setAutoReincarnate: (v: boolean) => set({ autoReincarnate: v }),
   setAutoDaoAlloc: (v: boolean) => set({ autoDaoAlloc: v }),
   setAutoBuyScrolls: (v: boolean) => set({ autoBuyScrolls: v }),
+  setAutoAwaken: (v: boolean) => set({ autoAwaken: v }),
   setAutoFarm: (v: boolean) => set({ autoFarm: v }),
   setAutoEvent: (v: boolean) => set({ autoEvent: v }),
   setAutoWeeklyBoss: (v: boolean) => set({ autoWeeklyBoss: v }),

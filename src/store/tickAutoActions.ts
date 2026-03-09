@@ -702,6 +702,7 @@ export function runAllAutoActions(ctx: TickContext): boolean {
   autoClaimAbyssMilestones(ctx);
   autoSignIn(ctx);
   autoBuyScrolls(ctx);
+  autoAwaken(ctx);
   return false;
 }
 
@@ -755,4 +756,49 @@ export function autoSignIn(ctx: TickContext) {
       }
     }
   } catch {}
+}
+
+/** v173.0: Auto-allocate awakening points every 90 ticks */
+export function autoAwaken(ctx: TickContext) {
+  if (!ctx.state.autoAwaken || ctx.totalPlayTime % 90 !== 0 || ctx.totalPlayTime === 0) return;
+  const reincCount = ctx.updatedPlayer.reincarnations ?? 0;
+  if (reincCount < AWAKENING_UNLOCK_REINC) return;
+
+  const awState = ctx.updatedPlayer.awakening ?? { unlockedNodes: [] as string[], selectedPath: null };
+  const unlockedNodes: string[] = [...(awState.unlockedNodes ?? [])];
+  const totalPts = totalAwakeningPoints(reincCount);
+  const spentPts = unlockedNodes.reduce((sum: number, nid: string) => {
+    for (const p of AWAKENING_PATHS) {
+      const node = p.nodes.find(n => n.id === nid);
+      if (node) return sum + node.cost;
+    }
+    return sum;
+  }, 0);
+  let availablePts = totalPts - spentPts;
+  if (availablePts <= 0) return;
+
+  let allocated = 0;
+  // Round-robin: try all paths, pick cheapest available node
+  for (let attempt = 0; attempt < 18 && availablePts > 0; attempt++) {
+    let bestNode: { id: string; cost: number } | null = null;
+    for (const path of AWAKENING_PATHS) {
+      for (const node of path.nodes) {
+        if (unlockedNodes.includes(node.id)) continue;
+        if (node.requires && !unlockedNodes.includes(node.requires)) continue;
+        if (node.cost > availablePts) continue;
+        if (!bestNode || node.cost < bestNode.cost) {
+          bestNode = node;
+        }
+      }
+    }
+    if (!bestNode) break;
+    unlockedNodes.push(bestNode.id);
+    availablePts -= bestNode.cost;
+    allocated++;
+  }
+
+  if (allocated > 0) {
+    ctx.updatedPlayer.awakening = { unlockedNodes, selectedPath: awState.selectedPath };
+    ctx.log = ctx.addLog(ctx.log, `✨ 自动觉醒 ${allocated} 个节点`, 'info');
+  }
 }

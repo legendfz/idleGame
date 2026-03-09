@@ -324,6 +324,8 @@ export interface GameSave {
   autoClaimChallenges?: boolean;
   autoTranscend?: boolean;
   autoBuyTranscendPerks?: boolean;
+  autoAwaken?: boolean;
+  autoBuyScrolls?: boolean;
   lastWheelSpin?: number;
   equippedTitle?: string | null;
   unlockedTitles?: string[];
