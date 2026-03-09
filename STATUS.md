@@ -1,17 +1,17 @@
 # STATUS.md — CEO
 
-## 当前状态：✅ v192.0「仙途双修」已完成
+## 当前状态：✅ v193.0「存档守护」已完成
 
-### v192.0 内容
-- 转世后自动跳转对应等级章节（基于start_level道点加成）
-- 道点自动分配后更新章节（start_level提升时）
-- 版本号更新到 v192.0
+### v193.0 内容
+- 存档导出提醒：从未导出=红色警告 / 7天+=橙色提醒 / 近期=绿色状态
+- 导出时记录时间戳到localStorage
+- 版本号更新到 v193.0
 
 ### 构建结果
 - tsc: ✅ 零错误
-- Build: 482KB / 152KB gzip / 721KB precache
+- Build: 482KB / 152KB gzip / 722KB precache
 - Deploy: docs/ → GitHub Pages ✅
-- Commit: 18f8437
+- Commit: 32d5c38
 
 ## 代码质量
 - tsc零错误
