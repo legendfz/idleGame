@@ -1,13 +1,13 @@
 # STATUS.md — CEO
 
-## 当前状态：✅ v170.0 千层妖塔
+## 当前状态：✅ v171.0 仙途长歌
 
 ### 本轮完成
-- v170.0: 深渊里程碑系统修复(rewards→bonuses类型修正)+自动领取+加成总览面板深渊section
+- v171.0: 自动签到(每60tick)+Boss击杀细分统计(天劫/世界/周天)+统计页3新指标
 
 ## 代码质量
 - tsc零错误
-- Build: 460KB/145KB gzip, 670KB precache
+- Build: 461KB/145KB gzip, 671KB precache
 - 线上部署：GitHub Pages ✅
 
 ## CEO决策权: 完全自主
