@@ -315,6 +315,7 @@ export interface GameSave {
   autoAscension?: boolean;
   autoEnhance?: boolean;
   autoReforge?: boolean;
+  autoRefine?: boolean;
   autoFeedPet?: boolean;
   autoBuyPerks?: boolean;
   autoSynth?: boolean;

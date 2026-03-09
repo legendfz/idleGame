@@ -27,7 +27,7 @@ import { WEEKLY_FLOORS, getWeekStart } from '../data/weeklyBoss';
 import { useExplorationStore } from './explorationStore';
 import { useDailyChallengeStore } from './dailyChallengeStore';
 import { REALMS } from '../data/realms';
-import { SCROLL_PRICES } from '../data/equipment';
+import { SCROLL_PRICES, canRefine, getRefineCost, REFINE_MATERIAL_COUNT, REFINE_BASE_RATE, REFINE_TIANMING_BONUS, REFINE_SHARD_PITY } from '../data/equipment';
 import { sfx } from '../engine/audio';
 
 // Helper type for tick context
@@ -676,6 +676,56 @@ export function autoClaimAbyssMilestones(ctx: TickContext) {
   if (changed) ctx.set({ claimedAbyssMilestones: claimed });
 }
 
+/** v186.0: Auto-refine equipped legendary→mythic every 90 ticks */
+export function autoRefineEquipped(ctx: TickContext) {
+  if (!ctx.state.autoRefine || ctx.totalPlayTime % 90 !== 0 || ctx.totalPlayTime === 0) return;
+  const slots = ['equippedWeapon', 'equippedArmor', 'equippedTreasure'] as const;
+  for (const slotKey of slots) {
+    const eq = ctx.state[slotKey] as EquipmentItem | null;
+    if (!eq || !canRefine(eq)) continue;
+    const cost = getRefineCost(eq);
+    // Find 5 legendary materials in inventory (not locked, not equipped)
+    const legendaryMats = ctx.updatedInventory.filter(
+      (i: EquipmentItem) => i.quality === 'legendary' && !i.locked && i.uid !== eq.uid
+    );
+    if (legendaryMats.length < REFINE_MATERIAL_COUNT) continue;
+    if (ctx.updatedPlayer.lingshi < cost) continue;
+    // Prefer shard pity (100% success) if have enough shards
+    if ((ctx.updatedPlayer.hongmengShards ?? 0) >= REFINE_SHARD_PITY) {
+      ctx.updatedPlayer.hongmengShards -= REFINE_SHARD_PITY;
+      ctx.updatedPlayer.lingshi -= cost;
+      const matUids = new Set(legendaryMats.slice(0, REFINE_MATERIAL_COUNT).map((m: EquipmentItem) => m.uid));
+      ctx.updatedInventory = ctx.updatedInventory.filter((i: EquipmentItem) => !matUids.has(i.uid));
+      const refined = { ...eq, quality: 'mythic' as Quality };
+      ctx.set({ [slotKey]: refined } as any);
+      ctx.log = ctx.addLog(ctx.log, `🔥 自动精炼成功！${eq.name} → 鸿蒙（碎片保底）`, 'levelup');
+      return; // One per cycle
+    }
+    // Use tianming scroll if available for better rate
+    let rate = REFINE_BASE_RATE;
+    if ((ctx.updatedPlayer.tianmingScrolls ?? 0) > 0) {
+      (ctx.updatedPlayer as any).tianmingScrolls--;
+      rate += REFINE_TIANMING_BONUS;
+    }
+    if (Math.random() * 100 < rate) {
+      ctx.updatedPlayer.lingshi -= cost;
+      const matUids = new Set(legendaryMats.slice(0, REFINE_MATERIAL_COUNT).map((m: EquipmentItem) => m.uid));
+      ctx.updatedInventory = ctx.updatedInventory.filter((i: EquipmentItem) => !matUids.has(i.uid));
+      const refined = { ...eq, quality: 'mythic' as Quality };
+      ctx.set({ [slotKey]: refined } as any);
+      ctx.log = ctx.addLog(ctx.log, `🔥 自动精炼成功！${eq.name} → 鸿蒙`, 'levelup');
+      return;
+    } else {
+      // Failed — consume materials + cost anyway
+      ctx.updatedPlayer.lingshi -= cost;
+      const matUids = new Set(legendaryMats.slice(0, REFINE_MATERIAL_COUNT).map((m: EquipmentItem) => m.uid));
+      ctx.updatedInventory = ctx.updatedInventory.filter((i: EquipmentItem) => !matUids.has(i.uid));
+      ctx.log = ctx.addLog(ctx.log, `💔 自动精炼失败...${eq.name} 材料已消耗`, 'info');
+      return;
+    }
+  }
+}
+
 export function runAllAutoActions(ctx: TickContext): boolean {
   autoUpgradeSanctuary(ctx);
   autoGiftAffinity(ctx);
@@ -691,6 +741,7 @@ export function runAllAutoActions(ctx: TickContext): boolean {
   autoManagePets(ctx);
   autoBuyPerksAndAwakening(ctx);
   autoSynthEquip(ctx);
+  autoRefineEquipped(ctx);
   if (autoReincarnate(ctx)) return true;
   if (autoTranscend(ctx)) return true;
   autoBuyTranscendPerks(ctx);

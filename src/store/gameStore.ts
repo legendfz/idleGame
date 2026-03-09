@@ -97,6 +97,7 @@ interface GameStore {
   autoAscension: boolean; // v93.0: auto ascension challenge daily
   autoEnhance: boolean; // v95.0: auto-enhance equipped gear
   autoReforge: boolean; // v143.0: auto-reforge equipped gear (only accept upgrades)
+  autoRefine: boolean; // v186.0: auto-refine legendary→mythic equipped gear
   autoFeedPet: boolean; // v108.0: auto-feed active pet
   autoBuyPerks: boolean; // v96.0: auto-buy reincarnation perks
   autoSynth: boolean; // v98.0: auto-synthesize 3 same-quality equips
@@ -167,6 +168,7 @@ interface GameStore {
   setAutoAscension: (v: boolean) => void;
   setAutoEnhance: (v: boolean) => void;
   setAutoReforge: (v: boolean) => void;
+  setAutoRefine: (v: boolean) => void;
   setAutoFeedPet: (v: boolean) => void;
   setAutoBuyPerks: (v: boolean) => void;
   setAutoSynth: (v: boolean) => void;
@@ -487,6 +489,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   autoAscension: false,
   autoEnhance: false,
   autoReforge: false,
+  autoRefine: false,
   autoFeedPet: false,
   autoBuyPerks: false,
   autoSynth: false,
@@ -531,6 +534,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setAutoAscension: (v: boolean) => set({ autoAscension: v }),
   setAutoEnhance: (v: boolean) => set({ autoEnhance: v }),
   setAutoReforge: (v: boolean) => set({ autoReforge: v }),
+  setAutoRefine: (v: boolean) => set({ autoRefine: v }),
   setAutoFeedPet: (v: boolean) => set({ autoFeedPet: v }),
   setAutoBuyPerks: (v: boolean) => set({ autoBuyPerks: v }),
   setAutoSynth: (v: boolean) => set({ autoSynth: v }),
