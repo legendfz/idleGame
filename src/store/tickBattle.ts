@@ -145,9 +145,10 @@ export function executeBattleTick(get: () => any, set: (partial: any) => void): 
       const refund = Math.floor((failedRealm?.pantaoReq ?? 0) * 0.5);
       updatedPlayer.pantao += refund;
       log = addLog(log, `💀 天劫失败！渡劫超时。退还蟠桃 ${refund}`, 'boss');
-      if (updatedBattle.killStreak >= 10) log = addLog(log, `🔥 连杀×${updatedBattle.killStreak} 中断！`, 'info');
+      const oldStreak = updatedBattle.killStreak || 0;
+      if (oldStreak >= 10) log = addLog(log, `🔥 连杀×${oldStreak} 中断！保留${Math.floor(oldStreak * 0.5)}连杀`, 'info');
       const resumeEnemy = createEnemy(updatedBattle.chapterId, updatedBattle.stageNum, false)!;
-      updatedBattle = { ...updatedBattle, wave: 1, isBossWave: false, currentEnemy: resumeEnemy, log, tribulation: undefined, killStreak: 0 };
+      updatedBattle = { ...updatedBattle, wave: 1, isBossWave: false, currentEnemy: resumeEnemy, log, tribulation: undefined, killStreak: Math.floor(oldStreak * 0.5) };
       set({ player: updatedPlayer, battle: updatedBattle });
       return;
     }

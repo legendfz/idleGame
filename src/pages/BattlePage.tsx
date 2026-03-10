@@ -352,7 +352,7 @@ export function BattleView() {
           {highestPower > 0 && <span style={{ color: '#888', fontSize: 10 }}>🏆{formatNumber(highestPower)}</span>}
           {killStreak >= 10 && (
             <span style={{ color: killStreak >= 100 ? '#ff4444' : killStreak >= 50 ? '#ff8800' : '#ffaa00', fontWeight: 700 }}>
-              🔥{killStreak}
+              🔥{killStreak}{killStreak >= 30 && <span style={{ fontSize: 10, color: '#34d399' }}> ⚡{killStreak >= 100 ? '×2' : '×1.5'}加速</span>}
             </span>
           )}
         </div>

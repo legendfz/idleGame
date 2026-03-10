@@ -50,8 +50,13 @@ export function useTickLoop() {
     let _pk = 0, _pg = 0, _pd = 0, _pb = 0, _pc = 0, _pe = 0, _plv = 0, _init = false;
 
     const doTick = () => {
-      const speed = useGameStore.getState().battleSpeed || 1;
-      for (let i = 0; i < speed; i++) tick();
+      const gs0 = useGameStore.getState();
+      const speed = gs0.battleSpeed || 1;
+      // v197: kill streak speed bonus
+      const ks = gs0.battle?.killStreak || 0;
+      const streakSpeedMul = ks >= 100 ? 2.0 : ks >= 30 ? 1.5 : 1.0;
+      const totalSpeed = Math.floor(speed * streakSpeedMul);
+      for (let i = 0; i < totalSpeed; i++) tick();
       const gs = useGameStore.getState();
       const dcStore = useDailyChallengeStore.getState();
       const _p = gs.player;
