@@ -188,7 +188,7 @@ function autoBuyScrolls(ctx: TickContext) {
     let count = 0;
     while (count < 5 && ctx.updatedPlayer.pantao >= price + 200) {
       ctx.updatedPlayer.pantao -= price;
-      (ctx.updatedPlayer as any)[s.field] = ((ctx.updatedPlayer as any)[s.field] ?? 0) + 1;
+      ctx.updatedPlayer[s.field] = (ctx.updatedPlayer[s.field] ?? 0) + 1;
       count++;
       bought++;
     }
@@ -209,9 +209,9 @@ function autoSignIn(ctx: TickContext) {
         if (r.pantao) ctx.updatedPlayer.pantao = (ctx.updatedPlayer.pantao ?? 0) + r.pantao;
         if (r.shards) ctx.updatedPlayer.hongmengShards = (ctx.updatedPlayer.hongmengShards ?? 0) + r.shards;
         if (r.consumable) {
-          const inv: Record<string, number> = (ctx.updatedPlayer as any).consumables ?? {};
+          const inv: Record<string, number> = ctx.updatedPlayer.consumableInventory ?? {};
           inv[r.consumable.id] = (inv[r.consumable.id] ?? 0) + r.consumable.count;
-          (ctx.updatedPlayer as any).consumables = inv;
+          ctx.updatedPlayer.consumableInventory = inv;
         }
         if (r.scrollType === 'tianming') ctx.updatedPlayer.tianmingScrolls = (ctx.updatedPlayer.tianmingScrolls ?? 0) + 1;
         if (r.scrollType === 'lucky') ctx.updatedPlayer.luckyScrolls = (ctx.updatedPlayer.luckyScrolls ?? 0) + 1;

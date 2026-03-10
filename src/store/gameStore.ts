@@ -628,12 +628,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
   refineItem: (targetUid, materialUids, useTianming = false, usePity = false) => refineItemAction(get, set, targetUid, materialUids, useTianming, usePity),
   buyScroll: (type) => buyScrollAction(get, set, type),
   exchangeResource: (from, to, rate, amount, times) => {
-    const p = { ...get().player };
+    const p = { ...get().player } as PlayerState & Record<string, number>;
     const cost = rate * times;
-    if ((p as any)[from] < cost) return;
-    (p as any)[from] -= cost;
-    (p as any)[to] = ((p as any)[to] ?? 0) + amount * times;
-    set({ player: p });
+    if ((p[from] ?? 0) < cost) return;
+    p[from] -= cost;
+    p[to] = (p[to] ?? 0) + amount * times;
+    set({ player: p as PlayerState });
   },
   sellEquip: (uid) => sellEquipAction(get, set, uid),
   toggleLock: (uid) => toggleLockAction(get, set, uid),

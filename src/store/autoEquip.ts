@@ -176,7 +176,7 @@ function autoRefineEquipped(ctx: TickContext) {
     }
     let rate = REFINE_BASE_RATE;
     if ((ctx.updatedPlayer.tianmingScrolls ?? 0) > 0) {
-      (ctx.updatedPlayer as any).tianmingScrolls--;
+      ctx.updatedPlayer.tianmingScrolls--;
       rate += REFINE_TIANMING_BONUS;
     }
     if (Math.random() * 100 < rate) {
