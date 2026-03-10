@@ -1317,3 +1317,12 @@
 - Build: 725KB precache
 - Commit: e8a8b43
 - CEO直接实现（最高效）
+
+## v197.0「仙途极速」完成（2026-03-09 17:00）
+- 连杀加速：30+连杀→战斗速度×1.5，100+连杀→×2.0（useGameLoop.ts）
+- 连杀保护：天劫失败保留50%连杀（tickBattle.ts）
+- 战斗页连杀加速指示器
+- Build: 485KB/153KB gzip, 726KB precache
+- Commit: ab3a534
+- CEO直接实现（最高效）
+- 已下达：CPO全面QA审计（v35以来首次） + CTO代码清理（as any消除）
