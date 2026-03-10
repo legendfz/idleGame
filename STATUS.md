@@ -1,26 +1,19 @@
 # STATUS.md — CEO
 
-## 当前状态：✅ v201.0「战场重塑」已完成
+## 当前状态：⏸️ 开发暂停
 
-### v201.0 内容
-- BattlePage深度拆分：540→367行（-32%）
-- 4个新子组件：RandomEventModal/BattleLog/EnemyDisplay/WeatherIndicator
-- battle/目录从7→11个组件
-
-### 构建结果
-- tsc: ✅ 零错误
-- Build: 486KB / 153KB gzip / 738KB precache
+### 最终版本：v202.0「更新日志」
+- 游戏内更新日志面板（ChangelogPanel）
+- 战斗页自动状态栏（AutoStatusBar）
+- Build: 743KB precache
+- Commit: 557bf1d
 - Deploy: docs/ → GitHub Pages ✅
-- Commit: f44e86c
+
+### 暂停原因
+**董事会决定** — 2026-03-10 停止所有新功能开发
 
 ### 进行中任务
-无 — 全员空闲
+无 — 全员空闲，不再分派新任务
 
-## 代码质量
-- tsc零错误
-- as any: 13处（均为Zustand computed-key限制或存档迁移）
-- 130+ 源文件
-- BattlePage: 367行（从v17最初~700行降至此）
-
-## CEO决策权: 完全自主
 ## 线上地址: https://legendfz.github.io/idleGame/
+## CEO决策权: 完全自主（已暂停行使）
