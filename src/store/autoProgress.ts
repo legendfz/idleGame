@@ -2,7 +2,8 @@
  * v189.0 — Auto-progress actions (farm/sweep/breakthrough/reincarnate/transcend/explore/trial/ascension/weeklyBoss)
  * Extracted from tickAutoActions.ts
  */
-import { CHAPTERS, createEnemy, ABYSS_CHAPTER_ID } from '../data/chapters';
+import { CHAPTERS, CHAPTER_ENEMIES, createEnemy, ABYSS_CHAPTER_ID } from '../data/chapters';
+import { calcEffectiveStats } from './gameStore';
 import { REINC_MIN_REALM, REINC_MIN_LEVEL } from '../data/reincarnation';
 import { TRANSCEND_MIN_REINC } from '../data/transcendence';
 import { calcTrialRewards } from '../data/roguelikeTrial';
@@ -15,17 +16,50 @@ import type { TickContext } from './tickAutoActions';
 
 export { autoFarmPush, autoSweepChapters, autoBreakthrough, autoReincarnate, autoTranscend, autoExploreDungeons, autoQuickTrial, autoAscensionChallenge, autoWeeklyBoss };
 
+/** v201: Find best chapter by gold/min efficiency */
+function findBestFarmChapter(atk: number, level: number, highestChapter: number): { chId: number; name: string } | null {
+  let bestGoldPerMin = 0;
+  let bestChId = 0;
+  let bestName = '';
+  for (const ch of CHAPTERS) {
+    if (ch.id > highestChapter || ch.id >= ABYSS_CHAPTER_ID) continue;
+    const enemies = CHAPTER_ENEMIES[ch.id];
+    if (!enemies) continue;
+    const midStage = Math.ceil(ch.stages / 2);
+    const scale = (1 + (midStage - 1) * 0.15) * Math.pow(1.02, midStage - 1);
+    const avgHp = enemies.mobs.reduce((s, m) => s + m.baseHp, 0) / enemies.mobs.length * scale;
+    const avgDef = enemies.mobs.reduce((s, m) => s + m.baseDefense, 0) / enemies.mobs.length * scale;
+    const avgGold = enemies.mobs.reduce((s, m) => s + m.baseLingshi, 0) / enemies.mobs.length * scale;
+    const defReduction = avgDef / (avgDef + 100 + level * 5);
+    const dmgPerHit = Math.max(1, atk * (1 - defReduction));
+    const hitsToKill = Math.max(1, Math.ceil(avgHp / dmgPerHit));
+    const killsPerMin = 60 / hitsToKill;
+    const goldPerMin = killsPerMin * avgGold;
+    if (goldPerMin > bestGoldPerMin) {
+      bestGoldPerMin = goldPerMin;
+      bestChId = ch.id;
+      bestName = ch.name;
+    }
+  }
+  return bestChId > 0 ? { chId: bestChId, name: bestName } : null;
+}
+
 function autoFarmPush(ctx: TickContext) {
   if (!ctx.state.autoFarm || ctx.totalPlayTime % 30 !== 0 || ctx.totalPlayTime === 0) return;
   const curChapter = ctx.updatedBattle.chapterId;
+
+  // If stuck at highest chapter (enemy HP > 50%), find best efficiency chapter
   if (curChapter >= ctx.state.highestChapter && ctx.state.highestChapter > 1 && curChapter < ABYSS_CHAPTER_ID) {
     const curEnemy = ctx.updatedBattle.currentEnemy;
     if (curEnemy && curEnemy.hp > curEnemy.maxHp * 0.5) {
-      const farmChapter = ctx.state.highestChapter - 1;
+      // v201: Smart farm — find highest gold/min chapter instead of just highest-1
+      const stats = calcEffectiveStats(ctx.updatedPlayer.stats, ctx.state.equippedWeapon, ctx.state.equippedArmor, ctx.state.equippedTreasure);
+      const best = findBestFarmChapter(stats.attack, ctx.updatedPlayer.level, ctx.state.highestChapter);
+      const farmChapter = best?.chId ?? (ctx.state.highestChapter - 1);
       const farmCh = CHAPTERS.find(c => c.id === farmChapter);
       if (farmCh) {
         const farmEnemy = createEnemy(farmChapter, 1, false)!;
-        ctx.log = ctx.addLog(ctx.log, `🧭 自动回退至「${farmCh.name}」高效刷怪`, 'info');
+        ctx.log = ctx.addLog(ctx.log, `🧭 智能挂机→「${farmCh.name}」(最优效率)`, 'info');
         ctx.updatedBattle = { ...ctx.updatedBattle, chapterId: farmChapter, stageNum: 1, wave: 1, isBossWave: false, currentEnemy: farmEnemy, log: ctx.log, tribulation: undefined };
       }
     }

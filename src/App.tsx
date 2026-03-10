@@ -31,7 +31,7 @@ const ShopPage = lazy(() => import('./pages/ShopSavePage').then(m => ({ default:
 const SaveManagerPage = lazy(() => import('./pages/ShopSavePage').then(m => ({ default: m.SaveManagerPage })));
 
 import { TopBar, OfflineReportModal, SubPageHeader, SubPage } from './pages/shared';
-import { BattleView } from './pages/BattlePage';
+import BattleView from './pages/BattlePage';
 const TeamPageLazy = lazy(() => import('./pages/TeamPage').then(m => ({ default: m.TeamView })));
 const CharacterDetailPageLazy = lazy(() => import('./pages/TeamPage').then(m => ({ default: m.CharacterDetailPage })));
 const JourneyViewLazy = lazy(() => import('./pages/JourneyPage').then(m => ({ default: m.JourneyView })));

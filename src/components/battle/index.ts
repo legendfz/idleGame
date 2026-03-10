@@ -5,3 +5,7 @@ export { ConsumableBar } from './ConsumableBar';
 export { OnlineRewardsBar } from './OnlineRewardsBar';
 export { AbyssMilestoneBar } from './AbyssMilestoneBar';
 export { QuickActions } from './QuickActions';
+export { RandomEventModal } from './RandomEventModal';
+export { BattleLog } from './BattleLog';
+export { EnemyDisplay } from './EnemyDisplay';
+export { WeatherIndicator } from './WeatherIndicator';

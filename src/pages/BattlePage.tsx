@@ -1,23 +1,23 @@
-import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { useDailyStore } from '../store/dailyStore';
 import { formatNumber, expForLevel, formatTime } from '../utils/format';
 import { REALMS } from '../data/realms';
-import { getRandomEvent, resolveChoice, type RandomEvent, type EventChoice } from '../data/randomEvents';
 import { CHAPTERS, ABYSS_CHAPTER_ID } from '../data/chapters';
 import { TITLES } from '../data/titles';
-import { Card, FloatingDamage, BossToast } from './shared';
+import { Card } from './shared';
 import { StatBreakdownModal } from '../components/StatBreakdown';
 import { useAutoWorldBoss } from '../components/WorldBossPanel';
 import { WorldBossBanner, WorldBossModal } from '../components/WorldBossPanel';
-import { SmartHints, PinnedAchievementTracker, SkillBar, ConsumableBar, OnlineRewardsBar, AbyssMilestoneBar, QuickActions } from '../components/battle';
+import {
+  SmartHints, PinnedAchievementTracker, SkillBar, ConsumableBar,
+  OnlineRewardsBar, AbyssMilestoneBar, QuickActions,
+  RandomEventModal, BattleLog, EnemyDisplay, WeatherIndicator,
+} from '../components/battle';
 import { ACHIEVEMENTS } from '../data/achievements';
 import { useAchievementStore } from '../store/achievementStore';
-import { getEnemyElement, getElementMultiplier, ELEMENTS, ElementType } from '../data/elements';
-import { getCurrentWeather, getWeatherTimeLeft } from '../data/weather';
 
 const SPEED_OPTIONS = [1, 2, 5, 10, 20, 50, 100];
-type LogFilter = 'all' | 'drop' | 'levelup' | 'boss' | 'crit';
 
 const TIPS = [
   '💡 装备可强化至+15，+11以上有失败风险',
@@ -28,75 +28,35 @@ const TIPS = [
   '💡 每日签到可领取丰厚奖励',
   '💡 战斗速度可通过底部按钮切换',
   '💡 套装效果需要收集同系列装备激活',
-  '💡 仙缘赠礼可获得神通技能加成',
-  '💡 背包满时可快速分解低品质装备',
+  '💡 宝石镶嵌可大幅提升装备属性',
+  '💡 五行克制可增加30%伤害',
 ];
 
-export function BattleView() {
+export default function BattlePage() {
   useAutoWorldBoss();
   const battle = useGameStore(s => s.battle);
-  const clickAttack = useGameStore(s => s.clickAttack);
   const player = useGameStore(s => s.player);
   const getEffectiveStats = useGameStore(s => s.getEffectiveStats);
   const idleStats = useGameStore(s => s.idleStats);
   const battleSpeed = useGameStore(s => s.battleSpeed) || 1;
   const setBattleSpeed = useGameStore(s => s.setBattleSpeed);
-  const killStreak = useGameStore(s => s.battle.killStreak) || 0;
+  const killStreak = battle.killStreak || 0;
   const attemptBreakthrough = useGameStore(s => s.attemptBreakthrough);
-  const equippedWeapon = useGameStore(s => s.equippedWeapon);
   const equippedTitleId = useGameStore(s => s.equippedTitle);
   const equippedTitle = equippedTitleId ? TITLES.find(t => t.id === equippedTitleId) : null;
   const eStats = getEffectiveStats();
-  const enemy = battle.currentEnemy;
-  const hpPct = enemy ? Math.max(0, (enemy.hp / enemy.maxHp) * 100) : 0;
   const expPct = Math.min(100, (player.exp / expForLevel(player.level)) * 100);
-
   const chapter = CHAPTERS.find(c => c.id === battle.chapterId);
   const chapterProgress = chapter ? Math.min(100, (battle.stageNum / chapter.stages) * 100) : 0;
-  const isAbyss = battle.chapterId >= ABYSS_CHAPTER_ID;
-
-  const nextRealm = REALMS[player.realmIndex + 1];
+  const isAbyss = battle.chapterId === ABYSS_CHAPTER_ID;
+  const currentRealm = REALMS.filter(r => player.level >= r.levelReq).pop();
+  const nextRealm = REALMS.find(r => player.level < r.levelReq);
   const canBreakthrough = nextRealm && player.level >= nextRealm.levelReq && player.pantao >= nextRealm.pantaoReq;
-  const currentRealm = REALMS[player.realmIndex];
-
-  const [logFilter, setLogFilter] = useState<LogFilter>('all');
-  const filteredLog = battle.log.filter(e => {
-    if (logFilter === 'all') return true;
-    if (logFilter === 'drop') return e.type === 'drop';
-    if (logFilter === 'levelup') return e.type === 'levelup';
-    if (logFilter === 'boss') return e.type === 'boss';
-    if (logFilter === 'crit') return e.type === 'crit';
-    return true;
-  });
-  const visibleLog = filteredLog.slice(-10);
-
-  const availableSpeeds = useMemo(() => {
-    return SPEED_OPTIONS.filter(s => {
-      if (s <= 10) return true;
-      if (s === 20) return player.level >= 100;
-      if (s === 50) return player.level >= 300;
-      if (s === 100) return player.level >= 1000;
-      return true;
-    });
-  }, [player.level]);
-  const cycleSpeed = () => {
-    const idx = availableSpeeds.indexOf(battleSpeed);
-    setBattleSpeed(availableSpeeds[(idx + 1) % availableSpeeds.length]);
-  };
-
-  const tip = useMemo(() => TIPS[Math.floor(Math.random() * TIPS.length)], []);
-
-  const [showWorldBoss, setShowWorldBoss] = useState(false);
-  const [showBreakdown, setShowBreakdown] = useState(false);
-  const sessionMinutes = Math.floor(idleStats.sessionTime / 60);
-  const sessionStartRef = useRef({ gold: player.totalGoldEarned, kills: player.totalKills });
-  const sessionGold = player.totalGoldEarned - sessionStartRef.current.gold;
-  const sessionKills = player.totalKills - sessionStartRef.current.kills;
-  const onlineRewardsClaimed = useGameStore(s => s.onlineRewardsClaimed);
+  const highestPower = useGameStore(s => s.highestPower) || 0;
+  const onlineRewardsClaimed = useGameStore(s => s.onlineRewardsClaimed) || [];
   const claimOnlineReward = useGameStore(s => s.claimOnlineReward);
   const [rewardToast, setRewardToast] = useState<string | null>(null);
-  const highestPower = useGameStore(s => s.highestPower);
-  const fateBlessing = useGameStore(s => s.fateBlessing);
+  const fateBlessing = useGameStore(s => s.fateBlessing) || { active: false, expiresAt: 0 };
   const luckyMoment = useGameStore(s => s.luckyMoment);
   const activateFateBlessing = useGameStore(s => s.activateFateBlessing);
   const dailyCanSignIn = useDailyStore(s => s.canSignIn);
@@ -133,61 +93,33 @@ export function BattleView() {
     }
   }, [claimOnlineReward, dailySignIn, dailyCheckCanSignIn]);
 
+  const sessionMinutes = Math.floor(idleStats.sessionTime / 60);
   const hasUnclaimedRewards = useMemo(() => {
     const unclaimedMilestones = [10, 30, 60, 120, 240].some(m => sessionMinutes >= m && !onlineRewardsClaimed.includes(m));
     return unclaimedMilestones || dailyCanSignIn;
   }, [sessionMinutes, onlineRewardsClaimed, dailyCanSignIn]);
 
-  // Random events
-  const [activeEvent, setActiveEvent] = useState<RandomEvent | null>(null);
-  const [eventResult, setEventResult] = useState<{ success: boolean; rewards: Record<string, number>; message: string } | null>(null);
-  const lastEventKills = useRef(0);
-  const totalKills = player.totalKills;
+  const sessionStartRef = useRef({ gold: player.totalGoldEarned, kills: player.totalKills });
+  const sessionGold = player.totalGoldEarned - sessionStartRef.current.gold;
+  const sessionKills = player.totalKills - sessionStartRef.current.kills;
 
-  const activeStory = useGameStore(s => s.activeStory);
-  useEffect(() => {
-    if (totalKills > 0 && totalKills - lastEventKills.current >= 80 && !activeEvent && !activeStory) {
-      const evt = getRandomEvent(player.level);
-      if (evt) {
-        setActiveEvent(evt);
-        lastEventKills.current = totalKills;
-      }
-    }
-  }, [totalKills, player.level, activeEvent, activeStory]);
-
-  const handleEventChoice = useCallback((choice: EventChoice) => {
-    const result = resolveChoice(choice, player.level);
-    setEventResult(result);
-    const state = useGameStore.getState();
-    const p = { ...state.player };
-    if (result.rewards.lingshi) p.lingshi = Math.max(0, p.lingshi + result.rewards.lingshi);
-    if (result.rewards.exp) p.exp += result.rewards.exp;
-    if (result.rewards.pantao) p.pantao = Math.max(0, p.pantao + result.rewards.pantao);
-    if (result.rewards.shards) p.hongmengShards += result.rewards.shards;
-    if (result.rewards.scrolls) p.tianmingScrolls += result.rewards.scrolls;
-    if (result.rewards.daoPoints) p.daoPoints = (p.daoPoints ?? 0) + result.rewards.daoPoints;
-    useGameStore.setState({ player: p });
+  const availableSpeeds = useMemo(() => {
+    return SPEED_OPTIONS.filter(s => {
+      if (s <= 10) return true;
+      if (s === 20) return player.level >= 100;
+      if (s === 50) return player.level >= 300;
+      if (s === 100) return player.level >= 1000;
+      return true;
+    });
   }, [player.level]);
+  const cycleSpeed = () => {
+    const idx = availableSpeeds.indexOf(battleSpeed);
+    setBattleSpeed(availableSpeeds[(idx + 1) % availableSpeeds.length]);
+  };
 
-  const dismissEvent = useCallback(() => {
-    setActiveEvent(null);
-    setEventResult(null);
-  }, []);
-
-  // Auto-event
-  const autoEvent = useGameStore(s => s.autoEvent);
-  useEffect(() => {
-    if (autoEvent && activeEvent && !eventResult) {
-      const timer = setTimeout(() => handleEventChoice(activeEvent.choices[0]), 100);
-      return () => clearTimeout(timer);
-    }
-  }, [autoEvent, activeEvent, eventResult, handleEventChoice]);
-  useEffect(() => {
-    if (autoEvent && eventResult) {
-      const timer = setTimeout(dismissEvent, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [autoEvent, eventResult, dismissEvent]);
+  const tip = useMemo(() => TIPS[Math.floor(Math.random() * TIPS.length)], []);
+  const [showWorldBoss, setShowWorldBoss] = useState(false);
+  const [showBreakdown, setShowBreakdown] = useState(false);
 
   return (
     <div className="main-content fade-in">
@@ -195,44 +127,7 @@ export function BattleView() {
       {showWorldBoss && player.level >= 50 && <WorldBossModal onClose={() => setShowWorldBoss(false)} />}
       {showBreakdown && <StatBreakdownModal onClose={() => setShowBreakdown(false)} />}
 
-      {/* Random Event Modal */}
-      {activeEvent && (
-        <div className="event-modal-overlay" onClick={eventResult ? dismissEvent : undefined}>
-          <div className="event-modal" onClick={e => e.stopPropagation()}>
-            <div className="event-emoji">{activeEvent.emoji}</div>
-            <div className="event-title">{activeEvent.name}</div>
-            <div className="event-desc">{activeEvent.description}</div>
-            {!eventResult ? (
-              <div className="event-choices">
-                {activeEvent.choices.map((c, i) => (
-                  <button key={i} className="event-choice-btn" onClick={() => handleEventChoice(c)}>
-                    <span className="event-choice-label">{c.label}</span>
-                    <span className="event-choice-desc">{c.description}</span>
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <div className="event-result">
-                <div className={`event-result-msg ${eventResult.success ? 'success' : 'fail'}`}>
-                  {eventResult.success ? '✅' : '❌'} {eventResult.message}
-                </div>
-                {Object.entries(eventResult.rewards).filter(([,v]) => v !== 0).length > 0 && (
-                  <div className="event-rewards">
-                    {Object.entries(eventResult.rewards).filter(([,v]) => v !== 0).map(([k, v]) => (
-                      <span key={k} className={`event-reward-tag ${v > 0 ? 'gain' : 'loss'}`}>
-                        {k === 'lingshi' ? '💰' : k === 'exp' ? '📖' : k === 'pantao' ? '🍑' : k === 'shards' ? '💎' : k === 'scrolls' ? '📜' : '🎁'}
-                        {v > 0 ? '+' : ''}{formatNumber(v)}
-                      </span>
-                    ))}
-                  </div>
-                )}
-                <button className="event-dismiss-btn" onClick={dismissEvent}>继续冒险</button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
+      <RandomEventModal />
       <SmartHints />
       <PinnedAchievementTracker />
 
@@ -276,49 +171,7 @@ export function BattleView() {
 
       {isAbyss && <AbyssMilestoneBar />}
 
-      {/* Enemy display */}
-      {enemy && (
-        <Card className={`enemy-section${battle.isBossWave ? ' boss-active' : ''}${enemy.elite ? ' elite-active' : ''}`} style={{ textAlign: 'center', padding: '8px 12px' }}>
-          <div className={`enemy-emoji${battle.isBossWave ? ' boss-glow' : ''}${enemy.elite ? ' elite-glow' : ''}`}>
-            {enemy.emoji || '👾'}
-          </div>
-          <div className="enemy-name">
-            {battle.isBossWave && <span className="color-boss">⚠ </span>}
-            {enemy.elite && <span style={{ color: enemy.elite.color, fontWeight: 700 }}>⚡ </span>}
-            <span style={enemy.elite ? { color: enemy.elite.color } : undefined}>{enemy.name}</span>
-            {(() => {
-              const eElem = getEnemyElement(battle.chapterId, enemy.name);
-              const eInfo = ELEMENTS[eElem];
-              const pElem = equippedWeapon?.element as ElementType | undefined;
-              const mul = getElementMultiplier(pElem, eElem);
-              const mulLabel = mul > 1 ? ' 克制!' : mul < 1 ? ' 被克' : '';
-              const mulColor = mul > 1 ? '#22c55e' : mul < 1 ? '#ef4444' : eInfo.color;
-              return <span style={{ marginLeft: 4, color: mulColor, fontSize: 11 }}>{eInfo.emoji}{eInfo.name}{mulLabel}</span>;
-            })()}
-          </div>
-          <div className="hp-bar-bg" style={{ marginTop: 6 }}>
-            <div className={`hp-bar-fill${battle.isBossWave ? ' boss' : ''} ${hpPct > 60 ? 'hp-high' : hpPct > 25 ? 'hp-mid' : 'hp-low'}${hpPct < 25 ? ' low' : ''}`} style={{ width: `${hpPct}%` }} />
-            <div className="hp-bar-text">{formatNumber(enemy.hp)} / {formatNumber(enemy.maxHp)}</div>
-          </div>
-          <div className="enemy-sub-stats">
-            防御 {formatNumber(enemy.defense)} · 经验 {formatNumber(enemy.expDrop)} · 灵石 {formatNumber(enemy.lingshiDrop)}
-            {(() => {
-              const ratio = eStats.attack > 0 ? enemy.maxHp / eStats.attack : 999;
-              const diff = ratio > 50 ? { label: '🔴极难', color: '#ef4444' } : ratio > 20 ? { label: '🟠困难', color: '#f59e0b' } : ratio > 5 ? { label: '🟡普通', color: '#eab308' } : { label: '🟢轻松', color: '#22c55e' };
-              return <span style={{ marginLeft: 6, color: diff.color, fontWeight: 600, fontSize: 10 }}>{diff.label}</span>;
-            })()}
-          </div>
-          <FloatingDamage />
-        </Card>
-      )}
-
-      {/* Click attack area */}
-      <div className="click-area" onClick={clickAttack}>
-        <div className="wukong-icon">🐵</div>
-        <div className="wukong-name">悟空</div>
-        <div className="wukong-hint">点击攻击 · 攻击力 {formatNumber(player.clickPower)}</div>
-      </div>
-
+      <EnemyDisplay />
       <SkillBar />
       <ConsumableBar />
       <QuickActions />
@@ -358,16 +211,7 @@ export function BattleView() {
         </div>
       </Card>
 
-      {/* Weather indicator */}
-      {(() => { const w = getCurrentWeather(); const tl = getWeatherTimeLeft(); return (
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, fontSize:11, padding:'2px 0', color: w.color }}>
-          <span>{w.emoji} {w.name}</span>
-          <span style={{ fontSize:9, color:'#888' }}>({Object.entries(w.buffs).map(([k,v]) => {
-            const names: Record<string,string> = {atkMul:'攻击',hpMul:'生命',expMul:'经验',goldMul:'灵石',dropMul:'掉率',critRate:'暴击'};
-            return `${names[k]??k}+${Math.round((v as number)*100)}%`;
-          }).join(' ')} · {tl}m)</span>
-        </div>
-      );})()}
+      <WeatherIndicator />
 
       {/* Idle stats */}
       <Card className="idle-stats-card">
@@ -389,7 +233,6 @@ export function BattleView() {
               <>{'  '}<span style={{color:'#34d399',fontSize:10}}>⏳ 升级 {secsToLevel < 60 ? `${secsToLevel}s` : secsToLevel < 3600 ? `${Math.floor(secsToLevel/60)}m${secsToLevel%60>0?`${secsToLevel%60}s`:''}` : `${Math.floor(secsToLevel/3600)}h${Math.floor((secsToLevel%3600)/60)}m`}</span></>
             ) : null;
           })()}
-          {/* Breakthrough ETA */}
           {idleStats.expPerSec > 0 && nextRealm && !canBreakthrough && (() => {
             let totalExpNeeded = 0;
             for (let lv = player.level; lv < nextRealm.levelReq; lv++) {
@@ -402,7 +245,6 @@ export function BattleView() {
             ) : null;
           })()}
         </div>
-        {/* Session earnings + offline estimate */}
         {sessionKills > 0 && (
           <div style={{ display: 'flex', gap: 8, justifyContent: 'center', fontSize: 10, color: '#888', marginTop: 2, flexWrap: 'wrap' }}>
             <span>本次：</span>
@@ -414,7 +256,6 @@ export function BattleView() {
             <span style={{ color: '#34d399' }}>🏆{Object.values(useAchievementStore.getState().states).filter(s => s?.completed).length}/{ACHIEVEMENTS.length}</span>
           </div>
         )}
-        {/* v139.0: Offline earnings estimate */}
         {idleStats.goldPerSec > 0 && idleStats.sessionTime > 30 && (
           <OfflineEstimate goldPerSec={idleStats.goldPerSec} expPerSec={idleStats.expPerSec} />
         )}
@@ -447,19 +288,7 @@ export function BattleView() {
         </div>
       )}
 
-      {/* Battle log */}
-      <Card className="battle-log-card">
-        <div className="log-filter-tabs">
-          {([['all','全部'],['drop','掉落'],['levelup','升级'],['crit','暴击'],['boss','Boss']] as const).map(([k,l]) => (
-            <button key={k} className={`log-filter-btn${logFilter===k?' active':''}`} onClick={()=>setLogFilter(k as LogFilter)}>{l}</button>
-          ))}
-        </div>
-        <div className="battle-log">
-          {visibleLog.map(entry => (
-            <div key={entry.id} className={`log-${entry.type}`}>{entry.text}</div>
-          ))}
-        </div>
-      </Card>
+      <BattleLog />
 
       {/* One-click collect */}
       {hasUnclaimedRewards && (
@@ -496,12 +325,11 @@ export function BattleView() {
           animation: 'dropIn 0.3s ease-out',
         }}>{rewardToast}</div>
       )}
-      <BossToast />
     </div>
   );
 }
 
-/** v139.0: Show estimated offline earnings for 1h/4h/8h */
+/** Offline earnings estimate */
 function OfflineEstimate({ goldPerSec, expPerSec }: { goldPerSec: number; expPerSec: number }) {
   const [show, setShow] = useState(false);
   if (!show) {
@@ -518,7 +346,6 @@ function OfflineEstimate({ goldPerSec, expPerSec }: { goldPerSec: number; expPer
     { label: '4小时', secs: 14400 },
     { label: '8小时', secs: 28800 },
   ];
-  // Offline efficiency is typically 50% of online
   const offlineRate = 0.5;
   return (
     <div style={{ marginTop: 4, padding: '4px 8px', background: 'rgba(59,130,246,0.08)', borderRadius: 6, border: '1px solid rgba(59,130,246,0.15)' }}>
