@@ -12,7 +12,7 @@ import { WorldBossBanner, WorldBossModal } from '../components/WorldBossPanel';
 import {
   SmartHints, PinnedAchievementTracker, SkillBar, ConsumableBar,
   OnlineRewardsBar, AbyssMilestoneBar, QuickActions,
-  RandomEventModal, BattleLog, EnemyDisplay, WeatherIndicator,
+  RandomEventModal, BattleLog, EnemyDisplay, WeatherIndicator, AutoStatusBar,
 } from '../components/battle';
 import { ACHIEVEMENTS } from '../data/achievements';
 import { useAchievementStore } from '../store/achievementStore';
@@ -260,6 +260,11 @@ export default function BattlePage() {
           <OfflineEstimate goldPerSec={idleStats.goldPerSec} expPerSec={idleStats.expPerSec} />
         )}
       </Card>
+
+      {/* Auto status */}
+      <div style={{ display: 'flex', justifyContent: 'center', padding: '2px 0' }}>
+        <AutoStatusBar />
+      </div>
 
       {/* Fate Blessing */}
       <div style={{ display: 'flex', gap: 6, alignItems: 'center', justifyContent: 'center', padding: '2px 0' }}>

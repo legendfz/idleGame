@@ -9,6 +9,7 @@ import { useDailyStore } from '../store/dailyStore';
 import { DailyChallengePanel } from '../components/DailyChallengePanel';
 import { getReferralUrl } from '../data/referral';
 import { AutoActionsPanel, useAllAutoOn, toggleAllAuto } from '../components/AutoActionsPanel';
+import { ChangelogPanel } from '../components/ChangelogPanel';
 const ShareCard = lazy(() => import('../components/ShareCard').then(m => ({ default: m.ShareCard })));
 const SeasonPassPanel = lazy(() => import('../components/SeasonPassPanel').then(m => ({ default: m.SeasonPassPanel })));
 
@@ -28,6 +29,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
   const [showShare, setShowShare] = useState(false);
   const [showSeason, setShowSeason] = useState(false);
   const [showAutoDetails, setShowAutoDetails] = useState(false);
+  const [showChangelog, setShowChangelog] = useState(false);
 
   const toggleAnim = () => {
     const next = !animEnabled;
@@ -309,9 +311,11 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
 
       {/* About */}
       <Card title="关于">
-        <div className="stat-row"><span className="stat-label">版本</span><span>v201.0</span></div>
+        <div className="stat-row"><span className="stat-label">版本</span><span>v202.0</span></div>
         <div className="stat-row"><span className="stat-label">引擎</span><span>React + Zustand + Vite</span></div>
+        <button className="action-btn" style={{ width: '100%', marginTop: 6, background: 'rgba(192,132,252,0.15)', border: '1px solid rgba(192,132,252,0.3)', color: '#c084fc' }} onClick={() => setShowChangelog(true)}>📜 更新日志</button>
       </Card>
+      {showChangelog && <ChangelogPanel onClose={() => setShowChangelog(false)} />}
 
       <FeedbackForm />
     </div>

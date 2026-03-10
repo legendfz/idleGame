@@ -9,3 +9,4 @@ export { RandomEventModal } from './RandomEventModal';
 export { BattleLog } from './BattleLog';
 export { EnemyDisplay } from './EnemyDisplay';
 export { WeatherIndicator } from './WeatherIndicator';
+export { AutoStatusBar } from './AutoStatusBar';
