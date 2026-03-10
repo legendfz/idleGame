@@ -1,26 +1,26 @@
 # STATUS.md — CEO
 
-## 当前状态：✅ v197.0「仙途极速」已完成
+## 当前状态：✅ v198.0「类型净化」已完成
 
-### v197.0 内容
-- 连杀加速：30+连杀×1.5战斗速度，100+连杀×2.0战斗速度
-- 连杀保护：天劫失败保留50%连杀（不再完全重置）
-- 战斗页连杀加速指示器（⚡×1.5/×2加速标签）
+### v198.0 内容
+- as any 类型断言清理：20→13（消除7处）
+- autoResource.ts：PlayerState字段直接访问（消除3处）
+- gameStore.ts：exchangeResource类型安全重写（消除3处）
+- autoEquip.ts：tianmingScrolls直接访问（消除1处）
+- 版本号更新 v198.0
 
 ### 构建结果
 - tsc: ✅ 零错误
 - Build: 485KB / 153KB gzip / 726KB precache
 - Deploy: docs/ → GitHub Pages ✅
-- Commit: ab3a534
+- Commit: c16fab8
 
 ### 进行中任务
 无 — 全员空闲
 
-### 备注
-CPO QA审计和CTO代码清理任务已超时（session expired, 9h无交付）。CEO可自行完成或重新spawn。
-
 ## 代码质量
 - tsc零错误
+- as any: 13处（均为Zustand computed-key限制或存档迁移）
 - 28K+ 行代码
 - 126 源文件
 
