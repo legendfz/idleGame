@@ -8,6 +8,7 @@ import { getSfxEnabled, setSfxEnabled, getSfxVolume, setSfxVolume, sfx } from '.
 import { useDailyStore } from '../store/dailyStore';
 import { DailyChallengePanel } from '../components/DailyChallengePanel';
 import { getReferralUrl } from '../data/referral';
+import { AutoActionsPanel, useAllAutoOn, toggleAllAuto } from '../components/AutoActionsPanel';
 const ShareCard = lazy(() => import('../components/ShareCard').then(m => ({ default: m.ShareCard })));
 const SeasonPassPanel = lazy(() => import('../components/SeasonPassPanel').then(m => ({ default: m.SeasonPassPanel })));
 
@@ -26,57 +27,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
   const [showStats, setShowStats] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showSeason, setShowSeason] = useState(false);
-  const autoDecomp = useGameStore(s => s.autoDecomposeQuality) ?? 0;
-  const setAutoDecomp = useGameStore(s => s.setAutoDecomposeQuality);
-  const autoEquip = useGameStore(s => s.autoEquipOnDrop);
-  const setAutoEquip = useGameStore(s => s.setAutoEquipOnDrop);
-  const autoSkill = useGameStore(s => s.autoSkill);
-  const setAutoSkill = useGameStore(s => s.setAutoSkill);
-  const autoConsume = useGameStore(s => s.autoConsume);
-  const setAutoConsume = useGameStore(s => s.setAutoConsume);
-  const autoWorldBoss = useGameStore(s => s.autoWorldBoss);
-  const autoExplore = useGameStore(s => s.autoExplore);
-  const autoSanctuary = useGameStore(s => s.autoSanctuary);
-  const autoAffinity = useGameStore(s => s.autoAffinity);
-  const setAutoWorldBoss = useGameStore(s => s.setAutoWorldBoss);
-  const setAutoExplore = useGameStore(s => s.setAutoExplore);
-  const setAutoSanctuary = useGameStore(s => s.setAutoSanctuary);
-  const setAutoAffinity = useGameStore(s => s.setAutoAffinity);
-  const autoSweep = useGameStore(s => s.autoSweep);
-  const setAutoSweep = useGameStore(s => s.setAutoSweep);
-  const autoFate = useGameStore(s => s.autoFate);
-  const setAutoFate = useGameStore(s => s.setAutoFate);
-  const autoWheel = useGameStore(s => s.autoWheel);
-  const setAutoWheel = useGameStore(s => s.setAutoWheel);
-  const autoTrial = useGameStore(s => s.autoTrial);
-  const setAutoTrial = useGameStore(s => s.setAutoTrial);
-  const autoAscension = useGameStore(s => s.autoAscension);
-  const setAutoAscension = useGameStore(s => s.setAutoAscension);
-  const autoEnhance = useGameStore(s => s.autoEnhance);
-  const setAutoEnhance = useGameStore(s => s.setAutoEnhance);
-  const autoReforge = useGameStore(s => s.autoReforge);
-  const setAutoReforge = useGameStore(s => s.setAutoReforge);
-  const autoRefine = useGameStore(s => s.autoRefine);
-  const setAutoRefine = useGameStore(s => s.setAutoRefine);
-  const autoFeedPet = useGameStore(s => s.autoFeedPet);
-  const setAutoFeedPet = useGameStore(s => s.setAutoFeedPet);
-  const autoBuyPerks = useGameStore(s => s.autoBuyPerks);
-  const setAutoBuyPerks = useGameStore(s => s.setAutoBuyPerks);
-  const autoSynth = useGameStore(s => s.autoSynth);
-  const setAutoSynth = useGameStore(s => s.setAutoSynth);
-  const autoReincarnate = useGameStore(s => s.autoReincarnate);
-  const autoDaoAlloc = useGameStore(s => s.autoDaoAlloc) ?? false;
-  const autoFarm = useGameStore(s => s.autoFarm) ?? false;
-  const autoEvent = useGameStore(s => s.autoEvent) ?? false;
-  const autoWeeklyBoss = useGameStore(s => s.autoWeeklyBoss) ?? false;
-  const autoClaimChallenges = useGameStore(s => s.autoClaimChallenges) ?? false;
-  const autoTranscend = useGameStore(s => s.autoTranscend) ?? false;
-  const autoBuyScrolls = useGameStore(s => s.autoBuyScrolls) ?? false;
-  const autoAwaken = useGameStore(s => s.autoAwaken) ?? false;
-  const autoBuyTranscendPerks = useGameStore(s => s.autoBuyTranscendPerks) ?? false;
-  const setAutoReincarnate = useGameStore(s => s.setAutoReincarnate);
   const [showAutoDetails, setShowAutoDetails] = useState(false);
-  const DECOMP_LABELS = ['关闭', '凡品', '灵品以下', '仙品以下'];
 
   const toggleAnim = () => {
     const next = !animEnabled;
@@ -110,6 +61,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
   };
 
   const dailyCanSignIn = useDailyStore(s => s.canSignIn);
+  const allOn = useAllAutoOn();
 
   return (
     <div className="main-content fade-in">
@@ -195,31 +147,15 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
       </Card>
 
       {/* Master Auto Toggle */}
-      {(() => {
-        const allOn = autoDecomp >= 2 && autoEquip && autoSkill && autoConsume && autoWorldBoss && autoExplore && autoSanctuary && autoAffinity && autoSweep && autoFate && autoWheel && autoTrial && autoAscension && autoEnhance && autoReforge && autoFeedPet && autoBuyPerks && autoSynth && autoReincarnate && autoDaoAlloc && autoFarm && autoTranscend && autoBuyTranscendPerks && autoEvent && autoWeeklyBoss && autoClaimChallenges && autoBuyScrolls && autoAwaken && autoRefine;
-        return (<Card>
+      <Card>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
-          onClick={() => {
-            if (allOn) {
-              setAutoDecomp(0); setAutoEquip(false); setAutoSkill(false); setAutoConsume(false);
-              setAutoWorldBoss(false); setAutoExplore(false); setAutoSanctuary(false); setAutoAffinity(false);
-              setAutoSweep(false); setAutoFate(false); setAutoWheel(false); setAutoTrial(false); setAutoAscension(false); setAutoEnhance(false); setAutoReforge(false); setAutoBuyPerks(false); setAutoSynth(false); useGameStore.getState().setAutoDaoAlloc(false); useGameStore.getState().setAutoFarm(false); useGameStore.getState().setAutoTranscend(false); useGameStore.getState().setAutoBuyTranscendPerks(false); useGameStore.getState().setAutoEvent(false); useGameStore.getState().setAutoWeeklyBoss(false); useGameStore.getState().setAutoClaimChallenges(false); useGameStore.getState().setAutoBuyScrolls(false); useGameStore.getState().setAutoAwaken(false); setAutoRefine(false);
-            } else {
-              setAutoDecomp(2); setAutoEquip(true); setAutoSkill(true); setAutoConsume(true);
-              setAutoWorldBoss(true); setAutoExplore(true); setAutoSanctuary(true); setAutoAffinity(true);
-              setAutoSweep(true); setAutoFate(true); setAutoWheel(true); setAutoTrial(true); setAutoAscension(true); setAutoEnhance(true); setAutoReforge(true); setAutoFeedPet(true); setAutoBuyPerks(true); setAutoSynth(true); setAutoReincarnate(true); useGameStore.getState().setAutoDaoAlloc(true); useGameStore.getState().setAutoFarm(true); useGameStore.getState().setAutoTranscend(true); useGameStore.getState().setAutoBuyTranscendPerks(true); useGameStore.getState().setAutoEvent(true); useGameStore.getState().setAutoWeeklyBoss(true); useGameStore.getState().setAutoClaimChallenges(true); useGameStore.getState().setAutoBuyScrolls(true); useGameStore.getState().setAutoAwaken(true); setAutoRefine(true);
-            }
-          }}>
+          onClick={() => toggleAllAuto(!allOn)}>
           <span style={{ fontWeight: 700, fontSize: 15 }}>🤖 一键全自动</span>
-          <span style={{
-            color: allOn ? '#ffd700' : 'var(--dim)',
-            fontWeight: 600
-          }}>
+          <span style={{ color: allOn ? '#ffd700' : 'var(--dim)', fontWeight: 600 }}>
             {allOn ? '✅ 全部开启' : '点击全开'}
           </span>
         </div>
-      </Card>);
-      })()}
+      </Card>
 
       {/* Preferences */}
       <Card title="⚙️ 基础设置">
@@ -262,57 +198,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
             <span style={{ fontSize: 12, color: 'var(--dim)' }}>{showAutoDetails ? '▲' : '▼'}</span>
           </div>
         </div>
-        {showAutoDetails && (<>
-          {/* ⚔️ 战斗组 */}
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#ef4444', margin: '8px 0 4px', borderTop: '1px solid var(--border)', paddingTop: 8 }}>⚔️ 战斗</div>
-          <AutoRow label="自动释放技能" on={autoSkill} toggle={() => setAutoSkill(!autoSkill)} />
-          <AutoRow label="自动使用丹药" on={autoConsume} toggle={() => setAutoConsume(!autoConsume)} />
-          <AutoRow label="自动挑战世界Boss" on={autoWorldBoss} toggle={() => setAutoWorldBoss(!autoWorldBoss)} />
-          <AutoRow label="自动回退/推进刷怪" on={autoFarm} toggle={() => useGameStore.getState().setAutoFarm(!autoFarm)} />
-          <AutoRow label="自动处理随机事件" on={autoEvent} toggle={() => useGameStore.getState().setAutoEvent(!autoEvent)} />
-          <AutoRow label="自动每周Boss" on={autoWeeklyBoss} toggle={() => useGameStore.getState().setAutoWeeklyBoss(!autoWeeklyBoss)} />
-          <AutoRow label="自动领取每日挑战" on={autoClaimChallenges} toggle={() => useGameStore.getState().setAutoClaimChallenges(!autoClaimChallenges)} />
-
-          {/* 🎒 装备组 */}
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#8b5cf6', margin: '12px 0 4px', borderTop: '1px solid var(--border)', paddingTop: 8 }}>🎒 装备</div>
-          <div className="stat-row" style={{ cursor: 'pointer' }} onClick={() => setAutoDecomp((autoDecomp + 1) % 4)}>
-            <span className="stat-label" style={{ fontSize: 13 }}>自动分解</span>
-            <span style={{ color: autoDecomp > 0 ? 'var(--accent)' : 'var(--dim)', fontSize: 13 }}>{DECOMP_LABELS[autoDecomp]}</span>
-          </div>
-          <AutoRow label="掉落自动装备" on={autoEquip} toggle={() => setAutoEquip(!autoEquip)} />
-          <AutoRow label="自动强化已装备(+1~+10)" on={autoEnhance} toggle={() => setAutoEnhance(!autoEnhance)} />
-          <AutoRow label="自动洗炼(只接受提升)" on={autoReforge} toggle={() => setAutoReforge(!autoReforge)} />
-          <AutoRow label="自动精炼(混沌→鸿蒙)" on={autoRefine} toggle={() => setAutoRefine(!autoRefine)} />
-          <AutoRow label="自动合成装备(低→高)" on={autoSynth} toggle={() => setAutoSynth(!autoSynth)} />
-
-          {/* 🌍 探索组 */}
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#10b981', margin: '12px 0 4px', borderTop: '1px solid var(--border)', paddingTop: 8 }}>🌍 探索</div>
-          <AutoRow label="自动秘境探索" on={autoExplore} toggle={() => setAutoExplore(!autoExplore)} />
-          <AutoRow label="自动洞天升级" on={autoSanctuary} toggle={() => setAutoSanctuary(!autoSanctuary)} />
-          <AutoRow label="自动仙缘赠礼" on={autoAffinity} toggle={() => setAutoAffinity(!autoAffinity)} />
-          <AutoRow label="自动喂养灵兽" on={autoFeedPet} toggle={() => setAutoFeedPet(!autoFeedPet)} />
-          <AutoRow label="自动扫荡(60秒)" on={autoSweep} toggle={() => setAutoSweep(!autoSweep)} />
-
-          {/* 💰 经济组 */}
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#f59e0b', margin: '12px 0 4px', borderTop: '1px solid var(--border)', paddingTop: 8 }}>💰 经济</div>
-          <AutoRow label="自动天命符(双倍)" on={autoFate} toggle={() => setAutoFate(!autoFate)} />
-          <AutoRow label="自动转盘(每小时)" on={autoWheel} toggle={() => setAutoWheel(!autoWheel)} />
-          <AutoRow label="自动购买道点加成" on={autoBuyPerks} toggle={() => setAutoBuyPerks(!autoBuyPerks)} />
-
-          {/* 🏆 挑战组 */}
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#ec4899', margin: '12px 0 4px', borderTop: '1px solid var(--border)', paddingTop: 8 }}>🏆 挑战</div>
-          <AutoRow label="自动试炼(每5分钟)" on={autoTrial} toggle={() => setAutoTrial(!autoTrial)} />
-          <AutoRow label="自动天道考验(每日)" on={autoAscension} toggle={() => setAutoAscension(!autoAscension)} />
-
-          {/* 🔄 轮回组 */}
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#6366f1', margin: '12px 0 4px', borderTop: '1px solid var(--border)', paddingTop: 8 }}>🔄 轮回</div>
-          <AutoRow label="自动转世(大乘境界)" on={autoReincarnate} toggle={() => setAutoReincarnate(!autoReincarnate)} />
-          <AutoRow label="自动分配道点" on={autoDaoAlloc} toggle={() => useGameStore.getState().setAutoDaoAlloc(!autoDaoAlloc)} />
-          <AutoRow label="自动购买卷轴" on={autoBuyScrolls} toggle={() => useGameStore.getState().setAutoBuyScrolls(!autoBuyScrolls)} />
-          <AutoRow label="自动觉醒分配" on={autoAwaken} toggle={() => useGameStore.getState().setAutoAwaken(!autoAwaken)} />
-          <AutoRow label="自动超越(10次转世)" on={autoTranscend} toggle={() => useGameStore.getState().setAutoTranscend(!autoTranscend)} />
-          <AutoRow label="自动购买超越加成" on={autoBuyTranscendPerks} toggle={() => useGameStore.getState().setAutoBuyTranscendPerks(!autoBuyTranscendPerks)} />
-        </>)}
+        <AutoActionsPanel showDetails={showAutoDetails} />
       </Card>
 
       {/* v117.0: Player Card */}
@@ -423,7 +309,7 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
 
       {/* About */}
       <Card title="关于">
-        <div className="stat-row"><span className="stat-label">版本</span><span>v198.0</span></div>
+        <div className="stat-row"><span className="stat-label">版本</span><span>v199.0</span></div>
         <div className="stat-row"><span className="stat-label">引擎</span><span>React + Zustand + Vite</span></div>
       </Card>
 
@@ -431,14 +317,3 @@ export function SettingsView({ setSubPage }: { setSubPage: (p: SubPage) => void 
     </div>
   );
 }
-
-function AutoRow({ label, on, toggle }: { label: string; on: boolean; toggle: () => void }) {
-  return (
-    <div className="stat-row" style={{ cursor: 'pointer', padding: '3px 0' }} onClick={toggle}>
-      <span className="stat-label" style={{ fontSize: 13 }}>{label}</span>
-      <span style={{ color: on ? 'var(--accent)' : 'var(--dim)', fontSize: 13 }}>{on ? '✅' : '关闭'}</span>
-    </div>
-  );
-}
-
-// Offline Report (duplicate removed, using shared.tsx version)
